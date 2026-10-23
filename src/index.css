@@ -1,0 +1,155 @@
+@import "tailwindcss";
+
+@theme {
+  /* Clyse brand palette — extracted from Figma */
+  --color-clyse: #048b0b;
+  --color-clyse-deep: #007d08;
+  --color-ink: #001701;
+  --color-mint: #f1f8f2;
+  --color-smoke: #6b6b6b;
+  --color-ash: #4e4e4e;
+  --color-muted: #999999;
+  --color-line: #bababa;
+  --color-clyse-red: #ff383c;
+  --color-brick: #ad2e1c;
+  --color-glow: #8ffb94;
+  --color-mist: #e0f8e1;
+
+  --font-sans: "Montserrat", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Montserrat Alternates", "Montserrat", ui-sans-serif, sans-serif;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: var(--font-sans);
+  background: #ffffff;
+  color: var(--color-ink);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Signature dark-green gradient (buttons, panels, circles) — pixel-verified stack:
+   Figma paints first-listed fill at BOTTOM: black .10 veil over radial glow over
+   vertical linear (#001701 → #002502). Panel row y=230 samples #011B02/#012902/#023D04. */
+.bg-deep {
+  background:
+    linear-gradient(rgba(0, 15, 1, 0.1), rgba(0, 15, 1, 0.1)),
+    radial-gradient(
+      118.8% 118.8% at 104.4% -18%,
+      rgba(0, 255, 16, 0.2) 16.3%,
+      rgba(0, 22, 1, 0.08) 97.4%
+    ),
+    linear-gradient(180deg, #001701 0%, #001701 22%, #002502 100%);
+}
+
+/* Auth CTA buttons — EXACT Figma fills (nodes API, Component 10):
+   SOLID #000F01 @10% veil over radial glow (#00FF10 @16% opaque -> #001601
+   @97% @40%, center 104.4%/-18% r 118.8%) over vertical linear
+   (#001701 @8% -> #007D08 in handle space = 0%/21.5%/#002A02 in CSS). */
+.bg-btn {
+  background:
+    linear-gradient(rgba(0, 15, 1, 0.1), rgba(0, 15, 1, 0.1)),
+    radial-gradient(
+      118.8% 118.8% at 104.4% -18%,
+      rgba(0, 255, 16, 1) 16%,
+      rgba(0, 22, 1, 0.4) 97%
+    ),
+    linear-gradient(180deg, #001701 0%, #001701 21.5%, #002a02 100%);
+}
+
+.bg-deep-soft {
+  background:
+    linear-gradient(rgba(0, 15, 1, 0.1), rgba(0, 15, 1, 0.1)),
+    radial-gradient(
+      118.8% 118.8% at 104.4% -18%,
+      rgba(0, 255, 16, 0.2) 16.3%,
+      rgba(0, 22, 1, 0.08) 97.4%
+    ),
+    linear-gradient(180deg, #001701 0%, #001701 22%, #002502 100%);
+}
+
+/* Mint-fade surfaces (marketplace cards, offer buttons, CTA banner) */
+.bg-mintfade {
+  background: linear-gradient(142deg, #ffffff 19%, #d7ffd9 100%);
+}
+.bg-mintband {
+  background: linear-gradient(142deg, #ffffff 0%, #d7ffd9 100%);
+}
+.bg-contrib {
+  background: linear-gradient(142deg, rgba(255, 255, 255, 0.1), rgba(215, 255, 217, 0.1));
+}
+
+/* Hero heading ink — flat near-black green (#011C03 sampled), green accent */
+.text-ink-gradient {
+  background: #011c03;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+}
+.text-ink-gradient .accent {
+  color: var(--color-clyse);
+  -webkit-text-fill-color: var(--color-clyse);
+}
+
+/* Soft ambient blobs */
+.blob {
+  position: absolute;
+  border-radius: 9999px;
+  pointer-events: none;
+}
+
+/* Red-tinted eye icon (error state) */
+.eye-error {
+  filter: invert(32%) sepia(92%) saturate(4200%) hue-rotate(350deg) brightness(102%) contrast(102%);
+}
+
+/* Mobile menu drop animation */
+@keyframes menu-drop {
+  from {
+    opacity: 0;
+    transform: translateY(-12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.animate-menu-drop {
+  animation: menu-drop 0.22s ease-out both;
+}
+
+/* Logo marquee (join flow footer strip) */
+@keyframes marquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+.animate-marquee {
+  animation: marquee 28s linear infinite;
+}
+
+/* Remove number-input spinners for OTP boxes */
+input.otp-box::-webkit-outer-spin-button,
+input.otp-box::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+input.otp-box {
+  -moz-appearance: textfield;
+  appearance: textfield;
+}
+
+/* Hide scrollbars on horizontal scroll strips (mobile chips/cards). */
+.scrollbar-none {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.scrollbar-none::-webkit-scrollbar {
+  display: none;
+}
