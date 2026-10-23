@@ -7,7 +7,7 @@ import iconChevDownSm from "../assets/icon-chev-down-sm.svg";
 
 const LINKS = ["Home", "How it Works", "Why Clyse", "About", "Contact"];
 /* Logged-in links per newest Figma app frames (D08/D09/D10). */
-const LOGGED_LINKS = ["Home", "Join Group", "Create Group", "About Us", "Contact Us"];
+const LOGGED_LINKS = ["Home", "Join Group", "Create Group"];
 const LOGGED_ROUTES = {
   Home: "/",
   "Join Group": "/join",
@@ -36,6 +36,13 @@ const MROUTES = {
   "About Us": "/about",
   "Contact Us": "/contact",
 };
+const MLOGGED = ["Home", "Join Group", "Create Group", "My Profile"];
+const MLOGGED_ROUTES = {
+  Home: "/",
+  "Join Group": "/join",
+  "Create Group": "/create-group",
+  "My Profile": "/profile",
+};
 
 function HamburgerIcon() {
   return (
@@ -63,7 +70,7 @@ export default function Navbar({ loggedIn = false, landing = false }) {
         : PUBLIC_ROUTES[l] || "/";
   const [open, setOpen] = useState(false);
   const [accountOpen, setAccountOpen] = useState(false);
-  const { logout } = useAuth();
+  const { user, logout } = useAuth();
   const navigate = useNavigate();
 
   const signOut = async () => {
@@ -99,13 +106,27 @@ export default function Navbar({ loggedIn = false, landing = false }) {
               >
                 <span className="text-[18px] font-semibold text-ink">My Account</span>
                 <img
-                  src={avatarAccount}
+                  src={user?.avatar_url || avatarAccount}
                   alt="My Account"
                   className="h-[50px] w-[50px] rounded-full object-cover"
                 />
               </button>
               {accountOpen && (
                 <div className="absolute top-full right-0 mt-[8px] w-[200px] rounded-[10px] border border-line bg-white py-[8px] shadow-[0_0_20px_rgba(0,23,1,0.15)]">
+                  <Link
+                    to="/about"
+                    onClick={() => setAccountOpen(false)}
+                    className="block w-full px-[20px] py-[10px] text-left text-[16px] font-semibold text-ink hover:bg-[#F1F8F1]"
+                  >
+                    About Us
+                  </Link>
+                  <Link
+                    to="/contact"
+                    onClick={() => setAccountOpen(false)}
+                    className="block w-full px-[20px] py-[10px] text-left text-[16px] font-semibold text-ink hover:bg-[#F1F8F1]"
+                  >
+                    Contact Us
+                  </Link>
                   <Link
                     to="/profile"
                     onClick={() => setAccountOpen(false)}
@@ -161,10 +182,10 @@ export default function Navbar({ loggedIn = false, landing = false }) {
             <CloseIcon />
           </button>
           <nav className="mt-[10px] flex flex-col">
-            {MLINKS.map((l) => (
+            {(loggedIn ? MLOGGED : MLINKS).map((l) => (
               <Link
                 key={l}
-                to={MROUTES[l]}
+                to={(loggedIn ? MLOGGED_ROUTES : MROUTES)[l]}
                 onClick={() => setOpen(false)}
                 className="flex h-[50px] items-center justify-between text-[18px] leading-[22px] font-semibold text-white"
               >

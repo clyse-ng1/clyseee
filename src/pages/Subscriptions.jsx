@@ -10,14 +10,14 @@ import { api, brandOf, daysUntil, kobo } from "../lib/api";
 
 /* Figma content, shown while the real list loads. */
 const ROWS = [
-  { brand: "adobe", title: "Adobe Creative Cloud", plan: "Standard Plan", price: "N 3,000", mTitle: "Adobe Creative Cloud" },
-  { brand: "netflix", title: "Netflix Premium", plan: "Premium Plan", price: "N 2,000", mTitle: "Netflix Premium" },
-  { brand: "youtube", title: "YouTube Premium", plan: "Premium Plan", price: "N 2,000", mTitle: "YouTube" },
-  { brand: "spotify", title: "Spotify Premium", plan: "Premium Plan", price: "N 2,000", mTitle: "Spotify Premium" },
+  { brand: "adobe", title: "Adobe Creative Cloud", plan: "Standard Plan", price: "N3,000", mTitle: "Adobe Creative Cloud" },
+  { brand: "netflix", title: "Netflix Premium", plan: "Premium Plan", price: "N2,000", mTitle: "Netflix Premium" },
+  { brand: "youtube", title: "YouTube Premium", plan: "Premium Plan", price: "N2,000", mTitle: "YouTube" },
+  { brand: "spotify", title: "Spotify Premium", plan: "Premium Plan", price: "N2,000", mTitle: "Spotify Premium" },
   { brand: "capcut", title: "CapCut Pro", plan: "Premium Plan", price: "N3,300", mTitle: "CapCut Pro" },
-  { brand: "canva", title: "Canva Pro", plan: "Premium Plan", price: "N 5,000", mTitle: "Canva Pro" },
-  { brand: "amazon", title: "Amazon", plan: "Premium Plan", price: "N 2,000", mTitle: "Amazon" },
-  { brand: "prime", title: "Prime Video Premium", plan: "Premium Plan", price: "N 2,000", mTitle: "Prime Video Premium" },
+  { brand: "canva", title: "Canva Pro", plan: "Premium Plan", price: "N5,000", mTitle: "Canva Pro" },
+  { brand: "amazon", title: "Amazon", plan: "Premium Plan", price: "N2,000", mTitle: "Amazon" },
+  { brand: "prime", title: "Prime Video Premium", plan: "Premium Plan", price: "N2,000", mTitle: "Prime Video Premium" },
 ];
 
 /* Mobile order differs from desktop (literal per screen). */
@@ -47,7 +47,7 @@ function mapSub(s) {
   // plan carries no totals.
   const total =
     s.price?.total_kobo ?? plan.total_price_kobo ?? plan.total_kobo ?? null;
-  const price = total != null ? kobo(total) : "N 2,000";
+  const price = total != null ? kobo(total) : "N2,000";
   let status = (s.derived_status || s.status || s.membership_status || "active").toLowerCase();
   // Rich membership axes override the coarse status when present.
   const pay = (s.payment_status || "").toLowerCase();
@@ -166,7 +166,7 @@ export default function Subscriptions() {
                     key={r.title}
                     {...r}
                     mPlan="Premium Plan"
-                    mPrice="N 2,000"
+                    mPrice="N2,000"
                   />
                 ))}
           </div>

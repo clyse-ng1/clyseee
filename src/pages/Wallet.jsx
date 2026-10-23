@@ -761,9 +761,9 @@ export default function Wallet() {
             Create
           </Link>
           <img
-            src={ctaDash}
+            loading="lazy" decoding="async" src={ctaDash}
             alt=""
-            className="mx-[28px] mt-[21px] h-[209px] w-[375px] object-cover"
+            className="mx-[28px] mt-[21px] aspect-[375/209] w-[calc(100%-56px)] max-w-[375px] object-cover"
           />
         </div>
       </main>

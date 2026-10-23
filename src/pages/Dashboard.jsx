@@ -103,7 +103,7 @@ function mapGroup(g) {
     id: g.group_id || g.id,
     creator: g.creator?.first_name || g.creator_name || "Creator",
     service: g.service?.name || "Subscription",
-    price: g.plan?.total_price_kobo != null ? kobo(g.plan.total_price_kobo) : "N 2,000",
+    price: g.plan?.total_price_kobo != null ? kobo(g.plan.total_price_kobo) : "N2,000",
     left: left === 1 ? "1 Slot left" : `${left} Slots left`,
     frac: offered ? `${occupied}/${offered}` : "",
     pct: offered ? occupied / offered : null,
@@ -300,7 +300,7 @@ function GroupCard({ group }) {
           </p>
           <p className="flex items-baseline justify-center">
             <span className="text-[25px] leading-[24px] font-semibold text-white">
-              {g.price || "N 2,000"}
+              {g.price || "N2,000"}
             </span>
             <span className="text-[10px] leading-[17px] font-semibold text-[#B1DBB3]">
               /Monthly
@@ -369,7 +369,7 @@ function MobileGroupCard({ group }) {
           </p>
           <p className="flex items-baseline justify-center">
             <span className="text-[17.18px] leading-[16px] font-semibold text-white">
-              {g.price || "N 2,000"}
+              {g.price || "N2,000"}
             </span>
             <span className="text-[6.87px] leading-[12px] font-semibold text-[#B1DBB3]">
               /Monthly
@@ -625,7 +625,7 @@ export default function Dashboard() {
             </Link>
           </div>
           <img
-            src={ctaDash}
+            loading="lazy" decoding="async" src={ctaDash}
             alt=""
             className="absolute top-0 right-[40px] h-[300px] w-[387px] rounded-[50px] object-cover"
           />
@@ -659,14 +659,14 @@ export default function Dashboard() {
           </div>
         </div>
 
-        <div className="relative mx-[30px] -mt-[1px] flex h-[50px] items-center bg-white">
+        <div className="relative z-10 mx-[30px] -mt-[1px] flex h-[50px] items-center rounded-[15px] border border-line bg-white shadow-[0_0_20px_rgba(0,23,1,0.10)]">
           <span className="pl-[21px] text-[17.83px] font-semibold text-black">
             Service name
           </span>
           <img src={chevronRight} alt="" className="mr-[21px] ml-auto w-[24px]" />
         </div>
 
-        <div className="bg-btn relative -mt-[19px] px-[30px] pt-[27px] pb-[28px]">
+        <div className="bg-btn relative mt-[16px] px-[30px] pt-[27px] pb-[28px]">
           <p className="text-[17.18px] leading-[25px] font-semibold text-white">
             Welcome
           </p>
@@ -811,9 +811,9 @@ export default function Dashboard() {
             Create
           </Link>
           <img
-            src={ctaDash}
+            loading="lazy" decoding="async" src={ctaDash}
             alt=""
-            className="mx-[28px] mt-[21px] h-[209px] w-[375px] object-cover"
+            className="mx-[28px] mt-[21px] aspect-[375/209] w-[calc(100%-56px)] max-w-[375px] object-cover"
           />
         </div>
       </main>

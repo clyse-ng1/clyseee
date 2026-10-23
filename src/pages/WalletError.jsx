@@ -8,7 +8,7 @@ import iconFundArrow from "../assets/fund-arrow.svg";
 import iconPlusWhite from "../assets/plus-white.svg";
 import chevronDown from "../assets/sidecard-chevron.svg";
 import chevronRight from "../assets/angle-right.svg";
-import avatarAccount from "../assets/avatar-account.webp";
+import MemberMini from "../components/MemberMini";
 import ctaDash from "../assets/cta-dash.webp";
 
 /* Wallet failed-to-load state (Figma 484:13797 desktop / 484:13879 mobile).
@@ -74,27 +74,13 @@ export default function WalletError() {
       <main className="relative xl:hidden">
         <BlurBg variant="page" />
         <div className="relative bg-white px-[30px] pt-[30px] pb-[21px]">
-          <div className="flex items-center gap-[6px]">
-            <img
-              src={avatarAccount}
-              alt="Marcus Saris"
-              className="h-[50px] w-[50px] rounded-full object-cover"
-            />
-            <div>
-              <p className="text-[24.77px] leading-[28px] font-bold text-ink">
-                Marcus Saris
-              </p>
-              <p className="text-[12.88px] leading-[20px] font-semibold text-[#6B6B6B]">
-                Member on Clyse Since 20/11/2026
-              </p>
-            </div>
-          </div>
+          <MemberMini />
           <div className="mt-[19px] flex h-[33px] items-center justify-center bg-white">
             <img src={chevronDown} alt="" className="w-[19px]" />
           </div>
         </div>
 
-        <div className="relative mx-[30px] -mt-[1px] flex h-[50px] items-center bg-white">
+        <div className="relative z-10 mx-[30px] -mt-[1px] flex h-[50px] items-center rounded-[15px] border border-line bg-white shadow-[0_0_20px_rgba(0,23,1,0.10)]">
           <span className="pl-[21px] text-[17.83px] font-semibold text-black">
             Service name
           </span>
@@ -164,9 +150,9 @@ export default function WalletError() {
             </span>
           </Link>
           <img
-            src={ctaDash}
+            loading="lazy" decoding="async" src={ctaDash}
             alt=""
-            className="mx-[28px] mt-[21px] h-[209px] w-[375px] object-cover"
+            className="mx-[28px] mt-[21px] aspect-[375/209] w-[calc(100%-56px)] max-w-[375px] object-cover"
           />
         </div>
       </main>

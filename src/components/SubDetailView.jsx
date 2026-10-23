@@ -77,7 +77,7 @@ function derive(membership, access) {
             ? kobo(membership.price.total_kobo)
             : plan.total_price_kobo != null
               ? kobo(plan.total_price_kobo)
-              : "N 2,000",
+              : "N2,000",
         chip: "bg-[#DFFFE0]",
         icon: iconNaira,
         iconCls: "",

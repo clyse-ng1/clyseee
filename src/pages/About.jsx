@@ -78,7 +78,7 @@ export default function About() {
             </p>
           </div>
           <img
-            src={aboutMission}
+            loading="lazy" decoding="async" src={aboutMission}
             alt="Members sharing subscriptions"
             className="mt-[15px] h-[362px] w-[570px] flex-none rounded-[30px] object-cover"
           />
@@ -89,7 +89,7 @@ export default function About() {
       <section className="bg-deep relative hidden overflow-hidden xl:block">
         <div className="relative mx-auto flex max-w-[1440px] gap-[100px] px-[100px] py-[120px]">
           <img
-            src={aboutVision}
+            loading="lazy" decoding="async" src={aboutVision}
             alt="A smarter way to share subscriptions"
             className="h-[362px] w-[570px] flex-none rounded-[30px] object-cover"
           />
@@ -118,7 +118,7 @@ export default function About() {
             </p>
           </div>
           <img
-            src={aboutWhy}
+            loading="lazy" decoding="async" src={aboutWhy}
             alt="Why Clyse exists"
             className="mt-[67px] h-[362px] w-[570px] flex-none rounded-[30px] object-cover"
           />
@@ -138,7 +138,7 @@ export default function About() {
             {MISSION_BODY}
           </p>
           <img
-            src={aboutMission}
+            loading="lazy" decoding="async" src={aboutMission}
             alt="Members sharing subscriptions"
             className="mt-[24px] h-[220px] w-full rounded-[20px] object-cover"
           />
@@ -154,7 +154,7 @@ export default function About() {
             {VISION_BODY}
           </p>
           <img
-            src={aboutVision}
+            loading="lazy" decoding="async" src={aboutVision}
             alt="A smarter way to share subscriptions"
             className="mt-[24px] h-[220px] w-full rounded-[20px] object-cover"
           />
@@ -170,7 +170,7 @@ export default function About() {
             {WHY_BODY}
           </p>
           <img
-            src={aboutWhy}
+            loading="lazy" decoding="async" src={aboutWhy}
             alt="Why Clyse exists"
             className="mt-[24px] h-[220px] w-full rounded-[20px] object-cover"
           />

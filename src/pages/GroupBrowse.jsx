@@ -39,14 +39,14 @@ const FILTERS = ["all", "active", "pending", "expired", "failed"];
    triplicated). Deduped to the 8 unique services in first-appearance order.
    Shown while the live groups load. */
 const ROWS = [
-  { brand: "adobe", title: "Adobe Creative Cloud", plan: "Standard Plan", price: "N 3,000", subLine: "12 Slot Shared", ...ACTIVE },
-  { brand: "netflix", title: "Netflix Premium", plan: "Premium Plan", price: "N 2,000", subLine: "50 Members", ...ACTIVE },
-  { brand: "youtube", title: "YouTube Premium", plan: "Premium Plan", price: "N 2,000", subLine: "Renews in 12 days", ...PENDING },
-  { brand: "spotify", title: "Spotify Premium", plan: "Premium Plan", price: "N 2,000", subLine: "Renews in 12 days", ...ACTIVE },
-  { brand: "canva", title: "Canva Pro", plan: "Premium Plan", price: "N 5,000", subLine: "Renews in 12 days", ...FAILED },
-  { brand: "amazon", title: "Amazon", plan: "Premium Plan", price: "N 2,000", subLine: "Renews in 12 days", ...ACTIVE },
+  { brand: "adobe", title: "Adobe Creative Cloud", plan: "Standard Plan", price: "N3,000", subLine: "12 Slot Shared", ...ACTIVE },
+  { brand: "netflix", title: "Netflix Premium", plan: "Premium Plan", price: "N2,000", subLine: "50 Members", ...ACTIVE },
+  { brand: "youtube", title: "YouTube Premium", plan: "Premium Plan", price: "N2,000", subLine: "Renews in 12 days", ...PENDING },
+  { brand: "spotify", title: "Spotify Premium", plan: "Premium Plan", price: "N2,000", subLine: "Renews in 12 days", ...ACTIVE },
+  { brand: "canva", title: "Canva Pro", plan: "Premium Plan", price: "N5,000", subLine: "Renews in 12 days", ...FAILED },
+  { brand: "amazon", title: "Amazon", plan: "Premium Plan", price: "N2,000", subLine: "Renews in 12 days", ...ACTIVE },
   { brand: "capcut", title: "CapCut Pro", plan: "Premium Plan", price: "N3,300", subLine: "Renews in 12 days", ...EXPIRED, dim: true },
-  { brand: "prime", title: "Cloud", plan: "Prime Video", price: "N 2,000", subLine: "Renews in 12 days", ...EXPIRED },
+  { brand: "prime", title: "Cloud", plan: "Prime Video", price: "N2,000", subLine: "Renews in 12 days", ...EXPIRED },
 ];
 
 const TABS = [
@@ -85,11 +85,11 @@ const M_EXPIRED = {
 };
 
 const M_ROWS = [
-  { brand: "adobe", mPlan: "Premium Plan", mPrice: "N 2,000" },
-  { brand: "netflix", mPlan: "Premium Plan", mPrice: "N 2,000", mSub: "13 Slot Shared" },
-  { brand: "amazon", mPlan: "Premium Plan", mPrice: "N 2,000", mSub: "30 Slot Shared", ...M_PENDING },
-  { brand: "canva", mPlan: "Premium Plan", mPrice: "N 2,000", mSub: "30 Slot Shared" },
-  { brand: "capcut", mPlan: "Premium Plan", mPrice: "N 2,000", mSub: "14 Slot Shared", ...M_FAILED },
+  { brand: "adobe", mPlan: "Premium Plan", mPrice: "N2,000" },
+  { brand: "netflix", mPlan: "Premium Plan", mPrice: "N2,000", mSub: "13 Slot Shared" },
+  { brand: "amazon", mPlan: "Premium Plan", mPrice: "N2,000", mSub: "30 Slot Shared", ...M_PENDING },
+  { brand: "canva", mPlan: "Premium Plan", mPrice: "N2,000", mSub: "30 Slot Shared" },
+  { brand: "capcut", mPlan: "Premium Plan", mPrice: "N2,000", mSub: "14 Slot Shared", ...M_FAILED },
   { brand: "youtube", mTitle: "YouTube", ...M_ACTIVE },
   { brand: "prime", mTitle: "Prime Video Premium", mPlan: "Premium Plan", mSub: "20 Slot Shared", ...M_ACTIVE },
   { brand: "spotify", ...M_EXPIRED },
@@ -106,7 +106,7 @@ function mapRow(g) {
   const b = groupBucket(g);
   const title = [g.service?.name, g.plan?.name].filter(Boolean).join(" ") || "Group";
   const plan = g.plan?.name ? `${g.plan.name} Plan` : "Premium Plan";
-  const price = g.plan?.total_price_kobo != null ? kobo(g.plan.total_price_kobo) : "N 2,000";
+  const price = g.plan?.total_price_kobo != null ? kobo(g.plan.total_price_kobo) : "N2,000";
   const sub = `${g.slots_offered ?? 0} Slot Shared`;
   return {
     key: g.id,

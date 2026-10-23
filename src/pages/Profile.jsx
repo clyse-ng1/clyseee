@@ -297,7 +297,7 @@ export default function Profile() {
               {r.label}
             </p>
             <p className="mt-[6px] truncate text-[20px] leading-[24px] font-bold text-ink">
-              {r.value}
+              {r.value || "—"}
             </p>
           </div>
           <button

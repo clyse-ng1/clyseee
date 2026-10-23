@@ -14,25 +14,25 @@ const STATS = [
 ];
 
 export default function GroupStats({
-  widths = ["w-[117px] xl:w-[243px]", "w-[117px] xl:w-[274px]", "w-[117px] xl:w-[274px]"],
+  widths = ["w-[calc((100%-20px)/3)] xl:w-[243px]", "w-[calc((100%-20px)/3)] xl:w-[274px]", "w-[calc((100%-20px)/3)] xl:w-[274px]"],
   className = "",
   values,
 }) {
   const stats = STATS.map((s, i) => ({ ...s, value: values?.[i] ?? s.value }));
   return (
-    <div className={`flex gap-[10px] xl:gap-[20px] ${className}`}>
+    <div className={`scrollbar-none flex gap-[10px] overflow-x-auto pb-[8px] xl:gap-[20px] ${className}`}>
       {stats.map((s, i) => (
         <div
           key={s.label}
-          className={`h-[117px] flex-none rounded-[10px] bg-white px-[21px] pt-[21px] shadow-[0_0_20px_rgba(0,23,1,0.10)] xl:h-[156px] ${widths[i] || "w-[117px] xl:w-[243px]"}`}
+          className={`h-[117px] flex-none overflow-hidden rounded-[10px] bg-white px-[10px] pt-[21px] xl:px-[21px] shadow-[0_0_20px_rgba(0,23,1,0.10)] xl:h-[156px] ${widths[i] || "w-[117px] xl:w-[243px]"}`}
         >
           <span className={`grid h-[25px] w-[25px] place-items-center rounded-[5px] xl:h-[42px] xl:w-[42px] ${s.chip}`}>
             <img src={s.icon} alt="" className="h-[18px] w-[18px] xl:h-[30px] xl:w-[30px]" />
           </span>
-          <p className="mt-[5px] text-[13px] leading-[20px] font-semibold whitespace-nowrap text-[#6B6B6B] xl:mt-[15px] xl:text-[18px] xl:leading-[22px]">
+          <p className="mt-[5px] text-[11px] leading-[14px] font-semibold xl:whitespace-nowrap text-[#6B6B6B] xl:mt-[15px] xl:text-[18px] xl:leading-[22px]">
             {s.label}
           </p>
-          <p className="mt-[2px] text-[18px] leading-[22px] font-bold whitespace-nowrap text-ink xl:mt-0 xl:text-[25px] xl:leading-[30px]">
+          <p className="mt-[2px] text-[14px] leading-[18px] font-bold whitespace-nowrap text-ink xl:mt-0 xl:text-[25px] xl:leading-[30px]">
             {s.value}
           </p>
         </div>

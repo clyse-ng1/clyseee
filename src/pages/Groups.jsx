@@ -45,14 +45,14 @@ const PILL = { active: ACTIVE, pending: PENDING, expired: EXPIRED, failed: FAILE
 const FILTERS = ["all", "active", "pending", "expired", "failed"];
 
 const ROWS = [
-  { brand: "adobe", title: "Adobe Creative Cloud", plan: "Standard Plan", price: "N 3,000", subLine: "12 Slot Shared", ...ACTIVE },
-  { brand: "netflix", title: "Netflix Premium", plan: "Premium Plan", price: "N 2,000", subLine: "10 Slot Shared", ...ACTIVE },
-  { brand: "youtube", title: "YouTube Premium", plan: "Premium Plan", price: "N 2,000", subLine: "30 Slot Shared", ...PENDING },
-  { brand: "spotify", title: "Spotify Premium", plan: "Premium Plan", price: "N 2,000", subLine: "10 Slot Shared", ...ACTIVE },
-  { brand: "canva", title: "Canva Pro", plan: "Premium Plan", price: "N 5,000", subLine: "20 Slot Shared", ...FAILED },
-  { brand: "amazon", title: "Amazon", plan: "Premium Plan", price: "N 2,000", subLine: "20 Slot Shared", ...ACTIVE },
+  { brand: "adobe", title: "Adobe Creative Cloud", plan: "Standard Plan", price: "N3,000", subLine: "12 Slot Shared", ...ACTIVE },
+  { brand: "netflix", title: "Netflix Premium", plan: "Premium Plan", price: "N2,000", subLine: "10 Slot Shared", ...ACTIVE },
+  { brand: "youtube", title: "YouTube Premium", plan: "Premium Plan", price: "N2,000", subLine: "30 Slot Shared", ...PENDING },
+  { brand: "spotify", title: "Spotify Premium", plan: "Premium Plan", price: "N2,000", subLine: "10 Slot Shared", ...ACTIVE },
+  { brand: "canva", title: "Canva Pro", plan: "Premium Plan", price: "N5,000", subLine: "20 Slot Shared", ...FAILED },
+  { brand: "amazon", title: "Amazon", plan: "Premium Plan", price: "N2,000", subLine: "20 Slot Shared", ...ACTIVE },
   { brand: "capcut", title: "CapCut Pro", plan: "Premium Plan", price: "N3,300", subLine: "20 Slot Shared", ...EXPIRED, dim: true },
-  { brand: "prime", title: "Cloud", plan: "Prime Video", price: "N 2,000", subLine: "20 Slot Shared", ...EXPIRED },
+  { brand: "prime", title: "Prime Video", plan: "Premium Plan", price: "N2,000", subLine: "20 Slot Shared", ...EXPIRED },
 ];
 
 function TitleBlock() {
@@ -79,7 +79,7 @@ function mapRow(g) {
   const b = groupBucket(g);
   const title = [g.service?.name, g.plan?.name].filter(Boolean).join(" ") || "Group";
   const plan = g.plan?.name ? `${g.plan.name} Plan` : "Premium Plan";
-  const price = g.plan?.total_price_kobo != null ? kobo(g.plan.total_price_kobo) : "N 2,000";
+  const price = g.plan?.total_price_kobo != null ? kobo(g.plan.total_price_kobo) : "N2,000";
   const sub = `${g.slots_offered ?? 0} Slot Shared`;
   return {
     key: g.id,

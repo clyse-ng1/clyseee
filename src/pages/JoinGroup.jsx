@@ -9,9 +9,9 @@ import { BlurBg } from "../components/Decor";
 import { api, kobo } from "../lib/api";
 
 const PLANS = [
-  { name: "Standard with ads", price: "N 2,000", features: "1080p | 2 screens | limited ads" },
-  { name: "Standard with ads", price: "N 2,000", features: "1080p | 2 screens | limited ads" },
-  { name: "Standard with ads", price: "N 2,000", features: "1080p | 2 screens | limited ads" },
+  { name: "Standard with ads", price: "N2,000", features: "1080p | 2 screens | limited ads" },
+  { name: "Standard with ads", price: "N2,000", features: "1080p | 2 screens | limited ads" },
+  { name: "Standard with ads", price: "N2,000", features: "1080p | 2 screens | limited ads" },
 ];
 
 function mapPlan(a) {

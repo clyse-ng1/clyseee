@@ -19,7 +19,7 @@ export default function DesktopCta() {
           Create
         </Link>
       </div>
-      <img src={ctaOwner} alt="" className="absolute top-0 right-[40px] h-[300px] w-[387px]" />
+      <img loading="lazy" decoding="async" src={ctaOwner} alt="" className="absolute top-0 right-[40px] h-[300px] w-[387px]" />
     </div>
   );
 }

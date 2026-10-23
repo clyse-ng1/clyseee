@@ -20,14 +20,14 @@ import { useCatalogue } from "../lib/useCatalogue";
 const ICONS = { movies: iconMovies, music: iconMusic, productivity: iconProductivity };
 
 const CARDS = [
-  { icon: "movies", title: "Netflix Premium", chip: "Entertainment", price: "N 2,000 /Month" },
-  { icon: "music", title: "Apple Music", chip: "Music", price: "N 1,500 /Month" },
-  { icon: "productivity", title: "Canva Pro", chip: "Others", price: "N 1,200 /Month" },
-  { icon: "movies", title: "Dstv Stream", chip: "Entertainment", price: "N 3,000 /Month" },
-  { icon: "music", title: "Audiomack Premium", chip: "Music", price: "N 1,000 /Month" },
-  { icon: "movies", title: "Disney Plus", chip: "Entertainment", price: "N 2,500 /Month" },
-  { icon: "movies", title: "Netflix Basic", chip: "Entertainment", price: "N 1,200 /Month" },
-  { icon: "productivity", title: "Zoom Pro", chip: "Others", price: "N 900 /Month" },
+  { icon: "movies", title: "Netflix Premium", chip: "Entertainment", price: "N2,000 /Month" },
+  { icon: "music", title: "Apple Music", chip: "Music", price: "N1,500 /Month" },
+  { icon: "productivity", title: "Canva Pro", chip: "Others", price: "N1,200 /Month" },
+  { icon: "movies", title: "Dstv Stream", chip: "Entertainment", price: "N3,000 /Month" },
+  { icon: "music", title: "Audiomack Premium", chip: "Music", price: "N1,000 /Month" },
+  { icon: "movies", title: "Disney Plus", chip: "Entertainment", price: "N2,500 /Month" },
+  { icon: "movies", title: "Netflix Basic", chip: "Entertainment", price: "N1,200 /Month" },
+  { icon: "productivity", title: "Zoom Pro", chip: "Others", price: "N900 /Month" },
 ];
 
 const OFFERS = [
@@ -68,7 +68,7 @@ function OfferCard({ avatar, name, service, price, left, linkTo, linkState }) {
             Your Contribution
           </p>
           <p className="flex items-baseline justify-center text-[15.45px] leading-[21.62px] font-semibold text-white">
-            {price || "N 2,000"}
+            {price || "N2,000"}
             <span className="text-[6.18px] leading-[12.36px] font-semibold text-[#B1DBB3]">
               /Monthly
             </span>

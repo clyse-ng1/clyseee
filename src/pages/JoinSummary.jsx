@@ -169,11 +169,11 @@ export default function JoinSummary() {
   const vPlanLine = group
     ? `${plan.name || "Premium"} Plan | ${(group.creator?.first_name || "Creator") + "'s Group"}`
     : "Premium Plan | Monthly Plan";
-  const vPrice = total != null ? kobo(total) : "N 2,000";
+  const vPrice = total != null ? kobo(total) : "N2,000";
   const vUnit = unit != null ? kobo(unit) : vPrice;
   const vFee = fee != null ? kobo(fee) : real ? "Included" : "N200";
   const vTotal = total != null ? kobo(total) : "N2,500";
-  const vBalance = balance != null ? kobo(balance) : "N 3,000";
+  const vBalance = balance != null ? kobo(balance) : "N3,000";
   const vInfo = group
     ? [
         ["Available Slot:", `${group.available_slots ?? 0} Slot left`],

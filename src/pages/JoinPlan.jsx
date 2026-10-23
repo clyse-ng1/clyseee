@@ -12,9 +12,9 @@ import { api, kobo } from "../lib/api";
 /* Figma shows the middle plan selected — selection is live: tapping any
    Select moves the pill + dark button + green stroke to that card. */
 const PLANS = [
-  { name: "Standard with ads", price: "N 2,000", features: "1080p | 2 screens | limited ads" },
-  { name: "Standard with ads", price: "N 2,000", features: "1080p | 2 screens | limited ads" },
-  { name: "Standard with ads", price: "N 2,000", features: "1080p | 2 screens | limited ads" },
+  { name: "Standard with ads", price: "N2,000", features: "1080p | 2 screens | limited ads" },
+  { name: "Standard with ads", price: "N2,000", features: "1080p | 2 screens | limited ads" },
+  { name: "Standard with ads", price: "N2,000", features: "1080p | 2 screens | limited ads" },
 ];
 
 function mapPlan(a, service, brand) {

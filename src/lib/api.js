@@ -179,7 +179,7 @@ export function fmtDate(iso) {
 /** Masked-safe display name fallback */
 export function displayName(user) {
   if (!user) return "";
-  return user.full_name || user.first_name || (user.email ? user.email.split("@")[0] : "") || "";
+  return user.full_name || user.name || user.first_name || (user.email ? user.email.split("@")[0] : "") || "";
 }
 
 /** "Email or Username" field -> { email } or { phone } identifier for the API. */

@@ -187,7 +187,7 @@ export default function CreateGroup() {
         <button
           type="button"
           onClick={() => setCustom((v) => !v)}
-          className="mx-[30px] mt-[148px] flex h-[50px] w-[370px] items-center justify-center gap-[7px] rounded-[11.1px] border border-[#999999] bg-mint"
+          className="mx-[30px] mt-[148px] flex h-[50px] w-[calc(100%-60px)] max-w-[370px] items-center justify-center gap-[7px] rounded-[11.1px] border border-[#999999] bg-mint"
         >
           <img src={iconPlusCircle} alt="" className="h-[24px] w-[24px]" />
           <span className="text-[17.34px] leading-[24px] font-semibold">
@@ -196,7 +196,7 @@ export default function CreateGroup() {
         </button>
         {custom && (
           <>
-            <div className="mx-[30px] mt-[24px] flex h-[69px] w-[370px] items-center rounded-[11.1px] border-[0.69px] border-clyse bg-white pl-[35px]">
+            <div className="mx-[30px] mt-[24px] flex h-[69px] w-[calc(100%-60px)] max-w-[370px] items-center rounded-[11.1px] border-[0.69px] border-clyse bg-white pl-[35px]">
               <input
                 placeholder="Subscription name"
                 value={customName}
@@ -204,7 +204,7 @@ export default function CreateGroup() {
                 className="w-full bg-transparent text-[17.34px] font-semibold text-ink outline-none placeholder:font-semibold placeholder:text-[#999999]"
               />
             </div>
-            <div className="mx-[30px] mt-[25px] flex h-[69px] w-[370px] items-center rounded-[11.1px] border-[0.69px] border-clyse bg-white pl-[35px]">
+            <div className="mx-[30px] mt-[25px] flex h-[69px] w-[calc(100%-60px)] max-w-[370px] items-center rounded-[11.1px] border-[0.69px] border-clyse bg-white pl-[35px]">
               <input
                 placeholder="Subscription name"
                 value={customPlan}
@@ -217,7 +217,7 @@ export default function CreateGroup() {
         <Link
           to="/create-group/details"
           state={nextState}
-          className="mx-[30px] mt-[32px] grid h-[50px] w-[370px] place-items-center rounded-[11.1px] bg-btn text-[11.66px] font-semibold text-mint"
+          className="mx-[30px] mt-[32px] grid h-[50px] w-[calc(100%-60px)] max-w-[370px] place-items-center rounded-[11.1px] bg-btn text-[11.66px] font-semibold text-mint"
         >
           Continue
         </Link>

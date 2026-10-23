@@ -18,7 +18,7 @@ export default function MobileCta() {
       >
         Create
       </Link>
-      <img src={ctaOwner} alt="" className="mx-auto mt-[20px] h-[208px] w-[268px]" />
+      <img loading="lazy" decoding="async" src={ctaOwner} alt="" className="mx-auto mt-[20px] h-[208px] w-[268px]" />
     </div>
   );
 }

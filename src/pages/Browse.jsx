@@ -48,18 +48,18 @@ const BRANDS = [
 ];
 
 const GROUPS = [
-  { avatar: avatarAccount, name: "Marcus Saris", service: "Netflix Premium", price: "N 2,000", left: "1 Slot left", ratio: "3/4" },
-  { avatar: avatarAshlynn, name: "Ashlynn Curtis", service: "Spotify Premium", price: "N 2,000", left: "1 Slot left", ratio: "3/4" },
-  { avatar: avatar2, name: "Davis Ekstrom", service: "YouTube Premium", price: "N 2,000", left: "1 Slot left", ratio: "3/4" },
-  { avatar: avatarKianna, name: "Kianna Passaquindici", service: "Canva Pro", price: "N 2,000", left: "1 Slot left", ratio: "3/4" },
-  { avatar: avatarCurtis, name: "Curtis Rhiel Madsen", service: "Prime Video", price: "N 2,000", left: "1 Slot left", ratio: "3/4" },
-  { avatar: avatarAspen, name: "Aspen Gouse", service: "Adobe Creative Cloud", price: "N 2,000", left: "1 Slot left", ratio: "3/4" },
-  { avatar: avatar1, name: "Kaylynn Vetrovs", service: "Amazon", price: "N 2,000", left: "1 Slot left", ratio: "3/4" },
-  { avatar: avatar3, name: "Abram Botosh", service: "CapCut Pro", price: "N 2,000", left: "1 Slot left", ratio: "3/4" },
-  { avatar: avatarAccount, name: "Yusuff Sodiq", service: "Netflix Premium", price: "N 2,500", left: "2 Slots left", ratio: "2/4" },
-  { avatar: avatarAshlynn, name: "Maria Saris", service: "Spotify Premium", price: "N 2,500", left: "2 Slots left", ratio: "2/4" },
-  { avatar: avatar2, name: "Tolu Adeyemi", service: "YouTube Premium", price: "N 2,500", left: "2 Slots left", ratio: "2/4" },
-  { avatar: avatarKianna, name: "Aisha Bello", service: "Canva Pro", price: "N 2,500", left: "2 Slots left", ratio: "2/4" },
+  { avatar: avatarAccount, name: "Marcus Saris", service: "Netflix Premium", price: "N2,000", left: "1 Slot left", ratio: "3/4" },
+  { avatar: avatarAshlynn, name: "Ashlynn Curtis", service: "Spotify Premium", price: "N2,000", left: "1 Slot left", ratio: "3/4" },
+  { avatar: avatar2, name: "Davis Ekstrom", service: "YouTube Premium", price: "N2,000", left: "1 Slot left", ratio: "3/4" },
+  { avatar: avatarKianna, name: "Kianna Passaquindici", service: "Canva Pro", price: "N2,000", left: "1 Slot left", ratio: "3/4" },
+  { avatar: avatarCurtis, name: "Curtis Rhiel Madsen", service: "Prime Video", price: "N2,000", left: "1 Slot left", ratio: "3/4" },
+  { avatar: avatarAspen, name: "Aspen Gouse", service: "Adobe Creative Cloud", price: "N2,000", left: "1 Slot left", ratio: "3/4" },
+  { avatar: avatar1, name: "Kaylynn Vetrovs", service: "Amazon", price: "N2,000", left: "1 Slot left", ratio: "3/4" },
+  { avatar: avatar3, name: "Abram Botosh", service: "CapCut Pro", price: "N2,000", left: "1 Slot left", ratio: "3/4" },
+  { avatar: avatarAccount, name: "Yusuff Sodiq", service: "Netflix Premium", price: "N2,500", left: "2 Slots left", ratio: "2/4" },
+  { avatar: avatarAshlynn, name: "Maria Saris", service: "Spotify Premium", price: "N2,500", left: "2 Slots left", ratio: "2/4" },
+  { avatar: avatar2, name: "Tolu Adeyemi", service: "YouTube Premium", price: "N2,500", left: "2 Slots left", ratio: "2/4" },
+  { avatar: avatarKianna, name: "Aisha Bello", service: "Canva Pro", price: "N2,500", left: "2 Slots left", ratio: "2/4" },
 ];
 
 function JoinCard({ g }) {

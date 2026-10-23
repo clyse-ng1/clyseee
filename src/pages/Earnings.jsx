@@ -401,7 +401,7 @@ export default function Earnings() {
             {SUB}
           </p>
         </div>
-        <div className={`mt-[70px] rounded-[20px] bg-white px-[31px] pt-[51px] pb-[51px] ${SHADOW}`}>
+        <div className={`relative mt-[70px] rounded-[20px] bg-white px-[31px] pt-[51px] pb-[51px] ${SHADOW}`}>
           <div className="flex flex-col gap-[50px]">
             <EarnMini {...minis[0]} />
             <EarnMini {...minis[1]} />
@@ -418,7 +418,7 @@ export default function Earnings() {
             </span>
           </button>
         </div>
-        <div className={`mt-[50px] rounded-[20px] bg-white px-[31px] pt-[51px] pb-[51px] ${SHADOW}`}>
+        <div className={`relative mt-[50px] rounded-[20px] bg-white px-[31px] pt-[51px] pb-[51px] ${SHADOW}`}>
           <h2 className="text-[25px] leading-[30px] font-bold text-black">
             Earnings Summary
           </h2>
@@ -427,7 +427,7 @@ export default function Earnings() {
             <EarnSummaryMini label="Earning Per Member" value={total} btnTo="/earnings/per-member" />
           </div>
         </div>
-        <div className={`mt-[50px] rounded-[20px] bg-white px-[31px] pt-[51px] pb-[51px] ${SHADOW}`}>
+        <div className={`relative mt-[50px] rounded-[20px] bg-white px-[31px] pt-[51px] pb-[51px] ${SHADOW}`}>
           <h2 className="text-[25px] leading-[30px] font-bold text-black">
             Clyse Fees
           </h2>
@@ -451,7 +451,7 @@ export default function Earnings() {
             View Details
           </Link>
         </div>
-        <div className={`mt-[50px] rounded-[20px] bg-white pt-[30px] pb-[30px] ${SHADOW}`}>
+        <div className={`relative mt-[50px] rounded-[20px] bg-white pt-[30px] pb-[30px] ${SHADOW}`}>
           <div className="flex items-center px-[30px]">
             <h2 className="text-[18px] leading-[22px] font-bold text-ink">
               Payout History

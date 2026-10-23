@@ -89,7 +89,7 @@ function OfferCard({ name, avatar, service, price, left, ratio, pct, linkTo, lin
         <div className="bg-contrib mt-[20px] h-[70px] rounded-[10px] pt-[11px]">
           <p className="text-[10px] font-semibold leading-[20px] text-white">Your Contribution</p>
           <p className="mt-[-2px] flex items-baseline justify-center gap-[4px]">
-            <span className="text-[25px] font-semibold leading-[35px] text-white">{price || "N 2,000"}</span>
+            <span className="text-[25px] font-semibold leading-[35px] text-white">{price || "N2,000"}</span>
             <span className="text-[10px] font-semibold text-[#B1DBB3]">/Monthly</span>
           </p>
         </div>
@@ -272,7 +272,7 @@ function MarketplaceDesktop() {
           </Link>
         </div>
         <img
-          src={ctaOwner}
+          loading="lazy" decoding="async" src={ctaOwner}
           alt=""
           className="absolute top-0 right-[40px] h-[300px] w-[387px]"
         />

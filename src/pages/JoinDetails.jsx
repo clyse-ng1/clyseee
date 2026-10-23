@@ -65,7 +65,7 @@ export default function JoinDetails() {
   const title = incoming?.title || "Netflix Premium";
   const slots = incoming?.open_slots ?? 3;
   const waiting = incoming?.people_waiting ?? 12;
-  const price = incoming?.price_kobo != null ? kobo(incoming.price_kobo) : "N 2,000";
+  const price = incoming?.price_kobo != null ? kobo(incoming.price_kobo) : "N2,000";
 
   const join = async () => {
     if (busy) return;
