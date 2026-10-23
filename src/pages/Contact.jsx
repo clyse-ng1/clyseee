@@ -172,7 +172,7 @@ export default function Contact() {
               "radial-gradient(600px 320px at 78% 10%, rgba(70,192,76,0.35), transparent 70%)",
           }}
         />
-        <div className="relative mx-auto flex max-w-[1440px] gap-[70px] px-[100px] py-[100px]">
+        <div className="relative mx-auto flex max-w-[1440px] gap-[70px] px-[20px] min-[1440px]:px-[100px] py-[100px]">
           <div className="w-[670px] flex-none">
             <span className="inline-flex items-center rounded-[10px] bg-clyse px-[24px] py-[13px] text-[18px] leading-[22px] font-bold text-white">
               CONTACT US
@@ -237,7 +237,7 @@ export default function Contact() {
       </section>
 
       {/* Desktop form + info */}
-      <main className="mx-auto hidden max-w-[1440px] px-[100px] xl:block">
+      <main className="mx-auto hidden max-w-[1440px] px-[20px] min-[1440px]:px-[100px] xl:block">
         <div className="mt-[122px] flex gap-[50px]">
           <div className="w-[703px] flex-none rounded-[20px] bg-mint p-[40px]">
             <h2 className="text-[20px] leading-[20px] font-bold text-black">

@@ -20,7 +20,7 @@ export default function JoinStatus({ title, body, btnLabel, btnVariant, btnVaria
     <div className="min-h-screen bg-white font-sans text-ink">
       <Navbar loggedIn />
       {/* Desktop */}
-      <main className="relative mx-[100px] hidden xl:block">
+      <main className="relative mx-[20px] min-[1440px]:mx-[100px] hidden xl:block">
         <BlurBg variant="hero" />
         <div className={`relative mx-[63px] ${iconD ? iconTopD : "mt-[401px]"}`}>
           {iconD && <div className="flex justify-center">{iconD}</div>}

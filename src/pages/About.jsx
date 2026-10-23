@@ -43,7 +43,7 @@ export default function About() {
               "radial-gradient(700px 340px at 50% 0%, rgba(70,192,76,0.35), transparent 70%)",
           }}
         />
-        <div className="relative mx-auto max-w-[1440px] px-[100px] pt-[103px] pb-[100px] text-center">
+        <div className="relative mx-auto max-w-[1440px] px-[20px] min-[1440px]:px-[100px] pt-[103px] pb-[100px] text-center">
           <h1 className="mx-auto max-w-[875px] text-[80px] leading-[98px] font-bold text-white">
             Making Subscriptions More Accessible
           </h1>
@@ -66,7 +66,7 @@ export default function About() {
       </section>
 
       {/* Desktop mission (white) */}
-      <section className="mx-auto hidden max-w-[1440px] px-[100px] py-[70px] xl:block">
+      <section className="mx-auto hidden max-w-[1440px] px-[20px] min-[1440px]:px-[100px] py-[70px] xl:block">
         <div className="flex gap-[100px]">
           <div className="w-[570px] flex-none">
             <Chip>Our Mission</Chip>
@@ -87,7 +87,7 @@ export default function About() {
 
       {/* Desktop vision (dark, reversed) */}
       <section className="bg-deep relative hidden overflow-hidden xl:block">
-        <div className="relative mx-auto flex max-w-[1440px] gap-[100px] px-[100px] py-[120px]">
+        <div className="relative mx-auto flex max-w-[1440px] gap-[100px] px-[20px] min-[1440px]:px-[100px] py-[120px]">
           <img
             loading="lazy" decoding="async" src={aboutVision}
             alt="A smarter way to share subscriptions"
@@ -107,7 +107,7 @@ export default function About() {
 
       {/* Desktop why (mint fade) */}
       <section className="bg-mintfade hidden xl:block">
-        <div className="mx-auto flex max-w-[1440px] gap-[100px] px-[100px] py-[100px]">
+        <div className="mx-auto flex max-w-[1440px] gap-[100px] px-[20px] min-[1440px]:px-[100px] py-[100px]">
           <div className="w-[570px] flex-none">
             <Chip>Our Vision</Chip>
             <h2 className="mt-[33px] text-[35px] leading-[43px] font-bold text-black">
@@ -181,7 +181,7 @@ export default function About() {
         </div>
       </main>
 
-      <div className="mx-auto hidden max-w-[1440px] px-[100px] xl:block">
+      <div className="mx-auto hidden max-w-[1440px] px-[20px] min-[1440px]:px-[100px] xl:block">
         <DesktopCta />
       </div>
       <Footer />

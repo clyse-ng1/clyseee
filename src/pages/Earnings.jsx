@@ -320,7 +320,7 @@ export default function Earnings() {
         onDone={() => setTick((t) => t + 1)}
       />
       {/* Desktop */}
-      <main className="relative mx-[100px] hidden pb-[100px] xl:block">
+      <main className="relative mx-[20px] min-[1440px]:mx-[100px] hidden pb-[100px] xl:block">
         <BlurBg variant="hero" />
         <div className="relative mt-[89px] flex gap-[38px]">
           <Sidebar active="Earning" />

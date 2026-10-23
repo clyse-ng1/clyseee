@@ -119,7 +119,7 @@ export default function Group() {
       {/* ---------- Desktop ---------- */}
       <main className="relative hidden overflow-x-clip xl:block">
         <BlurBg variant="hero" />
-        <div className="relative mx-auto max-w-[1440px] px-[100px]">
+        <div className="relative mx-auto max-w-[1440px] px-[20px] min-[1440px]:px-[100px]">
           <div className="relative mt-[103px] flex h-[50px] items-center">
             <Link
               to="/marketplace"

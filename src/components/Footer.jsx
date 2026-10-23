@@ -28,7 +28,7 @@ const COL_WIDTHS = ["w-[186px]", "w-[190px]", "w-[186px]", "w-auto"];
 export function Footer({ mt = "mt-[100px]" }) {
   return (
     <footer className={`${mt} hidden xl:block`}>
-      <div className="bg-mint px-[100px] pt-[50px] pb-[50px]">
+      <div className="bg-mint px-[20px] min-[1440px]:px-[100px] pt-[50px] pb-[50px]">
         <p className="mx-auto max-w-[1240px] text-center text-[25px] font-semibold leading-[35px] text-muted">
           {DISCLAIMER}
         </p>

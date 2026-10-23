@@ -174,7 +174,7 @@ function MarketplaceDesktop() {
   const liveOffers = offers && offers.length ? offers : null;
   const row1 = liveOffers || OFFERS;
   return (
-    <div className="mx-auto hidden max-w-[1440px] px-[100px] xl:block">
+    <div className="mx-auto hidden max-w-[1440px] px-[20px] min-[1440px]:px-[100px] xl:block">
       {/* Search */}
       <button
         type="button"

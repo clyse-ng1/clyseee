@@ -252,7 +252,7 @@ export default function SelectBank() {
       {/* Desktop */}
       <main className="relative hidden pb-[100px] xl:block">
         <BlurBg variant="page" />
-        <div className="relative mx-[100px] mt-[29px]">
+        <div className="relative mx-[20px] min-[1440px]:mx-[100px] mt-[29px]">
           <BackButton onClick={() => navigate(-1)} />
           <div className="mt-[28px]">
             <StepHead />

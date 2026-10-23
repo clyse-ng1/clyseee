@@ -398,7 +398,7 @@ export default function Wallet() {
       <Navbar loggedIn />
       <FundModal key={String(fundOpen)} open={fundOpen} onClose={() => setFundOpen(false)} />
       {/* Desktop */}
-      <main className="relative mx-[100px] hidden xl:block">
+      <main className="relative mx-[20px] min-[1440px]:mx-[100px] hidden xl:block">
         <BlurBg variant="hero" />
         <div className="relative flex gap-[38px]">
           <Sidebar active="My Wallet" />

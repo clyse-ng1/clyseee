@@ -31,7 +31,7 @@ export default function NoSubscription() {
       <Navbar />
       <main className="relative overflow-hidden">
         <BlurBg variant="hero" />
-        <div className="relative z-[1] mx-auto hidden max-w-[1440px] px-[100px] xl:block">
+        <div className="relative z-[1] mx-auto hidden max-w-[1440px] px-[20px] min-[1440px]:px-[100px] xl:block">
           {/* Search */}
           <button
             type="button"

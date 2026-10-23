@@ -7,7 +7,7 @@ import iconChevDownSm from "../assets/icon-chev-down-sm.svg";
 
 const LINKS = ["Home", "How it Works", "Why Clyse", "About", "Contact"];
 /* Logged-in links per newest Figma app frames (D08/D09/D10). */
-const LOGGED_LINKS = ["Home", "Join Group", "Create Group"];
+const LOGGED_LINKS = ["Home", "Join Group", "Create Group", "About Us", "Contact Us"];
 const LOGGED_ROUTES = {
   Home: "/",
   "Join Group": "/join",
@@ -84,7 +84,7 @@ export default function Navbar({ loggedIn = false, landing = false }) {
     <header className="relative z-50 bg-white">
       {/* Desktop bar */}
       <div className="hidden border-b border-clyse xl:block">
-        <div className="mx-auto flex h-[100px] max-w-[1440px] items-center px-[100px]">
+        <div className="mx-auto flex h-[100px] max-w-[1440px] items-center px-[20px] min-[1440px]:px-[100px]">
           <Link to="/" className="shrink-0">
             <img src={logo} alt="Clyse" className="h-[40px] w-auto" />
           </Link>
@@ -113,20 +113,6 @@ export default function Navbar({ loggedIn = false, landing = false }) {
               </button>
               {accountOpen && (
                 <div className="absolute top-full right-0 mt-[8px] w-[200px] rounded-[10px] border border-line bg-white py-[8px] shadow-[0_0_20px_rgba(0,23,1,0.15)]">
-                  <Link
-                    to="/about"
-                    onClick={() => setAccountOpen(false)}
-                    className="block w-full px-[20px] py-[10px] text-left text-[16px] font-semibold text-ink hover:bg-[#F1F8F1]"
-                  >
-                    About Us
-                  </Link>
-                  <Link
-                    to="/contact"
-                    onClick={() => setAccountOpen(false)}
-                    className="block w-full px-[20px] py-[10px] text-left text-[16px] font-semibold text-ink hover:bg-[#F1F8F1]"
-                  >
-                    Contact Us
-                  </Link>
                   <Link
                     to="/profile"
                     onClick={() => setAccountOpen(false)}

@@ -327,7 +327,7 @@ export default function Landing() {
               "radial-gradient(900px 420px at 50% 0%, rgba(215,255,217,0.9), rgba(255,255,255,0) 70%)",
           }}
         />
-        <div className="relative mx-auto max-w-[1440px] px-[100px] pt-[122px] pb-[120px] text-center">
+        <div className="relative mx-auto max-w-[1440px] px-[20px] min-[1440px]:px-[100px] pt-[122px] pb-[120px] text-center">
           <h1 className="mx-auto max-w-[1054px] text-[80px] leading-[98px] font-bold text-ink">
             Cut up to <span className="text-clyse">75%</span> off the
             <br />
@@ -394,7 +394,7 @@ export default function Landing() {
       <LogoMarquee />
 
       {/* Desktop How It Works */}
-      <section id="how-it-works" className="mx-auto hidden max-w-[1440px] scroll-mt-[20px] px-[100px] xl:block">
+      <section id="how-it-works" className="mx-auto hidden max-w-[1440px] scroll-mt-[20px] px-[20px] min-[1440px]:px-[100px] xl:block">
         <h2 className="mt-[100px] text-center text-[35px] leading-[43px] font-bold text-ink">
           How It Works
         </h2>
@@ -406,7 +406,7 @@ export default function Landing() {
 
       {/* Desktop flows */}
       <section className="bg-deep relative mt-[155px] hidden overflow-hidden xl:block">
-        <div className="relative mx-auto max-w-[1440px] space-y-[100px] px-[100px] py-[100px]">
+        <div className="relative mx-auto max-w-[1440px] space-y-[100px] px-[20px] min-[1440px]:px-[100px] py-[100px]">
           <FlowBlock label="Member Flow" cards={MEMBER_FLOW} />
           <FlowBlock label="Creator Flow" cards={CREATOR_FLOW} />
         </div>
@@ -430,7 +430,7 @@ export default function Landing() {
       </section>
 
       {/* Desktop Why */}
-      <section id="why-clyse" className="mx-auto hidden max-w-[1440px] scroll-mt-[20px] px-[100px] xl:block">
+      <section id="why-clyse" className="mx-auto hidden max-w-[1440px] scroll-mt-[20px] px-[20px] min-[1440px]:px-[100px] xl:block">
         <h2 className="mt-[100px] text-center text-[35px] leading-[43px] font-bold text-ink">
           Why Choose CLYSE?
         </h2>
@@ -503,7 +503,7 @@ export default function Landing() {
       </section>
 
       {/* Desktop FAQ */}
-      <section className="mx-auto hidden max-w-[1440px] px-[100px] xl:block">
+      <section className="mx-auto hidden max-w-[1440px] px-[20px] min-[1440px]:px-[100px] xl:block">
         <h2 className="mt-[155px] text-[35px] leading-[43px] font-bold text-ink">
           Frequently Asked Questions
         </h2>

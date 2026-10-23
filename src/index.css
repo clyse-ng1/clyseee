@@ -24,7 +24,6 @@ html {
 }
 
 body {
-  overflow-x: clip;
   font-family: var(--font-sans);
   background: #ffffff;
   color: var(--color-ink);

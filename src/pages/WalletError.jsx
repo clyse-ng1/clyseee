@@ -21,7 +21,7 @@ export default function WalletError() {
     <div className="min-h-screen bg-white font-sans text-ink">
       <Navbar loggedIn />
       {/* Desktop */}
-      <main className="relative mx-[100px] hidden xl:block">
+      <main className="relative mx-[20px] min-[1440px]:mx-[100px] hidden xl:block">
         <BlurBg variant="hero" />
         <div className="relative flex gap-[38px]">
           <Sidebar active="My Wallet" />

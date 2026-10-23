@@ -19,7 +19,7 @@ export default function CreateResult({ ok = true }) {
       <Navbar loggedIn />
       <BlurBg variant="hero" />
       {/* Desktop */}
-      <main className="relative z-10 mx-[100px] mt-[100px] hidden xl:block">
+      <main className="relative z-10 mx-[20px] min-[1440px]:mx-[100px] mt-[100px] hidden xl:block">
         <div className="h-[565px] bg-white pt-[100px] shadow-[0_0_20px_rgba(0,23,1,0.10)]">
           <div className="mx-auto grid h-[130px] w-[130px] place-items-center rounded-full bg-clyse">
             <img src={iconCheckBig} alt="" className="w-[70px]" />
