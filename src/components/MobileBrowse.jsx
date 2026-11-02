@@ -9,7 +9,7 @@ import iconMusic from "../assets/icon-music.svg";
 import iconProductivity from "../assets/icon-productivity.svg";
 import iconUser from "../assets/icon-user.svg";
 import avatarAccount from "../assets/avatar-account.webp";
-import { api, kobo } from "../lib/api";
+import { api, kobo, totalPriceKobo } from "../lib/api";
 import { useCatalogue } from "../lib/useCatalogue";
 
 /* Mobile marketplace — Figma 263:4402 "Home Page Mobile" (430px): search /
@@ -87,6 +87,7 @@ export default function MobileBrowse() {
       if (on) {
         setOffers(error ? [] : (data?.available_groups || []).slice(0, 6).map((g) => {
             const left = g.open_slots ?? g.available_slots ?? 0;
+            const total = totalPriceKobo(g);
             const first = g.creator?.first_name || "Creator";
             return {
               avatar: null,
@@ -94,10 +95,7 @@ export default function MobileBrowse() {
               service:
                 [g.service?.name, g.plan?.name].filter(Boolean).join(" ") ||
                 "Subscription",
-              price:
-                g.plan?.total_price_kobo != null
-                  ? kobo(g.plan.total_price_kobo)
-                  : null,
+              price: total != null ? kobo(total) : null,
               left: left === 1 ? "1 Slot left" : `${left} Slots left`,
               linkTo: "/join/summary",
               linkState: { group_id: g.group_id || g.id, preview: g },
@@ -114,15 +112,16 @@ export default function MobileBrowse() {
     services === null
       ? null
       : services.map((a) => {
-          const plans = a.plans || [];
+          const service = a.service || a;
+          const plans = a.plans || a.catalogue_plans || [];
           const min = plans.reduce(
             (m, pl) => Math.min(m, pl.total_kobo ?? pl.total_price_kobo ?? Infinity),
             Infinity,
           );
-          const cat = a.service?.category || "Others";
+          const cat = service.category || "Others";
           return {
             icon: catIconKey(cat),
-            title: a.service?.name || "Subscription",
+            title: service.name || "Subscription",
             chip: cat,
             price: min !== Infinity ? `${kobo(min)} /Month` : "—",
           };

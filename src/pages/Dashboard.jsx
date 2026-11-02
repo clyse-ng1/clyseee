@@ -5,7 +5,7 @@ import Sidebar from "../components/Sidebar";
 import BrandTile from "../components/BrandTile";
 import { BlurBg } from "../components/Decor";
 import { Footer, MobileFooter } from "../components/Footer";
-import { api, accessLabel, brandOf, daysUntil, displayName, fmtDay, kobo } from "../lib/api";
+import { api, accessLabel, brandOf, daysUntil, displayName, fmtDay, kobo, totalPriceKobo } from "../lib/api";
 import { useAuth } from "../lib/useAuth";
 import iconSearch from "../assets/icon-search.svg";
 import iconUser from "../assets/icon-user.svg";
@@ -77,13 +77,14 @@ function mapAvail(a) {
 
 function mapGroup(g) {
   const offered = g.slots_offered ?? 0;
+  const total = totalPriceKobo(g);
   const occupied = g.occupied_slots ?? 0;
   const left = g.available_slots ?? Math.max(0, offered - occupied);
   return {
     id: g.group_id || g.id,
     creator: g.creator?.first_name || g.creator_name || "Creator",
     service: g.service?.name || "Subscription",
-    price: g.plan?.total_price_kobo != null ? kobo(g.plan.total_price_kobo) : "—",
+    price: total != null ? kobo(total) : "—",
     left: left === 1 ? "1 Slot left" : `${left} Slots left`,
     frac: offered ? `${occupied}/${offered}` : "",
     pct: offered ? occupied / offered : null,

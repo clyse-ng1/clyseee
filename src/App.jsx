@@ -1,6 +1,7 @@
 import { useEffect } from "react";
 import { BrowserRouter, Routes, Route, Navigate, useLocation, useParams } from "react-router-dom";
-import { RequireAdmin, RequireAuth } from "./lib/auth.jsx";
+import { RequireAuth } from "./lib/auth.jsx";
+import RequireAdmin from "./components/RequireAdmin.jsx";
 import Landing from "./pages/Landing";
 import Marketplace from "./pages/Marketplace";
 import NoSubscription from "./pages/NoSubscription";
@@ -242,7 +243,10 @@ export default function App() {
           <Route path="/profile" element={<Profile />} />
           <Route path="/browse" element={<Browse />} />
           <Route path="/withdraw/amount" element={<WithdrawAmount />} />
-          <Route element={<RequireAdmin />}>
+        </Route>
+        {/* Admin has its own credential entry point; successful login is followed
+            by a server-side permission check before any CMS route renders. */}
+        <Route element={<RequireAdmin />}>
           <Route path="/admin" element={<AdminDataPage page="dashboard" />} />
           <Route path="/admin/dashboard" element={<AdminDataPage page="dashboard" />} />
           <Route path="/admin/data/:page" element={<AdminDataRoute />} />
@@ -263,7 +267,6 @@ export default function App() {
           <Route path="/admin/finance/disputes" element={<AdminDataPage page="disputes" />} />
           <Route path="/admin/finance/reconciliation/history" element={<AdminDataPage page="reconciliation" />} />
           <Route path="/admin/finance/exceptions" element={<AdminDataPage page="exceptions" />} />
-          </Route>
         </Route>
         <Route path="*" element={<Landing />} />
       </Routes>

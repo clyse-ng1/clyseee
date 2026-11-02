@@ -8,7 +8,7 @@ import GroupTabs from "../components/GroupTabs";
 import ExtraBlock from "../components/ExtraBlock";
 import MemberMini from "../components/MemberMini";
 import { BlurBg } from "../components/Decor";
-import { api, brandOf, kobo } from "../lib/api";
+import { api, brandOf, kobo, totalPriceKobo } from "../lib/api";
 import { groupBucket } from "../lib/useGroup";
 
 const SUB = "Manage your subscriptions, view details, and track your groups.";
@@ -52,7 +52,8 @@ function mapRow(g) {
   const b = groupBucket(g);
   const title = [g.service?.name, g.plan?.name].filter(Boolean).join(" ") || "Group";
   const plan = g.plan?.name ? `${g.plan.name} Plan` : "Premium Plan";
-  const price = g.plan?.total_price_kobo != null ? kobo(g.plan.total_price_kobo) : "—";
+  const total = totalPriceKobo(g);
+  const price = total != null ? kobo(total) : "—";
   const sub = `${g.slots_offered ?? 0} Slot Shared`;
   return {
     key: g.id,

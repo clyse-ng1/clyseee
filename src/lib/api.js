@@ -168,6 +168,22 @@ export function kobo(amountKobo) {
   return `₦${(n / 100).toLocaleString("en-NG", { maximumFractionDigits: 2 })}`;
 }
 
+/** Normalize the documented total-price variants used by catalogue/group APIs. */
+export function totalPriceKobo(record) {
+  const value =
+    record?.price?.total_kobo ??
+    record?.price?.total_price_kobo ??
+    record?.total_kobo ??
+    record?.total_price_kobo ??
+    record?.plan?.total_price_kobo ??
+    record?.plan?.total_kobo ??
+    record?.plan?.price?.total_kobo ??
+    null;
+  if (value == null || value === "") return null;
+  const n = Number(value);
+  return Number.isFinite(n) ? n : null;
+}
+
 /** ISO date -> "25 Sep 2026" (design format) */
 export function fmtDate(iso) {
   if (!iso) return "—";

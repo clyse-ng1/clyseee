@@ -4,9 +4,6 @@ import footerLogo from "../assets/footer-logo.webp";
 /* Homepage footer — Figma 255:3349 "Footer" (ry 2877–3549) + mobile 93:274 (y 677–1371).
    "Social Medial" designer typo fixed to "Social Media" per standing instruction. */
 
-const DISCLAIMER =
-  "Disclaimer: Clyse is a cost-sharing platform and intermediary only. We are not affiliated with third-party services (Netflix, Disney+, Spotify, etc.). Each user is responsible for verifying and complying with each service's terms of use. Mentioned brands belong to their respective owners.";
-
 const COLS = [
   {
     title: "Contact",
@@ -29,13 +26,10 @@ export function Footer({ mt = "mt-[100px]" }) {
   return (
     <footer className={`${mt} hidden xl:block`}>
       <div className="bg-mint px-[20px] min-[1440px]:px-[100px] pt-[50px] pb-[50px]">
-        <p className="mx-auto max-w-[1240px] text-center text-[25px] font-semibold leading-[35px] text-muted">
-          {DISCLAIMER}
-        </p>
         <img
           src={footerLogo}
           alt="Clyse"
-          className="mx-auto mt-[50px] h-[83px] w-[369px]"
+          className="mx-auto h-[83px] w-[369px]"
         />
         <div className="mx-auto mt-[50px] flex max-w-[1240px] gap-[145px]">
           {COLS.map((c, i) => (
@@ -72,13 +66,10 @@ export function MobileFooter({ mt = "mt-[50px]" }) {
   return (
     <footer className={`relative ${mt} xl:hidden`}>
       <div className="bg-mint px-[35px] pt-[35px] pb-[35px]">
-        <p className="text-center text-[17.34px] font-semibold leading-[24.27px] text-muted">
-          {DISCLAIMER}
-        </p>
         <img
           src={footerLogo}
           alt="Clyse"
-          className="mx-auto mt-[34px] h-[58px] w-[256px] object-cover"
+          className="mx-auto h-[58px] w-[256px] object-cover"
         />
         <div className="mt-[35px] grid grid-cols-[129px_132px] gap-x-[48px] gap-y-[21px]">
           {COLS.map((c, i) => (

@@ -152,8 +152,8 @@ function WithdrawModal({ open, onClose, earn, onDone }) {
                 </label>
                 <input
                   value={amount}
-                  onChange={(e) => setAmount(e.target.value)}
-                  inputMode="decimal"
+                  onChange={(e) => setAmount(e.target.value.replace(/\D/g, ""))}
+                  inputMode="numeric"
                   placeholder={String(min)}
                   className="mt-[8px] h-[50px] w-full rounded-[10px] border border-[#999999] px-[16px] text-[18px] font-semibold text-ink outline-none placeholder:text-[#999999] focus:border-clyse"
                 />

@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
 import { api } from "./api";
 
-/* Public catalogue (GET /catalogue, no auth): rows shaped
-   { service: { id, name, slug, category, ... }, plans: [...] }.
-   Plan totals are `total_kobo`. Cached module-wide for the session. */
+/* Public catalogue (GET /catalogue, no auth): rows may be the service fields
+   at the root or nested under `service`, with plans beside them. API plan totals
+   are `total_kobo`. Cached module-wide for the session. */
 let cache = null;
 
 export function useCatalogue() {
@@ -32,8 +32,8 @@ export function matchService(services, brand) {
   const key = (brand || "").toLowerCase();
   if (!key) return null;
   return (
-    list.find((a) => (a.service?.slug || "").toLowerCase().includes(key)) ||
-    list.find((a) => (a.service?.name || "").toLowerCase().includes(key)) ||
+    list.find((a) => `${a.service?.slug || a.slug || ""}`.toLowerCase().includes(key)) ||
+    list.find((a) => `${a.service?.name || a.name || ""}`.toLowerCase().includes(key)) ||
     null
   );
 }

@@ -114,10 +114,10 @@ export default function WithdrawAmount() {
               id="wd-amount"
               value={amount}
               onChange={(e) => {
-                setAmount(e.target.value.replace(/[^\d.,]/g, ""));
+                setAmount(e.target.value.replace(/\D/g, ""));
                 setError("");
               }}
-              inputMode="decimal"
+              inputMode="numeric"
               placeholder="Enter the amount you want to withdraw"
               className="mt-[15px] h-[60px] w-full rounded-[16px] border border-[#999999] bg-white px-[24px] text-[20px] font-semibold text-ink outline-none placeholder:text-[#999999] focus:border-clyse"
             />
@@ -214,10 +214,10 @@ export default function WithdrawAmount() {
               id="wd-amount-m"
               value={amount}
               onChange={(e) => {
-                setAmount(e.target.value.replace(/[^\d.,]/g, ""));
+                setAmount(e.target.value.replace(/\D/g, ""));
                 setError("");
               }}
-              inputMode="decimal"
+              inputMode="numeric"
               placeholder="Enter the amount you want to withdraw"
               className="mt-[12px] h-[56px] w-full rounded-[12px] border border-[#999999] bg-white px-[18px] text-[16px] font-semibold text-ink outline-none placeholder:text-[#999999] focus:border-clyse"
             />

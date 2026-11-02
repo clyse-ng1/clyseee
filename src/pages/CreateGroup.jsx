@@ -151,7 +151,9 @@ export default function CreateGroup() {
               <input
                 placeholder="Monthly price"
                 value={customPlan}
-                onChange={(e) => setCustomPlan(e.target.value)}
+                onChange={(e) => setCustomPlan(e.target.value.replace(/\D/g, ""))}
+                inputMode="numeric"
+                pattern="[0-9]*"
                 className="w-full bg-transparent text-[25px] font-semibold text-ink outline-none placeholder:font-semibold placeholder:text-[#999999]"
               />
             </div>
@@ -206,9 +208,11 @@ export default function CreateGroup() {
             </div>
             <div className="mx-[30px] mt-[25px] flex h-[69px] w-[calc(100%-60px)] max-w-[370px] items-center rounded-[11.1px] border-[0.69px] border-clyse bg-white pl-[35px]">
               <input
-                placeholder="Subscription name"
+                placeholder="Monthly price"
                 value={customPlan}
-                onChange={(e) => setCustomPlan(e.target.value)}
+                onChange={(e) => setCustomPlan(e.target.value.replace(/\D/g, ""))}
+                inputMode="numeric"
+                pattern="[0-9]*"
                 className="w-full bg-transparent text-[17.34px] font-semibold text-ink outline-none placeholder:font-semibold placeholder:text-[#999999]"
               />
             </div>

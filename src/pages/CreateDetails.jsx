@@ -91,7 +91,7 @@ export default function CreateDetails() {
       <Navbar loggedIn />
       <BlurBg variant="hero" />
       {/* Desktop */}
-      <main className="relative z-10 mx-[163px] mt-[100px] hidden xl:block">
+      <main className="relative z-10 mx-[100px] mt-[100px] hidden xl:block">
         <StepHeader step={2} />
         <h2 className="mt-[50px] text-center text-[35px] leading-[43px] font-bold">
           Group Details

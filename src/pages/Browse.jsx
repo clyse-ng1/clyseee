@@ -7,7 +7,7 @@ import BrandTile from "../components/BrandTile";
 import Sk from "../components/Skeleton";
 import { BlurBg } from "../components/Decor";
 import DropSelect from "../components/DropSelect";
-import { accessLabel, api, brandOf, kobo } from "../lib/api";
+import { accessLabel, api, brandOf, kobo, totalPriceKobo } from "../lib/api";
 import { useCatalogue } from "../lib/useCatalogue";
 import iconSearch from "../assets/side-search.svg";
 import iconDocSearch from "../assets/icon-doc-search-green.svg";
@@ -73,16 +73,17 @@ function JoinCard({ g }) {
 }
 
 function mapService(a) {
-  const plans = a.plans || [];
+  const service = a.service || a;
+  const plans = a.plans || a.catalogue_plans || [];
   const min = plans.reduce(
     (m, pl) => Math.min(m, pl.total_kobo ?? pl.total_price_kobo ?? Infinity),
     Infinity,
   );
   return {
-    brand: brandOf(a.service),
-    name: a.service?.name || "Subscription",
-    cat: a.service?.category || "Other",
-    chip: a.service?.category || "Entertainment",
+    brand: brandOf(service),
+    name: service.name || "Subscription",
+    cat: service.category || "Other",
+    chip: service.category || "Entertainment",
     price: min !== Infinity ? min : null,
   };
 }
@@ -93,7 +94,7 @@ function mapGroup(g) {
     avatar: null,
     name: [g.creator?.first_name, g.creator?.last_name].filter(Boolean).join(" ") || "Creator",
     service: [g.service?.name, g.plan?.name].filter(Boolean).join(" ") || "Subscription",
-    price: (g.price?.total_kobo ?? g.plan?.total_price_kobo) != null ? kobo(g.price?.total_kobo ?? g.plan.total_price_kobo) : "—",
+    price: totalPriceKobo(g) != null ? kobo(totalPriceKobo(g)) : "—",
     left: left === 1 ? "1 Slot left" : `${left} Slots left`,
     ratio: `${left} open`,
     access: accessLabel(g.access_method),
@@ -194,7 +195,7 @@ export default function Browse() {
     <div className="min-h-screen bg-white font-sans text-ink">
       <Navbar loggedIn />
       {/* Desktop */}
-      <main className="relative mx-[20px] min-[1440px]:mx-[100px] hidden pb-[100px] xl:block">
+      <main className="relative mx-auto hidden w-[1240px] pb-[100px] xl:block">
         <BlurBg variant="hero" />
         <div className="relative flex gap-[38px]">
           <Sidebar active="Browse Group" />
