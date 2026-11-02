@@ -27,12 +27,12 @@ function mapSub(s) {
   const service = s.service || {};
   const plan = s.plan || {};
   const name = [service.name, plan.name].filter(Boolean).join(" ") || "Subscription";
-  const planLine = plan.name ? `${plan.name} Plan` : "Premium Plan";
+  const planLine = plan.name ? `${plan.name} Plan` : "Plan details unavailable";
   // The row price lives on the membership (price.total_kobo); the nested
   // plan carries no totals.
   const total =
     s.price?.total_kobo ?? plan.total_price_kobo ?? plan.total_kobo ?? null;
-  const price = total != null ? kobo(total) : "N2,000";
+  const price = total != null ? kobo(total) : "—";
   let status = (s.derived_status || s.status || s.membership_status || "active").toLowerCase();
   // Rich membership axes override the coarse status when present.
   const pay = (s.payment_status || "").toLowerCase();
@@ -40,7 +40,7 @@ function mapSub(s) {
   if (pay === "due" || pay === "overdue" || ren === "due") status = "renewal_required";
   else if (ren === "declined" || ren === "ended") status = "ended";
   const d = daysUntil(s.current_period_end);
-  let subLine = "Renews in 12 days";
+  let subLine = "Renewal date unavailable";
   let pill = {};
   if (status === "active") {
     subLine =
@@ -73,6 +73,7 @@ function mapSub(s) {
 
 export default function Subscriptions() {
   const [subs, setSubs] = useState(null);
+  const [loadError, setLoadError] = useState(false);
 
   useEffect(() => {
     let live = true;
@@ -81,18 +82,25 @@ export default function Subscriptions() {
       // renewal axes); fall back to the lightweight subscriptions list.
       const first = await api("/member/memberships");
       const list = first.data?.memberships;
-      if (live && list) {
+      if (live && Array.isArray(list)) {
         setSubs(list);
         return;
       }
-      const { data } = await api("/member/subscriptions");
-      if (live) setSubs(data?.subscriptions || data?.memberships || []);
+      const fallback = await api("/member/subscriptions");
+      if (!live) return;
+      if (fallback.error) {
+        setLoadError(true);
+        setSubs([]);
+      } else {
+        setSubs(fallback.data?.subscriptions || fallback.data?.memberships || []);
+      }
     })();
     return () => {
       live = false;
     };
   }, []);
 
+  if (loadError) return <Navigate to="/subscriptions/error" replace />;
   if (subs && subs.length === 0) return <Navigate to="/subscriptions/empty" replace />;
 
   const rows = (subs || []).map(mapSub);

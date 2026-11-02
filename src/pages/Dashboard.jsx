@@ -17,7 +17,6 @@ import iconAccess from "../assets/access.svg";
 import { MemberMenuButton } from "../components/MemberMini";
 import Sk from "../components/Skeleton";
 import chevronRight from "../assets/angle-right.svg";
-import avatarAccount from "../assets/avatar-account.webp";
 import ctaDash from "../assets/cta-dash.webp";
 
 /* Logged-in dashboard home (Figma 481:10033 desktop / 481:10571 mobile).
@@ -81,13 +80,14 @@ function mapGroup(g) {
   const left = g.available_slots ?? Math.max(0, offered - occupied);
   return {
     id: g.group_id || g.id,
-    creator: g.creator?.first_name || g.creator_name || "Creator",
+    creator: [g.creator?.first_name, g.creator?.last_name].filter(Boolean).join(" ") || g.creator?.name || g.creator_name || "Group owner",
+    avatar: g.creator?.avatar_url || g.creator?.avatar || null,
     service: g.service?.name || "Subscription",
-    price: g.plan?.total_price_kobo != null ? kobo(g.plan.total_price_kobo) : "N2,000",
+    price: (g.price?.total_kobo ?? g.plan?.total_price_kobo) != null ? kobo(g.price?.total_kobo ?? g.plan.total_price_kobo) : "—",
     left: left === 1 ? "1 Slot left" : `${left} Slots left`,
     frac: offered ? `${occupied}/${offered}` : "",
     pct: offered ? occupied / offered : null,
-    access: accessLabel(g.access_method) || "Login Credential",
+    access: accessLabel(g.access_method) || "—",
     raw: g,
   };
 }
@@ -256,11 +256,17 @@ function GroupCard({ group }) {
   const g = group;
   return (
     <div className="w-[253px]">
-      <img
-        src={avatarAccount}
-        alt={g.creator}
-        className="relative z-[1] mx-auto h-[95px] w-[95px] rounded-full object-cover"
-      />
+      {g.avatar ? (
+        <img
+          src={g.avatar}
+          alt={g.creator}
+          className="relative z-[1] mx-auto h-[95px] w-[95px] rounded-full object-cover"
+        />
+      ) : (
+        <div aria-label={g.creator} className="relative z-[1] mx-auto grid h-[95px] w-[95px] place-items-center rounded-full border-2 border-white bg-[#DFFFE0] text-[25px] font-bold text-clyse">
+          {g.creator.split(/[ ]+/).map((part) => part[0]).slice(0, 2).join("").toUpperCase()}
+        </div>
+      )}
       <div className="bg-btn -mt-[51px] rounded-[16.23px] px-[24px] pt-[57px] pb-[24px]">
         <p className="text-[25px] leading-[23px] font-bold text-white">
           {g.creator}
@@ -275,22 +281,22 @@ function GroupCard({ group }) {
         </p>
         <div className="mt-[17px] ml-[2px] h-[1px] w-[201px] bg-[#B1DBB3]" />
         <div className="bg-mintband mt-[17px] h-[57px] rounded-[8.12px] pt-[8px] text-center">
-          <p className="text-[8.1px] leading-[16px] font-semibold text-white">
+          <p className="text-[8.1px] leading-[16px] font-semibold text-ink">
             Your Contribution
           </p>
           <p className="flex items-baseline justify-center">
-            <span className="text-[25px] leading-[24px] font-semibold text-white">
+            <span className="text-[25px] leading-[24px] font-semibold text-ink">
               {g.price}
             </span>
-            <span className="text-[10px] leading-[17px] font-semibold text-[#B1DBB3]">
+            <span className="text-[10px] leading-[17px] font-semibold text-[#245A27]">
               /Monthly
             </span>
           </p>
         </div>
         <div className="mt-[7px] ml-[1px] h-[6px] w-[201px] rounded-full bg-[#023F05]">
           <div
-            className="h-[6px] w-[143px] rounded-full bg-clyse"
-            style={g.pct == null ? undefined : { width: `${Math.round(g.pct * 201)}px` }}
+            className="h-[6px] rounded-full bg-clyse"
+            style={{ width: g.pct == null ? "0%" : `${Math.round(g.pct * 201)}px` }}
           />
         </div>
         <div className="mt-[3px] flex items-center justify-between text-[13px] leading-[16px] font-semibold text-mint">
@@ -325,11 +331,17 @@ function MobileGroupCard({ group }) {
   const g = group;
   return (
     <div>
-      <img
-        src={avatarAccount}
-        alt={g.creator}
-        className="relative z-[1] mx-auto h-[66px] w-[66px] rounded-full object-cover"
-      />
+      {g.avatar ? (
+        <img
+          src={g.avatar}
+          alt={g.creator}
+          className="relative z-[1] mx-auto h-[66px] w-[66px] rounded-full object-cover"
+        />
+      ) : (
+        <div aria-label={g.creator} className="relative z-[1] mx-auto grid h-[66px] w-[66px] place-items-center rounded-full border-2 border-white bg-[#DFFFE0] text-[17px] font-bold text-clyse">
+          {g.creator.split(/[ ]+/).map((part) => part[0]).slice(0, 2).join("").toUpperCase()}
+        </div>
+      )}
       <div className="bg-btn -mt-[33px] rounded-[11.16px] px-[17px] pt-[39px] pb-[17px]">
         <p className="text-[17.18px] leading-[16px] font-bold text-white">
           {g.creator}
@@ -344,22 +356,22 @@ function MobileGroupCard({ group }) {
         </p>
         <div className="mt-[12px] ml-[3px] h-[1px] w-[138px] bg-[#B1DBB3]" />
         <div className="bg-mintband mt-[11px] h-[39px] rounded-[5.58px] pt-[6px] text-center">
-          <p className="text-[5.58px] leading-[10px] font-semibold text-white">
+          <p className="text-[5.58px] leading-[10px] font-semibold text-ink">
             Your Contribution
           </p>
           <p className="flex items-baseline justify-center">
-            <span className="text-[17.18px] leading-[16px] font-semibold text-white">
+            <span className="text-[17.18px] leading-[16px] font-semibold text-ink">
               {g.price}
             </span>
-            <span className="text-[6.87px] leading-[12px] font-semibold text-[#B1DBB3]">
+            <span className="text-[6.87px] leading-[12px] font-semibold text-[#245A27]">
               /Monthly
             </span>
           </p>
         </div>
         <div className="mt-[5px] h-[4px] w-[138px] rounded-full bg-[#023F05]">
           <div
-            className="h-[4px] w-[98px] rounded-full bg-clyse"
-            style={g.pct == null ? undefined : { width: `${Math.round(g.pct * 138)}px` }}
+            className="h-[4px] rounded-full bg-clyse"
+            style={{ width: g.pct == null ? "0%" : `${Math.round(g.pct * 138)}px` }}
           />
         </div>
         <div className="mt-[2px] flex items-center justify-between text-[8.93px] leading-[12px] font-semibold text-mint">
@@ -503,9 +515,9 @@ export default function Dashboard() {
     }
   };
 
-  const name = displayName(user) || "Cristofer Westervelt";
+  const name = displayName(user) || "Member";
   const walletText = dash?.wallet ? kobo(dash.wallet.balance_kobo) : "\u2014";
-  const since = fmtDay(user?.created_at) || "20/11/2026";
+  const since = fmtDay(user?.created_at) || "—";
 
   const activeRows = (dash?.active_subscriptions || []).map(mapActive);
   const waitRows = (dash?.waitlists || []).map(mapWaitlist);
@@ -520,7 +532,7 @@ export default function Dashboard() {
         <BlurBg variant="hero" />
         <div className="relative flex gap-[38px]">
           <Sidebar active="Dashboard" />
-          <div className="w-[830px] flex-none">
+          <div className="mt-[30px] w-[830px] flex-none">
             <div className="flex gap-[30px]">
               <div className="bg-btn h-[245px] w-[500px] rounded-[20px] px-[35px] pt-[43px]">
                 <p className="text-[25px] leading-[35px] font-semibold text-white">
@@ -717,11 +729,13 @@ export default function Dashboard() {
         <BlurBg variant="page" />
         <div className="relative bg-white px-[30px] pt-[30px] pb-[21px]">
           <div className="flex items-center gap-[6px]">
-            <img
-              src={user?.avatar_url || avatarAccount}
-              alt={name}
-              className="h-[50px] w-[50px] rounded-full object-cover"
-            />
+            {user?.avatar_url ? (
+              <img src={user.avatar_url} alt={name} className="h-[50px] w-[50px] rounded-full object-cover" />
+            ) : (
+              <span aria-label={name} className="grid h-[50px] w-[50px] flex-none place-items-center rounded-full bg-[#DFFFE0] text-[16px] font-bold text-clyse">
+                {name.split(/[ ]+/).map((part) => part[0]).slice(0, 2).join("").toUpperCase()}
+              </span>
+            )}
             <div>
               <p className="text-[24.77px] leading-[28px] font-bold text-ink">
                 {name}

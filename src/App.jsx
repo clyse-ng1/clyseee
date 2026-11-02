@@ -1,6 +1,6 @@
 import { useEffect } from "react";
-import { BrowserRouter, Routes, Route, useLocation, useParams } from "react-router-dom";
-import { RequireAuth } from "./lib/auth.jsx";
+import { BrowserRouter, Routes, Route, Navigate, useLocation, useParams } from "react-router-dom";
+import { RequireAdmin, RequireAuth } from "./lib/auth.jsx";
 import Landing from "./pages/Landing";
 import Marketplace from "./pages/Marketplace";
 import NoSubscription from "./pages/NoSubscription";
@@ -28,7 +28,6 @@ import WalletEmpty from "./pages/WalletEmpty";
 import WalletError from "./pages/WalletError";
 import Join from "./pages/Join";
 import JoinPlan from "./pages/JoinPlan";
-import JoinGroup from "./pages/JoinGroup";
 import JoinSummary from "./pages/JoinSummary";
 import JoinSummaryError from "./pages/JoinSummaryError";
 import JoinPayment from "./pages/JoinPayment";
@@ -59,8 +58,11 @@ import WaitlistLeave from "./pages/WaitlistLeave";
 import WaitlistError from "./pages/WaitlistError";
 import WaitlistEmpty from "./pages/WaitlistEmpty";
 import Subscriptions from "./pages/Subscriptions";
+import SubscriptionHistory from "./pages/SubscriptionHistory";
 import SubError from "./pages/SubError";
 import SubReport from "./pages/SubReport";
+import CreatorDisputes from "./pages/CreatorDisputes";
+import { SubscriptionRequestList, SubscriptionRequestNew, SubscriptionRequestDetails } from "./pages/SubscriptionRequests";
 import SubDetails from "./pages/SubDetails";
 import SubEmpty from "./pages/SubEmpty";
 import CreateLive from "./pages/CreateLive";
@@ -107,6 +109,7 @@ const TITLES = {
   "/waitlist/error": "Waitlist Error — Clyse",
   "/waitlist/empty": "No Waitlist — Clyse",
   "/subscriptions": "My Subscription — Clyse",
+  "/subscriptions/history": "Subscription History — Clyse",
   "/subscriptions/details": "Subscription Details — Clyse",
   "/subscriptions/empty": "No Subscription — Clyse",
   "/create/activated": "Group Activated — Clyse",
@@ -190,7 +193,7 @@ export default function App() {
           <Route path="/join" element={<Join />} />
           <Route path="/join/:token" element={<JoinSummary />} />
           <Route path="/join/plan" element={<JoinPlan />} />
-          <Route path="/join/group" element={<JoinGroup />} />
+          <Route path="/join/group" element={<Navigate to="/marketplace" replace />} />
           <Route path="/join/summary" element={<JoinSummary />} />
           <Route path="/join/summary-error" element={<JoinSummaryError />} />
           <Route path="/join/payment" element={<JoinPayment />} />
@@ -221,10 +224,15 @@ export default function App() {
           <Route path="/waitlist/error" element={<WaitlistError />} />
           <Route path="/waitlist/empty" element={<WaitlistEmpty />} />
           <Route path="/subscriptions" element={<Subscriptions />} />
+          <Route path="/subscriptions/history" element={<SubscriptionHistory />} />
           <Route path="/subscriptions/details" element={<SubDetails />} />
           <Route path="/subscriptions/empty" element={<SubEmpty />} />
           <Route path="/subscriptions/error" element={<SubError />} />
           <Route path="/subscriptions/report" element={<SubReport />} />
+          <Route path="/disputes" element={<CreatorDisputes />} />
+          <Route path="/subscription-requests" element={<SubscriptionRequestList />} />
+          <Route path="/subscription-requests/new" element={<SubscriptionRequestNew />} />
+          <Route path="/subscription-requests/:id" element={<SubscriptionRequestDetails />} />
           <Route path="/create/activated" element={<CreateLive />} />
           <Route path="/create/not-activated" element={<CreateNotActivated />} />
           <Route path="/withdraw/select-bank" element={<SelectBank />} />
@@ -233,6 +241,7 @@ export default function App() {
           <Route path="/profile" element={<Profile />} />
           <Route path="/browse" element={<Browse />} />
           <Route path="/withdraw/amount" element={<WithdrawAmount />} />
+          <Route element={<RequireAdmin />}>
           <Route path="/admin" element={<AdminDataPage page="dashboard" />} />
           <Route path="/admin/data/:page" element={<AdminDataRoute />} />
           <Route path="/admin/subscriptions" element={<AdminDataPage page="services" />} />
@@ -252,6 +261,7 @@ export default function App() {
           <Route path="/admin/finance/disputes" element={<AdminDataPage page="disputes" />} />
           <Route path="/admin/finance/reconciliation/history" element={<AdminDataPage page="reconciliation" />} />
           <Route path="/admin/finance/exceptions" element={<AdminDataPage page="exceptions" />} />
+          </Route>
         </Route>
         <Route path="*" element={<Landing />} />
       </Routes>

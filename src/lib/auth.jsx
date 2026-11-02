@@ -172,3 +172,25 @@ export function RequireAuth() {
   }
   return <Outlet />;
 }
+
+/** Admin UI is gated by the same server permission used for the admin dashboard. */
+export function RequireAdmin() {
+  const { user, ready } = useAuth();
+  const [probe, setProbe] = useState({ userId: null, allowed: false });
+
+  useEffect(() => {
+    if (!ready || !user?.id) return;
+    let live = true;
+    (async () => {
+      const { error } = await api("/admin/dashboard");
+      if (live) setProbe({ userId: user.id, allowed: !error });
+    })();
+    return () => { live = false; };
+  }, [ready, user?.id]);
+
+  if (!ready || !user?.id || probe.userId !== user.id) {
+    return <div className="grid min-h-[40vh] place-items-center text-sm font-semibold text-[#66726C]">Checking administrator access…</div>;
+  }
+  if (!probe.allowed) return <Navigate to="/dashboard" replace />;
+  return <Outlet />;
+}

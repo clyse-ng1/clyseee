@@ -28,7 +28,9 @@ function DesktopCard({ card, from, selected, onSelect }) {
     <button
       type="button"
       onClick={onSelect}
-      className={`h-[200px] w-[250px] rounded-[20px] border bg-white pt-[31px] text-center shadow-[0_0_20px_rgba(0,23,1,0.10)] ${
+      aria-pressed={selected}
+      aria-label={`Select ${card.title}`}
+      className={`h-[200px] w-[250px] cursor-pointer rounded-[20px] border bg-white pt-[31px] text-center shadow-[0_0_20px_rgba(0,23,1,0.10)] transition hover:shadow-[0_0_14px_rgba(4,139,11,0.2)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clyse ${
         selected ? "border-[2px] border-clyse bg-[#F1F8F1]" : "border-clyse"
       }`}
     >
@@ -43,7 +45,7 @@ function DesktopCard({ card, from, selected, onSelect }) {
       </span>
       <span className="mt-[10px] flex items-baseline justify-center gap-[4px]">
         <span className="text-[18px] leading-[22px] font-semibold text-ink">
-          From &#8358;{from}/
+          {from === "—" ? "Price unavailable" : <>From &#8358;{from}/</>}
         </span>
         <span className="text-[13px] leading-[16px] font-semibold text-ash">
           Monthly
@@ -58,7 +60,9 @@ function MobileCard({ card, from, selected, onSelect }) {
     <button
       type="button"
       onClick={onSelect}
-      className={`h-[130px] rounded-[12.95px] border bg-white pt-[20px] text-center shadow-[0_0_13px_rgba(0,23,1,0.10)] ${
+      aria-pressed={selected}
+      aria-label={`Select ${card.title}`}
+      className={`h-[130px] cursor-pointer rounded-[12.95px] border bg-white pt-[20px] text-center shadow-[0_0_13px_rgba(0,23,1,0.10)] transition hover:shadow-[0_0_12px_rgba(4,139,11,0.2)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clyse ${
         selected ? "border-[2px] border-clyse bg-[#F1F8F1]" : "border-clyse"
       }`}
     >
@@ -73,7 +77,7 @@ function MobileCard({ card, from, selected, onSelect }) {
       </span>
       <span className="mt-[7px] flex items-baseline justify-center gap-[3px]">
         <span className="text-[11.66px] leading-[14px] font-semibold text-ink">
-          From &#8358;{from}/
+          {from === "—" ? "Price unavailable" : <>From &#8358;{from}/</>}
         </span>
         <span className="text-[8.42px] leading-[10px] font-semibold text-ash">
           Monthly
@@ -93,7 +97,7 @@ export default function CreateGroup() {
 
   const fromFor = (brand) => {
     const min = minPrice(services, brand);
-    return min != null ? Math.round(min / 100).toLocaleString("en-US") : "2,000";
+    return min != null ? Math.round(min / 100).toLocaleString("en-US") : "—";
   };
   const nextState = custom
     ? {

@@ -13,9 +13,9 @@ export function useCatalogue() {
     if (cache) return;
     let live = true;
     (async () => {
-      const { data } = await api("/catalogue", { auth: false });
-      if (!live || !data) return;
-      cache = data.services || data.catalogue || [];
+      const { data, error } = await api("/catalogue", { auth: false });
+      if (!live) return;
+      cache = error ? [] : data?.services || data?.catalogue || [];
       setServices(cache);
     })();
     return () => {

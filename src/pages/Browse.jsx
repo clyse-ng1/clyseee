@@ -10,14 +10,6 @@ import { accessLabel, api, brandOf, kobo } from "../lib/api";
 import { useCatalogue } from "../lib/useCatalogue";
 import iconSearch from "../assets/side-search.svg";
 import iconDocSearch from "../assets/icon-doc-search-green.svg";
-import avatar1 from "../assets/avatar-1.webp";
-import avatar2 from "../assets/avatar-2.webp";
-import avatar3 from "../assets/avatar-3.webp";
-import avatarAshlynn from "../assets/avatar-ashlynn.webp";
-import avatarAspen from "../assets/avatar-aspen.webp";
-import avatarKianna from "../assets/avatar-kianna.webp";
-import avatarCurtis from "../assets/avatar-ashlynn-curtis.webp";
-import avatarAccount from "../assets/avatar-account.webp";
 
 /* Logged-in browse — desktop Figma 806:31476 (results) + 807:34801
    (no-result), mobile Figma 807:37875 (EVM9) + 807:38349 (EVM10).
@@ -37,40 +29,20 @@ const CATS = [
   "Productivity",
 ];
 
-const BRANDS = [
-  { brand: "netflix", name: "Netflix Premium", cat: "Movies & Series" },
-  { brand: "adobe", name: "Adobe Creative Cloud", cat: "Productivity" },
-  { brand: "amazon", name: "Amazon", cat: "Cloud" },
-  { brand: "spotify", name: "Spotify Premium", cat: "Music" },
-  { brand: "canva", name: "Canva Pro", cat: "Productivity" },
-  { brand: "capcut", name: "CapCut Pro", cat: "Streaming" },
-  { brand: "youtube", name: "YouTube Premium", cat: "Streaming" },
-  { brand: "prime", name: "Prime Video", cat: "Movies & Series" },
-];
-
-const GROUPS = [
-  { avatar: avatarAccount, name: "Marcus Saris", service: "Netflix Premium", price: "N2,000", left: "1 Slot left", ratio: "3/4" },
-  { avatar: avatarAshlynn, name: "Ashlynn Curtis", service: "Spotify Premium", price: "N2,000", left: "1 Slot left", ratio: "3/4" },
-  { avatar: avatar2, name: "Davis Ekstrom", service: "YouTube Premium", price: "N2,000", left: "1 Slot left", ratio: "3/4" },
-  { avatar: avatarKianna, name: "Kianna Passaquindici", service: "Canva Pro", price: "N2,000", left: "1 Slot left", ratio: "3/4" },
-  { avatar: avatarCurtis, name: "Curtis Rhiel Madsen", service: "Prime Video", price: "N2,000", left: "1 Slot left", ratio: "3/4" },
-  { avatar: avatarAspen, name: "Aspen Gouse", service: "Adobe Creative Cloud", price: "N2,000", left: "1 Slot left", ratio: "3/4" },
-  { avatar: avatar1, name: "Kaylynn Vetrovs", service: "Amazon", price: "N2,000", left: "1 Slot left", ratio: "3/4" },
-  { avatar: avatar3, name: "Abram Botosh", service: "CapCut Pro", price: "N2,000", left: "1 Slot left", ratio: "3/4" },
-  { avatar: avatarAccount, name: "Yusuff Sodiq", service: "Netflix Premium", price: "N2,500", left: "2 Slots left", ratio: "2/4" },
-  { avatar: avatarAshlynn, name: "Maria Saris", service: "Spotify Premium", price: "N2,500", left: "2 Slots left", ratio: "2/4" },
-  { avatar: avatar2, name: "Tolu Adeyemi", service: "YouTube Premium", price: "N2,500", left: "2 Slots left", ratio: "2/4" },
-  { avatar: avatarKianna, name: "Aisha Bello", service: "Canva Pro", price: "N2,500", left: "2 Slots left", ratio: "2/4" },
-];
-
 function JoinCard({ g }) {
   return (
     <div className="bg-btn relative w-[253px] flex-none rounded-[16px] px-[20px] pt-[34px] pb-[20px] text-center">
-      <img
-        src={g.avatar || avatarAccount}
-        alt=""
-        className="absolute -top-[32px] left-1/2 h-[64px] w-[64px] -translate-x-1/2 rounded-full border-2 border-white object-cover"
-      />
+      {g.avatar ? (
+        <img
+          src={g.avatar}
+          alt={g.name}
+          className="absolute -top-[32px] left-1/2 h-[64px] w-[64px] -translate-x-1/2 rounded-full border-2 border-white object-cover"
+        />
+      ) : (
+        <div aria-label={g.name} className="absolute -top-[32px] left-1/2 grid h-[64px] w-[64px] -translate-x-1/2 place-items-center rounded-full border-2 border-white bg-[#DFFFE0] text-[16px] font-bold text-clyse">
+          {g.name.split(/[ ]+/).map((part) => part[0]).slice(0, 2).join("").toUpperCase()}
+        </div>
+      )}
       <p className="mt-[8px] truncate text-[18px] leading-[22px] font-bold text-white">
         {g.name}
       </p>
@@ -122,8 +94,8 @@ function mapService(a) {
 function mapGroup(g) {
   const left = g.open_slots ?? g.available_slots ?? 0;
   return {
-    avatar: null,
-    name: [g.creator?.first_name, g.creator?.last_name].filter(Boolean).join(" ") || "Creator",
+    avatar: g.creator?.avatar_url || g.creator?.avatar || null,
+    name: [g.creator?.first_name, g.creator?.last_name].filter(Boolean).join(" ") || g.creator?.name || "Group owner",
     service: [g.service?.name, g.plan?.name].filter(Boolean).join(" ") || "Subscription",
     price: (g.price?.total_kobo ?? g.plan?.total_price_kobo) != null ? kobo(g.price?.total_kobo ?? g.plan.total_price_kobo) : "—",
     left: left === 1 ? "1 Slot left" : `${left} Slots left`,
@@ -160,10 +132,12 @@ export default function Browse() {
   }, []);
 
   const liveBrands = services === null ? null : services.map(mapService);
+  const loadingGroups = availGroups === null;
+  const loadingCatalog = services === null;
 
   const brands = useMemo(() => {
     const needle = q.trim().toLowerCase();
-    return (liveBrands || BRANDS).filter(
+    return (liveBrands || []).filter(
       (b) =>
         (cat === "All" || b.cat === cat) &&
         (!needle || b.name.toLowerCase().includes(needle)),
@@ -172,7 +146,7 @@ export default function Browse() {
 
   const groups = useMemo(() => {
     const needle = q.trim().toLowerCase();
-    const all = availGroups === null ? GROUPS : availGroups.map(mapGroup);
+    const all = availGroups === null ? [] : availGroups.map(mapGroup);
     if (!needle) return all;
     return all.filter(
       (g) =>
@@ -181,7 +155,7 @@ export default function Browse() {
     );
   }, [q, availGroups]);
 
-  const noResult = brands.length === 0;
+  const noResult = !loadingCatalog && brands.length === 0;
   const brandList = showAllBrands ? brands : brands.slice(0, 6);
   const groupList = showAllGroups ? groups : groups.slice(0, 6);
 
@@ -190,7 +164,7 @@ export default function Browse() {
       className={
         mobile
           ? "scrollbar-none -mx-[30px] flex gap-[10px] overflow-x-auto px-[30px] pb-[4px]"
-          : "flex gap-[16px] overflow-x-auto pb-[4px]"
+          : "scrollbar-none flex gap-[16px] overflow-x-auto pb-[4px]"
       }
     >
       {CATS.map((c) => {
@@ -228,7 +202,7 @@ export default function Browse() {
         <BlurBg variant="hero" />
         <div className="relative flex gap-[38px]">
           <Sidebar active="Browse Group" />
-          <div className="w-[830px] flex-none">
+          <div className="w-[830px] flex-none pt-[30px]">
             <div className="flex h-[80px] items-center gap-[20px] rounded-[15px] border border-[#57A35B] bg-white px-[32px]">
               <img src={iconSearch} alt="" className="h-[30px] w-[30px]" />
               <input
@@ -265,7 +239,9 @@ export default function Browse() {
                   Available Group Subscription
                 </h1>
                 <div className="mt-[30px] grid grid-cols-3 gap-x-[82px] gap-y-[50px]">
-                  {brandList.map((b) => (
+                  {loadingCatalog ? (
+                    <p className="col-span-3 text-center text-[18px] font-semibold text-[#6B6B6B]">Loading catalogue…</p>
+                  ) : brandList.map((b) => (
                     <button
                       key={b.brand}
                       type="button"
@@ -297,11 +273,13 @@ export default function Browse() {
               Join Group
             </h2>
             <div className="mt-[62px] grid grid-cols-3 gap-x-[38px] gap-y-[62px]">
-              {groupList.map((g, i) => (
+              {loadingGroups ? (
+                <p className="col-span-3 text-center text-[18px] font-semibold text-[#6B6B6B]">Loading open groups…</p>
+              ) : groupList.map((g, i) => (
                 <JoinCard key={`${g.name}-${i}`} g={g} />
               ))}
             </div>
-            {groups.length === 0 && (
+            {groups.length === 0 && !loadingGroups && (
               <p className="mt-[30px] text-center text-[18px] font-semibold text-[#6B6B6B]">
                 {q.trim()
                   ? "No groups match your search."
@@ -350,7 +328,7 @@ export default function Browse() {
             </div>
             <DropSelect
               value={picked || ""}
-              options={["All", ...(liveBrands || BRANDS).map((b) => b.name)]}
+              options={["All", ...(liveBrands || []).map((b) => b.name)]}
               onChange={(o) => {
                 if (o === "All") {
                   setPicked(null);
@@ -389,7 +367,9 @@ export default function Browse() {
             </div>
           ) : (
             <div className="mt-[24px] grid grid-cols-2 gap-[16px]">
-              {(showAllBrands ? brands : brands.slice(0, 8)).map((b) => (
+              {loadingCatalog ? (
+                <p className="col-span-2 text-center text-[14px] font-semibold text-[#6B6B6B]">Loading catalogue…</p>
+              ) : (showAllBrands ? brands : brands.slice(0, 8)).map((b) => (
                 <button
                   key={b.brand}
                   type="button"
@@ -404,7 +384,7 @@ export default function Browse() {
                     {b.chip || b.cat || "Entertainment"}
                   </span>
                   <span className="mt-[6px] text-[11.5px] leading-[14px] font-semibold text-ink">
-                    {b.price != null ? <>From {kobo(b.price)}/</> : <>From N2,000/</>}<span className="text-[9px]">Monthly</span>
+                    {b.price != null ? <>From {kobo(b.price)}/</> : <>Price unavailable</>}<span className="text-[9px]">Monthly</span>
                   </span>
                 </button>
               ))}

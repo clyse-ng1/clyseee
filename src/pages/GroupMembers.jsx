@@ -26,6 +26,12 @@ const ACCESS = {
   text: "text-[#FF0000]",
   dot: "bg-[#FF0000]",
 };
+const ENDED = {
+  label: "Ended",
+  bg: "bg-[#F1F1F1]",
+  text: "text-[#6B6B6B]",
+  dot: "bg-[#999999]",
+};
 
 const SUB = "Member";
 
@@ -33,14 +39,20 @@ function memberBucket(m) {
   if (m.access?.needs_reconfirmation) return "access";
   const s = (m.status || "active").toLowerCase();
   if (s === "active") return "active";
-  if (s === "removed") return "failed";
-  return "pending";
+  if (["removed", "cancelled", "expired", "ended", "suspended"].includes(s)) return "failed";
+  if (["pending", "awaiting_payment"].includes(s)) return "pending";
+  return "failed";
 }
 
 function memberPill(m) {
   const b = memberBucket(m);
   if (b === "access") return ACCESS;
   if (b === "active") return ACTIVE;
+  if (b === "pending") return PENDING;
+  if (b === "failed") {
+    const s = String(m.status || "").toLowerCase();
+    return { ...ENDED, label: s === "removed" ? "Removed" : s === "cancelled" ? "Cancelled" : s === "suspended" ? "Suspended" : "Ended" };
+  }
   return PENDING;
 }
 
@@ -49,19 +61,20 @@ function initials(name) {
   return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
 }
 
-function RemoveButton({ mid, canRemove, armed, busy, onRemove, mobile = false }) {
-  if (!mid || canRemove === false) return null;
+function RemoveButton({ mid, canRemove, busy, onRemove, mobile = false }) {
+  if (!mid || canRemove !== true) return null;
   return (
     <button
       type="button"
       onClick={onRemove}
+      disabled={busy}
       className={
         mobile
-          ? `mt-[4px] text-[11px] leading-[14px] font-semibold ${armed ? "text-[#FF0000]" : "text-[#999999]"}`
-          : `mt-[6px] text-[13px] leading-[16px] font-semibold ${armed ? "text-[#FF0000]" : "text-[#999999]"}`
+          ? "mt-[4px] text-[11px] leading-[14px] font-semibold text-[#E31B00] disabled:opacity-60"
+          : "mt-[6px] text-[13px] leading-[16px] font-semibold text-[#E31B00] disabled:opacity-60"
       }
     >
-      {busy ? "Removing…" : armed ? "Tap again to remove" : "Remove"}
+      {busy ? "Removing…" : "Remove member"}
     </button>
   );
 }
@@ -94,7 +107,7 @@ function MemberRowMSk() {
 }
 
 /* Desktop row (G4): 75px avatar + name/tag/sub + fixed 160px pill. */
-function MemberRow({ name, status, sub, mid, canRemove, armed, busy, onRemove, onDetails }) {
+function MemberRow({ name, status, sub, mid, canRemove, busy, onRemove, onDetails }) {
   return (
     <div className="flex h-[127px] items-center rounded-[20px] bg-white px-[31px] shadow-[0_0_20px_rgba(0,23,1,0.10)]">
       <span className="grid h-[75px] w-[75px] flex-none place-items-center rounded-full bg-[#DFFFE0] text-[25px] font-bold text-ink">
@@ -107,7 +120,7 @@ function MemberRow({ name, status, sub, mid, canRemove, armed, busy, onRemove, o
         <span className="mt-[1px] block text-[10px] leading-[12px] font-semibold text-clyse">
           Entertainment
         </span>
-        <span className="mt-[8px] block text-[18px] leading-[22px] font-semibold whitespace-nowrap text-[#6B6B6B]">
+        <span className="mt-[8px] block max-w-[400px] truncate text-[15px] leading-[22px] font-semibold whitespace-nowrap text-[#6B6B6B]">
           {sub}
         </span>
       </span>
@@ -123,7 +136,6 @@ function MemberRow({ name, status, sub, mid, canRemove, armed, busy, onRemove, o
         <RemoveButton
           mid={mid}
           canRemove={canRemove}
-          armed={armed}
           busy={busy}
           onRemove={onRemove}
         />
@@ -142,7 +154,7 @@ function MemberRow({ name, status, sub, mid, canRemove, armed, busy, onRemove, o
 }
 
 /* Mobile row (M12): h87, 50px avatar + name/sub, hug pill, no tag. */
-function MemberRowM({ name, status, sub, mid, canRemove, armed, busy, onRemove, onDetails }) {
+function MemberRowM({ name, status, sub, mid, canRemove, busy, onRemove, onDetails }) {
   return (
     <div className="flex h-[87px] rounded-[20px] bg-white px-[11px] shadow-[0_0_20px_rgba(0,23,1,0.10)]">
       <span className="grid h-[50px] w-[50px] flex-none place-items-center self-center rounded-full bg-[#DFFFE0] text-[18px] font-bold text-ink">
@@ -152,7 +164,7 @@ function MemberRowM({ name, status, sub, mid, canRemove, armed, busy, onRemove, 
         <span className="block text-[18px] leading-[22px] font-semibold whitespace-nowrap text-ink">
           {name}
         </span>
-        <span className="mt-[13px] block text-[13px] leading-[20px] font-semibold whitespace-nowrap text-[#6B6B6B]">
+        <span className="mt-[13px] block max-w-[158px] truncate text-[11px] leading-[20px] font-semibold whitespace-nowrap text-[#6B6B6B]">
           {sub}
         </span>
       </span>
@@ -167,7 +179,6 @@ function MemberRowM({ name, status, sub, mid, canRemove, armed, busy, onRemove, 
         <RemoveButton
           mid={mid}
           canRemove={canRemove}
-          armed={armed}
           busy={busy}
           onRemove={onRemove}
           mobile
@@ -193,7 +204,6 @@ export default function GroupMembers() {
   const [failed, setFailed] = useState(false);
   const [group, setGroup] = useState(null);
   const [tab, setTab] = useState(0);
-  const [armed, setArmed] = useState(null);
   const [busyId, setBusyId] = useState(null);
   const [removeError, setRemoveError] = useState("");
   const [detailMid, setDetailMid] = useState(null);
@@ -239,35 +249,53 @@ export default function GroupMembers() {
 
   const doRemove = async (mid) => {
     if (!mid || busyId) return;
-    if (armed !== mid) {
-      setArmed(mid);
-      setRemoveError("");
-      return;
-    }
+    const member = (members || []).find((m) => m.membership_id === mid);
+    const memberName = member?.first_name || member?.full_name || "this member";
+    const confirmed = window.confirm(
+      `Remove ${memberName} from this group? This revokes their access and frees the slot. Their membership history will be kept. This action does not issue a refund.`,
+    );
+    if (!confirmed) return;
     setBusyId(mid);
     setRemoveError("");
-    const { error: apiError } = await api("/member/groups/members/remove", {
+    const { data, error: apiError } = await api("/member/groups/members/remove", {
       method: "POST",
       body: { membership_id: mid, reason: "Removed by group creator" },
     });
     setBusyId(null);
-    setArmed(null);
     if (apiError) {
       setRemoveError(apiError.message || "Could not remove this member. Please try again.");
       return;
     }
     setMembers((ms) => (ms || []).filter((m) => m.membership_id !== mid));
+    // The removal endpoint returns authoritative slot counts; use those rather
+    // than guessing, so the member list stays in sync with the group summary.
+    if (data && group) {
+      setGroup((g) => ({
+        ...g,
+        ...(data.occupied_slots != null ? { occupied_slots: data.occupied_slots } : {}),
+        ...(data.available_slots != null ? { available_slots: data.available_slots } : {}),
+      }));
+    }
   };
 
   const rows = (members || []).map((m) => ({
     key: m.membership_id,
     mid: m.membership_id,
-    canRemove: m.permissions?.can_remove !== false,
+    canRemove: m.permissions?.can_remove === true,
     bucket: memberBucket(m),
     name: m.first_name || m.full_name || "Member",
     status: memberPill(m),
+    sub: [
+      m.joined_at ? `Joined ${fmtDay(m.joined_at)}` : null,
+      m.payment?.amount_kobo != null ? `Paid ${kobo(m.payment.amount_kobo)}` : null,
+      m.access?.needs_reconfirmation
+        ? "Access needs reconfirmation"
+        : m.access?.confirmed
+          ? "Access confirmed"
+          : "Access not confirmed",
+    ].filter(Boolean).join(" · "),
   }));
-  const sub = group
+  const groupLabel = group
     ? `Member | ${[group.service?.name, group.plan?.name].filter(Boolean).join(" ")} Plan`
     : SUB;
   const counts = {
@@ -304,6 +332,12 @@ export default function GroupMembers() {
               Member
             </h1>
             <GroupTabs tabs={tabs} className="mt-[50px]" active={tab} onSelect={setTab} loading={!members && !loadFailed} />
+            {group && (group.available_slots != null || group.slots_offered != null) && (
+              <p className="mt-[14px] text-[15px] font-semibold text-[#6B6B6B]">
+                Slots available: {group.available_slots ?? Math.max(0, (group.slots_offered || 0) - (group.occupied_slots || 0))}
+                {group.slots_offered != null ? ` of ${group.slots_offered}` : ""}
+              </p>
+            )}
             <div className="mt-[30px] rounded-[20px] bg-white px-[40px] pt-[85px] pb-[50px] shadow-[0_0_20px_rgba(0,23,1,0.10)]">
               {removeError && (
                 <p className="mb-[16px] text-[16px] leading-[20px] font-semibold text-[#FF0000]">
@@ -318,8 +352,7 @@ export default function GroupMembers() {
                     <MemberRow
                       key={m.key || m.name}
                       {...m}
-                      sub={sub}
-                      armed={m.mid != null && armed === m.mid}
+                      sub={m.sub || groupLabel}
                       busy={m.mid != null && busyId === m.mid}
                       onRemove={() => doRemove(m.mid)}
                       onDetails={() => openDetail(m.mid)}
@@ -367,6 +400,12 @@ export default function GroupMembers() {
             View All
           </p>
           <GroupTabs tabs={tabs} className="mt-[12px]" active={tab} onSelect={setTab} loading={!members && !loadFailed} />
+          {group && (group.available_slots != null || group.slots_offered != null) && (
+            <p className="mt-[10px] text-right text-[12px] font-semibold text-[#6B6B6B]">
+              Slots available: {group.available_slots ?? Math.max(0, (group.slots_offered || 0) - (group.occupied_slots || 0))}
+              {group.slots_offered != null ? ` of ${group.slots_offered}` : ""}
+            </p>
+          )}
         </div>
         <div className="mt-[30px] bg-white px-[30px] pt-[85px] pb-[50px]">
           {removeError && (
@@ -382,8 +421,7 @@ export default function GroupMembers() {
                 <MemberRowM
                   key={m.key || m.name}
                   {...m}
-                  sub={sub}
-                  armed={m.mid != null && armed === m.mid}
+                  sub={m.sub || groupLabel}
                   busy={m.mid != null && busyId === m.mid}
                   onRemove={() => doRemove(m.mid)}
                   onDetails={() => openDetail(m.mid)}
@@ -433,6 +471,14 @@ export default function GroupMembers() {
                     ? kobo(detail.membership.payment.amount_kobo)
                     : "—"
                 }
+              />
+              <DetailRow
+                label="Paid on"
+                value={fmtDay(detail.membership?.payment?.paid_at) || "—"}
+              />
+              <DetailRow
+                label="Paid through"
+                value={fmtDay(detail.membership?.current_period_end) || "—"}
               />
               {(detail.timeline || []).length > 0 && (
                 <>

@@ -50,9 +50,17 @@ export function useSubscription(membershipId) {
       }
       const membership = m.data?.membership || m.data || null;
       const groupId = membership?.group_id;
+      // Never request secrets for an ended, expired, or unavailable membership.
+      // The API independently enforces this, but keep the client boundary safe too.
+      const lifecycle = String(
+        membership?.membership_status || membership?.status || "",
+      ).toLowerCase();
+      const accessStatus = String(membership?.access_status || "").toLowerCase();
+      const mayLoadAccess =
+        lifecycle === "active" && accessStatus !== "unavailable" && !!groupId;
       // Access may legitimately be missing; only a detail failure is fatal.
-      const a = groupId
-        ? await api(`/member/access?group_id=${groupId}`)
+      const a = mayLoadAccess
+        ? await api(`/member/access?group_id=${encodeURIComponent(groupId)}`)
         : { data: null };
       if (!live) return;
       setState({ loading: false, membership, access: a.data || null, error: null });

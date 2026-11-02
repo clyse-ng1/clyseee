@@ -7,13 +7,11 @@ import iconChevDownSm from "../assets/icon-chev-down-sm.svg";
 
 const LINKS = ["Home", "How it Works", "Why Clyse", "About", "Contact"];
 /* Logged-in links per newest Figma app frames (D08/D09/D10). */
-const LOGGED_LINKS = ["Home", "Join Group", "Create Group", "About Us", "Contact Us"];
+const LOGGED_LINKS = ["Home", "Join Group", "Create Group"];
 const LOGGED_ROUTES = {
   Home: "/",
   "Join Group": "/join",
   "Create Group": "/create-group",
-  "About Us": "/about",
-  "Contact Us": "/contact",
 };
 const PUBLIC_ROUTES = {
   "How it Works": "/#how-it-works",

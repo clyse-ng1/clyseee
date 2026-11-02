@@ -139,7 +139,7 @@ function KeepLinks({ membershipId }) {
 export default function SubDetails() {
   const location = useLocation();
   const [membershipId, resolved] = useMembershipId(location.state?.membership_id);
-  const { membership, access, error } = useSubscription(membershipId);
+  const { membership, access, loading, error } = useSubscription(membershipId);
   const [renewal, setRenewal] = useState(undefined);
   const [confirmed, setConfirmed] = useState(false);
   const groupId = membership?.group_id;
@@ -156,9 +156,7 @@ export default function SubDetails() {
           (x) =>
             x.status === "pending" &&
             (x.membership_id === membershipId || (groupId && x.group_id === groupId)),
-        ) ||
-          list.find((x) => x.status === "pending" && x.can_renew !== false) ||
-          null,
+        ) || null,
       );
     })();
     return () => {
@@ -168,14 +166,33 @@ export default function SubDetails() {
 
   if (resolved && !membershipId) return <Navigate to="/subscriptions/empty" replace />;
   if (error) return <Navigate to="/subscriptions/error" replace />;
+  if (loading || !membership) {
+    return (
+      <div className="min-h-screen bg-white font-sans text-ink">
+        <Navbar loggedIn />
+        <main className="mx-auto max-w-[830px] px-[24px] py-[100px] text-center">
+          <p className="text-[18px] font-semibold text-[#6B6B6B]" role="status">Loading membership details…</p>
+        </main>
+      </div>
+    );
+  }
 
+  const membershipLifecycle = String(
+    membership?.membership_status || membership?.status || "",
+  ).toLowerCase();
+  const accessAvailable =
+    !!access && membershipLifecycle === "active" && membership?.access_status !== "unavailable";
   const alreadyConfirmed =
     access?.membership?.access_confirmed && !access?.membership?.needs_reconfirmation;
   const confirmSlot =
     confirmed || alreadyConfirmed ? (
       <ConfirmedState />
-    ) : (
+    ) : accessAvailable ? (
       <ConfirmButton groupId={groupId} done={() => setConfirmed(true)} />
+    ) : (
+      <p className="text-center text-[14px] font-semibold text-[#6B6B6B]">
+        Access confirmation is available when your membership has active access.
+      </p>
     );
 
   return (
@@ -190,7 +207,7 @@ export default function SubDetails() {
             membership={membership}
             access={access}
             actionSlot={confirmSlot}
-            renewSlot={<RenewButton renewal={renewal || null} />}
+            renewSlot={renewal?.can_renew !== false && renewal ? <RenewButton renewal={renewal} /> : null}
           />
           <div className="mt-[66px] text-center">
             <Link
@@ -212,7 +229,7 @@ export default function SubDetails() {
             membership={membership}
             access={access}
             actionSlot={confirmSlot}
-            renewSlot={<RenewButton renewal={renewal || null} />}
+            renewSlot={renewal?.can_renew !== false && renewal ? <RenewButton renewal={renewal} /> : null}
           />
           <div className="mt-[40px] text-center">
             <Link

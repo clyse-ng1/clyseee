@@ -1,8 +1,6 @@
 import { Link } from "react-router-dom";
-import avatarAccount from "../assets/avatar-account.webp";
 import { useAuth } from "../lib/useAuth";
 import { displayName, fmtDay } from "../lib/api";
-import iconRowArrow from "../assets/side-row-arrow.svg";
 import ExtraBlock from "./ExtraBlock";
 import { SECTIONS } from "./sidebarNav";
 
@@ -28,13 +26,6 @@ function Row({ r, active }) {
       >
         {r.label}
       </span>
-      {!active && (
-        <img
-          src={iconRowArrow}
-          alt=""
-          className="ml-auto h-[26px] w-[26px] flex-none"
-        />
-      )}
     </>
   );
   return r.to ? (
@@ -50,17 +41,23 @@ function Row({ r, active }) {
 
 export default function Sidebar({ active }) {
   const { user } = useAuth();
-  const name = displayName(user) || "Marcus Saris";
-  const since = fmtDay(user?.created_at) || "20/11/2026";
+  const name = displayName(user) || "Member";
+  const since = fmtDay(user?.created_at) || "—";
   return (
     <aside className="w-[372px] flex-none">
       <div className="bg-white px-[40px] pt-[50px] pb-[40px] shadow-[0_0_20px_rgba(0,23,1,0.10)]">
         <div className="flex items-center">
-          <img
-            src={user?.avatar_url || avatarAccount}
-            alt={name}
-            className="h-[50px] w-[50px] rounded-full border-[0.5px] border-mint object-cover shadow-[0_0_7px_rgba(0,23,1,0.25)]"
-          />
+          {user?.avatar_url ? (
+            <img
+              src={user.avatar_url}
+              alt={name}
+              className="h-[50px] w-[50px] rounded-full border-[0.5px] border-mint object-cover shadow-[0_0_7px_rgba(0,23,1,0.25)]"
+            />
+          ) : (
+            <span aria-label={name} className="grid h-[50px] w-[50px] flex-none place-items-center rounded-full border-[0.5px] border-mint bg-[#DFFFE0] text-[16px] font-bold text-clyse shadow-[0_0_7px_rgba(0,23,1,0.25)]">
+              {name.split(/[ ]+/).map((part) => part[0]).slice(0, 2).join("").toUpperCase()}
+            </span>
+          )}
           <div className="ml-[12px]">
             <p className="text-[25px] leading-[28px] font-bold text-ink">
               {name}
