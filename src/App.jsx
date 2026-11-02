@@ -124,6 +124,7 @@ const TITLES = {
   "/create-group": "Create Group — Clyse",
   "/browse": "Browse Groups — Clyse",
   "/admin": "Admin Dashboard — Clyse",
+  "/admin/dashboard": "Admin Dashboard — Clyse",
   "/admin/subscriptions": "Subscriptions — Clyse CMS",
   "/admin/subscriptions/add": "Add Subscription — Clyse CMS",
   "/admin/subscriptions/details": "Subscription Details — Clyse CMS",
@@ -243,6 +244,7 @@ export default function App() {
           <Route path="/withdraw/amount" element={<WithdrawAmount />} />
           <Route element={<RequireAdmin />}>
           <Route path="/admin" element={<AdminDataPage page="dashboard" />} />
+          <Route path="/admin/dashboard" element={<AdminDataPage page="dashboard" />} />
           <Route path="/admin/data/:page" element={<AdminDataRoute />} />
           <Route path="/admin/subscriptions" element={<AdminDataPage page="services" />} />
           <Route path="/admin/subscriptions/add" element={<AdminDataPage page="services" />} />

@@ -6,7 +6,7 @@ import avatarAccount from "../assets/avatar-account.webp";
 import iconChevDownSm from "../assets/icon-chev-down-sm.svg";
 
 const LINKS = ["Home", "How it Works", "Why Clyse", "About", "Contact"];
-/* Logged-in links per newest Figma app frames (D08/D09/D10). */
+/* Keep About and Contact intentionally out of the authenticated navigation. */
 const LOGGED_LINKS = ["Home", "Join Group", "Create Group"];
 const LOGGED_ROUTES = {
   Home: "/",

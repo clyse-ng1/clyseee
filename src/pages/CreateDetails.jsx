@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link, Navigate, useLocation } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import { BlurBg } from "../components/Decor";
 import StepHeader from "../components/StepHeader";
@@ -63,76 +63,44 @@ function VisOption({ icon, title, sub, selected, onSelect, mobile = false }) {
 export default function CreateDetails() {
   const incoming = useLocation().state || null;
   const services = useCatalogue();
-  const entry = incoming?.brand ? matchService(services, incoming.brand) : null;
-  const plans = entry?.plans || entry?.catalogue_plans || [];
-  const requestedPlanId = incoming?.planId || incoming?.fromWaitlist?.plan_id;
-  const [selectedPlanId, setSelectedPlanId] = useState(requestedPlanId ? String(requestedPlanId) : "");
-  const plan =
-    plans.find((candidate) => String(candidate.id || candidate.plan_id || "") === selectedPlanId) ||
-    plans.find((candidate) => String(candidate.id || candidate.plan_id || "") === String(requestedPlanId || "")) ||
-    pickPlan(entry);
+  const plan = incoming && !incoming.custom ? pickPlan(matchService(services, incoming.brand)) : null;
 
-  const unit = plan?.unit_price_kobo ?? plan?.total_price_kobo ?? plan?.total_kobo ?? null;
-  const capacity = plan?.member_slot_capacity ?? plan?.capacity ?? null;
-  const max = Number.isFinite(Number(capacity)) && Number(capacity) > 0 ? Math.min(5, Number(capacity)) : 0;
+  const unit = plan?.unit_price_kobo ?? plan?.total_price_kobo ?? 200000;
+  const capacity = plan?.member_slot_capacity ?? null;
+  const max = capacity ? Math.min(5, capacity) : 5;
 
   const [slots, setSlots] = useState(3);
   const [access, setAccess] = useState(0);
   const [vis, setVis] = useState("public");
-  const shown = max ? Math.min(slots, max) : 0;
-  const canContinue = Boolean(plan && (plan.id || plan.plan_id) && unit != null && max > 0 && incoming?.brand);
-  const amount = canContinue ? `₦${Math.round((shown * unit) / 100).toLocaleString("en-US")}` : "—";
-  const unitLabel = unit != null ? Math.round(unit / 100).toLocaleString("en-US") : "—";
+  const shown = Math.min(slots, max);
+  const amount = `N${Math.round((shown * unit) / 100).toLocaleString("en-US")}`;
+  const unitLabel = Math.round(unit / 100).toLocaleString("en-US");
 
-  const nextState = canContinue
+  const nextState = incoming
     ? {
         ...incoming,
         slots: shown,
         visibility: vis,
         access,
-        planId: plan.id || plan.plan_id,
+        planId: plan?.id || incoming.planId || null,
         unit,
       }
     : null;
-
-  if (!incoming) return <Navigate to="/create-group" replace />;
-  if (incoming.custom) return <Navigate to="/subscription-requests/new" replace />;
 
   return (
     <div className="min-h-screen bg-white font-sans text-ink">
       <Navbar loggedIn />
       <BlurBg variant="hero" />
       {/* Desktop */}
-      <main className="relative z-10 mx-auto mt-[60px] hidden w-[calc(100%-40px)] max-w-[1240px] xl:block">
+      <main className="relative z-10 mx-[163px] mt-[100px] hidden xl:block">
         <StepHeader step={2} />
         <h2 className="mt-[50px] text-center text-[35px] leading-[43px] font-bold">
           Group Details
         </h2>
-        <p className="mt-[30px] text-center text-[35px] leading-[43px] font-semibold">
+        <p className="mt-[50px] text-center text-[35px] leading-[43px] font-semibold">
           How many slots do you want to share?
         </p>
-        {plans.length > 1 && (
-          <label className="mx-auto mt-[20px] block max-w-[600px] text-[16px] font-semibold">
-            Plan
-            <select
-              value={plan?.id || plan?.plan_id || ""}
-              onChange={(event) => setSelectedPlanId(event.target.value)}
-              className="mt-[8px] block h-[48px] w-full rounded-[10px] border border-[#57A35B] bg-white px-[12px] text-[16px]"
-            >
-              {plans.map((candidate, index) => (
-                <option key={candidate.id || candidate.plan_id || index} value={candidate.id || candidate.plan_id || ""}>
-                  {candidate.name || candidate.plan_name || `Plan ${index + 1}`} · ₦{Math.round(((candidate.unit_price_kobo ?? candidate.total_price_kobo ?? candidate.total_kobo ?? 0) / 100)).toLocaleString("en-US")}
-                </option>
-              ))}
-            </select>
-          </label>
-        )}
-        {services !== null && !canContinue && (
-          <p role="alert" className="mx-auto mt-[20px] max-w-[800px] text-center text-[16px] font-semibold text-[#9A3412]">
-            This service has no valid catalogue plan and capacity yet. Please choose another service or submit a subscription request.
-          </p>
-        )}
-        <div className="mt-[20px] min-h-[250px] rounded-[30px] bg-white px-[30px] pt-[30px] pb-[25px] shadow-[0_0_20px_rgba(0,23,1,0.10)]">
+        <div className="mt-[20px] h-[250px] rounded-[30px] bg-white px-[30px] pt-[30px] shadow-[0_0_20px_rgba(0,23,1,0.10)]">
           <div className="flex h-[77px] items-center rounded-[10px] bg-[#E6E6E6] px-[10px]">
             <button
               type="button"
@@ -157,7 +125,7 @@ export default function CreateDetails() {
             </button>
           </div>
           <p className="mt-[15px] text-[25px] leading-[35px] font-semibold text-[#6B6B6B]">
-            Total slots: {capacity ?? "Unavailable"}
+            Total slots: {capacity || 5}
           </p>
           <div className="mt-[20px] flex items-start justify-between">
             <p className="text-[35px] leading-[43px] font-semibold">
@@ -172,7 +140,7 @@ export default function CreateDetails() {
         <p className="mt-[30px] text-[35px] leading-[43px] font-semibold">
           How do members get access?
         </p>
-        <div className="mt-[30px] space-y-[16px]">
+        <div className="mt-[50px] space-y-[20px]">
           {ACCESS.map((label, i) => (
             <button
               key={label}
@@ -190,11 +158,11 @@ export default function CreateDetails() {
           ))}
         </div>
 
-        <p className="mt-[35px] text-[35px] leading-[43px] font-semibold">
+        <p className="mt-[60px] text-[35px] leading-[43px] font-semibold">
           Group Visibility
         </p>
-        <div className="mt-[32px] flex flex-wrap gap-x-[30px] gap-y-[18px]">
-          <div className="flex min-w-[330px] items-center gap-[13px]">
+        <div className="ml-[51px] mt-[66px] flex">
+          <div className="flex w-[387px] items-center gap-[13px]">
             <VisOption
               icon={iconVisToggle}
               title="Public"
@@ -214,59 +182,32 @@ export default function CreateDetails() {
           </div>
         </div>
 
-        <div className="mt-[42px] flex items-start justify-between gap-[20px]">
+        <div className="mt-[77px] flex items-start justify-between">
           <p className="text-[25px] leading-[35px] font-semibold">
             Amount you&apos;ll get by the end
           </p>
           <p className="text-[35px] leading-[43px] font-semibold">{amount}</p>
         </div>
-        {canContinue ? (
-          <Link
-            to="/create-group/verify"
-            state={nextState}
-            className="mx-auto mt-[32px] grid h-[60px] w-full max-w-[470px] place-items-center rounded-2xl bg-btn text-[18px] font-semibold text-mint"
-          >
-            Continue
-          </Link>
-        ) : (
-          <button type="button" disabled className="mx-auto mt-[32px] grid h-[60px] w-full max-w-[470px] cursor-not-allowed place-items-center rounded-2xl bg-[#B8C4B8] text-[18px] font-semibold text-white">
-            Continue
-          </button>
-        )}
-        <div className="pb-[60px]" />
+        <Link
+          to="/create-group/verify"
+          state={nextState}
+          className="mx-auto mt-[50px] grid h-[60px] w-[470px] place-items-center rounded-2xl bg-btn text-[18px] font-semibold text-mint"
+        >
+          Continue
+        </Link>
+        <div className="pb-[230px]" />
       </main>
 
       {/* Mobile */}
-      <main className="relative z-10 pb-[40px] xl:hidden">
+      <main className="relative z-10 xl:hidden">
         <StepHeader step={2} />
         <h2 className="ml-[30px] mt-[34px] text-[24.27px] leading-[29.59px] font-bold">
           Group Details
         </h2>
-        <p className="ml-[30px] mt-[28px] text-[22px] leading-[27px] font-semibold">
+        <p className="ml-[30px] mt-[34px] text-[22px] leading-[27px] font-semibold">
           How many slots do you want to share?
         </p>
-        {plans.length > 1 && (
-          <label className="mx-[30px] mt-[18px] block text-[14px] font-semibold">
-            Plan
-            <select
-              value={plan?.id || plan?.plan_id || ""}
-              onChange={(event) => setSelectedPlanId(event.target.value)}
-              className="mt-[6px] block h-[44px] w-full rounded-[9px] border border-[#57A35B] bg-white px-[10px] text-[14px]"
-            >
-              {plans.map((candidate, index) => (
-                <option key={candidate.id || candidate.plan_id || index} value={candidate.id || candidate.plan_id || ""}>
-                  {candidate.name || candidate.plan_name || `Plan ${index + 1}`} · ₦{Math.round(((candidate.unit_price_kobo ?? candidate.total_price_kobo ?? candidate.total_kobo ?? 0) / 100)).toLocaleString("en-US")}
-                </option>
-              ))}
-            </select>
-          </label>
-        )}
-        {services !== null && !canContinue && (
-          <p role="alert" className="mx-[30px] mt-[14px] text-[13px] font-semibold text-[#9A3412]">
-            No valid catalogue plan and capacity is available for this service yet.
-          </p>
-        )}
-        <div className="mx-[30px] mt-[30px] min-h-[210px] rounded-[20.8px] bg-white px-[22px] pt-[22px] pb-[18px] shadow-[0_0_13.87px_rgba(0,23,1,0.10)]">
+        <div className="mx-[30px] mt-[41px] h-[210px] rounded-[20.8px] bg-white px-[22px] pt-[22px] shadow-[0_0_13.87px_rgba(0,23,1,0.10)]">
           <div className="flex h-[54px] items-center rounded-[6.9px] bg-[#E6E6E6] px-[6px]">
             <button
               type="button"
@@ -291,7 +232,7 @@ export default function CreateDetails() {
             </button>
           </div>
           <p className="mt-[10px] text-[17.34px] leading-[24px] font-semibold text-[#6B6B6B]">
-            Total slots: {capacity ?? "Unavailable"}
+            Total slots: {capacity || 5}
           </p>
           <p className="mt-[14px] text-[24.27px] leading-[30px] font-semibold">
             Pricing (Fixed by Clyse)
@@ -327,7 +268,7 @@ export default function CreateDetails() {
         <p className="ml-[30px] mt-[43px] text-[22px] leading-[27px] font-bold">
           Group Visibility
         </p>
-        <div className="mt-[30px] flex flex-col gap-[16px] px-[30px]">
+        <div className="ml-[66px] mt-[47px] flex items-center gap-[10px]">
           <VisOption
             icon={iconVisToggle}
             title="Public"
@@ -336,6 +277,8 @@ export default function CreateDetails() {
             onSelect={() => setVis("public")}
             mobile
           />
+        </div>
+        <div className="ml-[66px] mt-[36px] flex items-center gap-[10px]">
           <VisOption
             icon={iconVisToggle}
             title="Private"
@@ -346,27 +289,20 @@ export default function CreateDetails() {
           />
         </div>
 
-        <div className="mt-[35px] flex items-center justify-between gap-[12px] px-[30px]">
-          <p className="text-[15px] leading-[20px] font-semibold">
-            Amount you&apos;ll get by the end
-          </p>
-          <p className="shrink-0 text-[24.27px] leading-[30px] font-semibold">
-            {amount}
-          </p>
-        </div>
-        {canContinue ? (
-          <Link
-            to="/create-group/verify"
-            state={nextState}
-            className="mx-auto mt-[28px] grid h-[50px] w-[calc(100%-60px)] max-w-[370px] place-items-center rounded-[10.36px] bg-btn text-[12.48px] font-semibold text-mint"
-          >
-            Continue
-          </Link>
-        ) : (
-          <button type="button" disabled className="mx-auto mt-[28px] grid h-[50px] w-[calc(100%-60px)] max-w-[370px] cursor-not-allowed place-items-center rounded-[10.36px] bg-[#B8C4B8] text-[12.48px] font-semibold text-white">
-            Continue
-          </button>
-        )}
+        <p className="mt-[56px] text-center text-[17.34px] leading-[24px] font-semibold">
+          Amount you&apos;ll get by the end
+        </p>
+        <p className="ml-[310px] mt-[6px] text-[24.27px] leading-[30px] font-semibold">
+          {amount}
+        </p>
+        <Link
+          to="/create-group/verify"
+          state={nextState}
+          className="mx-[30px] mt-[34px] grid h-[50px] w-[370px] place-items-center rounded-[10.36px] bg-btn text-[12.48px] font-semibold text-mint"
+        >
+          Continue
+        </Link>
+        <div className="pb-[83px]" />
       </main>
     </div>
   );
