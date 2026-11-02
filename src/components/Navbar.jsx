@@ -82,12 +82,18 @@ export default function Navbar({ loggedIn = false, landing = false }) {
     <header className="relative z-50 bg-white">
       {/* Desktop bar */}
       <div className="hidden border-b border-clyse xl:block">
-        <div className="mx-auto flex h-[100px] max-w-[1440px] items-center px-[20px] min-[1440px]:px-[100px]">
+        <div className="relative mx-auto flex h-[100px] max-w-[1440px] items-center px-[20px] min-[1440px]:px-[100px]">
           <Link to="/" className="shrink-0">
             <img src={logo} alt="Clyse" className="h-[40px] w-auto" />
           </Link>
           <nav
-            className={`${landing ? "ml-[167px]" : "ml-[137px]"} flex items-center gap-[20px]`}
+            className={`flex items-center gap-[20px] ${
+              loggedIn
+                ? "absolute left-1/2 -translate-x-1/2"
+                : landing
+                  ? "ml-[167px]"
+                  : "ml-[137px]"
+            }`}
           >
             {links.map((l) => (
               <Link key={l} to={routeFor(l)} className="text-[18px] font-semibold text-ink hover:text-clyse">

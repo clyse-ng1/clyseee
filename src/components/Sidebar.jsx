@@ -2,7 +2,6 @@ import { Link } from "react-router-dom";
 import avatarAccount from "../assets/avatar-account.webp";
 import { useAuth } from "../lib/useAuth";
 import { displayName, fmtDay } from "../lib/api";
-import iconRowArrow from "../assets/side-row-arrow.svg";
 import ExtraBlock from "./ExtraBlock";
 import { SECTIONS } from "./sidebarNav";
 
@@ -28,13 +27,6 @@ function Row({ r, active }) {
       >
         {r.label}
       </span>
-      {!active && (
-        <img
-          src={iconRowArrow}
-          alt=""
-          className="ml-auto h-[26px] w-[26px] flex-none"
-        />
-      )}
     </>
   );
   return r.to ? (
