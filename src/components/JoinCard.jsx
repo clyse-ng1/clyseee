@@ -7,7 +7,7 @@ import iconPlusWhite from "../assets/plus-white.svg";
    internals, 30px side padding, right-aligned price + waiting count. */
 export default function JoinCard({ brand, chip, title, slots, price, waiting, linkState }) {
   return (
-    <article className="h-[406px] w-[370px] rounded-[25px] bg-white px-[30px] pt-[24px] pb-[24px] shadow-[0_0_20px_rgba(0,23,1,0.10)] xl:w-[400px]">
+    <article className="h-[406px] w-full max-w-[370px] rounded-[25px] bg-white px-[30px] pt-[24px] pb-[24px] shadow-[0_0_20px_rgba(0,23,1,0.10)] xl:w-[400px] xl:max-w-none">
       <div className="flex items-start justify-between">
         <BrandTile brand={brand} size={75} plain />
         <span className="grid h-[36px] w-[123px] place-items-center rounded-[7.74px] bg-[#DFFFE0]">

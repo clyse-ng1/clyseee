@@ -163,7 +163,7 @@ export function AuthProvider({ children }) {
 export function RequireAuth() {
   const { user, ready } = useAuth();
   const location = useLocation();
-  if (!ready) return null;
+  if (!ready) return <div role="status" aria-live="polite" className="grid min-h-screen place-items-center bg-white px-6 text-sm font-semibold text-[#66726C]">Loading your Clyse account…</div>;
   if (!user) {
     try {
       sessionStorage.setItem("clyse.post_auth", location.pathname + location.search);

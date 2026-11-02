@@ -21,6 +21,13 @@
 
 html {
   scroll-behavior: smooth;
+  /* Keep document scrolling, but hide the browser scrollbar chrome as requested. */
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+html::-webkit-scrollbar {
+  display: none;
 }
 
 body {
@@ -28,6 +35,12 @@ body {
   background: #ffffff;
   color: var(--color-ink);
   -webkit-font-smoothing: antialiased;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+body::-webkit-scrollbar {
+  display: none;
 }
 
 /* Signature dark-green gradient (buttons, panels, circles) — pixel-verified stack:

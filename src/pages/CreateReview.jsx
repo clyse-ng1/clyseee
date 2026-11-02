@@ -33,16 +33,17 @@ export default function CreateReview() {
   const [error, setError] = useState("");
 
   const fromWaitlist = incoming?.fromWaitlist?.plan_id || null;
+  const plan = !incoming?.custom ? pickPlan(matchService(services, incoming?.brand)) : null;
   const planId =
     fromWaitlist ||
     incoming?.planId ||
-    (!incoming?.custom ? pickPlan(matchService(services, incoming?.brand))?.id : null) ||
+    plan?.id ||
     null;
-  const unit = incoming?.unit ?? 200000;
+  const unit = incoming?.unit ?? plan?.unit_price_kobo ?? plan?.total_price_kobo ?? null;
   const slots = incoming?.slots ?? 3;
   const vis = incoming?.visibility || "public";
   const title = incoming?.custom?.name || incoming?.title || "Netflix Premium";
-  const unitLabel = Math.round(unit / 100).toLocaleString("en-US");
+  const unitLabel = unit == null ? "—" : Math.round(unit / 100).toLocaleString("en-US");
 
   const rows = incoming
     ? [

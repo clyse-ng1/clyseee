@@ -203,7 +203,7 @@ function WithdrawModal({ open, onClose, earn, onDone }) {
 
 function MonthPills() {
   return (
-    <div className="flex gap-[20px] overflow-x-auto">
+    <div className="scrollbar-none flex gap-[20px] overflow-x-auto">
       {MONTHS.map((m) => (
         <button
           key={m.label}

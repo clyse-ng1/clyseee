@@ -6,9 +6,8 @@ import iconProdWhite from "../assets/icon-productivity-white.svg";
 import iconProdBlack from "../assets/icon-productivity-black.svg";
 import iconProdRed from "../assets/icon-productivity-red.svg";
 
-/* Brand logo tile — circle in brand color + sharp white inner square + centered
-   glyph. Canva/Amazon tiles use the exact Figma gradients. `size` sets the
-   circle diameter (creation: 50/32, dashboard rows: 50/34, Tx rows: 40). */
+/* Brand logo tile — the glyphs are the supplied design assets. The `plain`
+   variant places them directly on the colored disc, as in the Figma cards. */
 const BRANDS = {
   netflix: { tile: "#000000", glyph: iconMoviesRed, gw: 28 },
   spotify: { tile: "#46C04C", glyph: iconMusicTile, gw: 28 },
@@ -28,8 +27,6 @@ const BRANDS = {
   },
 };
 
-/* Join-card tiles: glyph sits directly on the 75px tile (no white square),
-   at the exact measured glyph widths. */
 const CARD_GW = {
   netflix: 50,
   spotify: 42,
@@ -41,7 +38,6 @@ const CARD_GW = {
   amazon: 44,
 };
 
-/* Generic tile for services the API returns that have no Figma brand tile. */
 const FALLBACK = { tile: "#047D0A", glyph: iconProdWhite, gw: 29 };
 
 export default function BrandTile({ brand, size = 50, mobile = false, plain = false }) {

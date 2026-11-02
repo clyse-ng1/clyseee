@@ -3,13 +3,12 @@ import { Link } from "react-router-dom";
 import MobileSearch from "./MobileSearch";
 import MobileCats from "./MobileCats";
 import MobileCta from "./MobileCta";
+import Sk from "./Skeleton";
 import iconMovies from "../assets/icon-movies.svg";
 import iconMusic from "../assets/icon-music.svg";
 import iconProductivity from "../assets/icon-productivity.svg";
 import iconUser from "../assets/icon-user.svg";
-import avatar1 from "../assets/avatar-1.webp";
-import avatar2 from "../assets/avatar-2.webp";
-import avatar3 from "../assets/avatar-3.webp";
+import avatarAccount from "../assets/avatar-account.webp";
 import { api, kobo } from "../lib/api";
 import { useCatalogue } from "../lib/useCatalogue";
 
@@ -18,26 +17,6 @@ import { useCatalogue } from "../lib/useCatalogue";
    Become an Owner CTA (footer rendered by the page's MobileFooter). */
 
 const ICONS = { movies: iconMovies, music: iconMusic, productivity: iconProductivity };
-
-const CARDS = [
-  { icon: "movies", title: "Netflix Premium", chip: "Entertainment", price: "N2,000 /Month" },
-  { icon: "music", title: "Apple Music", chip: "Music", price: "N1,500 /Month" },
-  { icon: "productivity", title: "Canva Pro", chip: "Others", price: "N1,200 /Month" },
-  { icon: "movies", title: "Dstv Stream", chip: "Entertainment", price: "N3,000 /Month" },
-  { icon: "music", title: "Audiomack Premium", chip: "Music", price: "N1,000 /Month" },
-  { icon: "movies", title: "Disney Plus", chip: "Entertainment", price: "N2,500 /Month" },
-  { icon: "movies", title: "Netflix Basic", chip: "Entertainment", price: "N1,200 /Month" },
-  { icon: "productivity", title: "Zoom Pro", chip: "Others", price: "N900 /Month" },
-];
-
-const OFFERS = [
-  { avatar: avatar1, name: "Marcus" },
-  { avatar: avatar2, name: "Davis" },
-  { avatar: avatar1, name: "Marcus" },
-  { avatar: avatar2, name: "Davis" },
-  { avatar: avatar3, name: "Cooper" },
-  { avatar: avatar3, name: "Cooper" },
-];
 
 function catIconKey(category) {
   const c = (category || "").toLowerCase();
@@ -50,7 +29,7 @@ function OfferCard({ avatar, name, service, price, left, linkTo, linkState }) {
   return (
     <div>
       <img
-        src={avatar || avatar1}
+        src={avatar || avatarAccount}
         alt=""
         className="relative z-10 mx-auto h-[72px] w-[72px] rounded-full border-2 border-mint object-cover shadow-[0_2.47px_2.47px_rgba(0,23,1,0.30)]"
       />
@@ -60,7 +39,7 @@ function OfferCard({ avatar, name, service, price, left, linkTo, linkState }) {
         </h3>
         <p className="mt-[3px] text-center text-[8.03px] leading-[12.36px] text-white">
           <span className="font-semibold">Share a</span>{" "}
-          <span className="font-bold">{service || "Netflix Premium"}</span>
+          <span className="font-bold">{service || "Subscription"}</span>
         </p>
         <div className="mx-auto mt-[12px] h-px w-[153px] bg-[#B1DBB3]" />
         <div className="bg-contrib mt-[13px] h-[43px] rounded-[6.18px] pt-[6px]">
@@ -68,7 +47,7 @@ function OfferCard({ avatar, name, service, price, left, linkTo, linkState }) {
             Your Contribution
           </p>
           <p className="flex items-baseline justify-center text-[15.45px] leading-[21.62px] font-semibold text-white">
-            {price || "N2,000"}
+            {price || "—"}
             <span className="text-[6.18px] leading-[12.36px] font-semibold text-[#B1DBB3]">
               /Monthly
             </span>
@@ -105,9 +84,8 @@ export default function MobileBrowse() {
     let on = true;
     (async () => {
       const { data, error } = await api("/member/dashboard");
-      if (on && !error) {
-        setOffers(
-          (data?.available_groups || []).slice(0, 6).map((g) => {
+      if (on) {
+        setOffers(error ? [] : (data?.available_groups || []).slice(0, 6).map((g) => {
             const left = g.open_slots ?? g.available_slots ?? 0;
             const first = g.creator?.first_name || "Creator";
             return {
@@ -124,8 +102,7 @@ export default function MobileBrowse() {
               linkTo: "/join/summary",
               linkState: { group_id: g.group_id || g.id, preview: g },
             };
-          }),
-        );
+          }));
       }
     })();
     return () => {
@@ -150,10 +127,11 @@ export default function MobileBrowse() {
             price: min !== Infinity ? `${kobo(min)} /Month` : "—",
           };
         });
-  const all = liveCards || CARDS;
+  const all = liveCards || [];
+  const loadingServices = services === null;
   const cards = showAll ? all : all.slice(0, 8);
-  const fetchedOffers = offers !== null;
   const liveOffers = offers && offers.length ? offers : null;
+  const loadingOffers = offers === null;
   return (
     <div>
       <MobileSearch />
@@ -162,7 +140,11 @@ export default function MobileBrowse() {
       <h2 className="mt-[54px] ml-[26px] text-[22.56px] leading-[27.5px] font-bold text-ink">
         Available Subscription
       </h2>
-      {all.length === 0 ? (
+      {loadingServices ? (
+        <div className="mt-[26px] grid grid-cols-2 gap-x-[18px] gap-y-[15px] px-[19px]" role="status" aria-label="Loading subscriptions">
+          {Array.from({ length: 8 }, (_, i) => <Sk key={i} className="h-[187px] w-full !rounded-[12px]" />)}
+        </div>
+      ) : all.length === 0 ? (
         <p className="mt-[26px] px-[19px] text-center text-[14px] font-semibold text-[#6B6B6B]">
           No subscriptions available yet — check back soon.
         </p>
@@ -204,13 +186,17 @@ export default function MobileBrowse() {
       <h2 className="mt-[50px] text-center text-[21.62px] leading-[26.36px] font-bold text-ink">
         Latest Slots
       </h2>
-      {fetchedOffers && !liveOffers ? (
+      {loadingOffers ? (
+        <div className="mt-[19px] grid grid-cols-2 gap-x-[20px] gap-y-[12px] px-[13px]" role="status" aria-label="Loading open slots">
+          {Array.from({ length: 4 }, (_, i) => <Sk key={i} className="h-[210px] w-full !rounded-[12px]" />)}
+        </div>
+      ) : !liveOffers ? (
         <p className="mt-[19px] px-[13px] text-center text-[14px] font-semibold text-[#6B6B6B]">
           No open slots right now — check back soon.
         </p>
       ) : (
         <div className="mt-[19px] grid grid-cols-2 gap-x-[20px] gap-y-[12px] px-[13px]">
-          {(liveOffers || OFFERS).map((o, i) => (
+          {liveOffers.map((o, i) => (
             <OfferCard key={`${o.name}-${i}`} {...o} />
           ))}
         </div>

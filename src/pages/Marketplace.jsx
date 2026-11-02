@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import { BlurBg } from "../components/Decor";
 import MobileBrowse from "../components/MobileBrowse";
+import Sk from "../components/Skeleton";
 import { Footer, MobileFooter } from "../components/Footer";
 import iconMovies from "../assets/icon-movies.svg";
 import iconMusic from "../assets/icon-music.svg";
@@ -10,9 +11,7 @@ import iconProductivity from "../assets/icon-productivity.svg";
 import iconSearch from "../assets/icon-search.svg";
 import iconChevron from "../assets/icon-chevron.svg";
 import iconUser from "../assets/icon-user.svg";
-import avatar1 from "../assets/avatar-1.webp";
-import avatar2 from "../assets/avatar-2.webp";
-import avatar3 from "../assets/avatar-3.webp";
+import avatarAccount from "../assets/avatar-account.webp";
 import ctaOwner from "../assets/cta-owner.webp";
 import { api, kobo } from "../lib/api";
 import { useCatalogue } from "../lib/useCatalogue";
@@ -26,23 +25,6 @@ const PILLS = [
   { label: "Delivery", width: 127 },
   { label: "Cloud", width: 106 },
   { label: "Productivity", width: 164 },
-];
-
-const CARDS = [
-  { title: "Netflix Premium", icon: iconMovies, category: "Entertainment" },
-  { title: "Spotify", icon: iconMusic, category: "Entertainment" },
-  { title: "Prime", icon: iconMovies, category: "Entertainment" },
-  { title: "Canva pro", icon: iconProductivity, category: "Entertainment" },
-  { title: "Capcut", icon: iconProductivity, category: "Productivity" },
-  { title: "Adobe Creative Cloud", icon: iconProductivity, category: "Productivity" },
-  { title: "YouTube Premium", icon: iconMovies, category: "Entertainment" },
-  { title: "Amazon", icon: iconMusic, category: "Entertainment" },
-];
-
-const OFFERS = [
-  { name: "Marcus Saris", avatar: avatar1 },
-  { name: "Dulce Calzoni", avatar: avatar2 },
-  { name: "Cooper Siphron", avatar: avatar3 },
 ];
 
 function catIcon(category) {
@@ -66,7 +48,7 @@ function ServiceCard({ title, icon, category, price }) {
         <span className="text-[10px] font-semibold text-clyse">{category}</span>
       </div>
       <div className="mt-[14px] h-[4px] w-[73px] flex-none rounded-full bg-[#B1DBB3]" />
-      <p className="mt-[16px] text-center text-[18px] font-semibold leading-[22px] text-ink">{price || "From 2,000/Monthly"}</p>
+      <p className="mt-[16px] text-center text-[18px] font-semibold leading-[22px] text-ink">{price || "Price unavailable"}</p>
     </Link>
   );
 }
@@ -75,7 +57,7 @@ function OfferCard({ name, avatar, service, price, left, ratio, pct, linkTo, lin
   return (
     <div className="w-[308px]">
       <img
-        src={avatar || avatar1}
+        src={avatar || avatarAccount}
         alt={name}
         className="relative z-[1] mx-auto h-[116px] w-[116px] rounded-full object-cover"
       />
@@ -83,13 +65,13 @@ function OfferCard({ name, avatar, service, price, left, ratio, pct, linkTo, lin
         <p className="text-[25px] font-bold leading-[28px] text-white">{name}</p>
         <p className="text-[13px] leading-[20px] text-white">
           <span className="font-semibold">Share </span>
-          <span className="font-bold">{service || "Netflix Premium"}</span>
+          <span className="font-bold">{service || "Subscription"}</span>
         </p>
         <div className="mt-[20px] h-[1px] bg-[#B1DBB3]" />
         <div className="bg-contrib mt-[20px] h-[70px] rounded-[10px] pt-[11px]">
           <p className="text-[10px] font-semibold leading-[20px] text-white">Your Contribution</p>
           <p className="mt-[-2px] flex items-baseline justify-center gap-[4px]">
-            <span className="text-[25px] font-semibold leading-[35px] text-white">{price || "N2,000"}</span>
+            <span className="text-[25px] font-semibold leading-[35px] text-white">{price || "—"}</span>
             <span className="text-[10px] font-semibold text-[#B1DBB3]">/Monthly</span>
           </p>
         </div>
@@ -158,7 +140,7 @@ function MarketplaceDesktop() {
     let on = true;
     (async () => {
       const { data, error } = await api("/member/dashboard");
-      if (on && !error) setOffers((data?.available_groups || []).slice(0, 6).map(mapOffer));
+      if (on) setOffers(error ? [] : (data?.available_groups || []).slice(0, 6).map(mapOffer));
     })();
     return () => {
       on = false;
@@ -166,13 +148,12 @@ function MarketplaceDesktop() {
   }, []);
 
   const liveCards = services === null ? null : services.map(mapService);
-  const all = (liveCards || CARDS).filter(
+  const loadingServices = services === null;
+  const all = (liveCards || []).filter(
     (c) => activePill === "All" || (c.category || "").toLowerCase() === activePill.toLowerCase(),
   );
   const cards = showAll ? all : all.slice(0, 8);
-  const fetchedOffers = offers !== null;
-  const liveOffers = offers && offers.length ? offers : null;
-  const row1 = liveOffers || OFFERS;
+  const loadingOffers = offers === null;
   return (
     <div className="mx-auto hidden max-w-[1440px] px-[20px] min-[1440px]:px-[100px] xl:block">
       {/* Search */}
@@ -189,7 +170,7 @@ function MarketplaceDesktop() {
 
       {/* Categories */}
       <h2 className="mt-[52px] text-[25px] font-semibold leading-[35px] text-ink">Categories</h2>
-      <div className="mt-[10px] flex justify-between gap-[18px] overflow-x-auto pb-2">
+      <div className="scrollbar-none mt-[10px] flex justify-between gap-[18px] overflow-x-auto pb-2">
         {PILLS.map((p) => (
           <button
             key={p.label}
@@ -211,7 +192,11 @@ function MarketplaceDesktop() {
       <div className="mt-[110px] flex h-[63px] items-center">
         <h2 className="text-[35px] font-bold leading-[43px] text-ink">Available Subscription</h2>
       </div>
-      {all.length === 0 ? (
+      {loadingServices ? (
+        <div className="mt-[30px] grid grid-cols-4 gap-x-[27px] gap-y-[30px]" role="status" aria-label="Loading subscriptions">
+          {Array.from({ length: 8 }, (_, i) => <Sk key={i} className="h-[290px] w-full !rounded-[20px]" />)}
+        </div>
+      ) : all.length === 0 ? (
         <p className="mt-[30px] text-[18px] font-semibold text-[#6B6B6B]">
           {activePill === "All"
             ? "No subscriptions available yet — check back soon."
@@ -238,23 +223,25 @@ function MarketplaceDesktop() {
       <div className="mt-[100px] flex h-[63px] items-center justify-center">
         <h2 className="text-center text-[35px] font-bold leading-[43px] text-ink">Latest Slots</h2>
       </div>
-      {fetchedOffers && !liveOffers ? (
+      {loadingOffers ? (
+        <div className="mt-[30px] flex justify-center gap-[40px]" role="status" aria-label="Loading open slots">
+          {Array.from({ length: 3 }, (_, i) => <Sk key={i} className="h-[360px] w-[308px] !rounded-[20px]" />)}
+        </div>
+      ) : offers.length === 0 ? (
         <p className="mt-[30px] text-center text-[18px] font-semibold text-[#6B6B6B]">
           No open slots right now — check back soon.
         </p>
       ) : (
-        <div className="mt-[30px] flex justify-center gap-[40px]">
-          {row1.map((o) => (
-            <OfferCard key={o.name} {...o} />
-          ))}
-        </div>
-      )}
-      {!liveOffers && (
-        <div className="mt-[30px] flex justify-center gap-[40px]">
-          {OFFERS.map((o) => (
-            <OfferCard key={`row2-${o.name}`} {...o} />
-          ))}
-        </div>
+        <>
+          <div className="mt-[30px] flex justify-center gap-[40px]">
+            {offers.slice(0, 3).map((o, i) => <OfferCard key={`${o.name}-${i}`} {...o} />)}
+          </div>
+          {offers.length > 3 && (
+            <div className="mt-[30px] flex justify-center gap-[40px]">
+              {offers.slice(3, 6).map((o, i) => <OfferCard key={`${o.name}-more-${i}`} {...o} />)}
+            </div>
+          )}
+        </>
       )}
 
       {/* Become an owner */}

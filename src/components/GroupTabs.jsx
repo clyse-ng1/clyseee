@@ -10,7 +10,7 @@ export default function GroupTabs({ tabs, viewAll = false, className = "", activ
   if (loading) {
     return (
       <div className={`flex items-center ${className}`} aria-hidden>
-        <div className="flex gap-[10px] overflow-x-auto">
+        <div className="scrollbar-none flex gap-[10px] overflow-x-auto">
           {[0, 1, 2, 3, 4].map((i) => (
             <Sk
               key={i}
@@ -24,7 +24,7 @@ export default function GroupTabs({ tabs, viewAll = false, className = "", activ
   const current = onSelect ? active : 0;
   return (
     <div className={`flex items-center ${className}`}>
-      <div className="flex gap-[10px] overflow-x-auto">
+      <div className="scrollbar-none flex gap-[10px] overflow-x-auto">
         {tabs.map((t, i) => {
           const dark = i === current;
           const shell = dark

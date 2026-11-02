@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useLocation } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import PlanCard from "../components/PlanCard";
+import Sk from "../components/Skeleton";
 import PairButtons from "../components/PairButtons";
 import LogoMarquee from "../components/LogoMarquee";
 import CreateGroupHead from "../components/CreateGroupHead";
@@ -39,9 +40,9 @@ export default function JoinGroup() {
       const rows = (data?.available_subscriptions || []).filter(
         (a) => (a.service?.name || "").toLowerCase() === incomingService.toLowerCase(),
       );
-      if (on && rows.length) {
+      if (on) {
         setPlans(rows.map(mapPlan));
-        setSel(0);
+        if (rows.length) setSel(0);
       }
     })();
     return () => {
@@ -49,7 +50,8 @@ export default function JoinGroup() {
     };
   }, [incomingService]);
 
-  const list = plans || PLANS;
+  const loadingPlans = Boolean(incomingService) && plans === null;
+  const list = incomingService ? plans || [] : PLANS;
   const heading = incomingService
     ? `Choose your ${incomingService} plan`
     : "Choose your Netflix plan";
@@ -71,7 +73,11 @@ export default function JoinGroup() {
               Pick the access level you want to buy. You can change this before joining a group
             </p>
             <div className="mt-[70px] flex gap-[20px]">
-              {list.map((p, i) => (
+              {loadingPlans
+                ? Array.from({ length: 3 }, (_, i) => <Sk key={i} className="h-[250px] w-[300px] !rounded-[20px]" />)
+                : list.length === 0
+                  ? <p className="text-[18px] font-semibold text-[#6B6B6B]">No plans are available for this subscription right now.</p>
+                  : list.map((p, i) => (
                 <PlanCard
                   key={i}
                   {...p}
@@ -104,7 +110,11 @@ export default function JoinGroup() {
               Pick the access level you want to buy. You can change this before joining a group
             </p>
             <div className="mt-[70px] flex flex-col gap-[20px]">
-              {list.map((p, i) => (
+              {loadingPlans
+                ? Array.from({ length: 3 }, (_, i) => <Sk key={i} className="h-[200px] w-full !rounded-[20px]" />)
+                : list.length === 0
+                  ? <p className="text-[13px] font-semibold text-[#6B6B6B]">No plans are available for this subscription right now.</p>
+                  : list.map((p, i) => (
                 <PlanCard
                   key={i}
                   {...p}

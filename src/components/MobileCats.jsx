@@ -20,7 +20,7 @@ export default function MobileCats() {
       <h2 className="px-[20px] text-[17.34px] leading-[24.27px] font-semibold text-ink">
         Categories
       </h2>
-      <div className="mt-[6px] flex gap-[13px] overflow-x-auto pt-[2px] pr-[20px] pb-[4px] pl-[20px]">
+      <div className="scrollbar-none mt-[6px] flex gap-[13px] overflow-x-auto pt-[2px] pr-[20px] pb-[4px] pl-[20px]">
         {PILLS.map((p) => (
           <button
             key={p.label}

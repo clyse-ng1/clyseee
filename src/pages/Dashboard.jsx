@@ -83,7 +83,7 @@ function mapGroup(g) {
     id: g.group_id || g.id,
     creator: g.creator?.first_name || g.creator_name || "Creator",
     service: g.service?.name || "Subscription",
-    price: g.plan?.total_price_kobo != null ? kobo(g.plan.total_price_kobo) : "N2,000",
+    price: g.plan?.total_price_kobo != null ? kobo(g.plan.total_price_kobo) : "—",
     left: left === 1 ? "1 Slot left" : `${left} Slots left`,
     frac: offered ? `${occupied}/${offered}` : "",
     pct: offered ? occupied / offered : null,
@@ -275,11 +275,11 @@ function GroupCard({ group }) {
         </p>
         <div className="mt-[17px] ml-[2px] h-[1px] w-[201px] bg-[#B1DBB3]" />
         <div className="bg-mintband mt-[17px] h-[57px] rounded-[8.12px] pt-[8px] text-center">
-          <p className="text-[8.1px] leading-[16px] font-semibold text-white">
+          <p className="text-[8.1px] leading-[16px] font-semibold text-ink">
             Your Contribution
           </p>
           <p className="flex items-baseline justify-center">
-            <span className="text-[25px] leading-[24px] font-semibold text-white">
+            <span className="text-[25px] leading-[24px] font-semibold text-ink">
               {g.price}
             </span>
             <span className="text-[10px] leading-[17px] font-semibold text-[#B1DBB3]">
@@ -344,11 +344,11 @@ function MobileGroupCard({ group }) {
         </p>
         <div className="mt-[12px] ml-[3px] h-[1px] w-[138px] bg-[#B1DBB3]" />
         <div className="bg-mintband mt-[11px] h-[39px] rounded-[5.58px] pt-[6px] text-center">
-          <p className="text-[5.58px] leading-[10px] font-semibold text-white">
+          <p className="text-[5.58px] leading-[10px] font-semibold text-ink">
             Your Contribution
           </p>
           <p className="flex items-baseline justify-center">
-            <span className="text-[17.18px] leading-[16px] font-semibold text-white">
+            <span className="text-[17.18px] leading-[16px] font-semibold text-ink">
               {g.price}
             </span>
             <span className="text-[6.87px] leading-[12px] font-semibold text-[#B1DBB3]">

@@ -64,8 +64,7 @@ export default function CreateDetails() {
   const incoming = useLocation().state || null;
   const services = useCatalogue();
   const plan = incoming && !incoming.custom ? pickPlan(matchService(services, incoming.brand)) : null;
-
-  const unit = plan?.unit_price_kobo ?? plan?.total_price_kobo ?? 200000;
+  const unit = incoming?.unit ?? plan?.unit_price_kobo ?? plan?.total_price_kobo ?? null;
   const capacity = plan?.member_slot_capacity ?? null;
   const max = capacity ? Math.min(5, capacity) : 5;
 
@@ -73,8 +72,8 @@ export default function CreateDetails() {
   const [access, setAccess] = useState(0);
   const [vis, setVis] = useState("public");
   const shown = Math.min(slots, max);
-  const amount = `N${Math.round((shown * unit) / 100).toLocaleString("en-US")}`;
-  const unitLabel = Math.round(unit / 100).toLocaleString("en-US");
+  const amount = unit == null ? "—" : `N${Math.round((shown * unit) / 100).toLocaleString("en-US")}`;
+  const unitLabel = unit == null ? (services === null && !incoming?.custom ? "Loading…" : "—") : Math.round(unit / 100).toLocaleString("en-US");
 
   const nextState = incoming
     ? {

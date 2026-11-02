@@ -2,26 +2,11 @@ import { useEffect, useState } from "react";
 import Navbar from "../components/Navbar";
 import Sidebar from "../components/Sidebar";
 import JoinCard from "../components/JoinCard";
+import Sk from "../components/Skeleton";
 import ExtraBlock from "../components/ExtraBlock";
 import { BlurBg } from "../components/Decor";
 import MemberMini from "../components/MemberMini";
 import { api, brandOf, kobo } from "../lib/api";
-
-/* NOTE — Figma keeps: "Premium Premium" (card 2 carries Spotify's icon but a
-   mangled title; kept literal), "CapCup Pro" fixed to CapCut Pro, and the
-   card-9 Netflix repeat kept so the 2x5 grid matches the design. */
-const CARDS = [
-  { brand: "netflix", chip: "Entertainment", title: "Netflix Premium", slots: 3, price: "N2,000", waiting: 12 },
-  { brand: "spotify", chip: "Entertainment", title: "Premium Premium", slots: 3, price: "N2,000", waiting: 12 },
-  { brand: "adobe", chip: "Productivity", title: "Adobe Creative Cloud", slots: 5, price: "N3,000", waiting: 12 },
-  { brand: "amazon", chip: "Entertainment", title: "Amazon", slots: 3, price: "N2,000", waiting: 12 },
-  { brand: "canva", chip: "Entertainment", title: "Canva Pro", slots: 3, price: "N2,000", waiting: 12 },
-  { brand: "capcut", chip: "Entertainment", title: "CapCut Pro", slots: 3, price: "N2,000", waiting: 12 },
-  { brand: "prime", chip: "Entertainment", title: "Prime Video Premium", slots: 3, price: "N2,000", waiting: 12 },
-  { brand: "youtube", chip: "Entertainment", title: "YouTube Premium", slots: 3, price: "N2,000", waiting: 12 },
-  { brand: "netflix", chip: "Entertainment", title: "Netflix Premium", slots: 3, price: "N2,000", waiting: 12 },
-  { brand: "spotify", chip: "Entertainment", title: "Spotify Premium", slots: 3, price: "N2,000", waiting: 12 },
-];
 
 const SUB = "Subscription you've joined the waitlist for, We'll notify you when a group becomes available";
 
@@ -54,15 +39,15 @@ export default function Join() {
   useEffect(() => {
     let on = true;
     (async () => {
-      const { data } = await api("/member/dashboard");
-      if (on) setLive(data?.available_subscriptions || []);
+      const { data, error } = await api("/member/dashboard");
+      if (on) setLive(error ? [] : data?.available_subscriptions || []);
     })();
     return () => {
       on = false;
     };
   }, []);
 
-  const cards = live === null ? CARDS : live.map(mapAvail);
+  const cards = live === null ? [] : live.map(mapAvail);
 
   return (
     <div className="min-h-screen bg-white font-sans text-ink">
@@ -79,10 +64,10 @@ export default function Join() {
             <p className="text-[18px] leading-[22px] font-semibold text-[#6B6B6B]">
               {SUB}
             </p>
-            <div className="mt-[50px] grid grid-cols-2 gap-[31px]">
-              {cards.map((c, i) => (
-                <JoinCard key={`${c.title}-${i}`} {...c} />
-              ))}
+            <div className="mt-[50px] grid grid-cols-2 gap-[30px]">
+              {live === null
+                ? Array.from({ length: 4 }, (_, i) => <Sk key={i} className="h-[406px] w-[400px] !rounded-[25px]" />)
+                : cards.map((c, i) => <JoinCard key={`${c.title}-${i}`} {...c} />)}
             </div>
             {live && live.length === 0 && (
               <p className="mt-[30px] text-[18px] font-semibold text-[#6B6B6B]">
@@ -116,9 +101,9 @@ export default function Join() {
             {SUB}
           </p>
           <div className="mt-[50px] flex flex-col gap-[31px]">
-            {cards.map((c, i) => (
-              <JoinCard key={`${c.title}-${i}`} {...c} />
-            ))}
+            {live === null
+              ? Array.from({ length: 2 }, (_, i) => <Sk key={i} className="h-[406px] w-full !rounded-[25px]" />)
+              : cards.map((c, i) => <JoinCard key={`${c.title}-${i}`} {...c} />)}
           </div>
           {live && live.length === 0 && (
             <p className="mt-[30px] text-[15px] font-semibold text-[#6B6B6B]">

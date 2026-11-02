@@ -125,7 +125,7 @@ export default function Group() {
       <Navbar />
 
       {/* ---------- Desktop ---------- */}
-      <main className="relative hidden overflow-x-clip xl:block">
+      <main className="relative hidden xl:block">
         <BlurBg variant="hero" />
         <div className="relative mx-auto max-w-[1440px] px-[20px] min-[1440px]:px-[100px]">
           <div className="relative mt-[103px] flex h-[50px] items-center">
@@ -193,10 +193,10 @@ export default function Group() {
       </main>
 
       {/* ---------- Mobile ---------- */}
-      <main className="relative overflow-x-clip xl:hidden">
+      <main className="relative min-w-0 xl:hidden">
         <BlurBg variant="page" />
         <div className="relative px-[20px]">
-          <div className="mt-[35px] flex h-[40px] items-center">
+          <div className="mt-[35px] flex min-w-0 h-[40px] items-center">
             <Link
               to="/marketplace"
               aria-label="Back to home"
@@ -204,8 +204,8 @@ export default function Group() {
             >
               <img src={iconChevron} alt="" className="h-[21px] w-[21px] rotate-90" />
             </Link>
-            <img src={iconMovies} alt="" className="ml-[25px] h-[40px] w-[40px] flex-none" />
-            <h1 className="ml-[14px] text-[30px] leading-[36.57px] font-bold whitespace-nowrap text-ink">
+            <img src={iconMovies} alt="" className="ml-[12px] h-[34px] w-[34px] flex-none min-[480px]:ml-[20px] min-[480px]:h-[40px] min-[480px]:w-[40px]" />
+            <h1 className="ml-[8px] min-w-0 text-[clamp(18px,5.4vw,30px)] leading-[1.15] font-bold text-ink">
               Movies &amp; Series
             </h1>
           </div>

@@ -56,7 +56,7 @@ export default function NoSubscription() {
           <h2 className="mt-[52px] text-[25px] font-semibold leading-[35px] text-ink">
             Categories
           </h2>
-          <div className="mt-[10px] flex justify-between gap-[18px] overflow-x-auto pb-2">
+          <div className="scrollbar-none mt-[10px] flex justify-between gap-[18px] overflow-x-auto pb-2">
             {PILLS.map((p) => (
               <button
                 key={p.label}

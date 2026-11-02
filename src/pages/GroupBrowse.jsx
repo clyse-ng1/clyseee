@@ -39,7 +39,7 @@ function mapRow(g) {
   const b = groupBucket(g);
   const title = [g.service?.name, g.plan?.name].filter(Boolean).join(" ") || "Group";
   const plan = g.plan?.name ? `${g.plan.name} Plan` : "Premium Plan";
-  const price = g.plan?.total_price_kobo != null ? kobo(g.plan.total_price_kobo) : "N2,000";
+  const price = g.plan?.total_price_kobo != null ? kobo(g.plan.total_price_kobo) : "—";
   const sub = `${g.slots_offered ?? 0} Slot Shared`;
   return {
     key: g.id,

@@ -4,19 +4,13 @@ import Navbar from "../components/Navbar";
 import Sidebar from "../components/Sidebar";
 import ExtraBlock from "../components/ExtraBlock";
 import BrandTile from "../components/BrandTile";
+import Sk from "../components/Skeleton";
 import { BlurBg } from "../components/Decor";
 import DropSelect from "../components/DropSelect";
 import { accessLabel, api, brandOf, kobo } from "../lib/api";
 import { useCatalogue } from "../lib/useCatalogue";
 import iconSearch from "../assets/side-search.svg";
 import iconDocSearch from "../assets/icon-doc-search-green.svg";
-import avatar1 from "../assets/avatar-1.webp";
-import avatar2 from "../assets/avatar-2.webp";
-import avatar3 from "../assets/avatar-3.webp";
-import avatarAshlynn from "../assets/avatar-ashlynn.webp";
-import avatarAspen from "../assets/avatar-aspen.webp";
-import avatarKianna from "../assets/avatar-kianna.webp";
-import avatarCurtis from "../assets/avatar-ashlynn-curtis.webp";
 import avatarAccount from "../assets/avatar-account.webp";
 
 /* Logged-in browse — desktop Figma 806:31476 (results) + 807:34801
@@ -35,32 +29,6 @@ const CATS = [
   "Delivery",
   "Cloud",
   "Productivity",
-];
-
-const BRANDS = [
-  { brand: "netflix", name: "Netflix Premium", cat: "Movies & Series" },
-  { brand: "adobe", name: "Adobe Creative Cloud", cat: "Productivity" },
-  { brand: "amazon", name: "Amazon", cat: "Cloud" },
-  { brand: "spotify", name: "Spotify Premium", cat: "Music" },
-  { brand: "canva", name: "Canva Pro", cat: "Productivity" },
-  { brand: "capcut", name: "CapCut Pro", cat: "Streaming" },
-  { brand: "youtube", name: "YouTube Premium", cat: "Streaming" },
-  { brand: "prime", name: "Prime Video", cat: "Movies & Series" },
-];
-
-const GROUPS = [
-  { avatar: avatarAccount, name: "Marcus Saris", service: "Netflix Premium", price: "N2,000", left: "1 Slot left", ratio: "3/4" },
-  { avatar: avatarAshlynn, name: "Ashlynn Curtis", service: "Spotify Premium", price: "N2,000", left: "1 Slot left", ratio: "3/4" },
-  { avatar: avatar2, name: "Davis Ekstrom", service: "YouTube Premium", price: "N2,000", left: "1 Slot left", ratio: "3/4" },
-  { avatar: avatarKianna, name: "Kianna Passaquindici", service: "Canva Pro", price: "N2,000", left: "1 Slot left", ratio: "3/4" },
-  { avatar: avatarCurtis, name: "Curtis Rhiel Madsen", service: "Prime Video", price: "N2,000", left: "1 Slot left", ratio: "3/4" },
-  { avatar: avatarAspen, name: "Aspen Gouse", service: "Adobe Creative Cloud", price: "N2,000", left: "1 Slot left", ratio: "3/4" },
-  { avatar: avatar1, name: "Kaylynn Vetrovs", service: "Amazon", price: "N2,000", left: "1 Slot left", ratio: "3/4" },
-  { avatar: avatar3, name: "Abram Botosh", service: "CapCut Pro", price: "N2,000", left: "1 Slot left", ratio: "3/4" },
-  { avatar: avatarAccount, name: "Yusuff Sodiq", service: "Netflix Premium", price: "N2,500", left: "2 Slots left", ratio: "2/4" },
-  { avatar: avatarAshlynn, name: "Maria Saris", service: "Spotify Premium", price: "N2,500", left: "2 Slots left", ratio: "2/4" },
-  { avatar: avatar2, name: "Tolu Adeyemi", service: "YouTube Premium", price: "N2,500", left: "2 Slots left", ratio: "2/4" },
-  { avatar: avatarKianna, name: "Aisha Bello", service: "Canva Pro", price: "N2,500", left: "2 Slots left", ratio: "2/4" },
 ];
 
 function JoinCard({ g }) {
@@ -160,10 +128,12 @@ export default function Browse() {
   }, []);
 
   const liveBrands = services === null ? null : services.map(mapService);
+  const loadingBrands = services === null;
+  const loadingGroups = availGroups === null;
 
   const brands = useMemo(() => {
     const needle = q.trim().toLowerCase();
-    return (liveBrands || BRANDS).filter(
+    return (liveBrands || []).filter(
       (b) =>
         (cat === "All" || b.cat === cat) &&
         (!needle || b.name.toLowerCase().includes(needle)),
@@ -172,7 +142,7 @@ export default function Browse() {
 
   const groups = useMemo(() => {
     const needle = q.trim().toLowerCase();
-    const all = availGroups === null ? GROUPS : availGroups.map(mapGroup);
+    const all = (availGroups || []).map(mapGroup);
     if (!needle) return all;
     return all.filter(
       (g) =>
@@ -181,7 +151,7 @@ export default function Browse() {
     );
   }, [q, availGroups]);
 
-  const noResult = brands.length === 0;
+  const noResult = !loadingBrands && brands.length === 0;
   const brandList = showAllBrands ? brands : brands.slice(0, 6);
   const groupList = showAllGroups ? groups : groups.slice(0, 6);
 
@@ -190,7 +160,7 @@ export default function Browse() {
       className={
         mobile
           ? "scrollbar-none -mx-[30px] flex gap-[10px] overflow-x-auto px-[30px] pb-[4px]"
-          : "flex gap-[16px] overflow-x-auto pb-[4px]"
+          : "scrollbar-none flex gap-[16px] overflow-x-auto pb-[4px]"
       }
     >
       {CATS.map((c) => {
@@ -265,7 +235,9 @@ export default function Browse() {
                   Available Group Subscription
                 </h1>
                 <div className="mt-[30px] grid grid-cols-3 gap-x-[82px] gap-y-[50px]">
-                  {brandList.map((b) => (
+                  {loadingBrands
+                    ? Array.from({ length: 6 }, (_, i) => <Sk key={`brand-loading-${i}`} className="h-[179px] w-full !rounded-[16px]" />)
+                    : brandList.map((b) => (
                     <button
                       key={b.brand}
                       type="button"
@@ -297,18 +269,18 @@ export default function Browse() {
               Join Group
             </h2>
             <div className="mt-[62px] grid grid-cols-3 gap-x-[38px] gap-y-[62px]">
-              {groupList.map((g, i) => (
-                <JoinCard key={`${g.name}-${i}`} g={g} />
-              ))}
+              {loadingGroups
+                ? Array.from({ length: 3 }, (_, i) => <Sk key={`group-loading-${i}`} className="h-[250px] w-full !rounded-[16px]" />)
+                : groupList.map((g, i) => <JoinCard key={`${g.name}-${i}`} g={g} />)}
             </div>
-            {groups.length === 0 && (
+            {!loadingGroups && groups.length === 0 && (
               <p className="mt-[30px] text-center text-[18px] font-semibold text-[#6B6B6B]">
                 {q.trim()
                   ? "No groups match your search."
                   : "No open groups right now — check back soon."}
               </p>
             )}
-            {groups.length > 6 && (
+            {!loadingGroups && groups.length > 6 && (
               <button
                 type="button"
                 onClick={() => setShowAllGroups((v) => !v)}
@@ -350,7 +322,7 @@ export default function Browse() {
             </div>
             <DropSelect
               value={picked || ""}
-              options={["All", ...(liveBrands || BRANDS).map((b) => b.name)]}
+              options={["All", ...(liveBrands || []).map((b) => b.name)]}
               onChange={(o) => {
                 if (o === "All") {
                   setPicked(null);
@@ -389,7 +361,9 @@ export default function Browse() {
             </div>
           ) : (
             <div className="mt-[24px] grid grid-cols-2 gap-[16px]">
-              {(showAllBrands ? brands : brands.slice(0, 8)).map((b) => (
+              {loadingBrands
+                ? Array.from({ length: 4 }, (_, i) => <Sk key={`brand-loading-mobile-${i}`} className="h-[130px] w-full !rounded-[16px]" />)
+                : (showAllBrands ? brands : brands.slice(0, 8)).map((b) => (
                 <button
                   key={b.brand}
                   type="button"
@@ -404,7 +378,7 @@ export default function Browse() {
                     {b.chip || b.cat || "Entertainment"}
                   </span>
                   <span className="mt-[6px] text-[11.5px] leading-[14px] font-semibold text-ink">
-                    {b.price != null ? <>From {kobo(b.price)}/</> : <>From N2,000/</>}<span className="text-[9px]">Monthly</span>
+                    {b.price != null ? <>From {kobo(b.price)}/</> : <>From —/</>}<span className="text-[9px]">Monthly</span>
                   </span>
                 </button>
               ))}

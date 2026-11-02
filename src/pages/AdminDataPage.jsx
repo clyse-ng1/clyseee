@@ -86,7 +86,7 @@ const queryString = (params) => {
   return out ? `?${out}` : "";
 };
 function SkeletonTable() {
-  return <div className="overflow-hidden rounded-[14px] border border-[#D8E2D9] bg-white">{Array.from({ length: 6 }, (_, i) => <div key={i} className="flex h-[62px] items-center gap-4 border-b border-[#EEF2EE] px-5">{Array.from({ length: 5 }, (_, j) => <span key={j} className="h-4 flex-1 animate-pulse rounded bg-[#EAF0EA]" />)}</div>)}</div>;
+  return <div className="overflow-hidden rounded-[14px] border border-[#D8E2D9] bg-white">{Array.from({ length: 6 }, (_, i) => <div key={i} className="flex h-[62px] items-center gap-4 border-b border-[#EEF2EE] px-5">{Array.from({ length: 5 }, (_, j) => <span key={j} className="h-4 flex-1 rounded bg-[#EAF0EA]" />)}</div>)}</div>;
 }
 
 function flattenMetrics(value, path = [], out = []) {

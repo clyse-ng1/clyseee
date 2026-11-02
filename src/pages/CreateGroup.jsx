@@ -33,7 +33,7 @@ function DesktopCard({ card, from, selected, onSelect }) {
       }`}
     >
       <span className="flex justify-center">
-        <BrandTile brand={card.brand} />
+        <BrandTile brand={card.brand} plain />
       </span>
       <span className="mt-[10px] block text-[18px] leading-[22px] font-bold text-ink">
         {card.title}
@@ -63,7 +63,7 @@ function MobileCard({ card, from, selected, onSelect }) {
       }`}
     >
       <span className="flex justify-center">
-        <BrandTile brand={card.brand} mobile />
+        <BrandTile brand={card.brand} mobile plain />
       </span>
       <span className="mt-[7px] block text-[11.66px] leading-[14.19px] font-bold text-ink">
         {card.title}
@@ -93,7 +93,7 @@ export default function CreateGroup() {
 
   const fromFor = (brand) => {
     const min = minPrice(services, brand);
-    return min != null ? Math.round(min / 100).toLocaleString("en-US") : "2,000";
+    return min != null ? Math.round(min / 100).toLocaleString("en-US") : "—";
   };
   const nextState = custom
     ? {
@@ -149,7 +149,7 @@ export default function CreateGroup() {
             </div>
             <div className="mt-[35px] flex h-[100px] items-center rounded-2xl border border-clyse bg-white pl-[50px]">
               <input
-                placeholder="Subscription name"
+                placeholder="Monthly price"
                 value={customPlan}
                 onChange={(e) => setCustomPlan(e.target.value)}
                 className="w-full bg-transparent text-[25px] font-semibold text-ink outline-none placeholder:font-semibold placeholder:text-[#999999]"

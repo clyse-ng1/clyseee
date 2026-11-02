@@ -140,7 +140,7 @@ export default function SubscriptionHistory() {
 
             {error && <div role="alert" className="mb-4 rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-700">{error} <button type="button" onClick={retry} className="ml-2 font-bold underline">Retry</button></div>}
             {busy ? (
-              <div className="space-y-4" aria-label="Loading subscription history">{[1,2,3].map((n) => <div key={n} className="h-40 animate-pulse rounded-2xl bg-[#E8EEE9]" />)}</div>
+              <div className="space-y-4" aria-label="Loading subscription history">{[1,2,3].map((n) => <div key={n} className="h-40 rounded-2xl bg-[#E8EEE9]" />)}</div>
             ) : items.length ? (
               <div className="space-y-4">{items.map((item) => <HistoryCard key={item.membership_id} item={item} />)}</div>
             ) : !error ? (
