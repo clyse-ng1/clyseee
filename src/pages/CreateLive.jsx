@@ -32,7 +32,7 @@ export default function CreateLive() {
     : "/subscription-group";
 
   return (
-    <div className="min-h-screen bg-white font-sans text-ink">
+    <div className="min-h-screen bg-[#F5FBF5] font-sans text-ink">
       <Navbar loggedIn />
       {/* Desktop */}
       <main className="relative hidden pb-[100px] xl:block">

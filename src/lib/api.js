@@ -204,6 +204,15 @@ export function idOf(value) {
   return v.includes("@") ? { email: v } : { phone: v };
 }
 
+/** "movies & series" -> "Movies & Series" — chip labels come back lowercase
+    from /catalogue and read as a bug next to Figma's capitalised chips. */
+export function titleCase(value) {
+  return String(value || "")
+    .trim()
+    .replace(/\s+/g, " ")
+    .replace(/\b[a-z]/g, (c) => c.toUpperCase());
+}
+
 /** API service ({ name, slug }) -> BrandTile key, or null for the generic tile. */
 export function brandOf(service) {
   const s = `${service?.slug || ""} ${service?.name || ""}`.toLowerCase();
@@ -215,6 +224,7 @@ export function brandOf(service) {
   if (s.includes("capcut") || s.includes("cap cut")) return "capcut";
   if (s.includes("adobe")) return "adobe";
   if (s.includes("amazon")) return "amazon";
+  if (s.includes("apple")) return "apple";
   return null;
 }
 

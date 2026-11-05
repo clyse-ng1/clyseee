@@ -6,6 +6,7 @@ import iconDone from "../assets/done-white.svg";
 import iconCopy from "../assets/copy-black.svg";
 import iconNaira from "../assets/naira-green.svg";
 import iconCal from "../assets/calendar-glyph.svg";
+import { useCopy, CopiedPill } from "../lib/useCopy";
 
 /* Shared subscription-details view (SubDetails + SubReport markup, Figma-identical).
    `variant` flips the measured differences between the two screens:
@@ -146,9 +147,6 @@ function derive(membership, access) {
   };
 }
 
-function copyText(text) {
-  if (navigator.clipboard) navigator.clipboard.writeText(text).catch(() => {});
-}
 
 /** Green confirm button: POSTs /member/access/confirm, then calls done(). */
 export function ConfirmButton({ groupId, done }) {
@@ -204,10 +202,12 @@ export function SubDetailsDesktop({
   renewSlot,
 }) {
   const v = derive(membership, access);
+  const { copied, copy } = useCopy();
   const isReport = variant === "report";
 
   return (
     <div className="w-[830px] flex-none">
+      <CopiedPill show={copied} />
       {!isReport && (
         <h1 className="text-[35px] leading-[43px] font-bold text-black">
           Subscription Details
@@ -267,7 +267,7 @@ export function SubDetailsDesktop({
         </h2>
         <div className="mt-[50px] flex items-center justify-end gap-[10px]">
           <p className="text-[25px] leading-[35px] font-semibold text-ink">{v.groupId}</p>
-          <button type="button" onClick={() => v.rawGroupId && copyText(v.rawGroupId)} aria-label="Copy group ID" disabled={!v.rawGroupId}>
+          <button type="button" onClick={() => v.rawGroupId && copy(v.rawGroupId)} aria-label="Copy group ID" disabled={!v.rawGroupId}>
             <img src={iconCopy} alt="Copy group ID" className="h-[24px] w-[24px]" />
           </button>
         </div>
@@ -300,7 +300,7 @@ export function SubDetailsDesktop({
               <p className="text-[18px] leading-[22px] font-semibold text-[#6B6B6B]">Shared access details</p>
               <p className="mt-[2px] text-[18px] leading-[25px] font-bold break-all text-ink">{v.link}</p>
             </div>
-            <button type="button" onClick={() => copyText(v.link)} className="mr-[26px] ml-auto flex h-[44px] w-[111px] flex-none items-center justify-center gap-[10px] self-center rounded-[10px] bg-[#D9D9D9]">
+            <button type="button" onClick={() => copy(v.link)} className="mr-[26px] ml-auto flex h-[44px] w-[111px] flex-none items-center justify-center gap-[10px] self-center rounded-[10px] bg-[#D9D9D9]">
               <img src={iconCopy} alt="" className="h-[24px] w-[24px]" />
               <span className="text-[18px] leading-[22px] font-semibold text-black">Copy</span>
             </button>
@@ -330,10 +330,12 @@ export function SubDetailsMobile({
   renewSlot,
 }) {
   const v = derive(membership, access);
+  const { copied, copy } = useCopy();
   const isReport = variant === "report";
 
   return (
     <>
+      <CopiedPill show={copied} />
       <div
         className={`relative px-[32px] pt-[51px] ${
           isReport ? "rounded-[20px] bg-white pb-[51px]" : ""
@@ -396,7 +398,7 @@ export function SubDetailsMobile({
         </h2>
         <div className={`${isReport ? "pl-[72px]" : "ml-[72px]"} mt-[51px] flex items-center`}>
           <p className="text-[18px] leading-[22px] font-semibold text-ink">{v.groupId}</p>
-          <button type="button" onClick={() => v.rawGroupId && copyText(v.rawGroupId)} aria-label="Copy group ID" disabled={!v.rawGroupId}>
+          <button type="button" onClick={() => v.rawGroupId && copy(v.rawGroupId)} aria-label="Copy group ID" disabled={!v.rawGroupId}>
             <img src={iconCopy} alt="Copy group ID" className="ml-[10px] h-[24px] w-[24px]" />
           </button>
         </div>
@@ -429,7 +431,7 @@ export function SubDetailsMobile({
               <p className="text-[13px] leading-[20px] font-semibold text-[#6B6B6B]">Shared access details</p>
               <p className="mt-[2px] break-all text-[13px] leading-[20px] font-bold text-ink">{v.link}</p>
             </div>
-            <button type="button" onClick={() => copyText(v.link)} className="mr-[16px] flex h-[44px] w-[80px] flex-none items-center justify-center gap-[6px] self-center rounded-[10px] bg-[#D9D9D9]">
+            <button type="button" onClick={() => copy(v.link)} className="mr-[16px] flex h-[44px] w-[80px] flex-none items-center justify-center gap-[6px] self-center rounded-[10px] bg-[#D9D9D9]">
               <img src={iconCopy} alt="" className="h-[20px] w-[20px]" />
               <span className="text-[14px] font-semibold text-black">Copy</span>
             </button>

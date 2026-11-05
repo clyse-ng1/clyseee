@@ -4,7 +4,7 @@ import Navbar from "../components/Navbar";
 import Sidebar from "../components/Sidebar";
 import BrandTile from "../components/BrandTile";
 import { BlurBg } from "../components/Decor";
-import { api, accessLabel, brandOf, daysUntil, displayName, fmtDay, kobo, totalPriceKobo } from "../lib/api";
+import { api, accessLabel, brandOf, daysUntil, displayName, fmtDay, kobo, titleCase, totalPriceKobo } from "../lib/api";
 import { useAuth } from "../lib/useAuth";
 import iconSearch from "../assets/icon-search.svg";
 import iconUser from "../assets/icon-user.svg";
@@ -15,9 +15,9 @@ import iconExit from "../assets/exit.svg";
 import iconAccess from "../assets/access.svg";
 import { MemberMenuButton } from "../components/MemberMini";
 import Sk from "../components/Skeleton";
-import chevronRight from "../assets/angle-right.svg";
 import avatarAccount from "../assets/avatar-account.webp";
 import ctaDash from "../assets/cta-dash.webp";
+import chevronRight from "../assets/angle-right.svg";
 
 /* Logged-in dashboard home (Figma 481:10033 desktop / 481:10571 mobile).
    NOTES: (1) Active rows show only the green "Active" pill and waitlist rows
@@ -40,6 +40,7 @@ function mapActive(s) {
     key: s.membership_id || s.id,
     brand: brandOf(s.service),
     name: serviceName(s),
+    cat: titleCase(s.service?.category) || "Entertainment",
     renew:
       d == null ? "Active" : d === 0 ? "Renews today" : `Renews in ${d} day${d === 1 ? "" : "s"}`,
   };
@@ -70,6 +71,7 @@ function mapAvail(a) {
     key: a.plan_id || a.service?.slug || a.service?.name,
     brand: brandOf(a.service),
     name: serviceName(a),
+    cat: titleCase(a.service?.category) || "Entertainment",
     price: total != null ? `From ${kobo(total)}/` : null,
   };
 }
@@ -129,16 +131,16 @@ function FundPair() {
 function MemberRow({ row, button, onLeave, busy }) {
   return (
     <div className="flex h-[57px] items-center rounded-[20px] bg-white">
-      <BrandTile brand={row.brand} />
+      <BrandTile brand={row.brand} name={row.name} />
       <div className="ml-[20px]">
         <p className="text-[25px] leading-[30px] font-bold text-ink">{row.name}</p>
-        <div className="relative h-[27px]">
-          <span className="absolute top-0 left-0 flex h-[19px] w-[96px] items-center rounded-[3.58px] bg-[#B1DBB3] pl-[10px] text-[10px] font-semibold text-clyse">
-            Entertainment
-          </span>
-          <span className="absolute top-[8px] left-0 text-[18px] leading-[22px] font-semibold text-[#6B6B6B]">
-            {row.renew}
-          </span>
+        <div className="mt-[4px] flex items-center gap-[10px]">
+          {button === "active" && (
+            <span className="flex h-[19px] flex-none items-center justify-center rounded-[3.58px] bg-[#B1DBB3] px-[8px] text-[10px] font-semibold text-clyse">
+              {row.cat}
+            </span>
+          )}
+          <span className="text-[18px] leading-[22px] font-semibold text-[#6B6B6B]">{row.renew}</span>
         </div>
       </div>
       {button === "active" ? (
@@ -170,7 +172,7 @@ function MobileGroupRow({ group }) {
     group?.occupied_slots ?? group?.member_count ?? (Array.isArray(group?.members) ? group.members.length : 0);
   return (
     <div className="flex h-[40px] items-center rounded-[13.74px] bg-white">
-      <BrandTile brand={brandOf(group?.service)} size={34} />
+      <BrandTile brand={brandOf(group?.service)} name={group?.service?.name || group?.name} size={34} />
       <div className="ml-[14px]">
         <p className="text-[17.18px] leading-[21px] font-bold text-ink">
           {group?.service?.name || group?.name || "Group"}
@@ -192,16 +194,16 @@ function MobileGroupRow({ group }) {
 function MobileMemberRow({ row, button, onLeave, busy }) {
   return (
     <div className="flex h-[40px] items-center rounded-[13.74px] bg-white">
-      <BrandTile brand={row.brand} size={34} />
+      <BrandTile brand={row.brand} name={row.name} size={34} />
       <div className="ml-[14px]">
         <p className="text-[17.18px] leading-[21px] font-bold text-ink">{row.name}</p>
-        <div className="relative h-[19px]">
-          <span className="absolute top-0 left-0 flex h-[13px] w-[66px] items-center rounded-[2.46px] bg-[#B1DBB3] pl-[6px] text-[6.87px] font-semibold text-clyse">
-            Entertainment
-          </span>
-          <span className="absolute top-[6px] left-0 text-[12.37px] leading-[15px] font-semibold text-[#6B6B6B]">
-            {row.renew}
-          </span>
+        <div className="mt-[1px] flex items-center gap-[6px]">
+          {button === "active" && (
+            <span className="flex h-[13px] flex-none items-center justify-center rounded-[2.46px] bg-[#B1DBB3] px-[5px] text-[6.87px] font-semibold text-clyse">
+              {row.cat}
+            </span>
+          )}
+          <span className="text-[12.37px] leading-[15px] font-semibold text-[#6B6B6B]">{row.renew}</span>
         </div>
       </div>
       {button === "active" ? (
@@ -228,17 +230,17 @@ function MobileMemberRow({ row, button, onLeave, busy }) {
   );
 }
 
-function SubCard({ brand, name, price }) {
+function SubCard({ brand, name, price, cat = "Entertainment" }) {
   return (
     <div className="h-[200px] w-[250px] rounded-[20px] border border-clyse bg-white pt-[31px] text-center shadow-[0_0_20px_rgba(0,23,1,0.10)]">
       <span className="flex justify-center">
-        <BrandTile brand={brand} />
+        <BrandTile brand={brand} name={name} />
       </span>
       <p className="mt-[10px] text-[18px] leading-[22px] font-bold text-ink">
         {name}
       </p>
-      <p className="mx-auto mt-[3px] flex h-[19px] w-[96px] items-center rounded-[3.58px] bg-[#B1DBB3] pl-[10px] text-[10px] font-semibold text-clyse">
-        Entertainment
+      <p className="mx-auto mt-[3px] flex h-[19px] w-fit min-w-[96px] items-center justify-center rounded-[3.58px] bg-[#B1DBB3] px-[10px] text-[10px] font-semibold text-clyse">
+        {cat}
       </p>
       <p className="mt-[10px] flex items-baseline justify-center">
         <span className="text-[18px] leading-[22px] font-semibold text-ink">
@@ -252,17 +254,17 @@ function SubCard({ brand, name, price }) {
   );
 }
 
-function MobileSubCard({ brand, name, price }) {
+function MobileSubCard({ brand, name, price, cat = "Entertainment" }) {
   return (
     <div className="h-[137px] rounded-[13.74px] border border-clyse bg-white pt-[22px] text-center shadow-[0_0_13px_rgba(0,23,1,0.10)]">
       <span className="flex justify-center">
-        <BrandTile brand={brand} size={34} />
+        <BrandTile brand={brand} name={name} size={34} />
       </span>
       <p className="mt-[7px] text-[12.37px] leading-[15px] font-bold text-ink">
         {name}
       </p>
-      <p className="mx-auto mt-[4px] flex h-[13px] w-[66px] items-center rounded-[2.46px] bg-[#B1DBB3] pl-[6px] text-[6.87px] font-semibold text-clyse">
-        Entertainment
+      <p className="mx-auto mt-[4px] flex h-[13px] w-fit min-w-[66px] items-center justify-center rounded-[2.46px] bg-[#B1DBB3] px-[6px] text-[6.87px] font-semibold text-clyse">
+        {cat}
       </p>
       <p className="mt-[6px] flex items-baseline justify-center">
         <span className="text-[12.37px] leading-[15px] font-semibold text-ink">
@@ -424,6 +426,19 @@ function MemberRowSk() {
         <Sk className="mt-[8px] h-[16px] w-[150px]" />
       </div>
       <Sk className="ml-auto h-[48px] w-[185px] !rounded-[10px]" />
+    </div>
+  );
+}
+
+function MobileGroupRowSk() {
+  return (
+    <div className="flex h-[40px] items-center rounded-[13.74px] bg-white">
+      <Sk className="h-[34px] w-[34px] !rounded-full" />
+      <div className="ml-[14px] flex-1">
+        <Sk className="h-[13px] w-[120px] !rounded-[4px]" />
+        <Sk className="mt-[5px] h-[9px] w-[86px] !rounded-[4px]" />
+      </div>
+      <Sk className="h-[33px] w-[127px] !rounded-[6.87px]" />
     </div>
   );
 }
@@ -678,7 +693,7 @@ export default function Dashboard() {
               {!dash
                 ? [0, 1, 2, 3, 4, 5].map((i) => <SubCardSk key={i} />)
                 : availSubs.map((s) => (
-                    <SubCard key={s.key} brand={s.brand} name={s.name} price={s.price} />
+                    <SubCard key={s.key} brand={s.brand} name={s.name} price={s.price} cat={s.cat} />
                   ))}
             </div>
             {dash && availSubs.length === 0 && (
@@ -862,7 +877,7 @@ export default function Dashboard() {
           </div>
           <div className="mt-[28px] space-y-[14px]">
             {myGroups === null ? (
-              [0, 1, 2].map((i) => <MobileMemberRowSk key={i} />)
+              [0, 1].map((i) => <MobileGroupRowSk key={i} />)
             ) : myGroups.length > 0 ? (
               myGroups.map((g, i) => <MobileGroupRow key={g.id || g.group_id || i} group={g} />)
             ) : (
@@ -931,6 +946,7 @@ export default function Dashboard() {
                     brand={s.brand}
                     name={s.name}
                     price={s.price}
+                    cat={s.cat}
                   />
                 ))}
           </div>

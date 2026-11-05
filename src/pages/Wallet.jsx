@@ -23,9 +23,9 @@ import iconMusic from "../assets/glyph-music.svg";
 import iconProductivity from "../assets/glyph-productivity.svg";
 import iconNavArrow from "../assets/nav-arrow.svg";
 import { MemberMenuButton } from "../components/MemberMini";
-import chevronRight from "../assets/angle-right.svg";
 import avatarAccount from "../assets/avatar-account.webp";
 import ctaDash from "../assets/cta-dash.webp";
+import chevronRight from "../assets/angle-right.svg";
 
 /* My Wallet (Figma 460:10563 desktop / 481:11028 mobile).
    NOTES: (1) A duplicated second "Status" header (+750) is omitted. (2) Each
@@ -713,7 +713,7 @@ export default function Wallet() {
           <MemberMenuButton active="My Wallet" />
         </div>
 
-        <div className="relative mx-[30px] -mt-[1px] flex h-[50px] items-center bg-white">
+        <div className="relative z-10 mx-[30px] -mt-[1px] flex h-[50px] items-center rounded-[15px] border border-line bg-white shadow-[0_0_20px_rgba(0,23,1,0.10)]">
           <img src={chevronRight} alt="" className="mr-[21px] ml-auto w-[24px]" />
         </div>
 

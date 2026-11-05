@@ -7,7 +7,7 @@ import BrandTile from "../components/BrandTile";
 import Sk from "../components/Skeleton";
 import { BlurBg } from "../components/Decor";
 import DropSelect from "../components/DropSelect";
-import { accessLabel, api, brandOf, kobo, totalPriceKobo } from "../lib/api";
+import { accessLabel, api, brandOf, kobo, titleCase, totalPriceKobo } from "../lib/api";
 import { useCatalogue } from "../lib/useCatalogue";
 import iconSearch from "../assets/side-search.svg";
 import iconDocSearch from "../assets/icon-doc-search-green.svg";
@@ -87,7 +87,7 @@ function mapService(a) {
     brand: brandOf(service),
     name: service.name || "Subscription",
     cat: service.category || "Other",
-    chip: service.category || "Entertainment",
+    chip: titleCase(service.category) || "Entertainment",
     price: min !== Infinity ? min : null,
   };
 }
@@ -249,7 +249,7 @@ export default function Browse() {
                       onClick={() => setQ(b.name)}
                       className="flex min-h-[179px] flex-col items-center rounded-[16px] border border-[#E5E5E5] bg-white px-[16px] py-[20px] transition hover:border-clyse hover:shadow-[0_0_12px_rgba(4,139,11,0.15)]"
                     >
-                      <BrandTile brand={b.brand} size={64} plain />
+                      <BrandTile brand={b.brand} name={b.name} size={64} plain />
                       <span className="mt-[12px] line-clamp-2 min-h-[44px] text-[18px] leading-[22px] font-bold text-ink">
                         {b.name}
                       </span>
@@ -378,7 +378,7 @@ export default function Browse() {
                   onClick={() => setQ(b.name)}
                   className="flex min-h-[130px] flex-col items-center rounded-[16px] border border-[#E5E5E5] bg-white px-[10px] py-[16px]"
                 >
-                  <BrandTile brand={b.brand} size={48} plain />
+                  <BrandTile brand={b.brand} name={b.name} size={48} plain />
                   <span className="mt-[8px] line-clamp-2 min-h-[36px] text-[13px] leading-[18px] font-bold text-ink">
                     {b.name}
                   </span>

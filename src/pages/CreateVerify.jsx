@@ -38,7 +38,7 @@ function DesktopDropzone({ label, onFile }) {
   return (
     <div
       onClick={() => input.current?.click()}
-      className="relative mt-[20px] h-[400px] cursor-pointer rounded-[30px] bg-white shadow-[0_0_20px_rgba(0,23,1,0.10)]"
+      className="relative mt-[20px] flex h-[400px] cursor-pointer flex-col items-center justify-center rounded-[30px] bg-white shadow-[0_0_20px_rgba(0,23,1,0.10)]"
     >
       <input
         ref={input}
@@ -53,7 +53,7 @@ function DesktopDropzone({ label, onFile }) {
           onFile?.(err ? null : f);
         }}
       />
-      <img src={iconUpload} alt="" className="mx-auto mt-[110px] h-[114px] w-[179px]" />
+      <img src={iconUpload} alt="" className="h-[114px] w-[179px]" />
       <p className="mx-[60px] mt-[31px] truncate text-center text-[25px] leading-[35px] font-semibold text-[#BABABA]">
         {name || label}
       </p>
@@ -97,7 +97,7 @@ function MobileDropzone({ label, onFile }) {
   return (
     <div
       onClick={() => input.current?.click()}
-      className="relative mx-auto mt-[14px] h-[277px] w-[370px] max-w-[370px] cursor-pointer rounded-[20.8px] bg-white shadow-[0_0_13.87px_rgba(0,23,1,0.10)]"
+      className="relative mx-auto mt-[14px] flex h-[277px] w-[370px] max-w-[370px] cursor-pointer flex-col items-center justify-center rounded-[20.8px] bg-white shadow-[0_0_13.87px_rgba(0,23,1,0.10)]"
     >
       <input
         ref={input}
@@ -112,7 +112,7 @@ function MobileDropzone({ label, onFile }) {
           onFile?.(err ? null : f);
         }}
       />
-      <img src={iconUploadSm} alt="" className="mx-auto mt-[76px] h-[79px] w-[124px]" />
+      <img src={iconUploadSm} alt="" className="h-[79px] w-[124px]" />
       <p className="mx-[30px] mt-[21px] truncate text-center text-[17.34px] leading-[24px] font-semibold text-[#BABABA]">
         {name || label}
       </p>
@@ -154,7 +154,7 @@ export default function CreateVerify() {
   const nextState = incoming ? { ...incoming, proofs } : null;
 
   return (
-    <div className="min-h-screen bg-white font-sans text-ink">
+    <div className="min-h-screen bg-[#F5FBF5] font-sans text-ink">
       <Navbar loggedIn />
       <BlurBg variant="hero" />
       {/* Desktop */}

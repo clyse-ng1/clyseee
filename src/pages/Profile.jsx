@@ -507,13 +507,10 @@ export default function Profile() {
         <div className="relative px-[30px] pt-[46px]">
           <MemberMini />
           <div className="mt-[14px] flex h-[33px] items-center justify-center rounded-[5px] border border-line bg-white">
-            <svg width="16" height="8" viewBox="0 0 19 9" fill="none" aria-hidden>
+            <svg width="22" height="10" viewBox="0 0 22 10" aria-hidden>
               <path
-                d="M1.5 1.5 9.5 7.5l8-6"
-                stroke="#6B6B6B"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
+                d="M0 0h22L11 10z"
+                fill="#9E9E9E"
               />
             </svg>
           </div>

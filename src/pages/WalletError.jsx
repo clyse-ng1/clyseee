@@ -5,9 +5,9 @@ import { BlurBg } from "../components/Decor";
 import iconError from "../assets/error-icon.svg";
 import iconFundArrow from "../assets/fund-arrow.svg";
 import iconPlusWhite from "../assets/plus-white.svg";
-import chevronRight from "../assets/angle-right.svg";
 import MemberMini, { MemberMenuButton } from "../components/MemberMini";
 import ctaDash from "../assets/cta-dash.webp";
+import chevronRight from "../assets/angle-right.svg";
 
 /* Wallet failed-to-load state (Figma 484:13797 desktop / 484:13879 mobile).
    NOTES: (1) The mobile layout omits the explanatory sub-copy the desktop

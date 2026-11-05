@@ -11,6 +11,8 @@ import iconWaitlistWhite from "../assets/side-waitlist-white.svg";
 import iconNotification from "../assets/side-notification.svg";
 import iconMessage from "../assets/side-message.svg";
 import iconUser from "../assets/side-user.svg";
+import iconGroup from "../assets/side-group.svg";
+import iconGroupWhite from "../assets/side-group-white.svg";
 
 /* Unified logged-in sidebar (desktop only). 11 links grouped into 4
    labelled sections so the nav scans cleanly. Inactive rows: white +
@@ -24,7 +26,7 @@ export const SECTIONS = [
       { label: "Dashboard", icon: iconDashboard, activeIcon: iconDashboardWhite, to: "/dashboard" },
       { label: "Browse Group", icon: iconSearch, to: "/browse" },
       { label: "My Subscription", icon: iconPayment, activeIcon: iconPaymentWhite, to: "/subscriptions" },
-      { label: "My Group", icon: iconPayment, activeIcon: iconPaymentWhite, to: "/groups" },
+      { label: "My Group", icon: iconGroup, activeIcon: iconGroupWhite, to: "/groups" },
     ],
   },
   {

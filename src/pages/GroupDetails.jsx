@@ -5,6 +5,7 @@ import { BlurBg } from "../components/Decor";
 import { api, fmtDate } from "../lib/api";
 import { useGroupId } from "../lib/useGroup";
 import iconCopy from "../assets/copy-black.svg";
+import { useCopy, CopiedPill } from "../lib/useCopy";
 
 /* Standalone group details — Figma 908:20971 (no sidebar): Group Info card
    with slots, dates, type/plan/cycle, Back to Dashboard. Live values come
@@ -33,9 +34,6 @@ const META = [
 const SHADOW = "shadow-[0_0_20px_rgba(0,23,1,0.10)]";
 const TILE = `rounded-[10px] border border-[#999999] bg-white ${SHADOW}`;
 
-function copyId(code) {
-  if (navigator.clipboard) navigator.clipboard.writeText(code).catch(() => {});
-}
 
 function RefreshIcon() {
   return (
@@ -58,6 +56,7 @@ function RefreshIcon() {
 }
 
 export default function GroupDetails() {
+  const { copied, copy } = useCopy();
   const location = useLocation();
   const [groupId, resolved] = useGroupId(location.state?.group_id);
   const [detail, setDetail] = useState(null);
@@ -138,7 +137,7 @@ export default function GroupDetails() {
       >
         Group ID: {shownCode}
       </p>
-      <button type="button" onClick={() => copyId(shownCode)} aria-label="Copy group ID">
+      <button type="button" onClick={() => copy(shownCode)} aria-label="Copy group ID">
         <img src={iconCopy} alt="" className="h-[24px] w-[24px]" />
       </button>
       <button
@@ -176,6 +175,7 @@ export default function GroupDetails() {
 
   return (
     <div className="min-h-screen bg-white font-sans text-ink">
+      <CopiedPill show={copied} />
       <Navbar loggedIn />
       {/* Desktop (908:20971) */}
       <main className="relative hidden pb-[100px] xl:block">

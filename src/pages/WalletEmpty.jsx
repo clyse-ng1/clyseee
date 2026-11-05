@@ -10,13 +10,13 @@ import iconFundPlus from "../assets/fund-plus.svg";
 import iconFundArrow from "../assets/fund-arrow.svg";
 import iconPlusWhite from "../assets/plus-white.svg";
 import iconArrowInk from "../assets/arrow-ink.svg";
-import chevronRight from "../assets/angle-right.svg";
 import iconQaPlus from "../assets/qa-plus.svg";
 import iconQaSliders from "../assets/qa-sliders.svg";
 import iconQaClock from "../assets/qa-clock.svg";
 import iconQaSupport from "../assets/qa-support.svg";
 import MemberMini, { MemberMenuButton } from "../components/MemberMini";
 import ctaDash from "../assets/cta-dash.webp";
+import chevronRight from "../assets/angle-right.svg";
 
 /* Wallet with no transactions (Figma 484:12622 desktop / 484:13057 mobile).
    NOTES: (1) Copy fixes: "transaction" -> "transactions", "ormake" ->
