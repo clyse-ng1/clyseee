@@ -133,12 +133,18 @@ function Row({ icon, title, sub, date, unread, onOpen }) {
   return <div className={cls}>{inner}</div>;
 }
 
+/* Keys are exactly the categories the API returns. Any missing key renders as
+   the raw slug ("account", "renewals"), so keep this list in step with GET
+   /member/notifications/preferences. */
 const PREF_LABELS = {
   waitlist: "Waitlist updates",
   groups: "Group activity",
   members: "New members",
   subscriptions: "Subscriptions & renewals",
+  renewals: "Subscription renewals",
   payouts: "Payouts & earnings",
+  payments: "Payments",
+  account: "Account updates",
   security: "Security alerts",
   marketing: "News & offers",
 };
@@ -226,7 +232,25 @@ export default function Notifications() {
       } else {
         setItems([]);
       }
-      if (!p.error) setPrefs(p.data?.preferences || p.data || null);
+      /* The API returns categories with per-channel flags:
+         { categories: [ { category, channels: { push, email, in_app }, mandatory } ] }.
+         This used to read a "preferences" map that no longer exists, so the
+         settings list rendered with no usable rows. */
+      if (!p.error) {
+        const cats = p.data?.categories;
+        if (Array.isArray(cats)) {
+          setPrefs(
+            Object.fromEntries(
+              cats.map((c) => [
+                c.category,
+                { in_app: c.channels?.in_app !== false, mandatory: c.mandatory === true },
+              ]),
+            ),
+          );
+        } else {
+          setPrefs(p.data?.preferences || p.data || null);
+        }
+      }
     })();
     return () => {
       on = false;
@@ -265,9 +289,12 @@ export default function Notifications() {
 
   const togglePref = async (key, next) => {
     setPrefs((p) => ({ ...(p || {}), [key]: { ...(p || {})[key], in_app: next } }));
+    /* The API expects a `preferences` array of { category, channel, enabled }.
+       The old body ({ [category]: { in_app } }) was rejected with 422, so every
+       toggle silently flipped back. */
     const { error } = await api("/member/notifications/preferences", {
       method: "PUT",
-      body: { [key]: { in_app: next } },
+      body: { preferences: [{ category: key, channel: "in_app", enabled: next }] },
     });
     if (error) {
       setPrefs((p) => ({ ...(p || {}), [key]: { ...(p || {})[key], in_app: !next } }));

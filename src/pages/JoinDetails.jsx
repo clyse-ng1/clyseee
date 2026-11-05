@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import SectionHead from "../components/SectionHead";
 import BrandTile from "../components/BrandTile";
@@ -89,28 +89,16 @@ export default function JoinDetails() {
     });
     setBusy(false);
     if (!apiError) {
-      const pos = data?.waitlist?.queue_position || data?.queue_position;
-      navigate("/join/success", {
-        state: {
-          body: (
-            <>
-              You&apos;ve successfully joined the waitlist for {title}.
-              {pos ? (
-                <>
-                  <br />
-                  Your position: #{pos} — we&apos;ll notify you as soon as a
-                  spot is available.
-                </>
-              ) : (
-                <>
-                  <br />
-                  We&apos;ll notify you as soon as a spot is available.
-                </>
-              )}
-            </>
-          ),
-        },
-      });
+      /* Plain text, not JSX. React Router writes navigation state through
+         history.pushState, which structured-clones it — a React element holds
+         Symbol(react.transitional.element) and threw "could not be cloned",
+         so the whole navigation was aborted and the button looked dead even
+         though the POST had already succeeded. */
+      const pos = data?.waitlist?.queue_position || data?.queue_position || data?.position;
+      const body = pos
+        ? `You've successfully joined the waitlist for ${title}.\nYour position: #${pos} — we'll notify you as soon as a spot is available.`
+        : `You've successfully joined the waitlist for ${title}.\nWe'll notify you as soon as a spot is available.`;
+      navigate("/join/success", { state: { body } });
       return;
     }
     if (apiError.code === "already_on_waitlist") {
@@ -205,9 +193,12 @@ export default function JoinDetails() {
               <span className="ml-[12px] text-[18px] leading-[22px] font-semibold text-[#646D6D]">
                 Notifications are on. We&apos;ll keep you updated.
               </span>
-              <span className="mr-[46px] ml-auto text-[18px] leading-[22px] font-semibold text-clyse">
+              <Link
+                to="/notifications"
+                className="mr-[46px] ml-auto text-[18px] leading-[22px] font-semibold text-clyse hover:underline"
+              >
                 Manage
-              </span>
+              </Link>
             </div>
             {errorNote}
             <PairButtons {...pairProps} nextLabel="Join Waitlist" className="mt-[45px]" />
@@ -291,9 +282,12 @@ export default function JoinDetails() {
                   Notifications are on. We'll keep you updated.
                 </span>
               </div>
-              <p className="mt-[5px] text-center text-[13px] leading-[20px] font-semibold text-clyse">
+              <Link
+                to="/notifications"
+                className="mt-[5px] block text-center text-[13px] leading-[20px] font-semibold text-clyse hover:underline"
+              >
                 Manage
-              </p>
+              </Link>
             </div>
             {errorNote}
             <PairButtons {...pairProps} nextLabel="Join Waitlist" className="mt-[30px]" />

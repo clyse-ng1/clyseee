@@ -27,7 +27,7 @@ export default function JoinStatus({ title, body, btnLabel, btnVariant, btnVaria
           <h1 className={`${iconD ? titleMtD : ""} text-center text-[35px] leading-[43px] font-bold text-ink`}>
             {title}
           </h1>
-          <p className="mt-[10px] text-center text-[18px] leading-[22px] font-semibold text-[#4E4E4E]">
+          <p className="mt-[10px] text-center text-[18px] leading-[22px] font-semibold whitespace-pre-line text-[#4E4E4E]">
             {body}
           </p>
           <Link
@@ -58,7 +58,7 @@ export default function JoinStatus({ title, body, btnLabel, btnVariant, btnVaria
           <h1 className={`${iconM ? titleMtM : ""} text-center text-[30px] leading-[37px] font-bold text-ink`}>
             {title}
           </h1>
-          <p className="mt-[10px] text-center text-[13px] leading-[20px] font-semibold text-[#4E4E4E]">
+          <p className="mt-[10px] text-center text-[13px] leading-[20px] font-semibold whitespace-pre-line text-[#4E4E4E]">
             {body}
           </p>
           <Link

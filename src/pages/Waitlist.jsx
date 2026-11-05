@@ -49,8 +49,11 @@ export default function Waitlist() {
       }
       setPrices(byPlan);
       // The card toggle drives the account-wide waitlist in-app preference.
-      const wl = p.data?.preferences?.waitlist ?? p.data?.waitlist;
-      if (wl && typeof wl.in_app === "boolean") setNotifOn(wl.in_app);
+      const wlRow = Array.isArray(p.data?.categories)
+        ? p.data.categories.find((c) => c.category === "waitlist")
+        : null;
+      const on = wlRow?.channels?.in_app ?? p.data?.preferences?.waitlist?.in_app;
+      if (typeof on === "boolean") setNotifOn(on);
     })();
     return () => {
       live = false;
@@ -62,7 +65,7 @@ export default function Waitlist() {
     setNotifOn(next);
     const { error } = await api("/member/notifications/preferences", {
       method: "PUT",
-      body: { waitlist: { in_app: next } },
+      body: { preferences: [{ category: "waitlist", channel: "in_app", enabled: next }] },
     });
     if (error) setNotifOn(!next);
   };
