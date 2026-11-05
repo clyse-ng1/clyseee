@@ -9,6 +9,7 @@ import MemberMini from "../components/MemberMini";
 import { BlurBg } from "../components/Decor";
 import { api, brandOf, kobo, totalPriceKobo } from "../lib/api";
 import { groupBucket } from "../lib/useGroup";
+import { loadGroups, readGroups, subscribeGroups } from "../lib/groupsCache";
 import GroupEmpty from "./GroupEmpty";
 
 const SUB = "Manage your subscriptions, view details, and track your groups.";
@@ -74,7 +75,9 @@ function mapRow(g) {
 }
 
 export default function Groups() {
-  const [groups, setGroups] = useState(null);
+  /* Read synchronously from the shared cache: if the answer is already known the
+     first paint is already correct, so there is nothing to flash. */
+  const [groups, setGroups] = useState(() => readGroups());
   const [failed, setFailed] = useState(false);
   const [lotsFailed, setLotsFailed] = useState(false);
   const [monthly, setMonthly] = useState(null);
@@ -85,10 +88,11 @@ export default function Groups() {
     /* The two calls are independent: resolve them separately. They were wrapped
        in Promise.all, so a member with no groups still stared at the populated
        page skeleton until the (slower) earnings call came back. */
-    api("/member/groups").then((g) => {
-      if (!live) return;
-      if (g.error) setFailed(true);
-      else setGroups(g.data?.groups || []);
+    const off = subscribeGroups((list) => {
+      if (live) setGroups(list);
+    });
+    loadGroups().then(({ error }) => {
+      if (live && error) setFailed(true);
     });
     api("/member/earnings/lots?limit=50").then((l) => {
       if (!live) return;
@@ -107,6 +111,7 @@ export default function Groups() {
     });
     return () => {
       live = false;
+      off();
     };
   }, []);
 
@@ -151,17 +156,24 @@ export default function Groups() {
           <Sidebar active="My Group" />
           <div className="w-[830px] flex-none">
             <TitleBlock />
-            <GroupStats className="mt-[50px]" values={stats} />
-            <GroupTabs tabs={tabs} viewAll className="mt-[50px]" active={tab} onSelect={setTab} loading={!groups && !failed} />
-            <div className="mt-[50px] flex flex-col gap-[30px]">
-              {!groups && !failed ? (
-                [0, 1, 2, 3].map((i) => <SubCardSk key={i} />)
-              ) : (
-                shown.map((r) => (
-                  <SubCard key={r.key || r.title} to="/groups/details" {...r} />
-                ))
-              )}
-            </div>
+            {!groups && !failed ? (
+              /* Unknown state: one neutral placeholder. The stat cards and tab
+                 counts stay out of the DOM until we know there are groups, so a
+                 member with none never sees that layout at all. */
+              <div className="mt-[50px]">
+                <SubCardSk />
+              </div>
+            ) : (
+              <>
+                <GroupStats className="mt-[50px]" values={stats} />
+                <GroupTabs tabs={tabs} viewAll className="mt-[50px]" active={tab} onSelect={setTab} loading={false} />
+                <div className="mt-[50px] flex flex-col gap-[30px]">
+                  {shown.map((r) => (
+                    <SubCard key={r.key || r.title} to="/groups/details" {...r} />
+                  ))}
+                </div>
+              </>
+            )}
             {failed && (
               <p className="pt-[10px] text-[18px] leading-[22px] font-semibold text-[#FF0000]">
                 Could not load groups. Please try again.
@@ -183,20 +195,24 @@ export default function Groups() {
           <div className="mt-[51px]">
             <TitleBlock />
           </div>
-          <GroupStats className="mt-[50px]" values={stats} />
-          <p className="mt-[30px] text-right text-[13px] leading-[16px] font-semibold text-clyse">
-            View All
-          </p>
-          <GroupTabs tabs={tabs} className="mt-[12px]" active={tab} onSelect={setTab} loading={!groups && !failed} />
-          <div className="mt-[30px] flex flex-col gap-[10px]">
-            {!groups && !failed ? (
-              [0, 1, 2, 3].map((i) => <SubCardSk key={i} />)
-            ) : (
-              shown.map((r) => (
-                <SubCard key={r.key || r.title} to="/groups/details" noView {...r} />
-              ))
-            )}
-          </div>
+          {!groups && !failed ? (
+            <div className="mt-[50px]">
+              <SubCardSk />
+            </div>
+          ) : (
+            <>
+              <GroupStats className="mt-[50px]" values={stats} />
+              <p className="mt-[30px] text-right text-[13px] leading-[16px] font-semibold text-clyse">
+                View All
+              </p>
+              <GroupTabs tabs={tabs} className="mt-[12px]" active={tab} onSelect={setTab} loading={false} />
+              <div className="mt-[30px] flex flex-col gap-[10px]">
+                {shown.map((r) => (
+                  <SubCard key={r.key || r.title} to="/groups/details" noView {...r} />
+                ))}
+              </div>
+            </>
+          )}
           {failed && (
             <p className="pt-[10px] text-[13px] leading-[20px] font-semibold text-[#FF0000]">
               Could not load groups. Please try again.

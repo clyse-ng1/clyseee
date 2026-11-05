@@ -1,9 +1,11 @@
+import { useEffect } from "react";
 import { Link } from "react-router-dom";
 import avatarAccount from "../assets/avatar-account.webp";
 import { useAuth } from "../lib/useAuth";
 import { displayName, fmtDay } from "../lib/api";
 import ExtraBlock from "./ExtraBlock";
 import { SECTIONS } from "./sidebarNav";
+import { loadGroups } from "../lib/groupsCache";
 
 function Row({ r, active }) {
   const cls = `relative flex h-[56px] w-[292px] items-center rounded-[10px] pl-[16px] pr-[14px] ${
@@ -41,6 +43,12 @@ function Row({ r, active }) {
 }
 
 export default function Sidebar({ active }) {
+  /* Warm the groups cache here: the sidebar is on every member page, so by the
+     time anyone clicks "My Group" the answer is already known. */
+  useEffect(() => {
+    loadGroups();
+  }, []);
+
   const { user } = useAuth();
   const name = displayName(user) || "Marcus Saris";
   const since = fmtDay(user?.created_at) || "20/11/2026";

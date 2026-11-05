@@ -5,6 +5,7 @@ import Sidebar from "../components/Sidebar";
 import BrandTile from "../components/BrandTile";
 import { BlurBg } from "../components/Decor";
 import { api, accessLabel, brandOf, daysUntil, displayName, fmtDay, kobo, titleCase, totalPriceKobo } from "../lib/api";
+import { loadGroups } from "../lib/groupsCache";
 import { useAuth } from "../lib/useAuth";
 import iconSearch from "../assets/icon-search.svg";
 import iconUser from "../assets/icon-user.svg";
@@ -532,8 +533,8 @@ export default function Dashboard() {
     let live = true;
     (async () => {
       try {
-        const { data } = await api("/member/groups");
-        if (live) setMyGroups(Array.isArray(data?.groups) ? data.groups : []);
+        const { data, error } = await loadGroups();
+        if (live) setMyGroups(!error && Array.isArray(data) ? data : []);
       } catch {
         if (live) setMyGroups([]);
       }

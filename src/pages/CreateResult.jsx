@@ -15,7 +15,7 @@ export default function CreateResult({ ok = true }) {
   const failedMsg = s.message || "Your group is not live and visible to members";
 
   return (
-    <div className="min-h-screen bg-[#F5FBF5] font-sans text-ink">
+    <div className="relative min-h-screen bg-[#F5FBF5] font-sans text-ink">
       <Navbar loggedIn />
       <BlurBg variant="hero" />
       {/* Desktop */}

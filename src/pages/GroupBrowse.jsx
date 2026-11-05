@@ -3,6 +3,7 @@ import Navbar from "../components/Navbar";
 import Sidebar from "../components/Sidebar";
 import SubCard, { SubCardSk } from "../components/SubCard";
 import GroupTabs from "../components/GroupTabs";
+import { loadGroups, readGroups, subscribeGroups } from "../lib/groupsCache";
 import ExtraBlock from "../components/ExtraBlock";
 import MemberMini from "../components/MemberMini";
 import { BlurBg } from "../components/Decor";
@@ -61,21 +62,22 @@ function mapRow(g) {
 }
 
 export default function GroupBrowse() {
-  const [groups, setGroups] = useState(null);
+  const [groups, setGroups] = useState(() => readGroups());
   const [failed, setFailed] = useState(false);
   const [tab, setTab] = useState(0);
   const [query, setQuery] = useState("");
 
   useEffect(() => {
     let live = true;
-    (async () => {
-      const { data, error } = await api("/member/groups");
-      if (!live) return;
-      if (error) setFailed(true);
-      else setGroups(data?.groups || []);
-    })();
+    const off = subscribeGroups((list) => {
+      if (live) setGroups(list);
+    });
+    loadGroups().then(({ error }) => {
+      if (live && error) setFailed(true);
+    });
     return () => {
       live = false;
+      off();
     };
   }, []);
 

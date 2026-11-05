@@ -4,6 +4,7 @@ import Navbar from "../components/Navbar";
 import { BlurBg } from "../components/Decor";
 import StepHeader from "../components/StepHeader";
 import { api } from "../lib/api";
+import { invalidateGroups } from "../lib/groupsCache";
 import { matchService, pickPlan, useCatalogue } from "../lib/useCatalogue";
 import iconMoviesWhite from "../assets/icon-movies-white.svg";
 import iconProofCheck from "../assets/icon-proof-check.svg";
@@ -102,6 +103,7 @@ export default function CreateReview() {
     // The group is live now. Upload verification evidence (raw file bytes;
     // never stored client-side) and submit for review — best effort: the
     // group stays active even if verification needs attention later.
+    invalidateGroups();
     const groupId = data?.group?.id;
     let verifyNote = "";
     if (groupId) {
@@ -178,7 +180,7 @@ export default function CreateReview() {
   );
 
   return (
-    <div className="min-h-screen bg-[#F5FBF5] font-sans text-ink">
+    <div className="relative min-h-screen bg-[#F5FBF5] font-sans text-ink">
       <Navbar loggedIn />
       <BlurBg variant="hero" />
       {/* Desktop */}
@@ -192,9 +194,9 @@ export default function CreateReview() {
             className="grid h-[60px] w-[60px] flex-none place-items-center rounded-full"
             style={{ background: LOGO_BG }}
           >
-            <span className="grid h-[40px] w-[40px] place-items-center bg-white">
-              <img src={iconMoviesWhite} alt="" className="w-[33px]" />
-            </span>
+            {/* Glyph straight on the disc. The old white inset square hid this
+                white glyph completely — the logo rendered as a blank tile. */}
+            <img src={iconMoviesWhite} alt="" className="w-[33px]" />
           </span>
           <span>
             <span className="block text-[35px] leading-[43px] font-semibold">
@@ -243,9 +245,7 @@ export default function CreateReview() {
             className="grid h-[42px] w-[42px] flex-none place-items-center rounded-full"
             style={{ background: LOGO_BG }}
           >
-            <span className="grid h-[28px] w-[28px] place-items-center bg-white">
-              <img src={iconMoviesWhite} alt="" className="w-[23px]" />
-            </span>
+            <img src={iconMoviesWhite} alt="" className="w-[23px]" />
           </span>
           <span>
             <span className="block text-[22px] leading-[27px] font-semibold">
