@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import { Navigate } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import Sidebar from "../components/Sidebar";
 import SubCard, { SubCardSk } from "../components/SubCard";
@@ -10,6 +9,7 @@ import MemberMini from "../components/MemberMini";
 import { BlurBg } from "../components/Decor";
 import { api, brandOf, kobo, totalPriceKobo } from "../lib/api";
 import { groupBucket } from "../lib/useGroup";
+import GroupEmpty from "./GroupEmpty";
 
 const SUB = "Manage your subscriptions, view details, and track your groups.";
 
@@ -82,32 +82,38 @@ export default function Groups() {
 
   useEffect(() => {
     let live = true;
-    (async () => {
-      const [g, l] = await Promise.all([
-        api("/member/groups"),
-        api("/member/earnings/lots?limit=50"),
-      ]);
+    /* The two calls are independent: resolve them separately. They were wrapped
+       in Promise.all, so a member with no groups still stared at the populated
+       page skeleton until the (slower) earnings call came back. */
+    api("/member/groups").then((g) => {
       if (!live) return;
       if (g.error) setFailed(true);
       else setGroups(g.data?.groups || []);
-      if (l.error) setLotsFailed(true);
-      if (!l.error) {
-        const now = new Date();
-        const sum = (l.data?.earnings || l.data?.lots || [])
-          .filter((lot) => {
-            const d = new Date(lot.created_at);
-            return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
-          })
-          .reduce((s, lot) => s + (lot.amount_kobo || 0), 0);
-        setMonthly(sum);
+    });
+    api("/member/earnings/lots?limit=50").then((l) => {
+      if (!live) return;
+      if (l.error) {
+        setLotsFailed(true);
+        return;
       }
-    })();
+      const now = new Date();
+      const sum = (l.data?.earnings || l.data?.lots || [])
+        .filter((lot) => {
+          const d = new Date(lot.created_at);
+          return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
+        })
+        .reduce((s, lot) => s + (lot.amount_kobo || 0), 0);
+      setMonthly(sum);
+    });
     return () => {
       live = false;
     };
   }, []);
 
-  if (groups && groups.length === 0) return <Navigate to="/groups/empty" replace />;
+  /* Render the empty state in place. This used to be a redirect, so the page
+     painted its full layout first and then jumped to another screen — the
+     flash members with no groups saw. */
+  if (groups && groups.length === 0) return <GroupEmpty />;
 
   const rows = (groups || []).map(mapRow);
   const counts = {

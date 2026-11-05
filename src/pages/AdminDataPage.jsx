@@ -79,7 +79,13 @@ const queryString = (params) => {
   Object.entries(params).forEach(([k, value]) => {
     if (value === "" || value == null) return;
     let v = value;
-    if ((k === "from" || k === "to") && /^\d{4}-\d{2}-\d{2}$/.test(String(value))) v = `${value}T${k === "from" ? "00:00:00" : "23:59:59"}Z`;
+    // Date filters are picked in the admin's own timezone. Appending "Z" treated
+    // them as UTC, so "from 5 Nov" actually started at 01:00 Lagos time. Parse
+    // the local wall-clock value, then send the real UTC instant.
+    if ((k === "from" || k === "to") && /^\d{4}-\d{2}-\d{2}$/.test(String(value))) {
+      const local = new Date(`${value}T${k === "from" ? "00:00:00" : "23:59:59"}`);
+      v = Number.isNaN(local.getTime()) ? value : local.toISOString();
+    }
     q.set(k, v);
   });
   const out = q.toString();

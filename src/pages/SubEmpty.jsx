@@ -52,9 +52,6 @@ export default function SubEmpty() {
                 Explore groups and get started
               </p>
               <div className="mt-[40px] flex items-center justify-center gap-[30px]">
-                <MiniButton variant="gray" to="/" icons={false}>
-                  Get in touch
-                </MiniButton>
                 <JoinButton />
               </div>
             </div>

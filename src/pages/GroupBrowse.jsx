@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import { Navigate } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import Sidebar from "../components/Sidebar";
 import SubCard, { SubCardSk } from "../components/SubCard";
@@ -10,6 +9,7 @@ import { BlurBg } from "../components/Decor";
 import { api, brandOf, kobo, totalPriceKobo } from "../lib/api";
 import { groupBucket } from "../lib/useGroup";
 import iconSearch from "../assets/icon-search.svg";
+import GroupEmpty from "./GroupEmpty";
 
 const SUB = "Manage your subscriptions, view details, and track your groups.";
 
@@ -79,7 +79,10 @@ export default function GroupBrowse() {
     };
   }, []);
 
-  if (groups && groups.length === 0) return <Navigate to="/groups/empty" replace />;
+  /* Render the empty state in place. This used to be a redirect, so the page
+     painted its full layout first and then jumped to another screen — the
+     flash members with no groups saw. */
+  if (groups && groups.length === 0) return <GroupEmpty />;
 
   const rows = (groups || []).map(mapRow);
   const counts = {
