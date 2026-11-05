@@ -20,7 +20,7 @@ function DetailRow({ label, value }) {
 
 function InvoiceThumb({ variant }) {
   return (
-    <div className="flex h-[218px] w-[228px] flex-col rounded-[12px] border border-[#048B0B] bg-white p-[14px]">
+    <div className="flex h-[218px] w-full lg:w-[228px] flex-col rounded-[12px] border border-[#048B0B] bg-white p-[14px]">
       <span className="text-[11px] font-extrabold tracking-widest text-[#E31B00]">NETFLIX</span>
       <span className="mt-[6px] h-[8px] w-[70%] rounded-sm bg-[#E31B00]" />
       <span className="mt-[10px] flex flex-col gap-[6px]">
@@ -40,7 +40,7 @@ function InvoiceThumb({ variant }) {
 function ConfirmModal({ icon, title, sub, confirmLabel, onConfirm, onCancel }) {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-6">
-      <div className="flex max-h-[92vh] w-[1110px] max-w-[94vw] flex-col items-center overflow-y-auto rounded-[30px] bg-white px-[40px] py-[45px]">
+      <div className="flex max-h-[92vh] w-full lg:w-[1110px] max-w-[94vw] flex-col items-center overflow-y-auto rounded-[30px] bg-white px-[40px] py-[45px]">
         {icon}
         <h2 className="mt-[25px] text-center text-[35px] font-bold leading-tight text-[#001701]">{title}</h2>
         <p className="mt-[8px] text-center text-[18px] font-semibold text-[#4E4E4E]">{sub}</p>
@@ -75,7 +75,7 @@ export default function AdminGroupReview() {
       <div className="mt-[30px] rounded-[20px] border border-[#999999] bg-white p-[41px]">
         <div className="flex gap-[40px]">
           {/* Left card */}
-          <div className="w-[420px] shrink-0 rounded-[20px] border border-[#999999] bg-white px-[31px] py-[31px]">
+          <div className="w-full lg:w-[420px] shrink-0 rounded-[20px] border border-[#999999] bg-white px-[31px] py-[31px]">
             <h2 className="text-[20px] font-bold text-[#000000]">Creator</h2>
             <div className="mt-[15px] flex items-center gap-[15px] border-b border-[#999999] pb-[20px]">
               <img src={avatarAshlynn} alt="Lindsey Lubin" className="h-[59px] w-[59px] rounded-full object-cover" />
@@ -102,7 +102,7 @@ export default function AdminGroupReview() {
           </div>
 
           {/* Right card */}
-          <div className="w-[568px] shrink-0 rounded-[20px] border border-[#999999] bg-white px-[31px] py-[31px]">
+          <div className="w-full lg:w-[568px] shrink-0 rounded-[20px] border border-[#999999] bg-white px-[31px] py-[31px]">
             <h2 className="text-[20px] font-bold text-[#000000]">Proof of Subscription</h2>
             <div className="mt-[15px] flex gap-[50px]">
               <div>

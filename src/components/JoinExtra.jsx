@@ -11,7 +11,7 @@ const ROWS = [
     label: "View Available Group",
     trail: iconArrowLeft,
     trailCls: "h-[30px] w-[30px] xl:h-[25px] xl:w-[25px]",
-    to: "/groups",
+    to: "/browse",
   },
   {
     label: "Create Group",

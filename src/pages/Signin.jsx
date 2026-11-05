@@ -18,7 +18,7 @@ export default function Signin() {
   const [busy, setBusy] = useState(false);
   const [apiError, setApiError] = useState("");
 
-  const from = location.state?.from || "/dashboard";
+  const from = location.state?.from || "/browse";
   const valid = /.+@.+\..+/.test(email.trim()) && password.length >= 8;
   const btnState = busy ? "disabled" : failed ? "error" : valid ? "active" : "disabled";
   const fieldState = (val) => (failed ? "error" : val ? "active" : "disabled");

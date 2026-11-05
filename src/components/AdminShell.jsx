@@ -297,12 +297,36 @@ export function DarkButton({ children, className = "", ...rest }) {
 export default function AdminShell({ active = null, sub = null, children }) {
   const nav = useNavigate();
   const [open, setOpen] = useState(active);
+  const [drawer, setDrawer] = useState(false);
+  const go = (to) => {
+    setDrawer(false);
+    nav(to);
+  };
   return (
     <div className="flex min-h-screen bg-[#F4FBF5] font-sans">
       {/* Sidebar */}
-      <aside className="bg-deep fixed inset-y-0 left-0 z-30 flex w-[270px] shrink-0 flex-col overflow-y-auto">
-        <div className="flex h-[70px] shrink-0 items-center justify-center border-b border-[#77BAE7]">
+      <>
+      {drawer && (
+        <div
+          onClick={() => setDrawer(false)}
+          className="fixed inset-0 z-40 bg-black/50 lg:hidden"
+          aria-hidden
+        />
+      )}
+      <aside
+        className={`bg-deep fixed inset-y-0 left-0 z-50 flex w-[270px] shrink-0 flex-col overflow-y-auto transition-transform duration-300 lg:z-30 lg:translate-x-0 ${
+          drawer ? "translate-x-0" : "-translate-x-full"
+        }`}
+      >
+        <div className="relative flex h-[70px] shrink-0 items-center justify-center border-b border-[#77BAE7]">
           <span className="text-[28px] font-extrabold tracking-wide text-white">CLYSE</span>
+          <button
+            onClick={() => setDrawer(false)}
+            aria-label="Close menu"
+            className="absolute right-[14px] top-[18px] grid h-[34px] w-[34px] place-items-center rounded-full bg-white/15 text-[20px] font-bold text-white lg:hidden"
+          >
+            ×
+          </button>
         </div>
         <nav className="flex flex-col pt-[30px]">
           {MENU.map((m) => {
@@ -313,7 +337,7 @@ export default function AdminShell({ active = null, sub = null, children }) {
                 <button
                   onClick={() => {
                     if (m.sub) setOpen(expanded ? null : m.key);
-                    if (m.to) nav(m.to);
+                    if (m.to) go(m.to);
                   }}
                   className={`flex h-[60px] w-full items-center gap-[10px] px-[20px] text-left text-[18px] font-semibold ${
                     isActive ? "bg-[#F1F8F2] text-[#001701]" : "text-white"
@@ -334,7 +358,7 @@ export default function AdminShell({ active = null, sub = null, children }) {
                       return (
                         <button
                           key={s.key}
-                          onClick={() => nav(s.to)}
+                          onClick={() => go(s.to)}
                           className="flex h-[37px] w-full items-center pl-[35px] text-left text-[18px] font-semibold text-white"
                         >
                           <span
@@ -360,7 +384,7 @@ export default function AdminShell({ active = null, sub = null, children }) {
               Manage your content efficiently and grow your business.
             </p>
             <button
-              onClick={() => nav("/")}
+              onClick={() => go("/")}
               className="mt-auto flex h-[40px] w-[150px] items-center justify-center rounded-[5px] bg-[#048B0B] text-[12px] font-normal text-white"
             >
               View Website
@@ -368,27 +392,37 @@ export default function AdminShell({ active = null, sub = null, children }) {
           </div>
         </nav>
       </aside>
+      </>
 
       {/* Right column */}
-      <div className="ml-[270px] flex min-h-screen min-w-0 flex-1 flex-col">
-        <header className="sticky top-0 z-20 flex h-[70px] shrink-0 items-center justify-between border-b border-[#77BAE7] bg-[#DFFFE1] px-[30px]">
-          <label className="flex h-[40px] w-[374px] items-center gap-2 rounded-full bg-white px-[20px]">
+      <div className="flex min-h-screen min-w-0 flex-1 flex-col lg:ml-[270px]">
+        <header className="sticky top-0 z-20 flex h-[70px] shrink-0 items-center justify-between gap-[12px] border-b border-[#77BAE7] bg-[#DFFFE1] px-[16px] lg:px-[30px]">
+          <button
+            onClick={() => setDrawer(true)}
+            aria-label="Open menu"
+            className="grid h-[38px] w-[38px] shrink-0 place-items-center rounded-[8px] bg-white lg:hidden"
+          >
+            <svg width="20" height="16" viewBox="0 0 20 16" fill="none" aria-hidden>
+              <path d="M1 1.5h18M1 8h18M1 14.5h18" stroke="#001701" strokeWidth="2" strokeLinecap="round" />
+            </svg>
+          </button>
+          <label className="hidden h-[40px] w-[374px] max-w-full flex-1 items-center gap-2 rounded-full bg-white px-[20px] sm:flex lg:flex-none">
             <SearchIcon />
             <input
               placeholder="Search"
               className="w-full bg-transparent text-[16px] font-semibold text-[#001701] placeholder-[#4E4E4E] focus:outline-none"
             />
           </label>
-          <div className="flex items-center gap-[25px]">
+          <div className="flex shrink-0 items-center gap-[14px] lg:gap-[25px]">
             <button aria-label="Notifications" className="relative">
               <BellTop />
               <span className="absolute right-[3px] top-[2px] h-[10px] w-[10px] rounded-full bg-[#048B0B]" />
             </button>
-            <img src={avatarAccount} alt="Admin" className="h-[50px] w-[50px] rounded-full object-cover" />
+            <img src={avatarAccount} alt="Admin" className="h-[36px] w-[36px] rounded-full object-cover lg:h-[50px] lg:w-[50px]" />
           </div>
         </header>
-        <main className="flex-1 overflow-x-auto">
-          <div className="min-w-[1110px] px-[30px] pb-[60px] pt-[30px]">{children}</div>
+        <main className="admin-main flex-1 overflow-x-auto">
+          <div className="w-full px-[16px] pb-[40px] pt-[20px] lg:min-w-[1110px] lg:px-[30px] lg:pb-[60px] lg:pt-[30px]">{children}</div>
         </main>
       </div>
     </div>

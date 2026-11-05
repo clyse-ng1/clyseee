@@ -4,6 +4,7 @@ import { useAuth } from "../lib/useAuth";
 import logo from "../assets/logo.png";
 import avatarAccount from "../assets/avatar-account.webp";
 import iconChevDownSm from "../assets/icon-chev-down-sm.svg";
+import { SECTIONS } from "./sidebarNav";
 
 const LINKS = ["Home", "How it Works", "Why Clyse", "About", "Contact"];
 /* Keep About and Contact intentionally out of the authenticated navigation. */
@@ -83,7 +84,7 @@ export default function Navbar({ loggedIn = false, landing = false }) {
       {/* Desktop bar */}
       <div className="hidden border-b border-clyse xl:block">
         <div className="relative mx-auto flex h-[100px] max-w-[1440px] items-center px-[20px] min-[1440px]:px-[100px]">
-          <Link to="/" className="shrink-0">
+          <Link to={loggedIn ? "/browse" : "/"} className="shrink-0">
             <img src={logo} alt="Clyse" className="h-[40px] w-auto" />
           </Link>
           <nav
@@ -156,7 +157,7 @@ export default function Navbar({ loggedIn = false, landing = false }) {
       {/* Mobile bar */}
       <div className="border-b border-clyse xl:hidden">
         <div className="flex h-[63px] items-center justify-between px-[20px]">
-          <Link to="/" onClick={() => setOpen(false)}>
+          <Link to={loggedIn ? "/browse" : "/"} onClick={() => setOpen(false)}>
             <img src={logo} alt="Clyse" className="h-[21px] w-auto" />
           </Link>
           <button aria-label="Open menu" onClick={() => setOpen((v) => !v)} className="p-1">
@@ -165,28 +166,44 @@ export default function Navbar({ loggedIn = false, landing = false }) {
         </div>
       </div>
 
-      {/* Mobile dropdown menu */}
+      {/* Mobile menu — Figma "Sub Menu List": a full-screen dark panel that covers the
+          whole nav bar, close X inside it at 30/30, 50px rows, CTA row at the foot. */}
       {open && (
-        <div className="bg-deep animate-menu-drop absolute inset-x-0 top-full p-[30px] xl:hidden">
+        <div className="bg-deep fixed inset-0 z-50 overflow-y-auto px-[30px] pt-[30px] pb-[40px] xl:hidden">
           <button aria-label="Close menu" onClick={() => setOpen(false)} className="block">
             <CloseIcon />
           </button>
-          <nav className="mt-[10px] flex flex-col">
-            {(loggedIn ? MLOGGED : MLINKS).map((l) => (
-              <Link
-                key={l}
-                to={(loggedIn ? MLOGGED_ROUTES : MROUTES)[l]}
-                onClick={() => setOpen(false)}
-                className="flex h-[50px] items-center justify-between text-[18px] leading-[22px] font-semibold text-white"
-              >
-                {l}
-                <span className="flex h-[24px] w-[24px] items-center justify-center">
-                  <img src={iconChevDownSm} alt="" className="h-[6px] w-[12px]" />
-                </span>
-              </Link>
-            ))}
+          <nav className="mt-[24px] flex flex-col">
+            {loggedIn
+              ? SECTIONS.map((s) => (
+                  <div key={s.title} className="mt-[22px] first:mt-0">
+                    <p className="text-[12px] leading-[16px] font-bold tracking-[0.14em] text-[#9DB3A2] uppercase">
+                      {s.title}
+                    </p>
+                    {s.rows.filter((r) => r.to).map((r) => (
+                      <Link
+                        key={r.label}
+                        to={r.to}
+                        onClick={() => setOpen(false)}
+                        className="flex h-[50px] w-[333px] max-w-full items-center text-[18px] leading-[22px] font-semibold text-white"
+                      >
+                        {r.label}
+                      </Link>
+                    ))}
+                  </div>
+                ))
+              : MLINKS.map((l) => (
+                  <Link
+                    key={l}
+                    to={MROUTES[l]}
+                    onClick={() => setOpen(false)}
+                    className="flex h-[50px] w-[333px] max-w-full items-center text-[18px] leading-[22px] font-semibold text-white"
+                  >
+                    {l}
+                  </Link>
+                ))}
           </nav>
-          <div className="mt-[4px] flex gap-[50px]">
+          <div className="mt-[20px] flex gap-[50px]">
             {loggedIn ? (
               <button
                 type="button"

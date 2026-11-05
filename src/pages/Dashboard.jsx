@@ -4,7 +4,6 @@ import Navbar from "../components/Navbar";
 import Sidebar from "../components/Sidebar";
 import BrandTile from "../components/BrandTile";
 import { BlurBg } from "../components/Decor";
-import { Footer, MobileFooter } from "../components/Footer";
 import { api, accessLabel, brandOf, daysUntil, displayName, fmtDay, kobo, totalPriceKobo } from "../lib/api";
 import { useAuth } from "../lib/useAuth";
 import iconSearch from "../assets/icon-search.svg";
@@ -162,6 +161,30 @@ function MemberRow({ row, button, onLeave, busy }) {
           </span>
         </button>
       )}
+    </div>
+  );
+}
+
+function MobileGroupRow({ group }) {
+  const joined =
+    group?.occupied_slots ?? group?.member_count ?? (Array.isArray(group?.members) ? group.members.length : 0);
+  return (
+    <div className="flex h-[40px] items-center rounded-[13.74px] bg-white">
+      <BrandTile brand={brandOf(group?.service)} size={34} />
+      <div className="ml-[14px]">
+        <p className="text-[17.18px] leading-[21px] font-bold text-ink">
+          {group?.service?.name || group?.name || "Group"}
+        </p>
+        <p className="text-[12.37px] leading-[15px] font-semibold text-[#6B6B6B]">
+          {joined} Member{joined === 1 ? "" : "s"} Joined
+        </p>
+      </div>
+      <div className="ml-auto flex h-[33px] w-[127px] items-center rounded-[6.87px] bg-[#DFFFE0] pl-[36px]">
+        <span className="h-[9px] w-[9px] rounded-full bg-clyse" />
+        <span className="ml-[6px] text-[12.37px] leading-[15px] font-semibold text-clyse">
+          Active
+        </span>
+      </div>
     </div>
   );
 }
@@ -474,12 +497,31 @@ export default function Dashboard() {
   const { user } = useAuth();
   const [dash, setDash] = useState(null);
   const [leavingId, setLeavingId] = useState(null);
+  const [myGroups, setMyGroups] = useState(null);
 
   useEffect(() => {
     let live = true;
     (async () => {
       const { data } = await api("/member/dashboard");
       if (live) setDash(data || {});
+    })();
+    return () => {
+      live = false;
+    };
+  }, []);
+
+  /* "My Active Group" (Figma dashboard). /member/dashboard carries no joined-groups array,
+     so read the groups the member owns from /member/groups — the same endpoint the Groups
+     page uses. A failure here never blocks the dashboard: the section just reports empty. */
+  useEffect(() => {
+    let live = true;
+    (async () => {
+      try {
+        const { data } = await api("/member/groups");
+        if (live) setMyGroups(Array.isArray(data?.groups) ? data.groups : []);
+      } catch {
+        if (live) setMyGroups([]);
+      }
     })();
     return () => {
       live = false;
@@ -519,7 +561,7 @@ export default function Dashboard() {
       {/* Desktop */}
       <main className="relative mx-[20px] min-[1440px]:mx-[100px] hidden xl:block">
         <BlurBg variant="hero" />
-        <div className="relative flex gap-[38px]">
+        <div className="relative flex gap-[38px] pt-[101px]">
           <Sidebar active="Dashboard" />
           <div className="w-[830px] flex-none">
             <div className="flex gap-[30px]">
@@ -710,7 +752,6 @@ export default function Dashboard() {
         </div>
       </main>
       <div className="hidden xl:block">
-        <Footer mt="mt-[48px]" />
       </div>
 
       {/* Mobile */}
@@ -736,9 +777,6 @@ export default function Dashboard() {
         </div>
 
         <div className="relative z-10 mx-[30px] -mt-[1px] flex h-[50px] items-center rounded-[15px] border border-line bg-white shadow-[0_0_20px_rgba(0,23,1,0.10)]">
-          <span className="pl-[21px] text-[17.83px] font-semibold text-black">
-            Service name
-          </span>
           <img src={chevronRight} alt="" className="mr-[21px] ml-auto w-[24px]" />
         </div>
 
@@ -810,6 +848,29 @@ export default function Dashboard() {
                 text="You have no active subscriptions yet."
                 to="/marketplace"
                 cta="Browse subscriptions"
+              />
+            )}
+          </div>
+        </div>
+
+        <div className="relative mt-[30px] bg-white px-[30px] pt-[27px] pb-[28px]">
+          <div className="flex items-baseline justify-between">
+            <h2 className="text-[22px] leading-[27px] font-bold">My Active Group</h2>
+            <Link to="/groups" className="text-[17.18px] leading-[21px] font-semibold text-clyse">
+              View all
+            </Link>
+          </div>
+          <div className="mt-[28px] space-y-[14px]">
+            {myGroups === null ? (
+              [0, 1, 2].map((i) => <MobileMemberRowSk key={i} />)
+            ) : myGroups.length > 0 ? (
+              myGroups.map((g, i) => <MobileGroupRow key={g.id || g.group_id || i} group={g} />)
+            ) : (
+              <EmptyRow
+                mobile
+                text="You have not joined or created a group yet."
+                to="/browse"
+                cta="Find a group"
               />
             )}
           </div>
@@ -931,7 +992,6 @@ export default function Dashboard() {
         </div>
       </main>
       <div className="xl:hidden">
-        <MobileFooter mt="mt-[30px]" />
       </div>
     </div>
   );

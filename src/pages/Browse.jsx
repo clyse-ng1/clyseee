@@ -31,9 +31,13 @@ const CATS = [
   "Productivity",
 ];
 
-function JoinCard({ g }) {
+function JoinCard({ g, fluid = false }) {
   return (
-    <div className="bg-btn relative w-[253px] flex-none rounded-[16px] px-[20px] pt-[34px] pb-[20px] text-center">
+    <div
+      className={`bg-btn relative rounded-[16px] px-[20px] pt-[34px] pb-[20px] text-center ${
+        fluid ? "w-full" : "w-[253px] flex-none"
+      }`}
+    >
       <img
         src={g.avatar || avatarAccount}
         alt=""
@@ -197,7 +201,7 @@ export default function Browse() {
       {/* Desktop */}
       <main className="relative mx-auto hidden w-[1240px] pb-[100px] xl:block">
         <BlurBg variant="hero" />
-        <div className="relative flex gap-[38px]">
+        <div className="relative flex gap-[38px] pt-[101px]">
           <Sidebar active="Browse Group" />
           <div className="w-[830px] flex-none">
             <div className="flex h-[80px] items-center gap-[20px] rounded-[15px] border border-[#57A35B] bg-white px-[32px]">
@@ -361,7 +365,10 @@ export default function Browse() {
               </Link>
             </div>
           ) : (
-            <div className="mt-[24px] grid grid-cols-2 gap-[16px]">
+                        <div className="mt-[24px] grid grid-cols-2 gap-[16px]">
+              <h2 className="col-span-2 text-[25px] leading-[30px] font-bold text-ink">
+                Available Subscription
+              </h2>
               {loadingBrands
                 ? Array.from({ length: 4 }, (_, i) => <Sk key={`brand-loading-mobile-${i}`} className="h-[130px] w-full !rounded-[16px]" />)
                 : (showAllBrands ? brands : brands.slice(0, 8)).map((b) => (
@@ -393,6 +400,22 @@ export default function Browse() {
             >
               {showAllBrands ? "Show Less" : "Load More"}
             </button>
+          )}
+
+          <h2 className="mt-[40px] text-[25px] leading-[30px] font-bold text-ink">
+            Available Group
+          </h2>
+          <div className="mt-[20px] grid grid-cols-2 gap-x-[16px] gap-y-[16px]">
+            {loadingGroups
+              ? Array.from({ length: 4 }, (_, i) => (
+                  <Sk key={`group-loading-m-${i}`} className="h-[250px] w-full !rounded-[16px]" />
+                ))
+              : groupList.map((g, i) => <JoinCard key={`${g.name}-${i}`} g={g} fluid />)}
+          </div>
+          {!loadingGroups && groups.length === 0 && (
+            <p className="mt-[20px] text-center text-[15px] font-semibold text-[#6B6B6B]">
+              {q.trim() ? "No groups match your search." : "No open groups right now — check back soon."}
+            </p>
           )}
         </div>
         <ExtraBlock mobile className="mt-[40px]" />

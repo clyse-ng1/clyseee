@@ -45,8 +45,8 @@ export default function Sidebar({ active }) {
   const name = displayName(user) || "Marcus Saris";
   const since = fmtDay(user?.created_at) || "20/11/2026";
   return (
-    <aside className="w-[372px] flex-none">
-      <div className="bg-white px-[40px] pt-[50px] pb-[40px] shadow-[0_0_20px_rgba(0,23,1,0.10)]">
+    <aside className="sticky top-[24px] w-[372px] flex-none self-start">
+      <div className="bg-white px-[40px] pt-[50px] pb-[50px] shadow-[0_0_20px_rgba(0,23,1,0.10)]">
         <div className="flex items-center">
           <img
             src={user?.avatar_url || avatarAccount}
@@ -62,7 +62,7 @@ export default function Sidebar({ active }) {
             </p>
           </div>
         </div>
-        <nav className="mt-[36px]">
+        <nav className="mt-[50px]">
           {SECTIONS.map((s, si) => (
             <div key={s.title} className={si > 0 ? "mt-[22px]" : ""}>
               <p className="pl-[4px] text-[12px] leading-[16px] font-bold tracking-[0.14em] text-[#6B6B6B] uppercase">

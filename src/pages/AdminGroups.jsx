@@ -38,7 +38,7 @@ function Filter({ label, value, onChange, options }) {
   return (
     <label className="flex flex-col gap-[10px]">
       <span className="text-[16px] font-semibold leading-[20px] text-[#000000]">{label}</span>
-      <span className="relative flex h-[46px] w-[221px] items-center rounded-[10px] border border-[#999999] bg-[#DFFFE1] px-[15px]">
+      <span className="relative flex h-[46px] w-full lg:w-[221px] items-center rounded-[10px] border border-[#999999] bg-[#DFFFE1] px-[15px]">
         <select
           value={value}
           onChange={(e) => onChange(e.target.value)}
@@ -81,7 +81,7 @@ export default function AdminGroups() {
         {STATS.map((s, i) => (
           <div
             key={s.label}
-            className={`flex h-[121px] ${i === 3 ? "w-[276px]" : "w-[258px]"} items-center gap-[15px] rounded-[10px] border border-[#999999] bg-white px-[20px]`}
+            className={`flex h-[121px] ${i === 3 ? "w-full lg:w-[276px]" : "w-full lg:w-[258px]"} items-center gap-[15px] rounded-[10px] border border-[#999999] bg-white px-[20px]`}
           >
             <span className="flex h-[42px] w-[42px] shrink-0 items-center justify-center rounded-[5px] bg-[#DFFFE1]">
               {s.glyph}
@@ -96,7 +96,7 @@ export default function AdminGroups() {
       </div>
 
       <div className="mt-[30px] flex items-end gap-[24px]">
-        <label className="mb-[3px] flex h-[40px] w-[374px] items-center gap-2 rounded-full bg-white px-[20px]">
+        <label className="mb-[3px] flex h-[40px] w-full lg:w-[374px] items-center gap-2 rounded-full bg-white px-[20px]">
           <SearchIcon />
           <input
             value={q}
@@ -126,8 +126,8 @@ export default function AdminGroups() {
                 )}
               </button>
             </span>
-            <span className="w-[214px] shrink-0">Creator</span>
-            <span className="w-[269px] shrink-0">Subscription & Plan</span>
+            <span className="w-full lg:w-[214px] shrink-0">Creator</span>
+            <span className="w-full lg:w-[269px] shrink-0">Subscription & Plan</span>
             <span className="w-[131px] shrink-0">Member</span>
             <span className="w-[98px] shrink-0">Shared Slot</span>
             <span className="w-[126px] shrink-0">Start Date</span>
@@ -150,11 +150,11 @@ export default function AdminGroups() {
                     )}
                   </button>
                 </span>
-                <span className="w-[214px] shrink-0">
+                <span className="w-full lg:w-[214px] shrink-0">
                   <span className="block text-[16px] font-semibold text-[#001701]">{r.name}</span>
                   <span className="block text-[14px] font-semibold text-[#6B6B6B]">{r.email}</span>
                 </span>
-                <span className="flex w-[269px] shrink-0 items-center gap-[12px]">
+                <span className="flex w-full lg:w-[269px] shrink-0 items-center gap-[12px]">
                   <BrandTile brand={r.brand} size={50} />
                   <span>
                     <span className="block text-[16px] font-semibold text-[#001701]">{r.sub}</span>

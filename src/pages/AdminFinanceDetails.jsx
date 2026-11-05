@@ -55,7 +55,7 @@ export default function AdminFinanceDetails() {
     <AdminShell active="finance" sub="transactions">
       <BackTitle title="Transaction Details" />
       <div className="mt-[30px] flex gap-[30px]">
-        <div className="w-[458px] flex-none rounded-[20px] border border-[#999999] bg-white px-[31px] pt-[46px] pb-[30px] shadow-[0_0_20px_rgba(0,23,1,0.10)]">
+        <div className="w-full lg:w-[458px] flex-none rounded-[20px] border border-[#999999] bg-white px-[31px] pt-[46px] pb-[30px] shadow-[0_0_20px_rgba(0,23,1,0.10)]">
           <div className="space-y-[14px]">
             <Field label="Transaction Reference">
               <Value>TXN-000056879</Value>
@@ -88,7 +88,7 @@ export default function AdminFinanceDetails() {
             </Field>
           </div>
         </div>
-        <div className="w-[622px] flex-none rounded-[20px] border border-[#999999] bg-white px-[31px] pt-[31px] pb-[30px] shadow-[0_0_20px_rgba(0,23,1,0.10)]">
+        <div className="w-full lg:w-[622px] flex-none rounded-[20px] border border-[#999999] bg-white px-[31px] pt-[31px] pb-[30px] shadow-[0_0_20px_rgba(0,23,1,0.10)]">
           <p className="text-[20px] leading-[24px] font-bold text-[#001701]">
             User / Amount Breakdown
           </p>
@@ -125,7 +125,7 @@ export default function AdminFinanceDetails() {
             <div className="mt-[12px] flex">
               {[
                 { label: "Amount", value: "N3,000", w: "w-[147px] flex-none" },
-                { label: "Clyse Fee", value: "N200", w: "w-[285px] flex-none" },
+                { label: "Clyse Fee", value: "N200", w: "w-full lg:w-[285px] flex-none" },
                 { label: "Total", value: "N3,200", w: "flex-1" },
               ].map((c) => (
                 <div key={c.label} className={c.w}>
@@ -166,7 +166,7 @@ export default function AdminFinanceDetails() {
         </div>
       </div>
       <div className="mt-[30px] flex rounded-[20px] border border-[#999999] bg-white px-[31px] pt-[31px] pb-[30px] shadow-[0_0_20px_rgba(0,23,1,0.10)]">
-        <div className="w-[420px] flex-none">
+        <div className="w-full lg:w-[420px] flex-none">
           <p className="text-[20px] leading-[24px] font-bold text-[#001701]">
             Transaction Timeline
           </p>
@@ -202,7 +202,7 @@ export default function AdminFinanceDetails() {
             {PAYOUT_ROWS.map((row, i) => (
               <div key={i} className="flex">
                 {row.map((c, j) => (
-                  <div key={c.label} className={j === 0 ? "w-[301px] flex-none" : "flex-1"}>
+                  <div key={c.label} className={j === 0 ? "w-full lg:w-[301px] flex-none" : "flex-1"}>
                     <p className="text-[18px] leading-[22px] font-semibold text-[#6B6B6B]">
                       {c.label}
                     </p>

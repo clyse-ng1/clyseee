@@ -33,7 +33,7 @@ export function Field({
     <div>
       <div>
         <label
-          className={`mb-[4px] block text-[12.5px] font-semibold leading-[15px] lg:mb-[6px] lg:text-[18px] lg:leading-[22px] ${LABEL_COLOR[state]}`}
+          className={`mb-[4px] block text-[12.5px] font-semibold leading-[15px] lg:mb-[11px] lg:text-[18px] lg:leading-[22px] ${LABEL_COLOR[state]}`}
         >
           {label}
         </label>
@@ -42,7 +42,7 @@ export function Field({
             {...inputProps}
             value={value}
             type={type}
-            className={`h-[35px] w-full rounded-[3.5px] border bg-white px-[12px] text-[12.5px] font-semibold outline-none placeholder:font-semibold placeholder:text-muted lg:h-[50px] lg:rounded-[5px] lg:px-[20px] lg:text-[18px] ${INPUT_BORDER[state]} ${
+            className={`h-[35px] w-full rounded-[3.5px] border bg-transparent px-[12px] text-[12.5px] font-semibold outline-none placeholder:font-semibold placeholder:text-muted lg:h-[59px] lg:rounded-[5px] lg:px-[20px] lg:text-[18px] ${INPUT_BORDER[state]} ${
               state === "error" ? "text-clyse-red" : "text-ink"
             } ${password ? "pr-[44px] lg:pr-[52px]" : ""}`}
           />
@@ -80,7 +80,7 @@ export function CtaButton({ state = "disabled", children, className = "", ...pro
   return (
     <button
       {...props}
-      className={`h-[35px] w-full rounded-[3.5px] text-[12.5px] font-semibold transition lg:h-[50px] lg:rounded-[5px] lg:text-[18px] ${styles} ${className}`}
+      className={`h-[35px] w-full rounded-[3.5px] text-[12.5px] font-semibold transition lg:h-[59px] lg:rounded-[5px] lg:text-[18px] ${styles} ${className}`}
     >
       {children}
     </button>
@@ -90,7 +90,7 @@ export function CtaButton({ state = "disabled", children, className = "", ...pro
 /* Google / Apple continue buttons */
 export function SocialButtons() {
   const cls =
-    "flex h-[35px] w-full items-center justify-center gap-[8px] rounded-[3.5px] border border-clyse bg-white text-[12.5px] font-semibold text-ink transition hover:bg-mint lg:h-[50px] lg:gap-[10px] lg:rounded-[5px] lg:text-[18px]";
+    "flex h-[35px] w-full items-center justify-center gap-[8px] rounded-[3.5px] border border-clyse bg-white text-[12.5px] font-semibold text-ink transition hover:bg-mint lg:h-[59px] lg:gap-[10px] lg:rounded-[5px] lg:text-[18px]";
   return (
     <>
       <button type="button" className={cls}>

@@ -22,7 +22,7 @@ function Field({ label, children, className = "" }) {
 
 function SuccessPanel({ onOk }) {
   return (
-    <div className="mx-auto mt-[60px] flex w-[470px] flex-col items-center rounded-[20px] border border-[#999999] bg-white px-[0px] py-[50px]">
+    <div className="mx-auto mt-[60px] flex w-full lg:w-[470px] flex-col items-center rounded-[20px] border border-[#999999] bg-white px-[0px] py-[50px]">
       <SuccessSeal />
       <h2 className="mt-[20px] text-[35px] font-bold text-[#001701]">Subscription Created</h2>
       <p className="mt-[10px] px-[40px] text-center text-[18px] font-semibold text-[#4E4E4E]">
@@ -30,7 +30,7 @@ function SuccessPanel({ onOk }) {
       </p>
       <button
         onClick={onOk}
-        className="bg-btn mt-[30px] flex h-[60px] w-[470px] max-w-[85%] items-center justify-center rounded-[16px] text-[18px] font-semibold text-[#F1F8F2]"
+        className="bg-btn mt-[30px] flex h-[60px] w-full lg:w-[470px] max-w-[85%] items-center justify-center rounded-[16px] text-[18px] font-semibold text-[#F1F8F2]"
       >
         Ok
       </button>
@@ -57,11 +57,11 @@ export default function AdminSubAdd() {
               <div className="flex gap-[20px]">
                 <button
                   onClick={() => nav(-1)}
-                  className="flex h-[60px] w-[230px] items-center justify-center rounded-[10px] border border-[#FF0000] bg-white text-[18px] font-semibold text-[#FF0000]"
+                  className="flex h-[60px] w-full lg:w-[230px] items-center justify-center rounded-[10px] border border-[#FF0000] bg-white text-[18px] font-semibold text-[#FF0000]"
                 >
                   Cancel
                 </button>
-                <DarkButton className="h-[60px] w-[230px]" onClick={() => setDone(true)}>
+                <DarkButton className="h-[60px] w-full lg:w-[230px]" onClick={() => setDone(true)}>
                   Create
                 </DarkButton>
               </div>
@@ -70,10 +70,10 @@ export default function AdminSubAdd() {
           <div className="mt-[30px] rounded-[20px] border border-[#999999] bg-white p-[40px]">
             <h2 className="text-[25px] font-bold text-[#001701]">Basic Info</h2>
             <div className="mt-[25px] flex gap-[30px]">
-              <Field label="Subscription Name" className="w-[514px]">
+              <Field label="Subscription Name" className="w-full lg:w-[514px]">
                 <input placeholder="e.g Netflix" className={inputCls} />
               </Field>
-              <Field label="Category" className="w-[514px]">
+              <Field label="Category" className="w-full lg:w-[514px]">
                 <input placeholder="e.g Streaming" className={inputCls} />
               </Field>
             </div>
@@ -90,7 +90,7 @@ export default function AdminSubAdd() {
             <h2 className="mt-[40px] text-[25px] font-bold text-[#001701]">Upload Subscription Logo</h2>
             <button
               onClick={() => fileRef.current?.click()}
-              className="mt-[20px] flex h-[225px] w-[514px] flex-col items-center justify-center gap-[12px] rounded-[15px] border-2 border-dashed border-[#048B0B] bg-[#F2FFF3]"
+              className="mt-[20px] flex h-[225px] w-full lg:w-[514px] flex-col items-center justify-center gap-[12px] rounded-[15px] border-2 border-dashed border-[#048B0B] bg-[#F2FFF3]"
             >
               {logo ? (
                 <img src={logo} alt="Subscription logo preview" className="h-[120px] w-[120px] rounded-full object-cover" />
@@ -115,29 +115,29 @@ export default function AdminSubAdd() {
             <h2 className="mt-[40px] text-[25px] font-bold text-[#001701]">Plans & Pricing</h2>
             {plans.map((p) => (
               <div key={p} className="mt-[25px] flex gap-[30px]">
-                <Field label="Plans" className="w-[514px]">
+                <Field label="Plans" className="w-full lg:w-[514px]">
                   <input placeholder="e.g Basic" className={inputCls} />
                 </Field>
-                <Field label="Billing Period" className="w-[242px]">
+                <Field label="Billing Period" className="w-full lg:w-[242px]">
                   <input placeholder="e.g Monthly" className={inputCls} />
                 </Field>
-                <Field label="Fixed Unit Price" className="w-[242px]">
+                <Field label="Fixed Unit Price" className="w-full lg:w-[242px]">
                   <input placeholder="e.g N1,500" className={inputCls} />
                 </Field>
               </div>
             ))}
             <div className="mt-[25px] flex justify-end">
-              <DarkButton className="h-[60px] w-[200px]" onClick={() => setPlans((pl) => [...pl, pl.length])}>
+              <DarkButton className="h-[60px] w-full lg:w-[200px]" onClick={() => setPlans((pl) => [...pl, pl.length])}>
                 Add Plan
               </DarkButton>
             </div>
 
             <h2 className="mt-[40px] text-[25px] font-bold text-[#001701]">Access & Capacity</h2>
             <div className="mt-[25px] flex gap-[30px]">
-              <Field label="Maximum Members" className="w-[514px]">
+              <Field label="Maximum Members" className="w-full lg:w-[514px]">
                 <input placeholder="e.g 10" className={inputCls} />
               </Field>
-              <Field label="Access Type" className="w-[514px]">
+              <Field label="Access Type" className="w-full lg:w-[514px]">
                 <input placeholder="e.g Public Group" className={inputCls} />
               </Field>
             </div>

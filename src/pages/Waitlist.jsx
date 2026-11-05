@@ -5,6 +5,7 @@ import Sidebar from "../components/Sidebar";
 import WaitlistCard, { WaitlistCardSk } from "../components/WaitlistCard";
 import ExtraBlock from "../components/ExtraBlock";
 import MemberMini from "../components/MemberMini";
+import { EmptyCard } from "./WaitlistEmpty";
 import { BlurBg } from "../components/Decor";
 import { api, brandOf, fmtDay, kobo } from "../lib/api";
 
@@ -93,7 +94,7 @@ export default function Waitlist() {
       {/* Desktop */}
       <main className="relative mx-[20px] min-[1440px]:mx-[100px] hidden pb-[100px] xl:block">
         <BlurBg variant="hero" />
-        <div className="relative flex gap-[38px]">
+        <div className="relative flex gap-[38px] pt-[101px]">
           <Sidebar active="My Waitlist" />
           <div className="w-[830px] flex-none">
             <h1 className="text-[35px] leading-[43px] font-bold text-black">
@@ -103,13 +104,9 @@ export default function Waitlist() {
               {SUB}
             </p>
             {entries && entries.length === 0 ? (
-              <p className="mt-[50px] rounded-[20px] bg-white px-[30px] py-[40px] text-center text-[18px] font-semibold text-[#6B6B6B] shadow-[0_0_20px_rgba(0,23,1,0.10)]">
-                You are not on any waitlist yet.{" "}
-                <Link to="/join" className="text-clyse">
-                  Browse subscriptions
-                </Link>{" "}
-                to join one.
-              </p>
+              <div className="mt-[50px] rounded-[20px] shadow-[0_0_20px_rgba(0,23,1,0.10)]">
+                <EmptyCard />
+              </div>
             ) : (
               <div className="mt-[50px] flex flex-col gap-[30px]">{renderCards()}</div>
             )}
@@ -139,13 +136,9 @@ export default function Waitlist() {
             {SUB}
           </p>
           {entries && entries.length === 0 ? (
-            <p className="mt-[50px] rounded-[20px] bg-white px-[20px] py-[30px] text-center text-[15px] font-semibold text-[#6B6B6B] shadow-[0_0_20px_rgba(0,23,1,0.10)]">
-              You are not on any waitlist yet.{" "}
-              <Link to="/join" className="text-clyse">
-                Browse subscriptions
-              </Link>{" "}
-              to join one.
-            </p>
+            <div className="mt-[30px]">
+              <EmptyCard />
+            </div>
           ) : (
             <div className="mt-[50px] -mx-[30px] flex flex-col gap-[30px]">
               {renderCards()}

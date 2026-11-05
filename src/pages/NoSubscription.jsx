@@ -4,7 +4,6 @@ import Navbar from "../components/Navbar";
 import { BlurBg } from "../components/Decor";
 import MobileSearch from "../components/MobileSearch";
 import MobileCats from "../components/MobileCats";
-import { Footer, MobileFooter } from "../components/Footer";
 import iconSearch from "../assets/icon-search.svg";
 import iconChevron from "../assets/icon-chevron.svg";
 import iconPencil from "../assets/icon-pencil.svg";
@@ -134,8 +133,6 @@ export default function NoSubscription() {
           </div>
         </div>
       </main>
-      <Footer />
-      <MobileFooter />
     </div>
   );
 }

@@ -4,7 +4,6 @@ import Navbar from "../components/Navbar";
 import Sk from "../components/Skeleton";
 import Sidebar from "../components/Sidebar";
 import { BlurBg } from "../components/Decor";
-import { Footer, MobileFooter } from "../components/Footer";
 import DetailModal, { DetailRow } from "../components/DetailModal";
 import { api, brandOf, displayName, fmtDay, fmtTx, kobo2 } from "../lib/api";
 import { useAuth } from "../lib/useAuth";
@@ -514,7 +513,7 @@ export default function Wallet() {
       {/* Desktop */}
       <main className="relative mx-[20px] min-[1440px]:mx-[100px] hidden xl:block">
         <BlurBg variant="hero" />
-        <div className="relative flex gap-[38px]">
+        <div className="relative flex gap-[38px] pt-[101px]">
           <Sidebar active="My Wallet" />
           <div className="w-[830px] flex-none">
             <h1 className="text-[35px] leading-[43px] font-bold text-black">
@@ -591,7 +590,7 @@ export default function Wallet() {
                     </span>
                   </span>
                   <span className="ml-[10px] text-[18px] font-semibold text-white">
-                    Add Fund
+                    Withdraw Fund
                   </span>
                 </button>
               </div>
@@ -600,7 +599,7 @@ export default function Wallet() {
               </span>
             </div>
 
-            <div className="bg-btn mt-[50px] rounded-[20px] pb-[40px]">
+            <div className="bg-btn mt-[50px] h-[253px] rounded-[20px] pb-[40px]">
               <h2 className="mt-[40px] ml-[90px] text-[35px] leading-[43px] font-semibold text-white">
                 Quick Actions
               </h2>
@@ -690,7 +689,6 @@ export default function Wallet() {
         </div>
       </main>
       <div className="hidden xl:block">
-        <Footer mt="mt-[29px]" />
       </div>
 
       {/* Mobile */}
@@ -716,14 +714,12 @@ export default function Wallet() {
         </div>
 
         <div className="relative mx-[30px] -mt-[1px] flex h-[50px] items-center bg-white">
-          <span className="pl-[21px] text-[17.83px] font-semibold text-black">
-            Service name
-          </span>
           <img src={chevronRight} alt="" className="mr-[21px] ml-auto w-[24px]" />
         </div>
 
         <div className="relative mx-[30px] mt-[18px]">
-          <p className="text-[13px] leading-[20px] font-semibold text-[#6B6B6B]">
+          <h1 className="text-[30px] leading-[37px] font-bold text-black">Wallet</h1>
+          <p className="mt-[3px] text-[14px] leading-[20px] font-semibold text-[#6B6B6B]">
             Manage your balance, fund your wallet and track your transactions
           </p>
           <Notice notice={notice} />
@@ -797,6 +793,11 @@ export default function Wallet() {
         </div>
 
         <div className="bg-btn relative mt-[50px] pb-[40px]">
+          <img
+            src={iconQaSupport}
+            alt=""
+            className="absolute top-[42px] left-[30px] h-[40px] w-[40px]"
+          />
           <h2 className="mt-[40px] ml-[90px] text-[35px] leading-[43px] font-semibold text-white">
             Quick Actions
           </h2>
@@ -896,7 +897,6 @@ export default function Wallet() {
         </div>
       </main>
       <div className="xl:hidden">
-        <MobileFooter />
       </div>
       {detailId && (
         <DetailModal

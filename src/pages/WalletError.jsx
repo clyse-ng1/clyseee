@@ -2,7 +2,6 @@ import { Link } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import Sidebar from "../components/Sidebar";
 import { BlurBg } from "../components/Decor";
-import { Footer, MobileFooter } from "../components/Footer";
 import iconError from "../assets/error-icon.svg";
 import iconFundArrow from "../assets/fund-arrow.svg";
 import iconPlusWhite from "../assets/plus-white.svg";
@@ -22,7 +21,7 @@ export default function WalletError() {
       {/* Desktop */}
       <main className="relative mx-[20px] min-[1440px]:mx-[100px] hidden xl:block">
         <BlurBg variant="hero" />
-        <div className="relative flex gap-[38px]">
+        <div className="relative flex gap-[38px] pt-[101px]">
           <Sidebar active="My Wallet" />
           <div className="w-[830px] flex-none">
             <h1 className="text-[35px] leading-[43px] font-bold text-black">
@@ -66,7 +65,6 @@ export default function WalletError() {
         </div>
       </main>
       <div className="hidden xl:block">
-        <Footer mt="mt-[524px]" />
       </div>
 
       {/* Mobile */}
@@ -78,28 +76,29 @@ export default function WalletError() {
         </div>
 
         <div className="relative z-10 mx-[30px] -mt-[1px] flex h-[50px] items-center rounded-[15px] border border-line bg-white shadow-[0_0_20px_rgba(0,23,1,0.10)]">
-          <span className="pl-[21px] text-[17.83px] font-semibold text-black">
-            Service name
-          </span>
           <img src={chevronRight} alt="" className="mr-[21px] ml-auto w-[24px]" />
         </div>
 
         <div className="relative mx-[30px] mt-[18px]">
-          <p className="text-[13px] leading-[20px] font-semibold text-[#6B6B6B]">
+          <h1 className="text-[30px] leading-[37px] font-bold text-black">Wallet</h1>
+          <p className="mt-[3px] text-[14px] leading-[20px] font-semibold text-[#6B6B6B]">
             Manage your balance, fund your wallet and track your transactions
           </p>
         </div>
 
-        <div className="relative mt-[50px] bg-white pt-[69px] pb-[49px]">
-          <span className="mx-auto flex h-[64px] w-[64px] items-center justify-center rounded-full bg-[#F0F4F1]">
+        <div className="relative mt-[50px] h-[341px] rounded-[12px] border border-[#DCE6E0] bg-white pt-[69px]">
+          <span className="mx-auto flex h-[64px] w-[64px] items-center justify-center rounded-[12px] bg-[#F0F4F1]">
             <img src={iconError} alt="" className="w-[29px]" />
           </span>
           <p className="mt-[20px] text-center text-[25px] leading-[35px] font-semibold text-black">
             Wallet unavailable
           </p>
+          <p className="mx-[40px] mt-[3px] text-center text-[18px] leading-[22px] font-semibold text-[#66726C]">
+            We couldn&apos;t load your wallet information. Please try again.
+          </p>
           <Link
             to="/wallet"
-            className="bg-btn relative mx-auto mt-[54px] flex h-[50px] w-[200px] items-center justify-center rounded-[6.94px]"
+            className="relative mx-auto mt-[24px] flex h-[50px] w-[200px] items-center justify-center rounded-[10px] bg-[#E31B00]"
           >
             <span className="absolute top-[20px] left-[30px] h-[18px] w-[36px]">
               <img
@@ -113,7 +112,7 @@ export default function WalletError() {
                 className="absolute top-0 left-[18px] w-[18px]"
               />
             </span>
-            <span className="text-[18px] font-semibold text-mint">
+            <span className="text-[18px] font-semibold text-[#F1F8F1]">
               Try Again
             </span>
           </Link>
@@ -154,7 +153,6 @@ export default function WalletError() {
         </div>
       </main>
       <div className="xl:hidden">
-        <MobileFooter />
       </div>
     </div>
   );

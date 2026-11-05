@@ -33,7 +33,7 @@ function Filter({ label, value, onChange, options }) {
   return (
     <label className="flex flex-col gap-[10px]">
       <span className="text-[16px] font-semibold leading-[20px] text-[#000000]">{label}</span>
-      <span className="relative flex h-[46px] w-[221px] items-center rounded-[10px] border border-[#999999] bg-[#DFFFE1] px-[15px]">
+      <span className="relative flex h-[46px] w-full lg:w-[221px] items-center rounded-[10px] border border-[#999999] bg-[#DFFFE1] px-[15px]">
         <select
           value={value}
           onChange={(e) => onChange(e.target.value)}
@@ -78,7 +78,7 @@ export default function AdminSubscriptions() {
       <PageTitle
         title="Subscriptions"
         right={
-          <DarkButton className="h-[60px] w-[231px]" onClick={() => nav("/admin/subscriptions/add")}>
+          <DarkButton className="h-[60px] w-full lg:w-[231px]" onClick={() => nav("/admin/subscriptions/add")}>
             <GlyphPlus /> Add Subscription
           </DarkButton>
         }
@@ -87,7 +87,7 @@ export default function AdminSubscriptions() {
       {/* Stat cards 357x117 */}
       <div className="mt-[30px] flex gap-[19px]">
         {STATS.map((s) => (
-          <div key={s.label} className="flex h-[117px] w-[357px] items-center gap-[15px] rounded-[10px] border border-[#999999] bg-white px-[20px]">
+          <div key={s.label} className="flex h-[117px] w-full lg:w-[357px] items-center gap-[15px] rounded-[10px] border border-[#999999] bg-white px-[20px]">
             <span className="flex h-[42px] w-[42px] shrink-0 items-center justify-center rounded-[5px] bg-[#DFFFE1]">
               {s.glyph}
             </span>
@@ -101,7 +101,7 @@ export default function AdminSubscriptions() {
 
       {/* Filters */}
       <div className="mt-[30px] flex items-end gap-[24px]">
-        <label className="flex h-[40px] w-[374px] items-center gap-2 rounded-full bg-white px-[20px]">
+        <label className="flex h-[40px] w-full lg:w-[374px] items-center gap-2 rounded-full bg-white px-[20px]">
           <SearchIcon />
           <input
             value={q}
@@ -132,8 +132,8 @@ export default function AdminSubscriptions() {
                 )}
               </button>
             </span>
-            <span className="w-[330px] shrink-0">Subscription</span>
-            <span className="w-[200px] shrink-0">Category</span>
+            <span className="w-full lg:w-[330px] shrink-0">Subscription</span>
+            <span className="w-full lg:w-[200px] shrink-0">Category</span>
             <span className="w-[120px] shrink-0">Plans</span>
             <span className="w-[165px] shrink-0">Fixed Unit Price</span>
             <span className="w-[145px] shrink-0">Period</span>
@@ -158,11 +158,11 @@ export default function AdminSubscriptions() {
                     )}
                   </button>
                 </span>
-                <span className="flex w-[330px] shrink-0 items-center gap-[15px]">
+                <span className="flex w-full lg:w-[330px] shrink-0 items-center gap-[15px]">
                   <BrandTile brand={r.brand} size={50} />
                   <span className="text-[18px] font-bold text-[#001701]">{r.name}</span>
                 </span>
-                <span className="w-[200px] shrink-0">
+                <span className="w-full lg:w-[200px] shrink-0">
                   <Pill className="h-[30px] w-[162px] text-[16px]">{r.cat}</Pill>
                 </span>
                 <span className="w-[120px] shrink-0 text-[16px] font-semibold leading-tight text-[#001701]">

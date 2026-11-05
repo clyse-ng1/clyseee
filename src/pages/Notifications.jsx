@@ -304,7 +304,7 @@ export default function Notifications() {
       {/* Desktop */}
       <main className="relative mx-[20px] min-[1440px]:mx-[100px] hidden pb-[100px] xl:block">
         <BlurBg variant="hero" />
-        <div className="relative flex gap-[38px]">
+        <div className="relative flex gap-[38px] pt-[101px]">
           <Sidebar active="Notification" />
           <div className="w-[830px] flex-none">
             <div className="flex items-end justify-between">

@@ -54,17 +54,17 @@ export default function AdminUserDetails() {
         <>
           <h2 className="mt-[30px] text-[25px] font-bold text-[#000000]">Personal Information</h2>
           <div className="mt-[15px] flex gap-[30px]">
-            <InfoCard label="Email / Phone Number" className="w-[350px]">
+            <InfoCard label="Email / Phone Number" className="w-full lg:w-[350px]">
               ann@gmail.com
               <br />
               +234 801 234 5678
             </InfoCard>
-            <InfoCard label="Home Address" className="w-[350px]">
+            <InfoCard label="Home Address" className="w-full lg:w-[350px]">
               12 Allen Avenue, Ikeja,
               <br />
               Lagos, Nigeria
             </InfoCard>
-            <InfoCard label="Member Since" className="w-[350px]">
+            <InfoCard label="Member Since" className="w-full lg:w-[350px]">
               Sep. 20, 2026
             </InfoCard>
           </div>

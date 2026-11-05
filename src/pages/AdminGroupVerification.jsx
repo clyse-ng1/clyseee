@@ -57,7 +57,7 @@ export default function AdminGroupVerification() {
 
       <div className="mt-[30px] flex gap-[20px]">
         {STATS.map((s) => (
-          <div key={s.label} className="flex h-[94px] w-[262px] items-center gap-[15px] rounded-[10px] border border-[#999999] bg-white px-[20px]">
+          <div key={s.label} className="flex h-[94px] w-full lg:w-[262px] items-center gap-[15px] rounded-[10px] border border-[#999999] bg-white px-[20px]">
             <span className="flex h-[42px] w-[42px] shrink-0 items-center justify-center rounded-[5px] bg-[#DFFFE1]">
               {s.glyph}
             </span>
@@ -70,7 +70,7 @@ export default function AdminGroupVerification() {
       </div>
 
       <div className="mt-[30px] flex items-center gap-[24px]">
-        <label className="flex h-[40px] w-[373px] items-center gap-2 rounded-full bg-white px-[20px]">
+        <label className="flex h-[40px] w-full lg:w-[373px] items-center gap-2 rounded-full bg-white px-[20px]">
           <SearchIcon />
           <input
             value={q}
@@ -112,7 +112,7 @@ export default function AdminGroupVerification() {
           onChange={setRange}
           ariaLabel="Date range"
           lead={<CalendarIcon />}
-          buttonClass="flex h-[54px] w-[329px] shrink-0 items-center gap-[8px] rounded-[10px] bg-[#DFFFE1] px-[15px]"
+          buttonClass="flex h-[54px] w-full lg:w-[329px] shrink-0 items-center gap-[8px] rounded-[10px] bg-[#DFFFE1] px-[15px]"
           labelClass="flex-1 whitespace-nowrap text-[16px] font-semibold text-[#001701]"
           panelClass="min-w-[300px]"
           chevron={<ChevDown color="#001701" />}
@@ -135,8 +135,8 @@ export default function AdminGroupVerification() {
                 )}
               </button>
             </span>
-            <span className="w-[214px] shrink-0">Creator</span>
-            <span className="w-[269px] shrink-0">Subscription & Plan</span>
+            <span className="w-full lg:w-[214px] shrink-0">Creator</span>
+            <span className="w-full lg:w-[269px] shrink-0">Subscription & Plan</span>
             <span className="w-[131px] shrink-0 whitespace-nowrap text-[15px]">Unit Fixed Price</span>
             <span className="w-[98px] shrink-0">Shared Slot</span>
             <span className="w-[126px] shrink-0">Start Date</span>
@@ -159,11 +159,11 @@ export default function AdminGroupVerification() {
                     )}
                   </button>
                 </span>
-                <span className="w-[214px] shrink-0">
+                <span className="w-full lg:w-[214px] shrink-0">
                   <span className="block text-[16px] font-semibold text-[#001701]">{r.name}</span>
                   <span className="block text-[14px] font-semibold text-[#6B6B6B]">{r.email}</span>
                 </span>
-                <span className="flex w-[269px] shrink-0 items-center gap-[12px]">
+                <span className="flex w-full lg:w-[269px] shrink-0 items-center gap-[12px]">
                   <BrandTile brand={r.brand} size={50} />
                   <span>
                     <span className="block text-[16px] font-semibold text-[#001701]">{r.sub}</span>

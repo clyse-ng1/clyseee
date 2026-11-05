@@ -141,7 +141,7 @@ export default function Groups() {
       {/* Desktop */}
       <main className="relative mx-[20px] min-[1440px]:mx-[100px] hidden pb-[100px] xl:block">
         <BlurBg variant="hero" />
-        <div className="relative mt-[89px] flex gap-[38px]">
+        <div className="relative mt-[101px] flex gap-[38px]">
           <Sidebar active="My Group" />
           <div className="w-[830px] flex-none">
             <TitleBlock />

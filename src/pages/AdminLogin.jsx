@@ -36,8 +36,8 @@ export default function AdminLogin({ denied = false, onRetry }) {
   return (
     <main className="grid min-h-screen bg-[#F4F8F4] px-5 py-10 text-[#001701] lg:grid-cols-[minmax(360px,0.9fr)_1.1fr] lg:px-0 lg:py-0">
       <section className="relative hidden overflow-hidden bg-[#001701] px-12 py-14 text-white lg:flex lg:flex-col lg:justify-between xl:px-20 xl:py-16">
-        <div className="absolute -right-28 -bottom-32 h-[440px] w-[440px] rounded-full border border-[#1D5120]" />
-        <div className="absolute -right-12 -bottom-16 h-[300px] w-[300px] rounded-full border border-[#1D5120]" />
+        <div className="absolute -right-28 -bottom-32 h-[440px] w-full lg:w-[440px] rounded-full border border-[#1D5120]" />
+        <div className="absolute -right-12 -bottom-16 h-[300px] w-full lg:w-[300px] rounded-full border border-[#1D5120]" />
         <div className="relative z-10">
           <div className="grid h-12 w-12 place-items-center rounded-2xl bg-[#0A3A0D] text-[#B1DBB3]">
             <svg aria-hidden="true" width="25" height="25" viewBox="0 0 24 24" fill="none">

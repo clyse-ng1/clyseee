@@ -201,7 +201,7 @@ export default function SubDetails() {
       {/* Desktop (912:19224) */}
       <main className="relative hidden pb-[100px] xl:block">
         <BlurBg variant="hero" />
-        <div className="relative mx-auto mt-[120px] w-[830px]">
+        <div className="relative mx-auto mt-[101px] w-[830px]">
           <SubDetailsDesktop
             variant="details"
             membership={membership}

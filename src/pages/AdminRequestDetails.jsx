@@ -43,7 +43,7 @@ export default function AdminRequestDetails() {
   if (approved) {
     return (
       <AdminShell active="subscriptions" sub="requests">
-        <div className="mx-auto mt-[60px] flex w-[500px] flex-col items-center rounded-[20px] border border-[#999999] bg-white px-[15px] py-[50px]">
+        <div className="mx-auto mt-[60px] flex w-full lg:w-[500px] flex-col items-center rounded-[20px] border border-[#999999] bg-white px-[15px] py-[50px]">
           <SuccessSeal />
           <h2 className="mt-[20px] text-center text-[35px] font-bold leading-tight text-[#001701]">Approve Request</h2>
           <p className="mt-[10px] text-center text-[18px] font-semibold text-[#4E4E4E]">
@@ -51,7 +51,7 @@ export default function AdminRequestDetails() {
           </p>
           <button
             onClick={() => nav("/admin/subscriptions/requests")}
-            className="bg-btn mt-[30px] flex h-[60px] w-[470px] max-w-full items-center justify-center rounded-[16px] text-[18px] font-semibold text-[#F1F8F2]"
+            className="bg-btn mt-[30px] flex h-[60px] w-full lg:w-[470px] max-w-full items-center justify-center rounded-[16px] text-[18px] font-semibold text-[#F1F8F2]"
           >
             Approve
           </button>
@@ -66,7 +66,7 @@ export default function AdminRequestDetails() {
       <div className="mt-[30px] rounded-[20px] border border-[#999999] bg-white px-[41px] py-[41px]">
         <div className="flex gap-[50px]">
           {/* Requester */}
-          <div className="h-[407px] w-[489px] rounded-[20px] border border-[#999999] bg-white p-[30px]">
+          <div className="h-[407px] w-full lg:w-[489px] rounded-[20px] border border-[#999999] bg-white p-[30px]">
             <h2 className="text-[20px] font-bold text-[#000000]">Requester Information</h2>
             <div className="mt-[15px] flex items-center gap-[15px]">
               <img src={avatarKianna} alt="Kianna Franci" className="h-[50px] w-[50px] rounded-full object-cover" />
@@ -83,7 +83,7 @@ export default function AdminRequestDetails() {
             </div>
           </div>
           {/* Subscription */}
-          <div className="h-[407px] w-[489px] rounded-[20px] border border-[#999999] bg-white p-[30px]">
+          <div className="h-[407px] w-full lg:w-[489px] rounded-[20px] border border-[#999999] bg-white p-[30px]">
             <h2 className="text-[20px] font-bold text-[#000000]">Subscription Details</h2>
             <div className="mt-[15px] flex items-center gap-[15px]">
               <SlackTile />
@@ -124,13 +124,13 @@ export default function AdminRequestDetails() {
         <div className="mt-[50px] flex justify-end gap-[40px]">
           <button
             onClick={() => setRejectOpen(true)}
-            className="flex h-[60px] w-[230px] items-center justify-center rounded-[10px] border border-[#FF0000] bg-white text-[18px] font-semibold text-[#FF0000]"
+            className="flex h-[60px] w-full lg:w-[230px] items-center justify-center rounded-[10px] border border-[#FF0000] bg-white text-[18px] font-semibold text-[#FF0000]"
           >
             Reject
           </button>
           <button
             onClick={() => setApproved(true)}
-            className="bg-btn flex h-[60px] w-[230px] items-center justify-center rounded-[10px] text-[18px] font-semibold text-[#F1F8F2]"
+            className="bg-btn flex h-[60px] w-full lg:w-[230px] items-center justify-center rounded-[10px] text-[18px] font-semibold text-[#F1F8F2]"
           >
             Approve
           </button>
@@ -140,7 +140,7 @@ export default function AdminRequestDetails() {
       {/* Reject confirmation modal */}
       {rejectOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-6">
-          <div className="flex w-[560px] flex-col items-center rounded-[30px] bg-white px-[40px] py-[45px]">
+          <div className="flex w-full lg:w-[560px] flex-col items-center rounded-[30px] bg-white px-[40px] py-[45px]">
             <span className="flex h-[100px] w-[100px] items-center justify-center rounded-full bg-[#FF0000]">
               <svg width="44" height="44" viewBox="0 0 24 24" fill="none">
                 <path d="m6 6 12 12M18 6 6 18" stroke="#fff" strokeWidth="3" strokeLinecap="round" />

@@ -23,7 +23,7 @@ export default function AdminSubDetails() {
       <BackTitle
         title="Subscription Details"
         right={
-          <DarkButton className="h-[60px] w-[231px]" onClick={() => nav("/admin/subscriptions/add")}>
+          <DarkButton className="h-[60px] w-full lg:w-[231px]" onClick={() => nav("/admin/subscriptions/add")}>
             Add Subscription
           </DarkButton>
         }
@@ -31,43 +31,43 @@ export default function AdminSubDetails() {
       <div className="mt-[30px] rounded-[20px] border border-[#999999] bg-white px-[21px] pb-[41px] pt-[41px]">
         <h2 className="text-[25px] font-bold text-[#000000]">Basic Information</h2>
         <div className="mt-[20px] flex gap-[50px]">
-          <Cell label="Subscription Name" className="w-[323px]">
+          <Cell label="Subscription Name" className="w-full lg:w-[323px]">
             <span className="flex items-center gap-[10px]">
               <BrandTile brand="netflix" size={50} />
               Netflix Premium
             </span>
           </Cell>
-          <Cell label="Category" className="w-[323px]">
+          <Cell label="Category" className="w-full lg:w-[323px]">
             Entertainment
           </Cell>
-          <Cell label="Subscription Plan" className="w-[323px]">
+          <Cell label="Subscription Plan" className="w-full lg:w-[323px]">
             Premium
           </Cell>
         </div>
         <div className="mt-[20px] flex gap-[50px]">
-          <Cell label="Billing Period" className="w-[323px]">
+          <Cell label="Billing Period" className="w-full lg:w-[323px]">
             Monthly
           </Cell>
-          <Cell label="Fixed Unit Price" className="w-[323px]">
+          <Cell label="Fixed Unit Price" className="w-full lg:w-[323px]">
             N3,000
           </Cell>
-          <Cell label="Subscription Features" className="w-[323px]">
+          <Cell label="Subscription Features" className="w-full lg:w-[323px]">
             <span className="text-[#001701]">1080p | 2 screens | limited ads</span>
           </Cell>
         </div>
 
         <h2 className="mt-[50px] text-[25px] font-bold text-[#000000]">Capacity and Access</h2>
         <div className="mt-[20px] flex gap-[50px]">
-          <Cell label="Total Subscription Capacity" className="w-[509px]">
+          <Cell label="Total Subscription Capacity" className="w-full lg:w-[509px]">
             100 Slot
           </Cell>
-          <Cell label="Supported Access Method" className="w-[509px]">
+          <Cell label="Supported Access Method" className="w-full lg:w-[509px]">
             Access Link
           </Cell>
         </div>
 
         <div className="mt-[50px] flex justify-end">
-          <DarkButton className="h-[60px] w-[230px]" onClick={() => nav("/admin/subscriptions/add")}>
+          <DarkButton className="h-[60px] w-full lg:w-[230px]" onClick={() => nav("/admin/subscriptions/add")}>
             Edit Subscription
           </DarkButton>
         </div>

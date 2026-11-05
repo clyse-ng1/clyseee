@@ -48,7 +48,7 @@ export default function AdminCustomRequests() {
           <button
             key={t.key}
             onClick={() => setTab(t.key)}
-            className={`flex h-[65px] ${t.wide ? "w-[225px]" : "w-[191px]"} items-center justify-center gap-[10px] rounded-[10px] text-[20px] font-semibold ${t.pill} ${
+            className={`flex h-[65px] ${t.wide ? "w-full lg:w-[225px]" : "w-[191px]"} items-center justify-center gap-[10px] rounded-[10px] text-[20px] font-semibold ${t.pill} ${
               tab === t.key ? "outline outline-2 outline-offset-[-2px]" : ""
             }`}
           >
@@ -75,7 +75,7 @@ export default function AdminCustomRequests() {
               </button>
             </span>
             <span className="w-[134px] shrink-0">Requester</span>
-            <span className="w-[343px] shrink-0">Subscription</span>
+            <span className="w-full lg:w-[343px] shrink-0">Subscription</span>
             <span className="w-[168px] shrink-0">Category</span>
             <span className="w-[167px] shrink-0">Plans</span>
             <span className="w-[126px] shrink-0">Billing Period</span>
@@ -99,7 +99,7 @@ export default function AdminCustomRequests() {
                   </button>
                 </span>
                 <span className="w-[134px] shrink-0 text-[16px] font-semibold text-[#001701]">{r.name}</span>
-                <span className="flex w-[343px] shrink-0 items-center gap-[15px]">
+                <span className="flex w-full lg:w-[343px] shrink-0 items-center gap-[15px]">
                   <BrandTile brand={r.brand} size={50} />
                   <span className="text-[18px] font-bold text-[#001701]">{r.sub}</span>
                 </span>

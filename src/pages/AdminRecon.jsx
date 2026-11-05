@@ -150,14 +150,14 @@ export default function AdminRecon() {
     <AdminShell active="finance" sub="recon">
       <BackTitle title="Transaction Reconciliation" />
       <div className="mt-[30px] flex gap-[20px]">
-        <StatCard center gap10 className="w-[357px] flex-none" label="Total Financial Activity" value="N124,000" badge={badgeGreen} glyph={<UsersGlyph />} />
-        <StatCard gap10 className="w-[357px] flex-none" label="Wallet Funding" value="124" badge={badgeMint} glyph={<CheckGlyph />} />
+        <StatCard center gap10 className="w-full lg:w-[357px] flex-none" label="Total Financial Activity" value="N124,000" badge={badgeGreen} glyph={<UsersGlyph />} />
+        <StatCard gap10 className="w-full lg:w-[357px] flex-none" label="Wallet Funding" value="124" badge={badgeMint} glyph={<CheckGlyph />} />
         <StatCard gap10 className="flex-1" label="Subscription Payment" value="122" badge={badgeOrange} glyph={<UsersGlyph color="#FF6B02" />} />
       </div>
       <div className="mt-[20px] flex gap-[20px]">
-        <StatCard gap10 className="w-[258px] flex-none" label="Clyse Fee" value="122" badge={badgeOrange} glyph={<UsersGlyph color="#FF6B02" />} />
-        <StatCard gap10 className="w-[258px] flex-none" label="Creator Earning" value="124" badge={badgeMint} glyph={<CheckGlyph />} />
-        <StatCard gap10 className="w-[268px] flex-none" label="Refund" value="122" badge={badgeOrange} glyph={<UsersGlyph color="#FF6B02" />} />
+        <StatCard gap10 className="w-full lg:w-[258px] flex-none" label="Clyse Fee" value="122" badge={badgeOrange} glyph={<UsersGlyph color="#FF6B02" />} />
+        <StatCard gap10 className="w-full lg:w-[258px] flex-none" label="Creator Earning" value="124" badge={badgeMint} glyph={<CheckGlyph />} />
+        <StatCard gap10 className="w-full lg:w-[268px] flex-none" label="Refund" value="122" badge={badgeOrange} glyph={<UsersGlyph color="#FF6B02" />} />
         <StatCard gap10 className="flex-1" label="Payout" value="122" badge={badgeOrange} glyph={<UsersGlyph color="#FF6B02" />} />
       </div>
       <div className="mt-[30px]">
@@ -177,7 +177,7 @@ export default function AdminRecon() {
       </div>
       <div className="mt-[30px] flex gap-[30px]">
         {/* Reconciliation Details */}
-        <div className="w-[473px] flex-none rounded-[20px] border border-[#999999] bg-white px-[30px] pt-[30px] pb-[30px]">
+        <div className="w-full lg:w-[473px] flex-none rounded-[20px] border border-[#999999] bg-white px-[30px] pt-[30px] pb-[30px]">
           <p className="text-[20px] leading-[24px] font-bold text-[#001701]">
             Reconciliation Details
           </p>
@@ -199,7 +199,7 @@ export default function AdminRecon() {
           </div>
         </div>
         {/* Reconciliation Status */}
-        <div className="w-[607px] flex-none rounded-[10px] border border-[#999999] bg-white px-[30px] pt-[25px] pb-[30px]">
+        <div className="w-full lg:w-[607px] flex-none rounded-[10px] border border-[#999999] bg-white px-[30px] pt-[25px] pb-[30px]">
           <p className="text-[20px] leading-[24px] font-bold text-[#001701]">
             Reconciliation Status
           </p>

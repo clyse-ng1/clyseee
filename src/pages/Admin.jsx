@@ -288,23 +288,23 @@ export default function Admin() {
                 chevron={<ChevDown color="#001701" />}
               />
             </div>
-            <div className="mt-[30px] grid grid-cols-2 gap-[20px] xl:grid-cols-4">
+            <div className="mt-[30px] grid grid-cols-1 sm:grid-cols-2 gap-[20px] xl:grid-cols-4">
               {ROW1.map((c) => (
                 <LightCard key={c.label} c={c} />
               ))}
             </div>
-            <div className="mt-[20px] grid grid-cols-2 gap-[20px] xl:grid-cols-4">
+            <div className="mt-[20px] grid grid-cols-1 sm:grid-cols-2 gap-[20px] xl:grid-cols-4">
               {ROW2.map((c) => (
                 <LightCard key={c.label} c={c} />
               ))}
             </div>
-            <div className="mt-[20px] grid grid-cols-2 gap-[20px] xl:grid-cols-4">
+            <div className="mt-[20px] grid grid-cols-1 sm:grid-cols-2 gap-[20px] xl:grid-cols-4">
               {DARK.map((c) => (
                 <DarkCard key={c.label} c={c} />
               ))}
             </div>
             <div className="mt-[20px] flex flex-col gap-[20px] xl:flex-row">
-              <div className="xl:w-[266px] xl:flex-none">
+              <div className="xl:w-full lg:w-[266px] xl:flex-none">
                 <DarkCard
                   c={{ glyph: <ClockGlyph color="#6A5ACD" />, label: "Pending Payout", value: "124,000" }}
                 />
@@ -361,7 +361,7 @@ export default function Admin() {
               </div>
             </div>
             <div className="mt-[20px] flex flex-col gap-[20px] xl:flex-row">
-              <div className="rounded-[20px] bg-[#DFFFE0] px-[30px] py-[30px] xl:w-[471px] xl:flex-none">
+              <div className="rounded-[20px] bg-[#DFFFE0] px-[30px] py-[30px] xl:w-full lg:w-[471px] xl:flex-none">
                 <div className="flex items-center">
                   <p className="text-[18px] leading-[22px] font-bold text-black">
                     Recent Activities

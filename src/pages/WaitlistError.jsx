@@ -34,7 +34,7 @@ export default function WaitlistError() {
       {/* Desktop */}
       <main className="relative mx-[20px] min-[1440px]:mx-[100px] hidden pb-[100px] xl:block">
         <BlurBg variant="hero" />
-        <div className="relative mt-[89px] flex gap-[38px]">
+        <div className="relative mt-[101px] flex gap-[38px]">
           <Sidebar active="My Waitlist" />
           <div className="w-[830px] flex-none">
             <h1 className="text-[35px] leading-[43px] font-bold text-black">
@@ -45,10 +45,7 @@ export default function WaitlistError() {
             </p>
             <div className="mt-[194px]">
               <ErrorText />
-              <div className="mt-[40px] flex items-center justify-center gap-[30px]">
-                <MiniButton variant="gray" to="/">
-                  Get in touch
-                </MiniButton>
+              <div className="mt-[40px] flex items-center justify-center">
                 <MiniButton variant="red" to="/waitlist">
                   Try Again
                 </MiniButton>
@@ -85,10 +82,7 @@ export default function WaitlistError() {
           <div className="mt-[12px]">
             <ErrorText />
           </div>
-          <div className="mt-[40px] flex flex-col items-center gap-[30px]">
-            <MiniButton variant="gray" to="/">
-              Get in touch
-            </MiniButton>
+          <div className="mt-[40px] flex flex-col items-center">
             <MiniButton variant="red" to="/waitlist">
               Try Again
             </MiniButton>

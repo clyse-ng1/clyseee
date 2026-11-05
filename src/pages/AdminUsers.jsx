@@ -43,7 +43,7 @@ function Filter({ label, value, onChange, options }) {
   return (
     <label className="flex flex-col gap-[10px]">
       <span className="text-[16px] font-semibold leading-[20px] text-[#000000]">{label}</span>
-      <span className="relative flex h-[46px] w-[221px] items-center rounded-[10px] border border-[#999999] bg-[#DFFFE1] px-[15px]">
+      <span className="relative flex h-[46px] w-full lg:w-[221px] items-center rounded-[10px] border border-[#999999] bg-[#DFFFE1] px-[15px]">
         <select
           value={value}
           onChange={(e) => onChange(e.target.value)}
@@ -88,7 +88,7 @@ export default function AdminUsers() {
         {STATS.map((s, i) => (
           <div
             key={s.label}
-            className={`flex h-[121px] ${i === 3 ? "w-[276px]" : "w-[258px]"} items-center gap-[15px] rounded-[10px] border border-[#999999] bg-white px-[20px]`}
+            className={`flex h-[121px] ${i === 3 ? "w-full lg:w-[276px]" : "w-full lg:w-[258px]"} items-center gap-[15px] rounded-[10px] border border-[#999999] bg-white px-[20px]`}
           >
             <span className="flex h-[42px] w-[42px] shrink-0 items-center justify-center rounded-[5px] bg-[#DFFFE1]">
               {s.glyph}
@@ -103,7 +103,7 @@ export default function AdminUsers() {
       </div>
 
       <div className="mt-[30px] flex items-end gap-[24px]">
-        <label className="mb-[3px] flex h-[40px] w-[374px] items-center gap-2 rounded-full bg-white px-[20px]">
+        <label className="mb-[3px] flex h-[40px] w-full lg:w-[374px] items-center gap-2 rounded-full bg-white px-[20px]">
           <SearchIcon />
           <input
             value={q}
@@ -133,8 +133,8 @@ export default function AdminUsers() {
                 )}
               </button>
             </span>
-            <span className="w-[245px] shrink-0">User</span>
-            <span className="w-[226px] shrink-0">Email/Phone Number</span>
+            <span className="w-full lg:w-[245px] shrink-0">User</span>
+            <span className="w-full lg:w-[226px] shrink-0">Email/Phone Number</span>
             <span className="w-[136px] shrink-0">Account Status</span>
             <span className="w-[151px] shrink-0">Verification Status</span>
             <span className="w-[145px] shrink-0">Registration Date</span>
@@ -157,11 +157,11 @@ export default function AdminUsers() {
                     )}
                   </button>
                 </span>
-                <span className="flex w-[245px] shrink-0 items-center gap-[10px]">
+                <span className="flex w-full lg:w-[245px] shrink-0 items-center gap-[10px]">
                   <img src={r.img} alt={r.name} className="h-[50px] w-[50px] rounded-full object-cover" />
                   <span className="text-[18px] font-bold text-[#001701]">{r.name}</span>
                 </span>
-                <span className="w-[226px] shrink-0">
+                <span className="w-full lg:w-[226px] shrink-0">
                   <span className="block text-[16px] font-semibold text-[#001701]">{r.email}</span>
                   <span className="block text-[14px] font-semibold text-[#6B6B6B]">{r.phone}</span>
                 </span>

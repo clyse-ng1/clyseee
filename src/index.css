@@ -62,14 +62,16 @@ body::-webkit-scrollbar {
    @97% @40%, center 104.4%/-18% r 118.8%) over vertical linear
    (#001701 @8% -> #007D08 in handle space = 0%/21.5%/#002A02 in CSS). */
 .bg-btn {
-  background:
-    linear-gradient(rgba(0, 15, 1, 0.1), rgba(0, 15, 1, 0.1)),
+  /* Figma: SOLID #000f00 + LINEAR #001701 0.081 -> #007d07 1 (handles give ~#002a02 at 100% of the
+     node) + RADIAL at 104.4% -18% #00ff0f 16.3% -> #001601 97.4% applied at 0.2 opacity. */
+  background-color: #000f00;
+  background-image:
     radial-gradient(
       118.8% 118.8% at 104.4% -18%,
-      rgba(0, 255, 16, 1) 16%,
-      rgba(0, 22, 1, 0.4) 97%
+      rgba(0, 255, 16, 0.2) 16.3%,
+      rgba(0, 22, 1, 0.08) 97.4%
     ),
-    linear-gradient(180deg, #001701 0%, #001701 21.5%, #002a02 100%);
+    linear-gradient(180deg, #001701 0%, #002a02 100%);
 }
 
 .bg-deep-soft {
@@ -165,4 +167,19 @@ input.otp-box {
 }
 .scrollbar-none::-webkit-scrollbar {
   display: none;
+}
+
+/* Admin tables scroll inside their own box below the lg breakpoint instead of
+   forcing the whole page wide (the shell used to hard-code min-w 1110px). */
+@media (max-width: 1023px) {
+  .admin-main table {
+    display: block;
+    width: 100%;
+    overflow-x: auto;
+    white-space: nowrap;
+  }
+  .admin-main input,
+  .admin-main select {
+    max-width: 100%;
+  }
 }

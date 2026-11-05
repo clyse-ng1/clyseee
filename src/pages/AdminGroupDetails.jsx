@@ -73,17 +73,17 @@ export default function AdminGroupDetails() {
         <>
           <h2 className="mt-[30px] text-[25px] font-bold text-[#000000]">Group Information</h2>
           <div className="mt-[15px] flex gap-[30px]">
-            <InfoCard label="Creator" className="w-[350px]">
+            <InfoCard label="Creator" className="w-full lg:w-[350px]">
               Lindsey Lubin
               <br />
               lindsey@gmail.com
             </InfoCard>
-            <InfoCard label="Subscription" className="w-[350px]">
+            <InfoCard label="Subscription" className="w-full lg:w-[350px]">
               Netflix Premium
               <br />
               N3,000 / Monthly
             </InfoCard>
-            <InfoCard label="Capacity" className="w-[350px]">
+            <InfoCard label="Capacity" className="w-full lg:w-[350px]">
               10 Slots
               <br />
               Shared Slot 5/10

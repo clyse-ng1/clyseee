@@ -97,7 +97,7 @@ function MobileDropzone({ label, onFile }) {
   return (
     <div
       onClick={() => input.current?.click()}
-      className="relative mx-[30px] mt-[14px] h-[277px] w-[370px] cursor-pointer rounded-[20.8px] bg-white shadow-[0_0_13.87px_rgba(0,23,1,0.10)]"
+      className="relative mx-auto mt-[14px] h-[277px] w-[370px] max-w-[370px] cursor-pointer rounded-[20.8px] bg-white shadow-[0_0_13.87px_rgba(0,23,1,0.10)]"
     >
       <input
         ref={input}
@@ -163,14 +163,14 @@ export default function CreateVerify() {
         <h2 className="mt-[50px] text-center text-[35px] leading-[43px] font-bold">
           Verify Subscription
         </h2>
-        <p className="mt-[50px] text-[35px] leading-[43px] font-semibold">
+        <p className="mt-[50px] text-center text-[35px] leading-[43px] font-semibold">
           Upload Subscription Invoice
         </p>
         <DesktopDropzone
           label="Upload Subscription Invoice"
           onFile={(f) => setProofs((p) => ({ ...p, invoice: f }))}
         />
-        <p className="mt-[30px] text-[35px] leading-[43px] font-semibold">
+        <p className="mt-[30px] text-center text-[35px] leading-[43px] font-semibold">
           Upload Payment Receipt
         </p>
         <DesktopDropzone
@@ -202,14 +202,14 @@ export default function CreateVerify() {
         <h2 className="mt-[36px] text-center text-[24.27px] leading-[30px] font-bold">
           Verify Subscription
         </h2>
-        <p className="ml-[30px] mt-[34px] text-[22px] leading-[27px] font-semibold">
+        <p className="mt-[34px] text-center text-[22px] leading-[27px] font-semibold">
           Upload Subscription Invoice
         </p>
         <MobileDropzone
           label="Upload Subscription Invoice"
           onFile={(f) => setProofs((p) => ({ ...p, invoice: f }))}
         />
-        <p className="ml-[30px] mt-[21px] text-[22px] leading-[27px] font-semibold">
+        <p className="mt-[21px] text-center text-[22px] leading-[27px] font-semibold">
           Upload Payment Receipt
         </p>
         <MobileDropzone

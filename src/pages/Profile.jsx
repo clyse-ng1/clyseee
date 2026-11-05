@@ -318,7 +318,7 @@ export default function Profile() {
       {/* Desktop */}
       <main className="relative mx-[20px] min-[1440px]:mx-[100px] hidden pb-[100px] xl:block">
         <BlurBg variant="hero" />
-        <div className="relative flex gap-[38px]">
+        <div className="relative flex gap-[38px] pt-[101px]">
           <Sidebar active="Profile" />
           <div className="w-[830px] flex-none">
             <h1 className="text-[35px] leading-[43px] font-bold text-black">

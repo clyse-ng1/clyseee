@@ -4,14 +4,13 @@ import MiniButton from "../components/MiniButton";
 import ExtraBlock from "../components/ExtraBlock";
 import MemberMini from "../components/MemberMini";
 import { BlurBg } from "../components/Decor";
-import { MobileFooter } from "../components/Footer";
 import iconDocSearch from "../assets/icon-doc-search-green.svg";
 
 /* "You haven't any" -> "don't have any", "Exlore" -> "Explore", literal
    "\n" -> break. Desktop card sits 41px off-centre in Figma — centred. */
 const SUB = "Subscription you've joined the waitlist for, We'll notify you when a group becomes available";
 
-function EmptyCard() {
+export function EmptyCard() {
   return (
     <div className="bg-white px-[40px] pt-[40px] pb-[40px]">
       <img src={iconDocSearch} alt="" className="mx-auto h-[70px] w-[70px]" />
@@ -23,10 +22,7 @@ function EmptyCard() {
         <br />
         Explore groups and get started
       </p>
-      <div className="mt-[40px] flex flex-col items-center gap-[30px] xl:flex-row xl:justify-center">
-        <MiniButton variant="gray" to="/">
-          Get in touch
-        </MiniButton>
+      <div className="mt-[40px] flex flex-col items-center xl:flex-row xl:justify-center">
         <MiniButton variant="dark" to="/join">
           Browse Group
         </MiniButton>
@@ -42,7 +38,7 @@ export default function WaitlistEmpty() {
       {/* Desktop */}
       <main className="relative mx-[20px] min-[1440px]:mx-[100px] hidden pb-[100px] xl:block">
         <BlurBg variant="hero" />
-        <div className="relative mt-[89px] flex gap-[38px]">
+        <div className="relative mt-[101px] flex gap-[38px]">
           <Sidebar active="My Waitlist" />
           <div className="w-[830px] flex-none">
             <h1 className="text-[35px] leading-[43px] font-bold text-black">
@@ -84,7 +80,6 @@ export default function WaitlistEmpty() {
           <EmptyCard />
         </div>
         <ExtraBlock mobile className="mt-[50px]" />
-        <MobileFooter mt="mt-[50px]" />
       </main>
     </div>
   );

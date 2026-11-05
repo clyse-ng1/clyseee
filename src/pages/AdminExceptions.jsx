@@ -30,7 +30,7 @@ export default function AdminExceptions() {
       <div className="mt-[30px] w-fit min-w-full rounded-[20px] border border-[#999999] bg-white shadow-[0_0_20px_rgba(0,23,1,0.10)]">
         <div className="flex min-w-[1625px] px-[1px] py-[21px]">
           {STEPS.map((s) => (
-            <div key={s.n} className="flex w-[406px] flex-none items-center px-[20px]">
+            <div key={s.n} className="flex w-full lg:w-[406px] flex-none items-center px-[20px]">
               <span
                 className={`grid h-[40px] w-[40px] flex-none place-items-center rounded-full text-[18px] leading-[22px] font-semibold ${
                   s.active ? "bg-[#048B0B] text-white" : "bg-[#E9E9E9] text-black"
@@ -103,7 +103,7 @@ export default function AdminExceptions() {
           <Pagination />
         </div>
       </div>
-      <div className="mt-[30px] w-[1110px] rounded-[20px] border border-[#999999] bg-white px-[31px] pt-[31px] pb-[30px] shadow-[0_0_20px_rgba(0,23,1,0.10)]">
+      <div className="mt-[30px] w-full lg:w-[1110px] rounded-[20px] border border-[#999999] bg-white px-[31px] pt-[31px] pb-[30px] shadow-[0_0_20px_rgba(0,23,1,0.10)]">
         <p className="text-[20px] leading-[24px] font-bold text-[#001701]">
           Selected Transaction
         </p>
@@ -111,13 +111,13 @@ export default function AdminExceptions() {
           <FinPill tone="orange">Amount Mismatched</FinPill>
         </div>
         <div className="mt-[24px] flex">
-          <div className="w-[271px] flex-none">
+          <div className="w-full lg:w-[271px] flex-none">
             <p className="text-[18px] leading-[22px] font-semibold text-[#4E4E4E]">User</p>
             <p className="mt-[8px] text-[20px] leading-[24px] font-semibold text-[#001701]">
               Sarah Johnson
             </p>
           </div>
-          <div className="w-[271px] flex-none">
+          <div className="w-full lg:w-[271px] flex-none">
             <p className="text-[18px] leading-[22px] font-semibold text-[#4E4E4E]">
               Subscription
             </p>
@@ -135,7 +135,7 @@ export default function AdminExceptions() {
           </div>
         </div>
         <div className="mt-[24px] flex">
-          <div className="w-[271px] flex-none">
+          <div className="w-full lg:w-[271px] flex-none">
             <p className="text-[18px] leading-[22px] font-semibold text-[#4E4E4E]">
               Recorded Amount
             </p>
@@ -163,7 +163,7 @@ export default function AdminExceptions() {
         <div className="mt-[24px] flex justify-end">
           <button
             type="button"
-            className="h-[60px] w-[366px] rounded-[10px] bg-[#036F09] text-[18px] leading-[22px] font-semibold text-[#F1F8F1]"
+            className="h-[60px] w-full lg:w-[366px] rounded-[10px] bg-[#036F09] text-[18px] leading-[22px] font-semibold text-[#F1F8F1]"
           >
             Group Approved
           </button>

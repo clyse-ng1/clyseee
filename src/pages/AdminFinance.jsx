@@ -102,9 +102,9 @@ export default function AdminFinance() {
     <AdminShell active="finance" sub="transactions">
       <BackTitle title="Transaction" />
       <div className="mt-[47px] flex gap-[30px]">
-        <StatCard className="w-[278px] flex-none" label="Total Revenue" value="124,000" badge={badgeGreen} glyph={<UsersGlyph />} />
-        <StatCard className="w-[278px] flex-none" label="Clyse Fee" value="124,000" badge={badgeMint} glyph={<CheckGlyph />} />
-        <StatCard className="w-[231px] flex-none" label="Total Payout" value="122" badge={badgeOrange} glyph={<UsersGlyph color="#FF6B02" />} />
+        <StatCard className="w-full lg:w-[278px] flex-none" label="Total Revenue" value="124,000" badge={badgeGreen} glyph={<UsersGlyph />} />
+        <StatCard className="w-full lg:w-[278px] flex-none" label="Clyse Fee" value="124,000" badge={badgeMint} glyph={<CheckGlyph />} />
+        <StatCard className="w-full lg:w-[231px] flex-none" label="Total Payout" value="122" badge={badgeOrange} glyph={<UsersGlyph color="#FF6B02" />} />
         <StatCard className="flex-1" label="Pending Payout" value="122" badge={badgeOrange} glyph={<UsersGlyph color="#FF6B02" />} />
       </div>
       <div className="mt-[30px]">

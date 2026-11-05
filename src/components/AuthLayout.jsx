@@ -58,7 +58,7 @@ export function AuthSplit({
   formClass = "",
 }) {
   return (
-    <div className="px-0 py-0 lg:px-[24px] lg:py-[80px]">
+    <div className="px-0 py-0 lg:px-[24px] lg:pt-[122px] lg:pb-[41px]">
       <div className="mx-auto grid w-full max-w-full grid-cols-1 bg-mint lg:w-full lg:max-w-[1240px] lg:grid-cols-[620px_1fr] lg:overflow-hidden lg:shadow-[2px_2px_25px_rgba(0,23,1,0.15)]">
         <AuthPanel collage={collage} collageMobile={collageMobile} compact={compact} />
         <div className={`bg-mint px-[30px] py-[35px] lg:px-[63px] lg:py-[50px] ${formClass}`}>
@@ -77,7 +77,7 @@ export function AuthSplit({
    centered full-bleed panel on mobile */
 export function CenterCard({ children }) {
   return (
-    <div className="lg:px-[24px] lg:py-[80px]">
+    <div className="lg:px-[24px] lg:pt-[122px] lg:pb-[41px]">
       <div className="mx-auto flex min-h-[calc(100svh-63px)] w-full max-w-full items-center bg-mint shadow-[2px_2px_25px_rgba(0,23,1,0.15)] lg:block lg:min-h-0 lg:w-full lg:max-w-[1240px]">
         <div className="w-full px-[30px] py-[69px] lg:py-[100px]">
           <div className="mx-auto w-full max-w-[370px] lg:max-w-[470px]">{children}</div>

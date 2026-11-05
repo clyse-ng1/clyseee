@@ -66,6 +66,13 @@ export function MobileFooter({ mt = "mt-[50px]" }) {
   return (
     <footer className={`relative ${mt} xl:hidden`}>
       <div className="bg-mint px-[35px] pt-[35px] pb-[35px]">
+        {/* Figma 93:274 > Footer > Frame 48095785 — mobile disclaimer, 17.34/24.27 centred #999999 */}
+        <p className="mx-auto max-w-[361px] text-center text-[17.34px] font-semibold leading-[24.27px] text-muted">
+          Disclaimer: Clyse is a cost-sharing platform and intermediary only. We are not
+          affiliated with third-party services (Netflix, Disney+, Spotify, etc.). Each user is
+          responsible for verifying and complying with each service&apos;s terms of use. Mentioned
+          brands belong to their respective owners.
+        </p>
         <img
           src={footerLogo}
           alt="Clyse"

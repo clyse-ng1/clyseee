@@ -9,7 +9,7 @@ export default function JoinConfirmed() {
       btnLabel="View Group"
       btnLabelM="Complete"
       btnVariant="dark"
-      btnTo="/subscription-group"
+      btnTo="/groups"
       marqueeMt="mt-[60px]"
       hideBack
       iconD={<img src={iconCheck} alt="" className="h-[70px] w-[70px]" />}

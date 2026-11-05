@@ -1,8 +1,8 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { WalletBalanceCard, WalletQuickActions } from "../components/WalletHero";
 import Navbar from "../components/Navbar";
 import Sidebar from "../components/Sidebar";
 import { BlurBg } from "../components/Decor";
-import { Footer, MobileFooter } from "../components/Footer";
 import iconBalance from "../assets/balance-glyph.svg";
 import iconHeroGlyph from "../assets/hero-glyph.svg";
 import iconEmpty from "../assets/empty-icon.svg";
@@ -11,6 +11,10 @@ import iconFundArrow from "../assets/fund-arrow.svg";
 import iconPlusWhite from "../assets/plus-white.svg";
 import iconArrowInk from "../assets/arrow-ink.svg";
 import chevronRight from "../assets/angle-right.svg";
+import iconQaPlus from "../assets/qa-plus.svg";
+import iconQaSliders from "../assets/qa-sliders.svg";
+import iconQaClock from "../assets/qa-clock.svg";
+import iconQaSupport from "../assets/qa-support.svg";
 import MemberMini, { MemberMenuButton } from "../components/MemberMini";
 import ctaDash from "../assets/cta-dash.webp";
 
@@ -19,13 +23,15 @@ import ctaDash from "../assets/cta-dash.webp";
    "or make". (2) The mobile NGN pill sits at a fixed x (219px), so its gap
    from the short "N0.00" amount is much wider than on the wallet page. */
 export default function WalletEmpty() {
+  const navigate = useNavigate();
+  const goWallet = () => navigate("/wallet");
   return (
     <div className="min-h-screen bg-white font-sans text-ink">
       <Navbar loggedIn />
       {/* Desktop */}
       <main className="relative mx-[20px] min-[1440px]:mx-[100px] hidden xl:block">
         <BlurBg variant="hero" />
-        <div className="relative flex gap-[38px]">
+        <div className="relative flex gap-[38px] pt-[101px]">
           <Sidebar active="My Wallet" />
           <div className="w-[830px] flex-none">
             <h1 className="text-[35px] leading-[43px] font-bold text-black">
@@ -34,7 +40,10 @@ export default function WalletEmpty() {
             <p className="text-[18px] leading-[22px] font-semibold text-[#6B6B6B]">
               Manage your balance, fund your wallet and track your transactions
             </p>
-            <div className="mt-[50px] h-[361px] rounded-[12px] bg-white pt-[50px] shadow-[0_0_20px_rgba(0,23,1,0.10)]">
+            <WalletBalanceCard balance="₦0.00" onFund={goWallet} onWithdraw={goWallet} />
+            <WalletQuickActions onFund={goWallet} />
+
+            <div className="mt-[50px] h-[411px] rounded-[12px] bg-white pt-[50px] shadow-[0_0_20px_rgba(0,23,1,0.10)]">
               <span className="mx-auto flex h-[70px] w-[70px] items-center justify-center rounded-full bg-[#DFFFE0]">
                 <img src={iconEmpty} alt="" className="w-[24px]" />
               </span>
@@ -62,7 +71,6 @@ export default function WalletEmpty() {
         </div>
       </main>
       <div className="hidden xl:block">
-        <Footer mt="mt-[514px]" />
       </div>
 
       {/* Mobile */}
@@ -74,14 +82,14 @@ export default function WalletEmpty() {
         </div>
 
         <div className="relative z-10 mx-[30px] -mt-[1px] flex h-[50px] items-center rounded-[15px] border border-line bg-white shadow-[0_0_20px_rgba(0,23,1,0.10)]">
-          <span className="pl-[21px] text-[17.83px] font-semibold text-black">
-            Service name
-          </span>
           <img src={chevronRight} alt="" className="mr-[21px] ml-auto w-[24px]" />
         </div>
 
         <div className="relative mx-[30px] mt-[18px]">
-          <p className="text-[13px] leading-[20px] font-semibold text-[#6B6B6B]">
+          <h1 className="text-[30px] leading-[37px] font-bold text-black">
+            Wallet
+          </h1>
+          <p className="mt-[3px] text-[14px] leading-[20px] font-semibold text-[#6B6B6B]">
             Manage your balance, fund your wallet and track your transactions
           </p>
         </div>
@@ -147,6 +155,35 @@ export default function WalletEmpty() {
           </span>
         </div>
 
+        <div className="bg-btn relative mt-[50px] px-[30px] pt-[40px] pb-[40px]">
+          <div className="flex h-[43px] items-center">
+            <img src={iconQaSupport} alt="" className="h-[40px] w-[40px]" />
+            <h2 className="ml-[20px] text-[35px] leading-[43px] font-semibold text-white">
+              Quick Actions
+            </h2>
+          </div>
+          <div className="mt-[30px] grid grid-cols-2 gap-[10px]">
+            {[
+              { icon: iconQaPlus, label: "Fund Wallet", primary: true },
+              { icon: iconQaClock, label: "Transaction History" },
+              { icon: iconQaSliders, label: "View Limits" },
+              { icon: iconQaSupport, label: "Help & Support" },
+            ].map((q) => (
+              <button
+                key={q.label}
+                type="button"
+                onClick={q.primary ? goWallet : undefined}
+                className="h-[100px] w-[180px] rounded-[10px] bg-white pt-[21px]"
+              >
+                <img src={q.icon} alt="" className="mx-auto w-[30px]" />
+                <p className="mt-[10px] text-center text-[15px] leading-[18px] font-semibold text-[#013104]">
+                  {q.label}
+                </p>
+              </button>
+            ))}
+          </div>
+        </div>
+
         <div className="relative mt-[50px] bg-white pt-[64px] pb-[40px]">
           <span className="mx-auto flex h-[64px] w-[64px] items-center justify-center rounded-full bg-[#DFFFE0]">
             <img src={iconEmpty} alt="" className="w-[24px]" />
@@ -207,7 +244,6 @@ export default function WalletEmpty() {
         </div>
       </main>
       <div className="xl:hidden">
-        <MobileFooter />
       </div>
     </div>
   );

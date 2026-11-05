@@ -1,8 +1,9 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, Navigate } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import LogoMarquee from "../components/LogoMarquee";
 import { Footer, MobileFooter } from "../components/Footer";
+import { useAuth } from "../lib/useAuth";
 
 /* Landing page REDESIGN — desktop Figma 875:34275 (1440x5435), mobile
    Figma 93:274 (430x7352). Sections: hero, brand marquee, How It Works
@@ -224,8 +225,8 @@ function PlusIcon({ open }) {
 function FlowCard({ n, title, body, odd, mobile = false }) {
   return (
     <div
-      className={`rounded-[30px] border border-white/40 bg-white/10 ${
-        mobile ? "px-[30px] pt-[40px] pb-[40px]" : "h-[380px] px-[30px] pt-[70px]"
+      className={`rounded-[30px] border border-white/40 ${odd ? "bg-[#d9d9d9]/[0.02]" : "bg-[#d9d9d9]/20"} ${
+        mobile ? "h-[380px] px-[30px] pt-[83px]" : "h-[380px] px-[30px] pt-[70px]"
       }`}
     >
       <span
@@ -238,7 +239,7 @@ function FlowCard({ n, title, body, odd, mobile = false }) {
       <h3
         className={`text-center font-bold text-white ${
           mobile
-            ? "mt-[20px] text-[20px] leading-[24px]"
+            ? "mt-[25px] text-[20px] leading-[24px]"
             : "mt-[26px] text-[35px] leading-[43px]"
         }`}
       >
@@ -247,7 +248,7 @@ function FlowCard({ n, title, body, odd, mobile = false }) {
       <p
         className={`text-center font-semibold text-white ${
           mobile
-            ? "mt-[16px] text-[14px] leading-[20px]"
+            ? "mt-[25px] text-[14px] leading-[20px]"
             : "mt-[20px] text-[18px] leading-[22px]"
         }`}
       >
@@ -261,7 +262,7 @@ function FlowBlock({ label, cards, mobile = false }) {
   return (
     <div>
       <div
-        className={`flex items-center justify-center rounded-[20px] border border-white bg-clyse font-bold text-white ${
+        className={`flex items-center justify-center rounded-[20px] border border-white bg-clyse/20 font-bold text-white ${
           mobile ? "h-[64px] text-[20px]" : "h-[81px] text-[35px] leading-[43px]"
         }`}
       >
@@ -314,6 +315,9 @@ function Faq({ items, mobile = false }) {
 }
 
 export default function Landing() {
+  const { user } = useAuth();
+  // Signed-in members never see the marketing page (and its footer).
+  if (user) return <Navigate to="/browse" replace />;
   return (
     <div className="min-h-screen bg-white font-sans text-ink">
       <Navbar landing />
@@ -328,7 +332,7 @@ export default function Landing() {
           }}
         />
         <div className="relative mx-auto max-w-[1440px] px-[20px] min-[1440px]:px-[100px] pt-[122px] pb-[120px] text-center">
-          <h1 className="mx-auto max-w-[1054px] text-[80px] leading-[98px] font-bold text-ink">
+          <h1 className="mx-auto max-w-[1054px] text-[80px] leading-[97.5px] font-bold tracking-[-4px] text-ink">
             Cut up to <span className="text-clyse">75%</span> off the
             <br />
             price of your subscriptions
@@ -398,7 +402,7 @@ export default function Landing() {
         <h2 className="mt-[100px] text-center text-[35px] leading-[43px] font-bold text-ink">
           How It Works
         </h2>
-        <p className="mx-auto mt-[10px] max-w-[840px] text-center text-[25px] leading-[35px] font-semibold text-ink">
+        <p className="mx-auto mt-[10px] max-w-[1040px] text-center text-[25px] leading-[35px] font-semibold text-ink text-justify">
           Getting access to your favorite subscriptions is simple. Choose a service, join
           an available group, and pay securely through CLYSE to enjoy your subscription.
         </p>
@@ -417,7 +421,7 @@ export default function Landing() {
         <h2 className="mt-[60px] text-center text-[30px] leading-[37px] font-bold text-ink">
           How It Works
         </h2>
-        <p className="mx-auto mt-[10px] max-w-[370px] text-center text-[16px] leading-[22px] font-semibold text-ink">
+        <p className="mx-auto mt-[10px] max-w-[370px] text-center text-[16px] leading-[22px] font-semibold text-ink text-justify">
           Getting access to your favorite subscriptions is simple. Choose a service, join
           an available group, and pay securely through CLYSE to enjoy your subscription.
         </p>
@@ -444,7 +448,7 @@ export default function Landing() {
           <div className="grid grid-cols-3 divide-x divide-[#999999]">
             {WHY.slice(0, 3).map((w) => (
               <div key={w.title} className="flex h-[364px] flex-col items-center px-[40px] pt-[64px]">
-                <span className={`grid h-[80px] w-[80px] place-items-center rounded-[10px] ${w.bg}`}>
+                <span className={`grid h-[79px] w-[80px] place-items-center rounded-[11px] ${w.bg} opacity-80`}>
                   {w.glyph}
                 </span>
                 <h3 className="mt-[32px] text-center text-[35px] leading-[43px] font-bold text-ink">
@@ -459,7 +463,7 @@ export default function Landing() {
           <div className="grid grid-cols-3 divide-x divide-[#999999] border-t border-[#999999]">
             {WHY.slice(3).map((w) => (
               <div key={w.title} className="flex h-[364px] flex-col items-center px-[40px] pt-[64px]">
-                <span className={`grid h-[80px] w-[80px] place-items-center rounded-[10px] ${w.bg}`}>
+                <span className={`grid h-[79px] w-[80px] place-items-center rounded-[11px] ${w.bg} opacity-80`}>
                   {w.glyph}
                 </span>
                 <h3 className="mt-[32px] text-center text-[35px] leading-[43px] font-bold text-ink">
@@ -487,8 +491,8 @@ export default function Landing() {
         </p>
         <div className="mt-[40px] overflow-hidden rounded-[24px] border border-[#999999] divide-y divide-[#999999]">
           {WHY.map((w) => (
-            <div key={w.title} className="flex flex-col items-center px-[30px] py-[30px]">
-              <span className={`grid h-[64px] w-[64px] place-items-center rounded-[10px] ${w.bg}`}>
+            <div key={w.title} className="flex h-[364px] flex-col items-center px-[40px] pt-[81px]">
+              <span className={`grid h-[79px] w-[80px] place-items-center rounded-[11px] opacity-80 ${w.bg}`}>
                 {w.glyph}
               </span>
               <h3 className="mt-[20px] text-center text-[20px] leading-[24px] font-bold text-ink">
@@ -522,7 +526,7 @@ export default function Landing() {
         </div>
       </section>
 
-      <Footer mt="mt-[152px]" />
+      <Footer mt="mt-[100px]" />
       <MobileFooter />
     </div>
   );
