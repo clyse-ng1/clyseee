@@ -573,7 +573,7 @@ export default function Wallet() {
                 <button
                   type="button"
                   onClick={openFund}
-                  className="flex h-[60px] w-[200px] items-center rounded-[10px] bg-[#048B0B] pl-[28px]"
+                  className="flex h-[60px] w-[223px] items-center rounded-[10px] bg-[#048B0B] pl-[28px]"
                 >
                   <span className="relative h-[30px] w-[36px] flex-none">
                     <img
@@ -589,7 +589,7 @@ export default function Wallet() {
                       />
                     </span>
                   </span>
-                  <span className="ml-[10px] text-[18px] font-semibold text-white">
+                  <span className="ml-[10px] whitespace-nowrap text-[18px] font-semibold text-white">
                     Withdraw Fund
                   </span>
                 </button>
@@ -625,7 +625,7 @@ export default function Wallet() {
               </div>
               <div className="relative mt-[40px] h-[50px] text-[13px] leading-[20px] font-semibold text-[#6B6B6B]">
                 <span className="absolute top-[13px] left-[30px]">Date &amp; Time</span>
-                <span className="absolute top-[13px] left-[213px]">Description</span>
+                <span className="absolute top-[13px] left-[213px]">Group</span>
                 <span className="absolute top-[13px] left-[397px]">Amount</span>
                 <span className="absolute top-[13px] left-[567px]">Status</span>
               </div>
@@ -692,8 +692,7 @@ export default function Wallet() {
       </div>
 
       {/* Mobile */}
-      <main className="relative xl:hidden">
-        <BlurBg variant="page" />
+      <main className="relative bg-white xl:hidden">
         <div className="relative bg-white px-[30px] pt-[30px] pb-[21px]">
           <div className="flex items-center gap-[6px]">
             <img
@@ -711,10 +710,6 @@ export default function Wallet() {
             </div>
           </div>
           <MemberMenuButton active="My Wallet" />
-        </div>
-
-        <div className="relative z-10 mx-[30px] -mt-[1px] flex h-[50px] items-center rounded-[15px] border border-line bg-white shadow-[0_0_20px_rgba(0,23,1,0.10)]">
-          <img src={chevronRight} alt="" className="mr-[21px] ml-auto w-[24px]" />
         </div>
 
         <div className="relative mx-[30px] mt-[18px]">
@@ -781,8 +776,8 @@ export default function Wallet() {
                 <span className="flex h-[30px] w-[30px] items-center justify-center rounded-full bg-white">
                   <img src={iconArrowInk} alt="" className="w-[15px] rotate-180" />
                 </span>
-                <span className="ml-[10px] text-[18px] font-semibold text-white">
-                  Add Fund
+                <span className="ml-[10px] text-[18px] font-semibold whitespace-nowrap text-white">
+                  Withdraw Fund
                 </span>
               </span>
             </button>

@@ -21,19 +21,20 @@ const PUBLIC_ROUTES = {
   Contact: "/contact",
 };
 /* Landing links per redesigned landing (875:34275): How/Why anchor to sections. */
-const LANDING_LINKS = ["How It Works", "Why Clyse", "About Us", "Contact Us"];
+/* Figma LANDING PAGE (5:2) labels exactly: How it Works / Why Clyse / About / Contact. */
+const LANDING_LINKS = ["How it Works", "Why Clyse", "About", "Contact"];
 const LANDING_ROUTES = {
-  "How It Works": "/#how-it-works",
+  "How it Works": "/#how-it-works",
   "Why Clyse": "/#why-clyse",
-  "About Us": "/about",
-  "Contact Us": "/contact",
+  About: "/about",
+  Contact: "/contact",
 };
-const MLINKS = ["How It Works", "Why Clyse", "About Us", "Contact Us"];
+const MLINKS = ["How it Works", "Why Clyse", "About", "Contact"];
 const MROUTES = {
-  "How It Works": "/#how-it-works",
+  "How it Works": "/#how-it-works",
   "Why Clyse": "/#why-clyse",
-  "About Us": "/about",
-  "Contact Us": "/contact",
+  About: "/about",
+  Contact: "/contact",
 };
 const MLOGGED = ["Home", "Join Group", "Create Group", "My Profile"];
 const MLOGGED_ROUTES = {
@@ -46,7 +47,12 @@ const MLOGGED_ROUTES = {
 function HamburgerIcon() {
   return (
     <svg width="30" height="30" viewBox="0 0 30 30" fill="none">
-      <path d="M4 8h22M4 15h22M4 22h22" stroke="#048B0B" strokeWidth="2.4" strokeLinecap="round" />
+      <path
+        d="M4 8h22M4 15h22M4 22h22"
+        stroke="#048B0B"
+        strokeWidth="2.4"
+        strokeLinecap="round"
+      />
     </svg>
   );
 }
@@ -54,7 +60,12 @@ function HamburgerIcon() {
 function CloseIcon() {
   return (
     <svg width="30" height="30" viewBox="0 0 30 30" fill="none">
-      <path d="M7 7l16 16M23 7L7 23" stroke="#FFFFFF" strokeWidth="2.6" strokeLinecap="round" />
+      <path
+        d="M7 7l16 16M23 7L7 23"
+        stroke="#FFFFFF"
+        strokeWidth="2.6"
+        strokeLinecap="round"
+      />
     </svg>
   );
 }
@@ -97,7 +108,11 @@ export default function Navbar({ loggedIn = false, landing = false }) {
             }`}
           >
             {links.map((l) => (
-              <Link key={l} to={routeFor(l)} className="text-[18px] font-semibold text-ink hover:text-clyse">
+              <Link
+                key={l}
+                to={routeFor(l)}
+                className="text-[18px] font-semibold text-ink hover:text-clyse"
+              >
                 {l}
               </Link>
             ))}
@@ -109,7 +124,9 @@ export default function Navbar({ loggedIn = false, landing = false }) {
                 onClick={() => setAccountOpen((v) => !v)}
                 className="flex items-center gap-[10px]"
               >
-                <span className="text-[18px] font-semibold text-ink">My Account</span>
+                <span className="text-[18px] font-semibold text-ink">
+                  My Account
+                </span>
                 <img
                   src={user?.avatar_url || avatarAccount}
                   alt="My Account"
@@ -160,7 +177,11 @@ export default function Navbar({ loggedIn = false, landing = false }) {
           <Link to={loggedIn ? "/browse" : "/"} onClick={() => setOpen(false)}>
             <img src={logo} alt="Clyse" className="h-[21px] w-auto" />
           </Link>
-          <button aria-label="Open menu" onClick={() => setOpen((v) => !v)} className="p-1">
+          <button
+            aria-label="Open menu"
+            onClick={() => setOpen((v) => !v)}
+            className="p-1"
+          >
             {open ? <CloseIconDark /> : <HamburgerIcon />}
           </button>
         </div>
@@ -170,7 +191,11 @@ export default function Navbar({ loggedIn = false, landing = false }) {
           whole nav bar, close X inside it at 30/30, 50px rows, CTA row at the foot. */}
       {open && (
         <div className="bg-deep fixed inset-0 z-50 overflow-y-auto px-[30px] pt-[30px] pb-[40px] xl:hidden">
-          <button aria-label="Close menu" onClick={() => setOpen(false)} className="block">
+          <button
+            aria-label="Close menu"
+            onClick={() => setOpen(false)}
+            className="block"
+          >
             <CloseIcon />
           </button>
           <nav className="mt-[24px] flex flex-col">
@@ -180,16 +205,18 @@ export default function Navbar({ loggedIn = false, landing = false }) {
                     <p className="text-[12px] leading-[16px] font-bold tracking-[0.14em] text-[#9DB3A2] uppercase">
                       {s.title}
                     </p>
-                    {s.rows.filter((r) => r.to).map((r) => (
-                      <Link
-                        key={r.label}
-                        to={r.to}
-                        onClick={() => setOpen(false)}
-                        className="flex h-[50px] w-[333px] max-w-full items-center text-[18px] leading-[22px] font-semibold text-white"
-                      >
-                        {r.label}
-                      </Link>
-                    ))}
+                    {s.rows
+                      .filter((r) => r.to)
+                      .map((r) => (
+                        <Link
+                          key={r.label}
+                          to={r.to}
+                          onClick={() => setOpen(false)}
+                          className="flex h-[50px] w-[333px] max-w-full items-center text-[18px] leading-[22px] font-semibold text-white"
+                        >
+                          {r.label}
+                        </Link>
+                      ))}
                   </div>
                 ))
               : MLINKS.map((l) => (
@@ -240,7 +267,12 @@ export default function Navbar({ loggedIn = false, landing = false }) {
 function CloseIconDark() {
   return (
     <svg width="30" height="30" viewBox="0 0 30 30" fill="none">
-      <path d="M7 7l16 16M23 7L7 23" stroke="#048B0B" strokeWidth="2.4" strokeLinecap="round" />
+      <path
+        d="M7 7l16 16M23 7L7 23"
+        stroke="#048B0B"
+        strokeWidth="2.4"
+        strokeLinecap="round"
+      />
     </svg>
   );
 }

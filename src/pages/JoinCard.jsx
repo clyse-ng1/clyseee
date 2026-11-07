@@ -10,8 +10,14 @@ import iconEye from "../assets/icon-eye.png";
 const INPUT =
   "w-full bg-transparent outline-none placeholder:text-[#999999]";
 
-function Eye() {
-  return <img src={iconEye} alt="" className="h-[24px] w-[24px] flex-none" />;
+function Eye({ small = false }) {
+  return (
+    <img
+      src={iconEye}
+      alt=""
+      className={`flex-none ${small ? "h-[16px] w-[16px]" : "h-[24px] w-[24px]"}`}
+    />
+  );
 }
 
 export default function JoinCard() {
@@ -99,8 +105,7 @@ export default function JoinCard() {
         <div className="pb-[60px]" />
       </div>
       {/* Mobile */}
-      <main className="relative xl:hidden">
-        <BlurBg variant="page" />
+      <main className="relative bg-white xl:hidden">
         <div className="relative bg-white">
           <CreateGroupHead title="Payment Method" mBig />
         </div>
@@ -137,29 +142,29 @@ export default function JoinCard() {
               />
               <Eye />
             </div>
-            <div className="mt-[30px] flex gap-[50px]">
-              <div className="w-[160px] flex-none">
+            <div className="mt-[30px] flex gap-[16px]">
+              <div className="min-w-0 flex-1">
                 <p className="text-[18px] leading-[22px] font-semibold text-ink">
                   Expired Date
                 </p>
-                <div className="mt-[30px] flex h-[54px] items-center rounded-[7px] border border-[#999999] px-[20px]">
+                <div className="mt-[30px] flex h-[54px] items-center rounded-[7px] border border-[#999999] px-[12px]">
                   <input
                     placeholder="Enter Date"
-                    className={`${INPUT} text-[18px] leading-[22px] font-semibold text-ink`}
+                    className={`${INPUT} min-w-0 text-[14px] leading-[20px] font-semibold text-ink`}
                   />
-                  <Eye />
+                  <Eye small />
                 </div>
               </div>
-              <div className="w-[160px] flex-none">
+              <div className="min-w-0 flex-1">
                 <p className="text-[18px] leading-[22px] font-semibold text-ink">
                   Security Code
                 </p>
-                <div className="mt-[30px] flex h-[54px] items-center rounded-[7px] border border-[#999999] px-[20px]">
+                <div className="mt-[30px] flex h-[54px] items-center rounded-[7px] border border-[#999999] px-[12px]">
                   <input
                     placeholder="Security code"
-                    className={`${INPUT} text-[18px] leading-[22px] font-semibold text-ink`}
+                    className={`${INPUT} min-w-0 text-[14px] leading-[20px] font-semibold text-ink`}
                   />
-                  <Eye />
+                  <Eye small />
                 </div>
               </div>
             </div>

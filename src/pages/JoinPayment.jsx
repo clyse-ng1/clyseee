@@ -4,11 +4,39 @@ import LogoMarquee from "../components/LogoMarquee";
 import CreateGroupHead from "../components/CreateGroupHead";
 import { BlurBg } from "../components/Decor";
 import iconCard from "../assets/card-ink.svg";
+import iconApple from "../assets/icon-apple.png";
+import iconGoogle from "../assets/icon-google.png";
 
+/* Each row gets its own brand glyph — previously all three rendered the
+   generic card icon, which is why the list looked like a copy-paste. */
 const ROWS = [
-  { label: "Card", to: "/join/card", h: "h-[103px] xl:h-[103px]", mh: "h-[75px]" },
-  { label: "Apple Pay", to: "/join/apple-pay", h: "h-[105px] xl:h-[105px]", mh: "h-[77px]" },
-  { label: "Google Pay", to: "/join/google-pay", h: "h-[103px] xl:h-[103px]", mh: "h-[75px]" },
+  {
+    label: "Card",
+    to: "/join/card",
+    icon: iconCard,
+    iw: "w-[68px]",
+    miw: "w-[40px]",
+    h: "h-[103px]",
+    mh: "h-[75px]",
+  },
+  {
+    label: "Apple Pay",
+    to: "/join/apple-pay",
+    icon: iconApple,
+    iw: "w-[36px]",
+    miw: "w-[22px]",
+    h: "h-[105px]",
+    mh: "h-[77px]",
+  },
+  {
+    label: "Google Pay",
+    to: "/join/google-pay",
+    icon: iconGoogle,
+    iw: "w-[36px]",
+    miw: "w-[22px]",
+    h: "h-[103px]",
+    mh: "h-[75px]",
+  },
 ];
 
 export default function JoinPayment() {
@@ -28,9 +56,17 @@ export default function JoinPayment() {
                 <Link
                   key={r.label}
                   to={r.to}
-                  className={`flex ${r.h} items-center bg-[#D9D9D9] pl-[95px]`}
+                  className={`flex ${r.h} items-center bg-[#D9D9D9] pl-[30px]`}
                 >
-                  <img src={iconCard} alt="" className="h-[35px] w-[68px] flex-none" />
+                  <span
+                    aria-hidden
+                    className="mr-[25px] grid h-[40px] w-[40px] flex-none place-items-center rounded-full border border-[#999999] bg-white"
+                  />
+                  <img
+                    src={r.icon}
+                    alt=""
+                    className={`h-[35px] ${r.iw} flex-none object-contain`}
+                  />
                   <span className="ml-[25px] text-[35px] leading-[43px] font-bold text-black">
                     {r.label}
                   </span>
@@ -45,8 +81,7 @@ export default function JoinPayment() {
         <div className="pb-[60px]" />
       </div>
       {/* Mobile */}
-      <main className="relative xl:hidden">
-        <BlurBg variant="page" />
+      <main className="relative bg-white xl:hidden">
         <div className="relative bg-white">
           <CreateGroupHead title="Payment Method" mBig />
         </div>
@@ -57,9 +92,17 @@ export default function JoinPayment() {
                 <Link
                   key={r.label}
                   to={r.to}
-                  className={`flex ${r.mh} items-center bg-[#D9D9D9] pl-[75px]`}
+                  className={`flex ${r.mh} items-center bg-[#D9D9D9] pl-[30px]`}
                 >
-                  <img src={iconCard} alt="" className="h-[21px] w-[40px] flex-none" />
+                  <span
+                    aria-hidden
+                    className="mr-[33px] grid h-[20px] w-[20px] flex-none place-items-center rounded-full border border-[#999999] bg-white"
+                  />
+                  <img
+                    src={r.icon}
+                    alt=""
+                    className={`h-[21px] ${r.miw} flex-none object-contain`}
+                  />
                   <span className="ml-[25px] text-[25px] leading-[30px] font-bold text-black">
                     {r.label}
                   </span>

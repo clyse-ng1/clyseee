@@ -50,8 +50,21 @@ const CREATOR_FLOW = [
 function WalletGlyph({ color }) {
   return (
     <svg width="40" height="40" viewBox="0 0 24 24" fill="none">
-      <rect x="3" y="6.5" width="18" height="12" rx="2.5" stroke={color} strokeWidth="1.8" />
-      <path d="M3 10h18M16.5 14.5h.01" stroke={color} strokeWidth="1.8" strokeLinecap="round" />
+      <rect
+        x="3"
+        y="6.5"
+        width="18"
+        height="12"
+        rx="2.5"
+        stroke={color}
+        strokeWidth="1.8"
+      />
+      <path
+        d="M3 10h18M16.5 14.5h.01"
+        stroke={color}
+        strokeWidth="1.8"
+        strokeLinecap="round"
+      />
     </svg>
   );
 }
@@ -108,10 +121,42 @@ function CheckGlyph({ color }) {
 function GridGlyph({ color }) {
   return (
     <svg width="40" height="40" viewBox="0 0 24 24" fill="none">
-      <rect x="4" y="4" width="7" height="7" rx="1.5" stroke={color} strokeWidth="1.8" />
-      <rect x="13" y="4" width="7" height="7" rx="1.5" stroke={color} strokeWidth="1.8" />
-      <rect x="4" y="13" width="7" height="7" rx="1.5" stroke={color} strokeWidth="1.8" />
-      <rect x="13" y="13" width="7" height="7" rx="1.5" stroke={color} strokeWidth="1.8" />
+      <rect
+        x="4"
+        y="4"
+        width="7"
+        height="7"
+        rx="1.5"
+        stroke={color}
+        strokeWidth="1.8"
+      />
+      <rect
+        x="13"
+        y="4"
+        width="7"
+        height="7"
+        rx="1.5"
+        stroke={color}
+        strokeWidth="1.8"
+      />
+      <rect
+        x="4"
+        y="13"
+        width="7"
+        height="7"
+        rx="1.5"
+        stroke={color}
+        strokeWidth="1.8"
+      />
+      <rect
+        x="13"
+        y="13"
+        width="7"
+        height="7"
+        rx="1.5"
+        stroke={color}
+        strokeWidth="1.8"
+      />
     </svg>
   );
 }
@@ -125,8 +170,24 @@ function HeadsetGlyph({ color }) {
         strokeWidth="1.8"
         strokeLinecap="round"
       />
-      <rect x="3.5" y="13" width="4.5" height="6" rx="2" stroke={color} strokeWidth="1.8" />
-      <rect x="16" y="13" width="4.5" height="6" rx="2" stroke={color} strokeWidth="1.8" />
+      <rect
+        x="3.5"
+        y="13"
+        width="4.5"
+        height="6"
+        rx="2"
+        stroke={color}
+        strokeWidth="1.8"
+      />
+      <rect
+        x="16"
+        y="13"
+        width="4.5"
+        height="6"
+        rx="2"
+        stroke={color}
+        strokeWidth="1.8"
+      />
     </svg>
   );
 }
@@ -226,7 +287,9 @@ function FlowCard({ n, title, body, odd, mobile = false }) {
   return (
     <div
       className={`rounded-[30px] border border-white/40 ${odd ? "bg-[#d9d9d9]/[0.02]" : "bg-[#d9d9d9]/20"} ${
-        mobile ? "h-[380px] px-[30px] pt-[83px]" : "h-[380px] px-[30px] pt-[70px]"
+        mobile
+          ? "h-[380px] px-[30px] pt-[83px]"
+          : "h-[380px] px-[30px] pt-[70px]"
       }`}
     >
       <span
@@ -263,12 +326,20 @@ function FlowBlock({ label, cards, mobile = false }) {
     <div>
       <div
         className={`flex items-center justify-center rounded-[20px] border border-white bg-clyse/20 font-bold text-white ${
-          mobile ? "h-[64px] text-[20px]" : "h-[81px] text-[35px] leading-[43px]"
+          mobile
+            ? "h-[64px] text-[20px]"
+            : "h-[81px] text-[35px] leading-[43px]"
         }`}
       >
         {label}
       </div>
-      <div className={mobile ? "mt-[30px] flex flex-col gap-[30px]" : "mt-[40px] grid grid-cols-3 gap-[30px]"}>
+      <div
+        className={
+          mobile
+            ? "mt-[30px] flex flex-col gap-[30px]"
+            : "mt-[40px] grid grid-cols-3 gap-[30px]"
+        }
+      >
         {cards.map((c, i) => (
           <FlowCard key={c.title} {...c} odd={i % 2 === 0} mobile={mobile} />
         ))}
@@ -280,7 +351,9 @@ function FlowBlock({ label, cards, mobile = false }) {
 function Faq({ items, mobile = false }) {
   const [open, setOpen] = useState(null);
   return (
-    <div className={mobile ? "flex flex-col gap-[8px]" : "flex flex-col gap-[7px]"}>
+    <div
+      className={mobile ? "flex flex-col gap-[8px]" : "flex flex-col gap-[7px]"}
+    >
       {items.map((f, i) => {
         const isOpen = open === i;
         return (
@@ -290,7 +363,9 @@ function Faq({ items, mobile = false }) {
               onClick={() => setOpen(isOpen ? null : i)}
               aria-expanded={isOpen}
               className={`flex w-full items-center bg-[#B1DBB3] text-left font-semibold text-ink ${
-                mobile ? "min-h-[60px] px-[20px] py-[14px] text-[16px]" : "h-[99px] px-[28px] text-[27px]"
+                mobile
+                  ? "min-h-[60px] px-[20px] py-[14px] text-[16px]"
+                  : "h-[99px] px-[28px] text-[27px]"
               } ${i >= 4 && mobile ? "max-xl:text-[14px]" : ""}`}
             >
               <span className="flex-1">{f.q}</span>
@@ -301,7 +376,9 @@ function Faq({ items, mobile = false }) {
             {isOpen && (
               <div
                 className={`border border-t-0 border-clyse bg-white font-semibold text-ink ${
-                  mobile ? "px-[20px] py-[16px] text-[14px] leading-[22px]" : "px-[28px] py-[24px] text-[20px] leading-[30px]"
+                  mobile
+                    ? "px-[20px] py-[16px] text-[14px] leading-[22px]"
+                    : "px-[28px] py-[24px] text-[20px] leading-[30px]"
                 }`}
               >
                 {f.a}
@@ -338,8 +415,8 @@ export default function Landing() {
             price of your subscriptions
           </h1>
           <p className="mx-auto mt-[30px] max-w-[1054px] text-[25px] leading-[35px] font-semibold text-[#6B6B6B]">
-            Clyse helps you share premium subscriptions with friends and family. Create
-            groups, split costs, and get access instantly.
+            Clyse helps you share premium subscriptions with friends and family.
+            Create groups, split costs, and get access instantly.
           </p>
           <div className="mt-[70px] flex justify-center gap-[50px]">
             <Link
@@ -375,8 +452,8 @@ export default function Landing() {
             price of your subscriptions
           </h1>
           <p className="mx-auto mt-[10px] max-w-[390px] text-[14px] leading-[20px] font-semibold text-[#6B6B6B]">
-            Clyse helps you share premium subscriptions with friends and family. Create
-            groups, split costs, and get access instantly.
+            Clyse helps you share premium subscriptions with friends and family.
+            Create groups, split costs, and get access instantly.
           </p>
           <div className="mx-auto mt-[40px] flex max-w-[340px] justify-center gap-[30px]">
             <Link
@@ -398,13 +475,17 @@ export default function Landing() {
       <LogoMarquee />
 
       {/* Desktop How It Works */}
-      <section id="how-it-works" className="mx-auto hidden max-w-[1440px] scroll-mt-[20px] px-[20px] min-[1440px]:px-[100px] xl:block">
+      <section
+        id="how-it-works"
+        className="mx-auto hidden max-w-[1440px] scroll-mt-[20px] px-[20px] min-[1440px]:px-[100px] xl:block"
+      >
         <h2 className="mt-[100px] text-center text-[35px] leading-[43px] font-bold text-ink">
           How It Works
         </h2>
         <p className="mx-auto mt-[10px] max-w-[1040px] text-center text-[25px] leading-[35px] font-semibold text-ink text-justify">
-          Getting access to your favorite subscriptions is simple. Choose a service, join
-          an available group, and pay securely through CLYSE to enjoy your subscription.
+          Getting access to your favorite subscriptions is simple. Choose a
+          service, join an available group, and pay securely through CLYSE to
+          enjoy your subscription.
         </p>
       </section>
 
@@ -417,13 +498,17 @@ export default function Landing() {
       </section>
 
       {/* Mobile How + flows */}
-      <section id="how-it-works-m" className="scroll-mt-[20px] px-[30px] xl:hidden">
+      <section
+        id="how-it-works-m"
+        className="scroll-mt-[20px] px-[30px] xl:hidden"
+      >
         <h2 className="mt-[60px] text-center text-[30px] leading-[37px] font-bold text-ink">
           How It Works
         </h2>
         <p className="mx-auto mt-[10px] max-w-[370px] text-center text-[16px] leading-[22px] font-semibold text-ink text-justify">
-          Getting access to your favorite subscriptions is simple. Choose a service, join
-          an available group, and pay securely through CLYSE to enjoy your subscription.
+          Getting access to your favorite subscriptions is simple. Choose a
+          service, join an available group, and pay securely through CLYSE to
+          enjoy your subscription.
         </p>
       </section>
       <section className="bg-deep relative mt-[60px] xl:hidden">
@@ -434,21 +519,29 @@ export default function Landing() {
       </section>
 
       {/* Desktop Why */}
-      <section id="why-clyse" className="mx-auto hidden max-w-[1440px] scroll-mt-[20px] px-[20px] min-[1440px]:px-[100px] xl:block">
+      <section
+        id="why-clyse"
+        className="mx-auto hidden max-w-[1440px] scroll-mt-[20px] px-[20px] min-[1440px]:px-[100px] xl:block"
+      >
         <h2 className="mt-[100px] text-center text-[35px] leading-[43px] font-bold text-ink">
           Why Choose CLYSE?
         </h2>
         <p className="mx-auto mt-[10px] max-w-[841px] text-center text-[25px] leading-[35px] font-semibold text-ink">
-          Enjoy your favorite subscriptions for less by joining available groups, or share
-          unused subscription slots and earn from them. CLYSE makes subscription sharing
-          easier with secure payments, verified groups, and a simple way to manage your
-          access.
+          Enjoy your favorite subscriptions for less by joining available
+          groups, or share unused subscription slots and earn from them. CLYSE
+          makes subscription sharing easier with secure payments, verified
+          groups, and a simple way to manage your access.
         </p>
         <div className="mt-[100px] overflow-hidden rounded-[40px] border border-[#999999]">
           <div className="grid grid-cols-3 divide-x divide-[#999999]">
             {WHY.slice(0, 3).map((w) => (
-              <div key={w.title} className="flex h-[364px] flex-col items-center px-[40px] pt-[64px]">
-                <span className={`grid h-[79px] w-[80px] place-items-center rounded-[11px] ${w.bg} opacity-80`}>
+              <div
+                key={w.title}
+                className="flex h-[364px] flex-col items-center px-[40px] pt-[64px]"
+              >
+                <span
+                  className={`grid h-[79px] w-[80px] place-items-center rounded-[11px] ${w.bg} opacity-80`}
+                >
                   {w.glyph}
                 </span>
                 <h3 className="mt-[32px] text-center text-[35px] leading-[43px] font-bold text-ink">
@@ -462,8 +555,13 @@ export default function Landing() {
           </div>
           <div className="grid grid-cols-3 divide-x divide-[#999999] border-t border-[#999999]">
             {WHY.slice(3).map((w) => (
-              <div key={w.title} className="flex h-[364px] flex-col items-center px-[40px] pt-[64px]">
-                <span className={`grid h-[79px] w-[80px] place-items-center rounded-[11px] ${w.bg} opacity-80`}>
+              <div
+                key={w.title}
+                className="flex h-[364px] flex-col items-center px-[40px] pt-[64px]"
+              >
+                <span
+                  className={`grid h-[79px] w-[80px] place-items-center rounded-[11px] ${w.bg} opacity-80`}
+                >
                   {w.glyph}
                 </span>
                 <h3 className="mt-[32px] text-center text-[35px] leading-[43px] font-bold text-ink">
@@ -479,20 +577,28 @@ export default function Landing() {
       </section>
 
       {/* Mobile Why */}
-      <section id="why-clyse-m" className="scroll-mt-[20px] px-[30px] xl:hidden">
+      <section
+        id="why-clyse-m"
+        className="scroll-mt-[20px] px-[30px] xl:hidden"
+      >
         <h2 className="mt-[60px] text-center text-[20px] leading-[24px] font-bold text-ink">
           Why Choose CLYSE?
         </h2>
         <p className="mx-auto mt-[10px] max-w-[370px] text-center text-[16px] leading-[22px] font-semibold text-ink">
-          Enjoy your favorite subscriptions for less by joining available groups, or share
-          unused subscription slots and earn from them. CLYSE makes subscription sharing
-          easier with secure payments, verified groups, and a simple way to manage your
-          access.
+          Enjoy your favorite subscriptions for less by joining available
+          groups, or share unused subscription slots and earn from them. CLYSE
+          makes subscription sharing easier with secure payments, verified
+          groups, and a simple way to manage your access.
         </p>
         <div className="mt-[40px] overflow-hidden rounded-[24px] border border-[#999999] divide-y divide-[#999999]">
           {WHY.map((w) => (
-            <div key={w.title} className="flex h-[364px] flex-col items-center px-[40px] pt-[81px]">
-              <span className={`grid h-[79px] w-[80px] place-items-center rounded-[11px] opacity-80 ${w.bg}`}>
+            <div
+              key={w.title}
+              className="flex h-[364px] flex-col items-center px-[40px] pt-[81px]"
+            >
+              <span
+                className={`grid h-[79px] w-[80px] place-items-center rounded-[11px] opacity-80 ${w.bg}`}
+              >
                 {w.glyph}
               </span>
               <h3 className="mt-[20px] text-center text-[20px] leading-[24px] font-bold text-ink">
@@ -526,7 +632,22 @@ export default function Landing() {
         </div>
       </section>
 
-      <Footer mt="mt-[100px]" />
+      {/* Disclaimer band — Figma LANDING PAGE 5:2 (dx100, 1240 wide, 25/140 #999999). */}
+      <p className="mt-[100px] hidden px-[100px] text-[25px] leading-[35px] font-semibold text-[#999999] xl:block">
+        Disclaimer: Clyse is a cost-sharing platform and intermediary only. We
+        are not affiliated with third-party services (Netflix, Disney+, Spotify,
+        etc.). Each user is responsible for verifying and complying with each
+        service&apos;s terms of use. Mentioned brands belong to their respective
+        owners.
+      </p>
+      <p className="mt-[60px] px-[30px] text-[13px] leading-[20px] font-semibold text-[#999999] xl:hidden">
+        Disclaimer: Clyse is a cost-sharing platform and intermediary only. We
+        are not affiliated with third-party services (Netflix, Disney+, Spotify,
+        etc.). Each user is responsible for verifying and complying with each
+        service&apos;s terms of use. Mentioned brands belong to their respective
+        owners.
+      </p>
+      <Footer mt="mt-[40px]" />
       <MobileFooter />
     </div>
   );

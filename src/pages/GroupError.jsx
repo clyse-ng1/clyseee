@@ -56,15 +56,9 @@ export default function GroupError() {
         </div>
       </main>
       {/* Mobile (W4 698:24172) */}
-      <main className="relative xl:hidden">
-        <BlurBg variant="page" />
-        <div className="relative px-[30px] pt-[46px]">
+      <main className="relative bg-white xl:hidden">
+        <div className="relative bg-white px-[30px] pt-[46px] pb-[40px]">
           <MemberMini />
-          <div className="mt-[19px] flex h-[33px] items-center justify-center rounded-[5px] border border-line bg-white">
-            <svg width="22" height="10" viewBox="0 0 22 10" aria-hidden>
-              <path d="M0 0h22L11 10z" fill="#9E9E9E" />
-            </svg>
-          </div>
           <h1 className="mt-[51px] text-[30px] leading-[37px] font-bold text-black">
             My Group
           </h1>
@@ -80,7 +74,7 @@ export default function GroupError() {
             Something went wrong
           </h2>
           <p className="mx-auto mt-[8px] max-w-[332px] text-center text-[13px] leading-[20px] font-semibold text-[#66726C]">
-            {M_MSG}
+            {MSG}
           </p>
           <div className="mt-[8px] flex justify-center">
             <TryButton />

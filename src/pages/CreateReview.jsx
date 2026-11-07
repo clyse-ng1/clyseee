@@ -34,17 +34,17 @@ export default function CreateReview() {
   const [error, setError] = useState("");
 
   const fromWaitlist = incoming?.fromWaitlist?.plan_id || null;
-  const plan = !incoming?.custom ? pickPlan(matchService(services, incoming?.brand)) : null;
-  const planId =
-    fromWaitlist ||
-    incoming?.planId ||
-    plan?.id ||
-    null;
-  const unit = incoming?.unit ?? plan?.unit_price_kobo ?? plan?.total_price_kobo ?? null;
+  const plan = !incoming?.custom
+    ? pickPlan(matchService(services, incoming?.brand))
+    : null;
+  const planId = fromWaitlist || incoming?.planId || plan?.id || null;
+  const unit =
+    incoming?.unit ?? plan?.unit_price_kobo ?? plan?.total_price_kobo ?? null;
   const slots = incoming?.slots ?? 3;
   const vis = incoming?.visibility || "public";
   const title = incoming?.custom?.name || incoming?.title || "Netflix Premium";
-  const unitLabel = unit == null ? "—" : Math.round(unit / 100).toLocaleString("en-US");
+  const unitLabel =
+    unit == null ? "—" : Math.round(unit / 100).toLocaleString("en-US");
 
   const rows = incoming
     ? [
@@ -63,11 +63,15 @@ export default function CreateReview() {
     : PROOFS;
 
   const blocked = incoming && !planId;
-  const blockMsg = !incoming
+  /* Only warn when there really is no plan to create from. This used to fire
+     for every visit once the catalogue had loaded, because the old chain never
+     checked planId — so a perfectly valid plan still showed "isn't available
+     yet" under the Review screen. */
+  const blockMsg = !blocked
     ? ""
     : services === null
       ? "Loading catalogue…"
-      : incoming.custom
+      : incoming?.custom
         ? "Custom subscriptions need an approved catalogue plan. Go back and pick a subscription instead."
         : "This subscription isn't available yet. Go back and pick another.";
 
@@ -82,22 +86,25 @@ export default function CreateReview() {
     const { data, error: apiError } = await api(
       fromWaitlist ? "/member/groups/from-waitlist" : "/member/groups",
       {
-      method: "POST",
-      body: {
-        plan_id: planId,
-        slots_offered: slots,
-        visibility: vis,
-        start_date: startDate,
-        access_method: "credentials",
+        method: "POST",
+        body: {
+          plan_id: planId,
+          slots_offered: slots,
+          visibility: vis,
+          start_date: startDate,
+          access_method: "credentials",
+        },
       },
-    });
+    );
     if (apiError) {
       setBusy(false);
       if (apiError.code === "group_already_exists") {
         navigate("/groups");
         return;
       }
-      navigate("/create-group/failed", { state: { message: apiError.message } });
+      navigate("/create-group/failed", {
+        state: { message: apiError.message },
+      });
       return;
     }
     // The group is live now. Upload verification evidence (raw file bytes;
@@ -107,15 +114,22 @@ export default function CreateReview() {
     const groupId = data?.group?.id;
     let verifyNote = "";
     if (groupId) {
-      const files = [incoming?.proofs?.invoice, incoming?.proofs?.receipt].filter(
-        (f) => f instanceof File,
-      );
+      const files = [
+        incoming?.proofs?.invoice,
+        incoming?.proofs?.receipt,
+      ].filter((f) => f instanceof File);
       for (const f of files) {
         const up = await api(
           `/member/verification/evidence?group_id=${groupId}`,
-          { method: "POST", raw: true, contentType: f.type || "application/octet-stream", body: f },
+          {
+            method: "POST",
+            raw: true,
+            contentType: f.type || "application/octet-stream",
+            body: f,
+          },
         );
-        if (up.error) verifyNote = up.error.message || "Evidence upload failed.";
+        if (up.error)
+          verifyNote = up.error.message || "Evidence upload failed.";
       }
       const sub = await api("/member/verification", {
         method: "POST",
@@ -143,14 +157,22 @@ export default function CreateReview() {
           {error || blockMsg}
         </p>
       )}
-      <button
-        type="button"
-        onClick={create}
-        disabled={busy || !!blocked}
-        className={`mx-auto grid h-[60px] w-[470px] place-items-center rounded-2xl bg-btn text-[18px] font-semibold text-mint ${(busy || blocked) && !error ? "opacity-50" : ""} ${(error || blockMsg) ? "mt-[20px]" : "mt-[80px]"}`}
-      >
-        {busy ? "Creating…" : "Create Group"}
-      </button>
+      <div className="mx-auto mt-[80px] flex w-[990px] items-center justify-center gap-[50px]">
+        <Link
+          to="/create-group/verify"
+          className="grid h-[60px] w-[470px] place-items-center rounded-2xl border border-clyse text-[18px] font-semibold text-ink"
+        >
+          Go Back
+        </Link>
+        <button
+          type="button"
+          onClick={create}
+          disabled={busy || !!blocked}
+          className={`grid h-[60px] w-[470px] place-items-center rounded-2xl bg-btn text-[18px] font-semibold text-mint ${(busy || blocked) && !error ? "opacity-50" : ""}`}
+        >
+          {busy ? "Creating…" : "Create Group"}
+        </button>
+      </div>
     </>
   );
 
@@ -168,14 +190,22 @@ export default function CreateReview() {
           {error || blockMsg}
         </p>
       )}
-      <button
-        type="button"
-        onClick={create}
-        disabled={busy || !!blocked}
-        className={`mx-[30px] grid h-[50px] w-[370px] place-items-center rounded-[11.1px] bg-btn text-[12.48px] font-semibold text-mint ${(busy || blocked) && !error ? "opacity-50" : ""} ${(error || blockMsg) ? "mt-[16px]" : "mt-[51px]"}`}
-      >
-        {busy ? "Creating…" : "Create Group"}
-      </button>
+      <div className="mx-[30px] mt-[51px] flex items-center gap-[14px]">
+        <Link
+          to="/create-group/verify"
+          className="grid h-[50px] flex-1 place-items-center rounded-[11.1px] border border-clyse text-[12.48px] font-semibold text-ink"
+        >
+          Go Back
+        </Link>
+        <button
+          type="button"
+          onClick={create}
+          disabled={busy || !!blocked}
+          className={`grid h-[50px] flex-1 place-items-center rounded-[11.1px] bg-btn text-[12.48px] font-semibold text-mint ${(busy || blocked) && !error ? "opacity-50" : ""}`}
+        >
+          {busy ? "Creating…" : "Create Group"}
+        </button>
+      </div>
     </>
   );
 
@@ -185,7 +215,7 @@ export default function CreateReview() {
       <BlurBg variant="hero" />
       {/* Desktop */}
       <main className="relative z-10 mx-[163px] mt-[100px] hidden xl:block">
-        <StepHeader step={4} />
+        <StepHeader step={5} />
         <h2 className="mt-[50px] text-center text-[35px] leading-[43px] font-bold">
           Review Group
         </h2>
@@ -202,12 +232,12 @@ export default function CreateReview() {
             <span className="block text-[35px] leading-[43px] font-semibold">
               {title}
             </span>
-            <span className="mt-[5px] flex items-baseline gap-[27px]">
+            <span className="mt-[5px] flex items-baseline">
               <span className="text-[18px] leading-[22px] font-semibold">
-                From &#8358;{unitLabel}/
+                From &#8358;{unitLabel}
               </span>
               <span className="text-[13px] leading-[16px] font-semibold text-ash">
-                Monthly
+                /Monthly
               </span>
             </span>
           </span>
@@ -226,7 +256,9 @@ export default function CreateReview() {
           {proofs.map((p) => (
             <div key={p} className="flex items-center gap-[11px]">
               <img src={iconProofCheck} alt="" className="h-[25px] w-[25px]" />
-              <span className="text-[25px] leading-[35px] font-semibold">{p}</span>
+              <span className="text-[25px] leading-[35px] font-semibold">
+                {p}
+              </span>
             </div>
           ))}
         </div>
@@ -236,7 +268,7 @@ export default function CreateReview() {
 
       {/* Mobile */}
       <main className="relative z-10 xl:hidden">
-        <StepHeader step={4} />
+        <StepHeader step={5} />
         <h2 className="mt-[35px] text-center text-[22px] leading-[27px] font-bold">
           Review Group
         </h2>
@@ -251,12 +283,12 @@ export default function CreateReview() {
             <span className="block text-[22px] leading-[27px] font-semibold">
               {title}
             </span>
-            <span className="mt-[3px] flex items-baseline gap-[18px]">
+            <span className="mt-[3px] flex items-baseline">
               <span className="text-[12.48px] leading-[15px] font-semibold">
-                From &#8358;{unitLabel}/
+                From &#8358;{unitLabel}
               </span>
               <span className="text-[9.02px] leading-[11px] font-semibold text-ash">
-                Monthly
+                /Monthly
               </span>
             </span>
           </span>
@@ -272,8 +304,14 @@ export default function CreateReview() {
         <div className="ml-[53px] mt-[19px] space-y-[22px]">
           {proofs.map((p) => (
             <div key={p} className="flex items-center gap-[8px]">
-              <img src={iconProofCheckSm} alt="" className="h-[17px] w-[17px]" />
-              <span className="text-[17.34px] leading-[24px] font-semibold">{p}</span>
+              <img
+                src={iconProofCheckSm}
+                alt=""
+                className="h-[17px] w-[17px]"
+              />
+              <span className="text-[17.34px] leading-[24px] font-semibold">
+                {p}
+              </span>
             </div>
           ))}
         </div>

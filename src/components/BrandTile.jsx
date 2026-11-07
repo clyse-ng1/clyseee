@@ -1,62 +1,75 @@
-import iconMoviesRed from "../assets/icon-movies-red.svg";
-import iconMoviesWhite from "../assets/icon-movies-white.svg";
-import iconMusicTile from "../assets/icon-music-tile.svg";
-import iconStreaming from "../assets/icon-streaming.svg";
-import iconProdWhite from "../assets/icon-productivity-white.svg";
-import iconProdBlack from "../assets/icon-productivity-black.svg";
-import iconProdRed from "../assets/icon-productivity-red.svg";
-import iconApple from "../assets/icon-apple.png";
+import iconMovie from "../assets/figma/icon-movie.svg";
+import iconMusic from "../assets/figma/icon-music.svg";
+import iconProductivity from "../assets/figma/icon-productivity.svg";
+import iconSecurity from "../assets/figma/icon-security.svg";
+import iconDelivery from "../assets/figma/icon-delivery.svg";
+import iconCloud from "../assets/figma/icon-cloud.svg";
 
-/* Brand logo tile — the glyphs are the supplied design assets. The `plain`
-   variant places them directly on the colored disc, as in the Figma cards. */
+/* Brand discs — colours and glyphs taken straight from the Figma file
+   (BROWSE SUBSCRIPTION PAGE 804:16031). Every card there is one of two
+   glyphs, Music or Movie or Productivity, on the brand's own disc colour;
+   glyph occupies two thirds of the disc. Nothing here is hand-drawn. */
 const BRANDS = {
-  netflix: { tile: "#000000", glyph: iconMoviesRed, gw: 28 },
-  spotify: { tile: "#46C04C", glyph: iconMusicTile, gw: 28 },
-  youtube: { tile: "#FF0000", glyph: iconMoviesWhite, gw: 28 },
-  prime: { tile: "#000C1C", glyph: iconStreaming, gw: 33 },
+  netflix: { tile: "#000000", glyph: iconMovie },
+  spotify: { tile: "#46C14C", glyph: iconMusic },
+  youtube: { tile: "#FF0000", glyph: iconMovie },
+  prime: { tile: "#000C1D", glyph: iconMovie },
   canva: {
-    tile: "linear-gradient(156deg, #408EF9 0%, #4E0082 79%)",
-    glyph: iconProdWhite,
-    gw: 29,
+    tile: "linear-gradient(156deg, #408EFA 0%, #4E0083 79%)",
+    glyph: iconProductivity,
   },
-  capcut: { tile: "#E6E6E6", glyph: iconProdBlack, gw: 29 },
-  adobe: { tile: "#000000", glyph: iconProdRed, gw: 29 },
-  apple: { tile: "#000000", glyph: iconApple, gw: 30 },
+  capcut: { tile: "#E6E6E6", glyph: iconProductivity, ink: true },
+  adobe: { tile: "#000000", glyph: iconProductivity },
+  apple: { tile: "#000000", glyph: iconMusic },
   amazon: {
-    tile: "conic-gradient(from 72deg at 58% 56%, #DE00EA 27%, #1884FF 51%, #F50004 70%, #DCEB00 84%)",
-    glyph: iconProdWhite,
-    gw: 29,
+    tile: "conic-gradient(from 72deg at 58% 56%, #DE00EA 27%, #1984FF 51%, #F60004 70%, #DCEC00 84%)",
+    glyph: iconProductivity,
   },
 };
 
-const CARD_GW = {
-  netflix: 50,
-  spotify: 42,
-  youtube: 50,
-  prime: 50,
-  canva: 44,
-  capcut: 44,
-  adobe: 44,
-  amazon: 44,
-  apple: 44,
-};
+/* Category -> glyph, for services Figma has no brand card for. Uses the same
+   seven-glyph family, so an unknown service still belongs to the set instead
+   of falling back to a letter. */
+const CATEGORY_GLYPH = [
+  [/music|audio/, iconMusic],
+  [/movie|stream|entertain|video|tv/, iconMovie],
+  [/security|vpn|antivirus/, iconSecurity],
+  [/delivery|logistics|shipping/, iconDelivery],
+  [/cloud|storage/, iconCloud],
+];
+function glyphForCategory(category) {
+  const c = (category || "").toLowerCase();
+  for (const [re, g] of CATEGORY_GLYPH) if (re.test(c)) return g;
+  return iconProductivity;
+}
 
+/* Glyph width as a fraction of the disc: Figma places a 50px glyph on a
+   75px disc in every card. */
+const GLYPH = 2 / 3;
 
-export default function BrandTile({ brand, size = 50, mobile = false, plain = false, name = "" }) {
+export default function BrandTile({
+  brand,
+  size = 50,
+  mobile = false,
+  plain = false,
+  name = "",
+  category = "",
+}) {
   const b = BRANDS[brand];
   const s = mobile ? 32 : size;
 
-  /* No artwork for this service: a letter tile. The old generic fallback drew
-     one brand's glyph on every unknown service (DStv, Microsoft 365 and CapCut
-     all showed the same mark), which read as a broken logo. */
+  /* No brand card exists in Figma for this service (verified: DStv, Microsoft
+     365 and Apple Music appear nowhere in the file). Figma's own card disc is
+     black #000000, so an unbranded service keeps that disc plus the matching
+     glyph from Figma's three-glyph family — nothing invented. */
   if (!b) {
-    const letter = (name || "?").trim().charAt(0).toUpperCase();
     return (
       <span
-        className="grid flex-none place-items-center rounded-full bg-[#001701] font-bold text-[#DFFFE1]"
-        style={{ width: s, height: s, fontSize: s * 0.42 }}
+        className="grid flex-none place-items-center rounded-full bg-[#000000]"
+        style={{ width: s, height: s }}
+        title={name || undefined}
       >
-        {letter}
+        <img src={glyphForCategory(category)} alt="" style={{ width: s * GLYPH }} />
       </span>
     );
   }
@@ -66,7 +79,11 @@ export default function BrandTile({ brand, size = 50, mobile = false, plain = fa
         className="grid flex-none place-items-center rounded-full"
         style={{ width: s, height: s, background: b.tile }}
       >
-        <img src={b.glyph} alt="" style={{ width: (b.gw * s) / 50 }} />
+        <img
+          src={b.glyph}
+          alt=""
+          style={{ width: s * GLYPH, filter: b.ink ? "invert(1)" : undefined }}
+        />
       </span>
     );
   }
@@ -78,7 +95,11 @@ export default function BrandTile({ brand, size = 50, mobile = false, plain = fa
       className="grid flex-none place-items-center rounded-full"
       style={{ width: s, height: s, background: b.tile }}
     >
-      <img src={b.glyph} alt="" style={{ width: (b.gw * s) / 50 }} />
+      <img
+        src={b.glyph}
+        alt=""
+        style={{ width: s * GLYPH, filter: b.ink ? "invert(1)" : undefined }}
+      />
     </span>
   );
 }

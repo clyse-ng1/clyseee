@@ -2,7 +2,7 @@ import { useNavigate } from "react-router-dom";
 import iconUserHead from "../assets/icon-user-head.svg";
 
 /* Group-creation step header — desktop: 50px #B1DBB3 icon + 35/700 title +
-   25/600 step + 1114x15 progress (fill = step/4). Mobile step 1 uses the
+   25/600 step + 1114x15 progress (fill = step/5). Mobile step 1 uses the
    0.6476 scale family (32px icon, 22.67/16.19), steps 2-4 use 0.6935
    (35px icon, 24.27/17.34); progress 370x10. */
 const MOBILE = {
@@ -10,6 +10,7 @@ const MOBILE = {
   2: { icon: 35, iconX: 44, textX: 92, title: 24.27, titleLh: 29.59, step: 17.34, stepLh: 24.27, glyph: 18, mt: 71, pmt: 57 },
   3: { icon: 35, iconX: 30, textX: 79, title: 24.27, titleLh: 29.59, step: 17.34, stepLh: 24.27, glyph: 18, mt: 100, pmt: 52 },
   4: { icon: 35, iconX: 30, textX: 79, title: 24.27, titleLh: 29.59, step: 17.34, stepLh: 24.27, glyph: 18, mt: 100, pmt: 57 },
+  5: { icon: 35, iconX: 30, textX: 79, title: 24.27, titleLh: 29.59, step: 17.34, stepLh: 24.27, glyph: 18, mt: 100, pmt: 57 },
 };
 
 /* Steps 2-4 get a Back control. Step 1 does not: it is the first screen of the
@@ -19,7 +20,7 @@ const MOBILE = {
    let people walk past a step's validation (details, or the proof uploads).
    The block uses a negative top margin equal to its own height, so adding it
    does not move the step header or anything below it. */
-const PREV = { 2: "/create-group", 3: "/create-group/details", 4: "/create-group/verify" };
+const PREV = { 2: "/create-group", 3: "/create-group/plan", 4: "/create-group/details", 5: "/create-group/verify" };
 
 function Chevron() {
   return (
@@ -95,14 +96,14 @@ export default function StepHeader({ step }) {
               Create Group
             </span>
             <span className="block text-[25px] leading-[35px] font-semibold text-ash">
-              Step {step}/4
+              Step {step}/5
             </span>
           </span>
         </div>
         <div className="mt-[50px] h-[15px] w-[1114px] rounded-full bg-[#B1DBB3]">
           <div
             className="h-[15px] rounded-full bg-clyse"
-            style={{ width: (1114 * step) / 4 }}
+            style={{ width: (1114 * step) / 5 }}
           />
         </div>
       </div>
@@ -132,7 +133,7 @@ export default function StepHeader({ step }) {
               className="block font-semibold text-ash"
               style={{ fontSize: m.step, lineHeight: `${m.stepLh}px` }}
             >
-              Step {step}/4
+              Step {step}/5
             </span>
           </span>
         </div>
@@ -142,7 +143,7 @@ export default function StepHeader({ step }) {
         >
           <div
             className="h-[10px] rounded-full bg-clyse"
-            style={{ width: (370 * step) / 4 }}
+            style={{ width: `${Math.min(100, (step / 5) * 100)}%` }}
           />
         </div>
       </div>

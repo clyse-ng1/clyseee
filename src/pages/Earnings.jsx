@@ -419,9 +419,8 @@ export default function Earnings() {
         </div>
       </main>
       {/* Mobile (M17 768:24019): 20px title, stacked full-bleed cards */}
-      <main className="relative xl:hidden">
-        <BlurBg variant="page" />
-        <div className="relative px-[30px] pt-[46px]">
+      <main className="relative bg-white xl:hidden">
+        <div className="relative bg-white px-[30px] pt-[46px] pb-[40px]">
           <h1 className="text-[20px] leading-[24px] font-bold text-black">
             Earnings
           </h1>

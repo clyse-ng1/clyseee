@@ -36,13 +36,21 @@ function Stat({ label, value, sub, mint, valueCls, subCls }) {
   );
 }
 
-function StepRow({ n, text, small }) {
+/* Figma (JOINT WAITLIST MOBILE PAGE 3) marks these with a green tick, not a
+   numbered disc — the numbering was ours. */
+function StepRow({ text, small }) {
   return (
     <div className="flex items-center">
       <span className="grid h-[24px] w-[24px] flex-none place-items-center rounded-[12px] bg-clyse">
-        <span className="text-[15px] leading-[18px] font-semibold text-white">
-          {n}
-        </span>
+        <svg width="13" height="10" viewBox="0 0 13 10" fill="none" aria-hidden>
+          <path
+            d="M1 5.2 4.6 8.8 12 1.4"
+            stroke="#FFFFFF"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+        </svg>
       </span>
       <span
         className={`ml-[20px] font-semibold text-[#6B6B6B] ${
@@ -150,7 +158,7 @@ export default function JoinDetails() {
                   </p>
                 </div>
               </div>
-              <p className="mt-[33px] flex items-baseline">
+              <p className="mt-[33px] flex items-baseline justify-center">
                 <span className="text-[35px] leading-[43px] font-bold text-ink">
                   {price}
                 </span>
@@ -183,7 +191,7 @@ export default function JoinDetails() {
                 </h2>
                 <div className="mt-[20px] flex flex-col gap-[13px]">
                   {STEPS.map((s, i) => (
-                    <StepRow key={i} n={i + 1} text={s} />
+                    <StepRow key={i} text={s} />
                   ))}
                 </div>
               </div>
@@ -210,9 +218,8 @@ export default function JoinDetails() {
         <div className="pb-[60px]" />
       </div>
       {/* Mobile */}
-      <main className="relative xl:hidden">
-        <BlurBg variant="page" />
-        <div className="relative px-[30px] pt-[46px]">
+      <main className="relative bg-white xl:hidden">
+        <div className="relative bg-white px-[30px] pt-[46px] pb-[40px]">
           <MemberMini />
         </div>
         <div className="relative mt-[103px] border-y border-[#BABABA] bg-white">
@@ -268,7 +275,7 @@ export default function JoinDetails() {
                 </h2>
                 <div className="mt-[20px] flex flex-col gap-[13px]">
                   {STEPS.map((s, i) => (
-                    <StepRow key={i} n={i + 1} text={s} small />
+                    <StepRow key={i} text={s} small />
                   ))}
                 </div>
               </div>

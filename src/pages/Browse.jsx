@@ -136,17 +136,21 @@ export default function Browse() {
   const loadingBrands = services === null;
   const loadingGroups = availGroups === null;
 
+  /* Picking a service must not remove the other services from the grid — it
+     narrows the available-groups list below instead. Only the typed search and
+     the category chips filter the cards. */
   const brands = useMemo(() => {
     const needle = q.trim().toLowerCase();
     return (liveBrands || []).filter(
       (b) =>
-        (cat === "All" || b.cat === cat) &&
+        (cat === "All" ||
+          (b.cat || "").trim().toLowerCase() === cat.trim().toLowerCase()) &&
         (!needle || b.name.toLowerCase().includes(needle)),
     );
   }, [q, cat, liveBrands]);
 
   const groups = useMemo(() => {
-    const needle = q.trim().toLowerCase();
+    const needle = (picked || q).trim().toLowerCase();
     const all = (availGroups || []).map(mapGroup);
     if (!needle) return all;
     return all.filter(
@@ -154,7 +158,7 @@ export default function Browse() {
         g.name.toLowerCase().includes(needle) ||
         g.service.toLowerCase().includes(needle),
     );
-  }, [q, availGroups]);
+  }, [q, picked, availGroups]);
 
   const noResult = !loadingBrands && brands.length === 0;
   const brandList = showAllBrands ? brands : brands.slice(0, 6);
@@ -246,14 +250,16 @@ export default function Browse() {
                     <button
                       key={b.brand}
                       type="button"
-                      onClick={() => setQ(b.name)}
-                      className="flex min-h-[179px] flex-col items-center rounded-[16px] border border-[#E5E5E5] bg-white px-[16px] py-[20px] transition hover:border-clyse hover:shadow-[0_0_12px_rgba(4,139,11,0.15)]"
+                      onClick={() => setPicked(picked === b.name ? null : b.name)}
+                      className={`flex min-h-[179px] flex-col items-center rounded-[16px] border border-clyse bg-white px-[16px] py-[20px] transition hover:shadow-[0_0_12px_rgba(4,139,11,0.15)] ${
+                        picked === b.name ? "shadow-[0_0_12px_rgba(4,139,11,0.15)]" : ""
+                      }`}
                     >
-                      <BrandTile brand={b.brand} name={b.name} size={64} plain />
+                      <BrandTile brand={b.brand} name={b.name} size={75} plain />
                       <span className="mt-[12px] line-clamp-2 min-h-[44px] text-[18px] leading-[22px] font-bold text-ink">
                         {b.name}
                       </span>
-                      <span className="mt-[10px] rounded-full bg-clyse px-[14px] py-[4px] text-[12px] font-semibold text-white">
+                      <span className="mt-[10px] inline-flex h-[19px] w-[96px] items-center justify-center rounded-[3.58px] bg-[#B1DBB3] text-[10px] leading-[15px] font-semibold text-clyse">
                         {b.chip || b.cat || "Entertainment"}
                       </span>
                     </button>
@@ -298,17 +304,16 @@ export default function Browse() {
         </div>
       </main>
       {/* Mobile */}
-      <main className="relative xl:hidden">
-        <BlurBg variant="page" />
-        <div className="relative bg-white px-[30px] py-[12px]">
-          <div className="flex h-[32px] items-center gap-[12px]">
-            <img src={iconSearch} alt="" className="h-[24px] w-[24px]" />
+      <main className="relative bg-white xl:hidden">
+        <div className="relative bg-white px-[30px] pt-[30px] pb-[10px]">
+          <div className="flex h-[56px] items-center gap-[16px] rounded-[10.4px] border-[1.4px] border-[#58A35B] bg-white px-[22px] shadow-[1.39px_1.39px_4.85px_rgba(0,23,1,0.25)]">
+            <img src={iconSearch} alt="" className="h-[24px] w-[24px] flex-none" />
             <input
               value={q}
               onChange={(e) => setQ(e.target.value)}
               placeholder="Browse Subscription"
               aria-label="Browse Subscription"
-              className="w-full bg-transparent text-[17px] font-semibold text-ink outline-none placeholder:text-[#999999]"
+              className="w-full bg-transparent text-[17.34px] leading-[24.27px] font-semibold text-ink outline-none placeholder:text-muted"
             />
           </div>
         </div>
@@ -317,31 +322,6 @@ export default function Browse() {
             Categories
           </p>
           <div className="mt-[10px]">{chips(true)}</div>
-          <div className="relative z-20 mt-[20px] rounded-[16px] bg-white p-[11px] shadow-[0_0_20px_rgba(0,23,1,0.10)]">
-            <div
-              className={`bg-btn flex items-center rounded-[10px] px-[20px] font-semibold text-white ${
-                picked ? "min-h-[50px] py-[8px] text-[20px] leading-[24px]" : "h-[50px] text-[25px]"
-              }`}
-            >
-              {picked ? `${picked} Group` : "All Groups"}
-            </div>
-            <DropSelect
-              value={picked || ""}
-              options={["All", ...(liveBrands || []).map((b) => b.name)]}
-              onChange={(o) => {
-                if (o === "All") {
-                  setPicked(null);
-                  setQ("");
-                } else {
-                  setPicked(o);
-                  setQ(o);
-                }
-              }}
-              ariaLabel="Pick a subscription"
-              buttonClass="mt-[20px] flex h-[33px] w-full items-center justify-center rounded-[5px] border border-line bg-white px-[12px]"
-              labelClass="truncate text-[15px] font-semibold text-ink"
-            />
-          </div>
           {noResult ? (
             <div className="mt-[30px] rounded-[20px] bg-white px-[20px] py-[30px] text-center shadow-[0_0_20px_rgba(0,23,1,0.10)]">
               <img src={iconDocSearch} alt="" className="mx-auto h-[60px] w-[60px]" />
@@ -375,14 +355,14 @@ export default function Browse() {
                 <button
                   key={b.brand}
                   type="button"
-                  onClick={() => setQ(b.name)}
-                  className="flex min-h-[130px] flex-col items-center rounded-[16px] border border-[#E5E5E5] bg-white px-[10px] py-[16px]"
+                  onClick={() => setPicked(picked === b.name ? null : b.name)}
+                  className="flex min-h-[130px] flex-col items-center rounded-[16px] border border-clyse bg-white px-[10px] py-[16px]"
                 >
-                  <BrandTile brand={b.brand} name={b.name} size={48} plain />
+                  <BrandTile brand={b.brand} name={b.name} size={50} plain />
                   <span className="mt-[8px] line-clamp-2 min-h-[36px] text-[13px] leading-[18px] font-bold text-ink">
                     {b.name}
                   </span>
-                  <span className="mt-[6px] rounded-full bg-clyse px-[10px] py-[2px] text-[10px] font-semibold text-white">
+                  <span className="mt-[6px] inline-flex h-[15px] w-[76px] items-center justify-center rounded-[2.86px] bg-[#B1DBB3] text-[8.93px] leading-[12px] font-semibold text-clyse">
                     {b.chip || b.cat || "Entertainment"}
                   </span>
                   <span className="mt-[6px] text-[11.5px] leading-[14px] font-semibold text-ink">

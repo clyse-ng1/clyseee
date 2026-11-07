@@ -69,7 +69,7 @@ export default function WithdrawAmount() {
           </button>
           <div className="mt-[28px] flex h-[139px] w-[1240px] items-center rounded-[20px] bg-white px-[63px] shadow-[0_0_20px_rgba(0,23,1,0.10)]">
             <span className="grid h-[60px] w-[60px] flex-none place-items-center rounded-[5px] bg-[#F2F1FF]">
-              <img src={iconWallet} alt="" className="h-[30px] w-[30px]" />
+              <img src={iconWallet} alt="" className="h-[25px] w-[25px]" />
             </span>
             <span className="ml-[20px]">
               <span className="block text-[35px] leading-[43px] font-bold text-ink">
@@ -147,43 +147,23 @@ export default function WithdrawAmount() {
           </form>
         </div>
       </main>
-      {/* Mobile — no mobile design in Figma; stacked fallback */}
-      <main className="relative px-[30px] pb-[60px] xl:hidden">
-        <BlurBg variant="page" />
-        <div className="relative pt-[46px]">
-          <button
-            type="button"
-            onClick={() => navigate(-1)}
-            aria-label="Go back"
-            className="grid h-[45px] w-[45px] place-items-center rounded-full bg-mint shadow-[0_0_10px_rgba(0,23,1,0.12)]"
-          >
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
-              <path
-                d="M15 5l-7 7 7 7"
-                stroke="#048B0B"
-                strokeWidth="2.4"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-            </svg>
-          </button>
-          <div className="mt-[24px] flex items-center rounded-[20px] bg-white px-[24px] py-[24px] shadow-[0_0_20px_rgba(0,23,1,0.10)]">
-            <span className="grid h-[50px] w-[50px] flex-none place-items-center rounded-[5px] bg-[#F2F1FF]">
-              <img src={iconWallet} alt="" className="h-[25px] w-[25px]" />
+      {/* Mobile — JOINT WAITLIST MOBILE PAGE 20 / GROUP CREATION PAGE 7 (782:28346 / 777:27694) */}
+      <main className="relative bg-white pb-[60px] xl:hidden">
+        <div className="flex items-center gap-[20px] bg-white px-[30px] py-[34px]">
+          <span className="grid h-[50px] w-[50px] flex-none place-items-center rounded-[5px] bg-[#F2F1FF]">
+            <img src={iconWallet} alt="" className="h-[25px] w-[25px]" />
+          </span>
+          <span>
+            <span className="block text-[28px] leading-[34px] font-bold whitespace-nowrap text-ink">
+              Withdrawn Earning
             </span>
-            <span className="ml-[16px]">
-              <span className="block text-[30px] leading-[37px] font-bold text-ink">
-                Withdrawn Earning
-              </span>
-              <span className="block text-[20px] leading-[24px] font-semibold text-[#4E4E4E]">
-                Step 1/3
-              </span>
+            <span className="block text-[14px] leading-[20px] font-medium text-[#4E4E4E]">
+              Step 1/3
             </span>
-          </div>
-          <form
-            onSubmit={cont}
-            className="mt-[20px] rounded-[20px] bg-white px-[24px] py-[30px] shadow-[0_0_20px_rgba(0,23,1,0.10)]"
-          >
+          </span>
+        </div>
+        <div className="px-[30px]">
+          <form onSubmit={cont}>
             <div className="h-[12px] w-full overflow-hidden rounded-full bg-[#B1DBB3]">
               <div className="h-full w-1/3 rounded-full bg-clyse" />
             </div>

@@ -38,7 +38,7 @@ export function matchService(services, brand) {
   );
 }
 
-function planTotal(p) {
+export function planTotal(p) {
   return p.total_kobo ?? p.total_price_kobo ?? p.unit_price_kobo ?? Infinity;
 }
 

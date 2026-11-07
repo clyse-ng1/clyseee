@@ -29,15 +29,10 @@ export default function MemberMini() {
 /* Mobile header chevron. Figma puts the ▼ inside a bordered box; the old
    dropdown that duplicated the sidebar is gone — the navbar's full-screen
    menu is the single navigation surface on mobile now. */
-export function MemberMenuButton({ className = "mt-[19px]" }) {
-  return (
-    <div
-      className={`${className} flex h-[33px] items-center justify-center rounded-[5px] border border-line bg-white`}
-      aria-hidden
-    >
-      <svg width="22" height="10" viewBox="0 0 22 10" aria-hidden>
-        <path d="M0 0h22L11 10z" fill="#9E9E9E" />
-      </svg>
-    </div>
-  );
+export function MemberMenuButton() {
+  /* Deliberately renders nothing. This was the empty bordered box with a grey
+     chevron under the member header on every mobile page — no label, no menu,
+     nothing to open. Removed on the owner's instruction; the navbar's
+     full-screen menu is the single navigation surface on mobile. */
+  return null;
 }

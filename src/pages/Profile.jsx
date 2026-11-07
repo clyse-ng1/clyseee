@@ -502,18 +502,9 @@ export default function Profile() {
         </div>
       </main>
       {/* Mobile */}
-      <main className="relative xl:hidden">
-        <BlurBg variant="page" />
-        <div className="relative px-[30px] pt-[46px]">
+      <main className="relative bg-white xl:hidden">
+        <div className="relative bg-white px-[30px] pt-[46px] pb-[40px]">
           <MemberMini />
-          <div className="mt-[14px] flex h-[33px] items-center justify-center rounded-[5px] border border-line bg-white">
-            <svg width="22" height="10" viewBox="0 0 22 10" aria-hidden>
-              <path
-                d="M0 0h22L11 10z"
-                fill="#9E9E9E"
-              />
-            </svg>
-          </div>
           <div className="bg-btn -mx-[30px] mt-[30px] flex min-h-[236px] items-center gap-[20px] px-[30px] py-[30px]">
             <img
               src={photo || user?.avatar_url || avatarAccount}

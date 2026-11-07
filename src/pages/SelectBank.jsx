@@ -15,9 +15,22 @@ import iconWallet from "../assets/wallet-box.svg";
 function CardGlyph({ className = "h-[24px] w-[40px]" }) {
   return (
     <svg viewBox="0 0 40 24" fill="none" aria-hidden className={className}>
-      <rect x="1.5" y="1.5" width="37" height="21" rx="4" stroke="#001701" strokeWidth="2.5" />
+      <rect
+        x="1.5"
+        y="1.5"
+        width="37"
+        height="21"
+        rx="4"
+        stroke="#001701"
+        strokeWidth="2.5"
+      />
       <path d="M1.5 8.5h37" stroke="#001701" strokeWidth="2.5" />
-      <path d="M6 16.5h10" stroke="#001701" strokeWidth="2.5" strokeLinecap="round" />
+      <path
+        d="M6 16.5h10"
+        stroke="#001701"
+        strokeWidth="2.5"
+        strokeLinecap="round"
+      />
     </svg>
   );
 }
@@ -48,7 +61,7 @@ function StepHead({ mobile = false }) {
     <div
       className={
         mobile
-          ? "flex items-center rounded-[20px] bg-white px-[24px] py-[24px] shadow-[0_0_20px_rgba(0,23,1,0.10)]"
+          ? "flex items-center gap-[20px] bg-white px-[30px] py-[34px]"
           : "flex h-[139px] w-[1240px] items-center rounded-[20px] bg-white px-[63px] shadow-[0_0_20px_rgba(0,23,1,0.10)]"
       }
     >
@@ -59,13 +72,17 @@ function StepHead({ mobile = false }) {
             : "grid h-[60px] w-[60px] flex-none place-items-center rounded-[5px] bg-[#F2F1FF]"
         }
       >
-        <img src={iconWallet} alt="" className={mobile ? "h-[25px] w-[25px]" : "h-[30px] w-[30px]"} />
+        <img
+          src={iconWallet}
+          alt=""
+          className={mobile ? "h-[25px] w-[25px]" : "h-[30px] w-[30px]"}
+        />
       </span>
-      <span className={mobile ? "ml-[16px]" : "ml-[20px]"}>
+      <span className={mobile ? "" : "ml-[20px]"}>
         <span
           className={
             mobile
-              ? "block text-[30px] leading-[37px] font-bold text-ink"
+              ? "block text-[28px] leading-[34px] font-bold whitespace-nowrap text-ink"
               : "block text-[35px] leading-[43px] font-bold text-ink"
           }
         >
@@ -74,7 +91,7 @@ function StepHead({ mobile = false }) {
         <span
           className={
             mobile
-              ? "block text-[20px] leading-[24px] font-semibold text-[#4E4E4E]"
+              ? "block text-[14px] leading-[20px] font-medium text-[#4E4E4E]"
               : "block text-[25px] leading-[30px] font-semibold text-[#4E4E4E]"
           }
         >
@@ -103,10 +120,14 @@ export default function SelectBank() {
     );
     setRemoving(null);
     if (apiError) {
-      setError(apiError.message || "Could not remove that account. Please try again.");
+      setError(
+        apiError.message || "Could not remove that account. Please try again.",
+      );
       return;
     }
-    setAccounts((list) => (list || []).filter((a) => a.account_id !== accountId));
+    setAccounts((list) =>
+      (list || []).filter((a) => a.account_id !== accountId),
+    );
     setSelected((cur) =>
       cur === accountId ? data?.default_account_id || null : cur,
     );
@@ -130,7 +151,11 @@ export default function SelectBank() {
       if (!live) return;
       if (!a.error) {
         setAccounts(a.data?.accounts || []);
-        setSelected(a.data?.default_account_id || a.data?.accounts?.[0]?.account_id || null);
+        setSelected(
+          a.data?.default_account_id ||
+            a.data?.accounts?.[0]?.account_id ||
+            null,
+        );
       } else {
         setAccounts([]);
       }
@@ -150,11 +175,17 @@ export default function SelectBank() {
     setError("");
     const { data, error: apiError } = await api("/member/bank-accounts", {
       method: "POST",
-      body: { bank_code: bankCode, account_number: number.trim(), set_default: true },
+      body: {
+        bank_code: bankCode,
+        account_number: number.trim(),
+        set_default: true,
+      },
     });
     setBusy(false);
     if (apiError) {
-      setError(apiError.message || "Could not verify that account. Please try again.");
+      setError(
+        apiError.message || "Could not verify that account. Please try again.",
+      );
       return;
     }
     if (data?.account) {
@@ -175,7 +206,9 @@ export default function SelectBank() {
     });
     if (saveError) {
       setBusy(false);
-      setError(saveError.message || "Could not save that account. Please try again.");
+      setError(
+        saveError.message || "Could not save that account. Please try again.",
+      );
       return;
     }
     if (amount != null) {
@@ -188,7 +221,8 @@ export default function SelectBank() {
         setError(
           wdError.code === "no_payout_account"
             ? "Add a verified bank account to receive payouts."
-            : wdError.message || "Could not start the withdrawal. Please try again.",
+            : wdError.message ||
+                "Could not start the withdrawal. Please try again.",
         );
         return;
       }
@@ -212,24 +246,26 @@ export default function SelectBank() {
           aria-pressed={active}
           className="flex min-w-0 flex-1 cursor-pointer items-center text-left"
         >
-        <span className="grid h-[35px] w-[68px] flex-none place-items-center rounded-[6px] bg-[#F1F8F1]">
-          <CardGlyph />
-        </span>
-        <span className="ml-[20px] min-w-0 xl:ml-[25px]">
-          <span className="block truncate text-[25px] leading-[30px] font-bold text-black xl:text-[35px] xl:leading-[43px]">
-            {a.bank?.name || "Bank account"}
+          <span className="grid h-[35px] w-[68px] flex-none place-items-center rounded-[6px] bg-[#F1F8F1]">
+            <CardGlyph />
           </span>
-          <span className="mt-[4px] block text-[16px] leading-[20px] font-semibold text-[#6B6B6B] xl:text-[20px] xl:leading-[24px]">
-            ····{a.account_last4 || "––––"}
-            {a.is_default ? " · Default" : ""}
+          <span className="ml-[20px] min-w-0 xl:ml-[25px]">
+            <span className="block truncate text-[25px] leading-[30px] font-bold text-black xl:text-[35px] xl:leading-[43px]">
+              {a.bank?.name || "Bank account"}
+            </span>
+            <span className="mt-[4px] block text-[16px] leading-[20px] font-semibold text-[#6B6B6B] xl:text-[20px] xl:leading-[24px]">
+              ····{a.account_last4 || "––––"}
+              {a.is_default ? " · Default" : ""}
+            </span>
           </span>
-        </span>
           <span
             className={`ml-auto grid h-[36px] w-[36px] flex-none place-items-center rounded-full border-[3px] xl:h-[40px] xl:w-[40px] ${
               active ? "border-clyse" : "border-[#999999]"
             }`}
           >
-            {active && <span className="h-[18px] w-[18px] rounded-full bg-clyse xl:h-[20px] xl:w-[20px]" />}
+            {active && (
+              <span className="h-[18px] w-[18px] rounded-full bg-clyse xl:h-[20px] xl:w-[20px]" />
+            )}
           </span>
         </button>
         {!a.is_default && (
@@ -268,7 +304,10 @@ export default function SelectBank() {
               <p className="mt-[5px] text-[25px] leading-[30px] font-semibold text-ink">
                 Choose a bank account to receive your earning
                 {amount != null && (
-                  <span className="text-clyse"> · {kobo2(Number(amount) * 100)}</span>
+                  <span className="text-clyse">
+                    {" "}
+                    · {kobo2(Number(amount) * 100)}
+                  </span>
                 )}
               </p>
               <div className="mt-[50px] divide-y divide-[#999999] overflow-hidden rounded-[15px] border border-[#999999]">
@@ -276,7 +315,9 @@ export default function SelectBank() {
                   rows
                 ) : (
                   <p className="bg-white px-[40px] py-[40px] text-center text-[18px] font-semibold text-[#6B6B6B]">
-                    {accounts ? "No bank accounts yet — add one below." : "Loading accounts…"}
+                    {accounts
+                      ? "No bank accounts yet — add one below."
+                      : "Loading accounts…"}
                   </p>
                 )}
               </div>
@@ -427,15 +468,12 @@ export default function SelectBank() {
         </div>
       </main>
       {/* Mobile — stacked fallback */}
-      <main className="relative px-[30px] pb-[60px] xl:hidden">
-        <BlurBg variant="page" />
-        <div className="relative pt-[46px]">
-          <BackButton onClick={() => navigate(-1)} />
-          <div className="mt-[24px]">
-            <StepHead mobile />
-          </div>
+      {/* Mobile — JOINT WAITLIST MOBILE PAGE 21/23 (782:28597 / 782:28851) */}
+      <main className="relative bg-white pb-[60px] xl:hidden">
+        <StepHead mobile />
+        <div className="px-[30px] pt-[50px]">
           {view === "select" ? (
-            <div className="mt-[20px] rounded-[20px] bg-white px-[24px] py-[30px] shadow-[0_0_20px_rgba(0,23,1,0.10)]">
+            <div>
               <div className="h-[12px] w-full overflow-hidden rounded-full bg-[#B1DBB3]">
                 <div className="h-full w-2/3 rounded-full bg-clyse" />
               </div>
@@ -445,7 +483,10 @@ export default function SelectBank() {
               <p className="mt-[6px] text-[16px] leading-[22px] font-semibold text-ink">
                 Choose a bank account to receive your earning
                 {amount != null && (
-                  <span className="text-clyse"> · {kobo2(Number(amount) * 100)}</span>
+                  <span className="text-clyse">
+                    {" "}
+                    · {kobo2(Number(amount) * 100)}
+                  </span>
                 )}
               </p>
               <div className="mt-[30px] divide-y divide-[#999999] overflow-hidden rounded-[15px] border border-[#999999]">
@@ -453,7 +494,9 @@ export default function SelectBank() {
                   rows
                 ) : (
                   <p className="bg-white px-[20px] py-[30px] text-center text-[14px] font-semibold text-[#6B6B6B]">
-                    {accounts ? "No bank accounts yet — add one below." : "Loading accounts…"}
+                    {accounts
+                      ? "No bank accounts yet — add one below."
+                      : "Loading accounts…"}
                   </p>
                 )}
               </div>
@@ -506,7 +549,7 @@ export default function SelectBank() {
               </div>
             </div>
           ) : (
-            <div className="mt-[20px] rounded-[20px] bg-white px-[24px] py-[30px] shadow-[0_0_20px_rgba(0,23,1,0.10)]">
+            <div>
               <div className="h-[12px] w-full overflow-hidden rounded-full bg-[#B1DBB3]">
                 <div className="h-full w-2/3 rounded-full bg-clyse" />
               </div>

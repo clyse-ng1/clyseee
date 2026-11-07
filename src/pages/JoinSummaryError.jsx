@@ -171,8 +171,7 @@ export default function JoinSummaryError() {
         <div className="pb-[60px]" />
       </div>
       {/* Mobile */}
-      <main className="relative xl:hidden">
-        <BlurBg variant="page" />
+      <main className="relative bg-white xl:hidden">
         <div className="relative bg-white">
           <CreateGroupHead />
         </div>

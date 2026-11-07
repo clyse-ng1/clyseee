@@ -1,12 +1,23 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import Sidebar from "../components/Sidebar";
 import BrandTile from "../components/BrandTile";
 import { BlurBg } from "../components/Decor";
-import { api, accessLabel, brandOf, daysUntil, displayName, fmtDay, kobo, titleCase, totalPriceKobo } from "../lib/api";
+import {
+  api,
+  accessLabel,
+  brandOf,
+  daysUntil,
+  displayName,
+  fmtDay,
+  kobo,
+  titleCase,
+  totalPriceKobo,
+} from "../lib/api";
 import { loadGroups } from "../lib/groupsCache";
 import { useAuth } from "../lib/useAuth";
+import { useCatalogue } from "../lib/useCatalogue";
 import iconSearch from "../assets/icon-search.svg";
 import iconUser from "../assets/icon-user.svg";
 import iconWalletBox from "../assets/wallet-box.svg";
@@ -32,7 +43,10 @@ import chevronRight from "../assets/angle-right.svg";
    are redrawn (Figma component internals); everything else is measured. */
 
 function serviceName(s) {
-  return [s?.service?.name, s?.plan?.name].filter(Boolean).join(" ") || "Subscription";
+  return (
+    [s?.service?.name, s?.plan?.name].filter(Boolean).join(" ") ||
+    "Subscription"
+  );
 }
 
 function mapActive(s) {
@@ -43,7 +57,11 @@ function mapActive(s) {
     name: serviceName(s),
     cat: titleCase(s.service?.category) || "Entertainment",
     renew:
-      d == null ? "Active" : d === 0 ? "Renews today" : `Renews in ${d} day${d === 1 ? "" : "s"}`,
+      d == null
+        ? "Active"
+        : d === 0
+          ? "Renews today"
+          : `Renews in ${d} day${d === 1 ? "" : "s"}`,
   };
 }
 
@@ -134,14 +152,13 @@ function MemberRow({ row, button, onLeave, busy }) {
     <div className="flex h-[57px] items-center rounded-[20px] bg-white">
       <BrandTile brand={row.brand} name={row.name} />
       <div className="ml-[20px]">
-        <p className="text-[25px] leading-[30px] font-bold text-ink">{row.name}</p>
+        <p className="text-[25px] leading-[30px] font-bold text-ink">
+          {row.name}
+        </p>
         <div className="mt-[4px] flex items-center gap-[10px]">
-          {button === "active" && (
-            <span className="flex h-[19px] flex-none items-center justify-center rounded-[3.58px] bg-[#B1DBB3] px-[8px] text-[10px] font-semibold text-clyse">
-              {row.cat}
-            </span>
-          )}
-          <span className="text-[18px] leading-[22px] font-semibold text-[#6B6B6B]">{row.renew}</span>
+          <span className="text-[18px] leading-[22px] font-semibold text-[#6B6B6B]">
+            {row.renew}
+          </span>
         </div>
       </div>
       {button === "active" ? (
@@ -170,10 +187,16 @@ function MemberRow({ row, button, onLeave, busy }) {
 
 function MobileGroupRow({ group }) {
   const joined =
-    group?.occupied_slots ?? group?.member_count ?? (Array.isArray(group?.members) ? group.members.length : 0);
+    group?.occupied_slots ??
+    group?.member_count ??
+    (Array.isArray(group?.members) ? group.members.length : 0);
   return (
     <div className="flex h-[40px] items-center rounded-[13.74px] bg-white">
-      <BrandTile brand={brandOf(group?.service)} name={group?.service?.name || group?.name} size={34} />
+      <BrandTile
+        brand={brandOf(group?.service)}
+        name={group?.service?.name || group?.name}
+        size={34}
+      />
       <div className="ml-[14px]">
         <p className="text-[17.18px] leading-[21px] font-bold text-ink">
           {group?.service?.name || group?.name || "Group"}
@@ -197,14 +220,13 @@ function MobileMemberRow({ row, button, onLeave, busy }) {
     <div className="flex h-[40px] items-center rounded-[13.74px] bg-white">
       <BrandTile brand={row.brand} name={row.name} size={34} />
       <div className="ml-[14px]">
-        <p className="text-[17.18px] leading-[21px] font-bold text-ink">{row.name}</p>
+        <p className="text-[17.18px] leading-[21px] font-bold text-ink">
+          {row.name}
+        </p>
         <div className="mt-[1px] flex items-center gap-[6px]">
-          {button === "active" && (
-            <span className="flex h-[13px] flex-none items-center justify-center rounded-[2.46px] bg-[#B1DBB3] px-[5px] text-[6.87px] font-semibold text-clyse">
-              {row.cat}
-            </span>
-          )}
-          <span className="text-[12.37px] leading-[15px] font-semibold text-[#6B6B6B]">{row.renew}</span>
+          <span className="text-[12.37px] leading-[15px] font-semibold text-[#6B6B6B]">
+            {row.renew}
+          </span>
         </div>
       </div>
       {button === "active" ? (
@@ -240,10 +262,10 @@ function SubCard({ brand, name, price, cat = "Entertainment" }) {
       <p className="mt-[10px] text-[18px] leading-[22px] font-bold text-ink">
         {name}
       </p>
-      <p className="mx-auto mt-[3px] flex h-[19px] w-fit min-w-[96px] items-center justify-center rounded-[3.58px] bg-[#B1DBB3] px-[10px] text-[10px] font-semibold text-clyse">
+      <span className="mt-[6px] inline-flex h-[19px] w-[96px] items-center justify-center rounded-[3.58px] bg-[#B1DBB3] text-[10px] leading-[15px] font-semibold text-clyse">
         {cat}
-      </p>
-      <p className="mt-[10px] flex items-baseline justify-center">
+      </span>
+      <p className="mt-[6px] flex items-baseline justify-center">
         <span className="text-[18px] leading-[22px] font-semibold text-ink">
           {price || "\u2014"}
         </span>
@@ -257,17 +279,17 @@ function SubCard({ brand, name, price, cat = "Entertainment" }) {
 
 function MobileSubCard({ brand, name, price, cat = "Entertainment" }) {
   return (
-    <div className="h-[137px] rounded-[13.74px] border border-clyse bg-white pt-[22px] text-center shadow-[0_0_13px_rgba(0,23,1,0.10)]">
+    <div className="min-h-[137px] rounded-[13.74px] border border-clyse bg-white pt-[22px] pb-[10px] text-center shadow-[0_0_13px_rgba(0,23,1,0.10)]">
       <span className="flex justify-center">
         <BrandTile brand={brand} name={name} size={34} />
       </span>
       <p className="mt-[7px] text-[12.37px] leading-[15px] font-bold text-ink">
         {name}
       </p>
-      <p className="mx-auto mt-[4px] flex h-[13px] w-fit min-w-[66px] items-center justify-center rounded-[2.46px] bg-[#B1DBB3] px-[6px] text-[6.87px] font-semibold text-clyse">
+      <span className="mt-[4px] inline-flex h-[15px] w-[76px] items-center justify-center rounded-[2.86px] bg-[#B1DBB3] text-[8.93px] leading-[12px] font-semibold text-clyse">
         {cat}
-      </p>
-      <p className="mt-[6px] flex items-baseline justify-center">
+      </span>
+      <p className="mt-[4px] flex items-baseline justify-center">
         <span className="text-[12.37px] leading-[15px] font-semibold text-ink">
           {price || "\u2014"}
         </span>
@@ -317,7 +339,11 @@ function GroupCard({ group }) {
         <div className="mt-[7px] ml-[1px] h-[6px] w-[201px] rounded-full bg-[#023F05]">
           <div
             className="h-[6px] w-[143px] rounded-full bg-clyse"
-            style={g.pct == null ? undefined : { width: `${Math.round(g.pct * 201)}px` }}
+            style={
+              g.pct == null
+                ? undefined
+                : { width: `${Math.round(g.pct * 201)}px` }
+            }
           />
         </div>
         <div className="mt-[3px] flex items-center justify-between text-[13px] leading-[16px] font-semibold text-mint">
@@ -357,7 +383,7 @@ function MobileGroupCard({ group }) {
         alt={g.creator}
         className="relative z-[1] mx-auto h-[66px] w-[66px] rounded-full object-cover"
       />
-      <div className="bg-btn -mt-[33px] rounded-[11.16px] px-[17px] pt-[39px] pb-[17px]">
+      <div className="bg-btn -mt-[33px] rounded-[11.16px] px-[17px] pt-[46px] pb-[17px]">
         <p className="text-[17.18px] leading-[16px] font-bold text-white">
           {g.creator}
         </p>
@@ -385,8 +411,12 @@ function MobileGroupCard({ group }) {
         </div>
         <div className="mt-[5px] h-[4px] w-[138px] rounded-full bg-[#023F05]">
           <div
-            className="h-[4px] w-[98px] rounded-full bg-clyse"
-            style={g.pct == null ? undefined : { width: `${Math.round(g.pct * 138)}px` }}
+            className="h-[4px] w-0 rounded-full bg-clyse"
+            style={
+              g.pct == null
+                ? undefined
+                : { width: `${Math.round(g.pct * 138)}px` }
+            }
           />
         </div>
         <div className="mt-[2px] flex items-center justify-between text-[8.93px] leading-[12px] font-semibold text-mint">
@@ -398,10 +428,10 @@ function MobileGroupCard({ group }) {
         </div>
         <p className="mt-[3px] flex items-center">
           <img src={iconAccess} alt="" className="h-[6px] w-[6px]" />
-          <span className="ml-[5px] text-[6.87px] leading-[12px] font-semibold text-white">
-            Access Method:
+          <span className="ml-[5px] whitespace-nowrap text-[6.87px] leading-[12px] font-semibold text-white">
+            Access:
           </span>
-          <span className="ml-[12px] text-[7.56px] leading-[12px] font-semibold text-white">
+          <span className="ml-[6px] whitespace-nowrap text-[7.56px] leading-[12px] font-semibold text-white">
             {g.access}
           </span>
         </p>
@@ -427,19 +457,6 @@ function MemberRowSk() {
         <Sk className="mt-[8px] h-[16px] w-[150px]" />
       </div>
       <Sk className="ml-auto h-[48px] w-[185px] !rounded-[10px]" />
-    </div>
-  );
-}
-
-function MobileGroupRowSk() {
-  return (
-    <div className="flex h-[40px] items-center rounded-[13.74px] bg-white">
-      <Sk className="h-[34px] w-[34px] !rounded-full" />
-      <div className="ml-[14px] flex-1">
-        <Sk className="h-[13px] w-[120px] !rounded-[4px]" />
-        <Sk className="mt-[5px] h-[9px] w-[86px] !rounded-[4px]" />
-      </div>
-      <Sk className="h-[33px] w-[127px] !rounded-[6.87px]" />
     </div>
   );
 }
@@ -550,13 +567,21 @@ export default function Dashboard() {
     if (!waitlistId || leavingId) return;
     setLeavingId(waitlistId);
     const { error } = planId
-      ? await api("/member/waitlist/leave", { method: "POST", body: { plan_id: planId } })
+      ? await api("/member/waitlist/leave", {
+          method: "POST",
+          body: { plan_id: planId },
+        })
       : { error: null };
     setLeavingId(null);
     if (!error) {
       setDash((d) =>
         d
-          ? { ...d, waitlists: (d.waitlists || []).filter((w) => (w.waitlist_id || w.id) !== waitlistId) }
+          ? {
+              ...d,
+              waitlists: (d.waitlists || []).filter(
+                (w) => (w.waitlist_id || w.id) !== waitlistId,
+              ),
+            }
           : d,
       );
     }
@@ -567,8 +592,38 @@ export default function Dashboard() {
   const since = fmtDay(user?.created_at) || "20/11/2026";
 
   const activeRows = (dash?.active_subscriptions || []).map(mapActive);
+  /* The dashboard payload carries no service category, so every card used to
+     read "Entertainment". The public catalogue does carry it — use those real
+     categories, matched on slug then name, and keep the literal only when the
+     service genuinely is not in the catalogue. */
+  const catalogue = useCatalogue();
+  const catByService = useMemo(() => {
+    const map = {};
+    for (const row of catalogue || []) {
+      const cat = titleCase(row?.service?.category || row?.category);
+      if (!cat) continue;
+      const slug = `${row?.service?.slug || row?.slug || ""}`.toLowerCase();
+      const nm = `${row?.service?.name || row?.name || ""}`.toLowerCase();
+      if (slug) map[slug] = cat;
+      if (nm) map[nm] = cat;
+    }
+    return map;
+  }, [catalogue]);
+  const withCat = (r) => {
+    if (r.cat && r.cat !== "Entertainment") return r;
+    const nm = `${r.name || ""}`.toLowerCase();
+    const hit =
+      catByService[nm] ||
+      Object.keys(catByService).find(
+        (k) => k && (nm.startsWith(k) || nm.includes(k)),
+      );
+    return hit ? { ...r, cat: catByService[hit] } : r;
+  };
+
   const waitRows = (dash?.waitlists || []).map(mapWaitlist);
-  const availSubs = (dash?.available_subscriptions || []).map(mapAvail);
+  const availSubs = (dash?.available_subscriptions || [])
+    .map(mapAvail)
+    .map(withCat);
   const groups = (dash?.available_groups || []).map(mapGroup);
 
   return (
@@ -600,7 +655,11 @@ export default function Dashboard() {
                       Wallet Balance
                     </p>
                     <p className="text-[35px] leading-[43px] font-bold text-white">
-                      {dash ? walletText : <Sk light className="h-[40px] w-[170px]" />}
+                      {dash ? (
+                        walletText
+                      ) : (
+                        <Sk light className="h-[40px] w-[170px]" />
+                      )}
                     </p>
                   </div>
                   <img
@@ -626,7 +685,10 @@ export default function Dashboard() {
                 <h2 className="text-[35px] leading-[43px] font-bold">
                   My Active Subscription
                 </h2>
-                <Link to="/subscriptions" className="text-[25px] leading-[35px] font-semibold text-clyse">
+                <Link
+                  to="/subscriptions"
+                  className="text-[25px] leading-[35px] font-semibold text-clyse"
+                >
                   View all
                 </Link>
               </div>
@@ -634,7 +696,11 @@ export default function Dashboard() {
                 {!dash
                   ? [0, 1, 2].map((i) => <MemberRowSk key={i} />)
                   : activeRows.map((r) => (
-                      <MemberRow key={r.key || r.name} row={r} button="active" />
+                      <MemberRow
+                        key={r.key || r.name}
+                        row={r}
+                        button="active"
+                      />
                     ))}
                 {dash && activeRows.length === 0 && (
                   <EmptyRow
@@ -648,25 +714,28 @@ export default function Dashboard() {
 
             <div className="mt-[50px] rounded-[20px] bg-white px-[35px] pt-[40px] pb-[40px] shadow-[0_0_20px_rgba(0,23,1,0.10)]">
               <div className="flex items-baseline justify-between">
-                <h2 className="text-[35px] leading-[43px] font-bold">My Waitlist</h2>
-                <Link to="/waitlist" className="text-[25px] leading-[35px] font-semibold text-clyse">
+                <h2 className="text-[35px] leading-[43px] font-bold">
+                  My Waitlist
+                </h2>
+                <Link
+                  to="/waitlist"
+                  className="text-[25px] leading-[35px] font-semibold text-clyse"
+                >
                   View all
                 </Link>
               </div>
               <div className="mt-[40px] space-y-[20px]">
-                {!dash ? (
-                  [0, 1, 2].map((i) => <MemberRowSk key={i} />)
-                ) : (
-                  waitRows.map((r) => (
-                    <MemberRow
-                      key={r.key || r.name}
-                      row={r}
-                      button="leave"
-                      busy={leavingId === r.id}
-                      onLeave={r.id ? () => leaveWaitlist(r) : undefined}
-                    />
-                  ))
-                )}
+                {!dash
+                  ? [0, 1, 2].map((i) => <MemberRowSk key={i} />)
+                  : waitRows.map((r) => (
+                      <MemberRow
+                        key={r.key || r.name}
+                        row={r}
+                        button="leave"
+                        busy={leavingId === r.id}
+                        onLeave={r.id ? () => leaveWaitlist(r) : undefined}
+                      />
+                    ))}
                 {dash && waitRows.length === 0 && (
                   <EmptyRow
                     text="You are not on any waitlist."
@@ -694,7 +763,13 @@ export default function Dashboard() {
               {!dash
                 ? [0, 1, 2, 3, 4, 5].map((i) => <SubCardSk key={i} />)
                 : availSubs.map((s) => (
-                    <SubCard key={s.key} brand={s.brand} name={s.name} price={s.price} cat={s.cat} />
+                    <SubCard
+                      key={s.key}
+                      brand={s.brand}
+                      name={s.name}
+                      price={s.price}
+                      cat={s.cat}
+                    />
                   ))}
             </div>
             {dash && availSubs.length === 0 && (
@@ -761,18 +836,18 @@ export default function Dashboard() {
             </Link>
           </div>
           <img
-            loading="lazy" decoding="async" src={ctaDash}
+            loading="lazy"
+            decoding="async"
+            src={ctaDash}
             alt=""
             className="absolute top-0 right-[40px] h-[300px] w-[387px] rounded-[50px] object-cover"
           />
         </div>
       </main>
-      <div className="hidden xl:block">
-      </div>
+      <div className="hidden xl:block"></div>
 
       {/* Mobile */}
-      <main className="relative xl:hidden">
-        <BlurBg variant="page" />
+      <main className="relative bg-white xl:hidden">
         <div className="relative bg-white px-[30px] pt-[30px] pb-[21px]">
           <div className="flex items-center gap-[6px]">
             <img
@@ -790,10 +865,6 @@ export default function Dashboard() {
             </div>
           </div>
           <MemberMenuButton active="Dashboard" />
-        </div>
-
-        <div className="relative z-10 mx-[30px] -mt-[1px] flex h-[50px] items-center rounded-[15px] border border-line bg-white shadow-[0_0_20px_rgba(0,23,1,0.10)]">
-          <img src={chevronRight} alt="" className="mr-[21px] ml-auto w-[24px]" />
         </div>
 
         <div className="bg-btn relative mt-[16px] px-[30px] pt-[27px] pb-[28px]">
@@ -846,18 +917,23 @@ export default function Dashboard() {
             <h2 className="text-[22px] leading-[27px] font-bold">
               My Active Subscription
             </h2>
-            <Link to="/subscriptions" className="text-[17.18px] leading-[21px] font-semibold text-clyse">
+            <Link
+              to="/subscriptions"
+              className="text-[17.18px] leading-[21px] font-semibold text-clyse"
+            >
               View all
             </Link>
           </div>
           <div className="mt-[28px] space-y-[14px]">
-            {!dash ? (
-              [0, 1, 2].map((i) => <MobileMemberRowSk key={i} />)
-            ) : (
-              activeRows.map((r) => (
-                <MobileMemberRow key={r.key || r.name} row={r} button="active" />
-              ))
-            )}
+            {!dash
+              ? [0, 1, 2].map((i) => <MobileMemberRowSk key={i} />)
+              : activeRows.map((r) => (
+                  <MobileMemberRow
+                    key={r.key || r.name}
+                    row={r}
+                    button="active"
+                  />
+                ))}
             {dash && activeRows.length === 0 && (
               <EmptyRow
                 mobile
@@ -871,16 +947,23 @@ export default function Dashboard() {
 
         <div className="relative mt-[30px] bg-white px-[30px] pt-[27px] pb-[28px]">
           <div className="flex items-baseline justify-between">
-            <h2 className="text-[22px] leading-[27px] font-bold">My Active Group</h2>
-            <Link to="/groups" className="text-[17.18px] leading-[21px] font-semibold text-clyse">
+            <h2 className="text-[22px] leading-[27px] font-bold">
+              My Active Group
+            </h2>
+            <Link
+              to="/groups"
+              className="text-[17.18px] leading-[21px] font-semibold text-clyse"
+            >
               View all
             </Link>
           </div>
           <div className="mt-[28px] space-y-[14px]">
-            {myGroups === null ? (
-              [0, 1].map((i) => <MobileGroupRowSk key={i} />)
-            ) : myGroups.length > 0 ? (
-              myGroups.map((g, i) => <MobileGroupRow key={g.id || g.group_id || i} group={g} />)
+            {/* No placeholder rows while the group list is unknown: a member
+                with no groups must never see group cards, even for a frame. */}
+            {myGroups === null ? null : myGroups.length > 0 ? (
+              myGroups.map((g, i) => (
+                <MobileGroupRow key={g.id || g.group_id || i} group={g} />
+              ))
             ) : (
               <EmptyRow
                 mobile
@@ -894,25 +977,28 @@ export default function Dashboard() {
 
         <div className="relative mt-[30px] bg-white px-[30px] pt-[27px] pb-[28px]">
           <div className="flex items-baseline justify-between">
-            <h2 className="text-[22px] leading-[27px] font-bold">My Waitlist</h2>
-            <Link to="/waitlist" className="text-[17.18px] leading-[21px] font-semibold text-clyse">
+            <h2 className="text-[22px] leading-[27px] font-bold">
+              My Waitlist
+            </h2>
+            <Link
+              to="/waitlist"
+              className="text-[17.18px] leading-[21px] font-semibold text-clyse"
+            >
               View all
             </Link>
           </div>
           <div className="mt-[30px] space-y-[14px]">
-            {!dash ? (
-              [0, 1, 2].map((i) => <MobileMemberRowSk key={i} />)
-            ) : (
-              waitRows.map((r) => (
-                <MobileMemberRow
-                  key={r.key || r.name}
-                  row={r}
-                  button="leave"
-                  busy={leavingId === r.id}
-                  onLeave={r.id ? () => leaveWaitlist(r) : undefined}
-                />
-              ))
-            )}
+            {!dash
+              ? [0, 1, 2].map((i) => <MobileMemberRowSk key={i} />)
+              : waitRows.map((r) => (
+                  <MobileMemberRow
+                    key={r.key || r.name}
+                    row={r}
+                    button="leave"
+                    busy={leavingId === r.id}
+                    onLeave={r.id ? () => leaveWaitlist(r) : undefined}
+                  />
+                ))}
             {dash && waitRows.length === 0 && (
               <EmptyRow
                 mobile
@@ -968,13 +1054,11 @@ export default function Dashboard() {
             Available Group
           </h2>
           <div className="mt-[15px] grid grid-cols-2 gap-x-[18px] gap-y-[5px] px-[30px]">
-            {!dash ? (
-              [0, 1, 2, 3].map((i) => <MobileGroupCardSk key={i} />)
-            ) : (
-              groups
-                .slice(0, 4)
-                .map((g, i) => <MobileGroupCard key={g.id || i} group={g} />)
-            )}
+            {!dash
+              ? [0, 1, 2, 3].map((i) => <MobileGroupCardSk key={i} />)
+              : groups
+                  .slice(0, 4)
+                  .map((g, i) => <MobileGroupCard key={g.id || i} group={g} />)}
           </div>
           {dash && groups.length === 0 && (
             <div className="px-[30px] pt-[10px]">
@@ -1002,14 +1086,15 @@ export default function Dashboard() {
             Create
           </Link>
           <img
-            loading="lazy" decoding="async" src={ctaDash}
+            loading="lazy"
+            decoding="async"
+            src={ctaDash}
             alt=""
             className="mx-[28px] mt-[21px] aspect-[375/209] w-[calc(100%-56px)] max-w-[375px] object-cover"
           />
         </div>
       </main>
-      <div className="xl:hidden">
-      </div>
+      <div className="xl:hidden"></div>
     </div>
   );
 }

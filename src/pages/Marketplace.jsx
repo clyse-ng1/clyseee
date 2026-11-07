@@ -4,6 +4,7 @@ import Navbar from "../components/Navbar";
 import { BlurBg } from "../components/Decor";
 import MobileBrowse from "../components/MobileBrowse";
 import Sk from "../components/Skeleton";
+import BrandTile from "../components/BrandTile";
 import { Footer, MobileFooter } from "../components/Footer";
 import iconMovies from "../assets/icon-movies.svg";
 import iconMusic from "../assets/icon-music.svg";
@@ -13,7 +14,7 @@ import iconChevron from "../assets/icon-chevron.svg";
 import iconUser from "../assets/icon-user.svg";
 import avatarAccount from "../assets/avatar-account.webp";
 import ctaOwner from "../assets/cta-owner.webp";
-import { api, kobo, totalPriceKobo } from "../lib/api";
+import { api, brandOf, kobo, titleCase, totalPriceKobo } from "../lib/api";
 import { useCatalogue } from "../lib/useCatalogue";
 
 const PILLS = [
@@ -34,18 +35,16 @@ function catIcon(category) {
   return iconProductivity;
 }
 
-function ServiceCard({ title, icon, category, price }) {
+function ServiceCard({ title, brand, category, chip, price }) {
   return (
     <Link
       to="/subscription-group"
       className="bg-mintfade flex h-[290px] flex-col items-center justify-center rounded-[20px] border border-clyse px-[20px] shadow-[0_0_20px_rgba(0,23,1,0.10)] transition hover:opacity-95"
     >
-      <div className="bg-deep flex h-[75px] w-[75px] flex-none items-center justify-center rounded-full">
-        <img src={icon} alt="" className="h-[50px] w-[50px]" />
-      </div>
+      <BrandTile brand={brand} name={title} category={category} size={75} plain />
       <p className="mt-[11px] max-w-[200px] text-center text-[25px] font-bold leading-[28px] text-ink">{title}</p>
       <div className="mt-[6px] flex h-[19px] w-fit flex-none items-center rounded-[3.5px] bg-[#B1DBB3] px-[10px]">
-        <span className="text-[10px] font-semibold text-clyse">{category}</span>
+        <span className="text-[10px] font-semibold text-clyse">{chip || category}</span>
       </div>
       <div className="mt-[14px] h-[4px] w-[73px] flex-none rounded-full bg-[#B1DBB3]" />
       <p className="mt-[16px] text-center text-[18px] font-semibold leading-[22px] text-ink">{price || "Price unavailable"}</p>
@@ -76,7 +75,7 @@ function OfferCard({ name, avatar, service, price, left, ratio, pct, linkTo, lin
           </p>
         </div>
         <div className="mt-[9px] h-[7px] rounded-full bg-[#023F05]">
-          <div className="h-[7px] rounded-full bg-clyse" style={{ width: pct != null ? `${pct}%` : "71%" }} />
+          <div className="h-[7px] rounded-full bg-clyse" style={{ width: pct != null ? `${pct}%` : "0%" }} />
         </div>
         <div className="mt-[4px] flex items-center justify-between">
           <span className="flex items-center gap-[2px] text-[13px] font-semibold text-mint">
@@ -107,8 +106,9 @@ function mapService(a) {
   const cat = service.category || "Entertainment";
   return {
     title: service.name || "Subscription",
-    icon: catIcon(cat),
+    brand: brandOf(service),
     category: cat,
+    chip: titleCase(cat),
     price: min !== Infinity ? `From ${kobo(min)}/Monthly` : null,
   };
 }
@@ -125,7 +125,19 @@ function mapOffer(g) {
     price: total != null ? kobo(total) : null,
     left: left === 1 ? "1 Slot left" : `${left} Slots left`,
     ratio: `${left} open`,
-    pct: null,
+    /* The bar used to be pinned at 71% for every card because this was null
+       and the component fell back to a hard-coded width. Fill it from the
+       group's own slot numbers. */
+    pct: (() => {
+      const offered =
+        g.slots_offered ?? g.capacity ?? g.plan?.member_slot_capacity ?? null;
+      if (!offered) return null;
+      const free = g.available_slots ?? g.open_slots ?? null;
+      const occupied =
+        g.occupied_slots ?? (free == null ? null : Math.max(0, offered - free));
+      if (occupied == null) return null;
+      return Math.round((occupied / offered) * 100);
+    })(),
     linkTo: "/join/summary",
     linkState: { group_id: g.group_id || g.id, preview: g },
   };

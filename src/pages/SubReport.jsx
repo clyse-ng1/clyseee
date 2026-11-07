@@ -108,8 +108,7 @@ export default function SubReport() {
         </div>
       </main>
       {/* Mobile (M16 737:22246) */}
-      <main className="relative xl:hidden">
-        <BlurBg variant="page" />
+      <main className="relative bg-white xl:hidden">
         <SubDetailsMobile
           variant="report"
           membership={membership}

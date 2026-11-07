@@ -98,12 +98,16 @@ export default function CreateGroup() {
   const nextState = custom
     ? {
         custom: { name: customName.trim(), plan: customPlan.trim() },
-        ...(incoming?.fromWaitlist ? { fromWaitlist: incoming.fromWaitlist } : {}),
+        ...(incoming?.fromWaitlist
+          ? { fromWaitlist: incoming.fromWaitlist }
+          : {}),
       }
     : {
         brand: CARDS[selected].brand,
         title: CARDS[selected].title,
-        ...(incoming?.fromWaitlist ? { fromWaitlist: incoming.fromWaitlist } : {}),
+        ...(incoming?.fromWaitlist
+          ? { fromWaitlist: incoming.fromWaitlist }
+          : {}),
       };
 
   return (
@@ -151,7 +155,9 @@ export default function CreateGroup() {
               <input
                 placeholder="Monthly price"
                 value={customPlan}
-                onChange={(e) => setCustomPlan(e.target.value.replace(/\D/g, ""))}
+                onChange={(e) =>
+                  setCustomPlan(e.target.value.replace(/\D/g, ""))
+                }
                 inputMode="numeric"
                 pattern="[0-9]*"
                 className="w-full bg-transparent text-[25px] font-semibold text-ink outline-none placeholder:font-semibold placeholder:text-[#999999]"
@@ -159,13 +165,21 @@ export default function CreateGroup() {
             </div>
           </>
         )}
-        <Link
-          to="/create-group/details"
-          state={nextState}
-          className="mx-auto mt-[50px] grid h-[60px] w-[470px] place-items-center rounded-2xl bg-btn text-[18px] font-semibold text-mint"
-        >
-          Continue
-        </Link>
+        <div className="mx-auto mt-[50px] flex w-[990px] items-center gap-[50px]">
+          <Link
+            to="/dashboard"
+            className="grid h-[60px] w-[470px] place-items-center rounded-2xl border border-clyse text-[18px] font-semibold text-ink"
+          >
+            Go Back
+          </Link>
+          <Link
+            to="/create-group/plan"
+            state={nextState}
+            className="grid h-[60px] w-[470px] place-items-center rounded-2xl bg-btn text-[18px] font-semibold text-mint"
+          >
+            Continue
+          </Link>
+        </div>
         <div className={custom ? "pb-[195px]" : "pb-[150px]"} />
       </main>
 
@@ -210,7 +224,9 @@ export default function CreateGroup() {
               <input
                 placeholder="Monthly price"
                 value={customPlan}
-                onChange={(e) => setCustomPlan(e.target.value.replace(/\D/g, ""))}
+                onChange={(e) =>
+                  setCustomPlan(e.target.value.replace(/\D/g, ""))
+                }
                 inputMode="numeric"
                 pattern="[0-9]*"
                 className="w-full bg-transparent text-[17.34px] font-semibold text-ink outline-none placeholder:font-semibold placeholder:text-[#999999]"
@@ -218,13 +234,21 @@ export default function CreateGroup() {
             </div>
           </>
         )}
-        <Link
-          to="/create-group/details"
-          state={nextState}
-          className="mx-[30px] mt-[32px] grid h-[50px] w-[calc(100%-60px)] max-w-[370px] place-items-center rounded-[11.1px] bg-btn text-[11.66px] font-semibold text-mint"
-        >
-          Continue
-        </Link>
+        <div className="mx-[30px] mt-[32px] flex items-center gap-[24px]">
+          <Link
+            to="/dashboard"
+            className="grid h-[50px] flex-1 place-items-center rounded-[11.1px] border border-clyse text-[11.66px] font-semibold text-ink flex-1"
+          >
+            Go Back
+          </Link>
+          <Link
+            to="/create-group/plan"
+            state={nextState}
+            className="grid h-[50px] flex-1 place-items-center rounded-[11.1px] bg-btn text-[11.66px] font-semibold text-mint"
+          >
+            Continue
+          </Link>
+        </div>
         <div className="pb-[63px]" />
       </main>
     </div>

@@ -4,9 +4,8 @@ import MobileSearch from "./MobileSearch";
 import MobileCats from "./MobileCats";
 import MobileCta from "./MobileCta";
 import Sk from "./Skeleton";
-import iconMovies from "../assets/icon-movies.svg";
-import iconMusic from "../assets/icon-music.svg";
-import iconProductivity from "../assets/icon-productivity.svg";
+import BrandTile from "./BrandTile";
+import { brandOf, titleCase } from "../lib/api";
 import iconUser from "../assets/icon-user.svg";
 import avatarAccount from "../assets/avatar-account.webp";
 import { api, kobo, totalPriceKobo } from "../lib/api";
@@ -15,15 +14,6 @@ import { useCatalogue } from "../lib/useCatalogue";
 /* Mobile marketplace — Figma 263:4402 "Home Page Mobile" (430px): search /
    categories / 8 available-subscription cards / View More / 6 Latest Slots /
    Become an Owner CTA (footer rendered by the page's MobileFooter). */
-
-const ICONS = { movies: iconMovies, music: iconMusic, productivity: iconProductivity };
-
-function catIconKey(category) {
-  const c = (category || "").toLowerCase();
-  if (c.includes("music")) return "music";
-  if (c.includes("movie") || c.includes("stream") || c.includes("entertainment")) return "movies";
-  return "productivity";
-}
 
 function OfferCard({ avatar, name, service, price, left, linkTo, linkState }) {
   return (
@@ -120,9 +110,10 @@ export default function MobileBrowse() {
           );
           const cat = service.category || "Others";
           return {
-            icon: catIconKey(cat),
+            brand: brandOf(service),
             title: service.name || "Subscription",
-            chip: cat,
+            category: cat,
+            chip: titleCase(cat),
             price: min !== Infinity ? `${kobo(min)} /Month` : "—",
           };
         });
@@ -155,9 +146,7 @@ export default function MobileBrowse() {
             to="/subscription-group"
             className="bg-mintfade flex h-[187px] flex-col items-center rounded-[12.89px] border-[0.5px] border-clyse pt-[17px] shadow-[0_0_12.89px_rgba(0,23,1,0.10)] transition hover:opacity-95"
           >
-            <span className="bg-deep flex h-[48px] w-[48px] items-center justify-center rounded-full">
-              <img src={ICONS[c.icon]} alt="" className="h-[32px] w-[32px]" />
-            </span>
+            <BrandTile brand={c.brand} name={c.title} category={c.category} size={50} plain />
             <span className="mt-[7px] max-w-[129px] text-center text-[16.12px] leading-[18.05px] font-semibold text-ink">
               {c.title}
             </span>

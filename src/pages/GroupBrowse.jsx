@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import Sidebar from "../components/Sidebar";
 import SubCard, { SubCardSk } from "../components/SubCard";
@@ -144,15 +145,9 @@ export default function GroupBrowse() {
         </div>
       </main>
       {/* Mobile (M10 691:20651) */}
-      <main className="relative xl:hidden">
-        <BlurBg variant="page" />
-        <div className="relative px-[30px] pt-[46px]">
+      <main className="relative bg-white xl:hidden">
+        <div className="relative bg-white px-[30px] pt-[46px] pb-[40px]">
           <MemberMini />
-          <div className="mt-[19px] flex h-[33px] items-center justify-center rounded-[5px] border border-line bg-white">
-            <svg width="22" height="10" viewBox="0 0 22 10" aria-hidden>
-              <path d="M0 0h22L11 10z" fill="#9E9E9E" />
-            </svg>
-          </div>
           <h1 className="mt-[51px] text-[30px] leading-[37px] font-bold text-black">
             My Group
           </h1>
@@ -168,9 +163,12 @@ export default function GroupBrowse() {
               className="ml-[27px] w-full bg-transparent text-[17px] leading-[24px] font-semibold text-ink outline-none placeholder:text-[#999999]"
             />
           </div>
-          <p className="mt-[30px] text-right text-[13px] leading-[16px] font-semibold text-clyse">
+          <Link
+            to="/groups/members"
+            className="mt-[30px] block text-right text-[13px] leading-[16px] font-semibold text-clyse"
+          >
             View All
-          </p>
+          </Link>
           <GroupTabs tabs={tabs} className="mt-[12px]" active={tab} onSelect={setTab} loading={!groups && !failed} />
           <div className="mt-[30px] flex flex-col gap-[10px]">
             {!groups && !failed ? (

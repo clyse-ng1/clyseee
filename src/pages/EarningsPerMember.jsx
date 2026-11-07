@@ -142,7 +142,7 @@ export default function EarningsPerMember() {
       {/* Mobile (M19 777:26955): 20px title, mint filters, no Extra */}
       <main className="relative pb-[50px] xl:hidden">
         <BlurBg variant="page" />
-        <div className="relative px-[30px] pt-[46px]">
+        <div className="relative bg-white px-[30px] pt-[46px] pb-[40px]">
           <h1 className="text-[20px] leading-[24px] font-bold text-black">
             Earnings Per Member
           </h1>

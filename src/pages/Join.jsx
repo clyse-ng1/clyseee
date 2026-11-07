@@ -8,7 +8,7 @@ import { BlurBg } from "../components/Decor";
 import MemberMini from "../components/MemberMini";
 import { api, brandOf, kobo } from "../lib/api";
 
-const SUB = "Subscription you've joined the waitlist for, We'll notify you when a group becomes available";
+const SUB = "Browse available groups and join the waitlist for, We'll notify you when a group becomes available";
 
 function mapAvail(a) {
   const title =
@@ -79,15 +79,9 @@ export default function Join() {
       </main>
       {/* Mobile — Figma's overlapping sort/filter drafts inside the member
           block are omitted (broken layers); page = member + strip + cards. */}
-      <main className="relative xl:hidden">
-        <BlurBg variant="page" />
-        <div className="relative px-[30px] pt-[46px]">
+      <main className="relative bg-white xl:hidden">
+        <div className="relative bg-white px-[30px] pt-[46px] pb-[40px]">
           <MemberMini />
-          <div className="mt-[19px] flex h-[33px] items-center justify-center rounded-[5px] border border-line bg-white">
-            <svg width="22" height="10" viewBox="0 0 22 10" aria-hidden>
-              <path d="M0 0h22L11 10z" fill="#9E9E9E" />
-            </svg>
-          </div>
           <h1 className="mt-[51px] text-[30px] leading-[37px] font-bold text-black">
             Join Waitlist
           </h1>

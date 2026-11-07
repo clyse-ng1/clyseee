@@ -29,7 +29,7 @@ export default function JoinCard({ brand, chip, title, slots, price, waiting, li
         </p>
         <p className="flex items-center justify-between text-[18px] leading-[22px] font-semibold">
           <span className="text-[#6B6B6B]">Waiting now</span>
-          <span className="text-clyse">{waiting} people</span>
+          <span className="text-ink">{waiting} people</span>
         </p>
       </div>
       <Link

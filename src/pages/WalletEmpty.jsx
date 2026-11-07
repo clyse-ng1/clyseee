@@ -74,15 +74,10 @@ export default function WalletEmpty() {
       </div>
 
       {/* Mobile */}
-      <main className="relative xl:hidden">
-        <BlurBg variant="page" />
+      <main className="relative bg-white xl:hidden">
         <div className="relative bg-white px-[30px] pt-[30px] pb-[21px]">
           <MemberMini />
           <MemberMenuButton active="My Wallet" />
-        </div>
-
-        <div className="relative z-10 mx-[30px] -mt-[1px] flex h-[50px] items-center rounded-[15px] border border-line bg-white shadow-[0_0_20px_rgba(0,23,1,0.10)]">
-          <img src={chevronRight} alt="" className="mr-[21px] ml-auto w-[24px]" />
         </div>
 
         <div className="relative mx-[30px] mt-[18px]">

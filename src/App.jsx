@@ -20,6 +20,7 @@ import { VerifyEmail, VerifySuccess } from "./pages/Verify";
 import { ResetEmail, ResetCheckMail, ResetNew } from "./pages/Reset";
 import CreateGroup from "./pages/CreateGroup";
 import CreateDetails from "./pages/CreateDetails";
+import CreatePlan from "./pages/CreatePlan";
 import CreateVerify from "./pages/CreateVerify";
 import CreateReview from "./pages/CreateReview";
 import CreateResult from "./pages/CreateResult";
@@ -123,6 +124,7 @@ const TITLES = {
   "/notifications": "Notifications — Clyse",
   "/profile": "Profile — Clyse",
   "/create-group": "Create Group — Clyse",
+  "/create-group/plan": "Create Group — Clyse",
   "/browse": "Browse Groups — Clyse",
   "/admin": "Admin Dashboard — Clyse",
   "/admin/dashboard": "Admin Dashboard — Clyse",
@@ -183,6 +185,7 @@ export default function App() {
         <Route element={<RequireAuth />}>
           <Route path="/no-subscription" element={<NoSubscription />} />
           <Route path="/create-group" element={<CreateGroup />} />
+          <Route path="/create-group/plan" element={<CreatePlan />} />
           <Route path="/create-group/details" element={<CreateDetails />} />
           <Route path="/create-group/verify" element={<CreateVerify />} />
           <Route path="/create-group/review" element={<CreateReview />} />

@@ -2,9 +2,10 @@ import DarkButton from "./DarkButton";
 import iconArrowInk from "../assets/arrow-ink.svg";
 import iconFundPlus from "../assets/fund-plus.svg";
 
-/* Join plan-picker card. Unselected: gray stroke, bare "Successful" status,
-   white Select with the overlaid ink pair. Selected: green stroke, mint
-   "Selected" pill (adds 6px height), dark Select with side-by-side pair. */
+/* Join plan-picker card. Unselected: gray stroke, no status label at all —
+   the mobile frames (JOINT WAITLIST MOBILE PAGE 2) only ever show a chip on
+   the chosen card. Selected: green stroke, mint "Selected" pill (adds 6px
+   height), dark Select with side-by-side pair. */
 export default function PlanCard({ name, price, features, status, selected, onSelect }) {
   return (
     <article

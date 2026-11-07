@@ -12,7 +12,11 @@ function PayButton() {
       to="/join/confirmed"
       className="bg-btn mx-[31px] flex h-[60px] items-center justify-center gap-[12px] rounded-[10px] xl:mx-[31px]"
     >
-      <img src={iconApple} alt="" className="h-[28px] w-[28px] object-contain" />
+      <img
+        src={iconApple}
+        alt=""
+        className="h-[28px] w-[28px] object-contain"
+      />
       <span className="text-[13px] leading-[16px] font-semibold text-white xl:text-[18px] xl:leading-[22px]">
         Apple Pay
       </span>
@@ -20,9 +24,21 @@ function PayButton() {
   );
 }
 
-function Row({ label, to, h, mh }) {
+function Row({ label, to, h, mh, selected = false }) {
   const inner = (
     <>
+      <span
+        aria-hidden
+        className={`mr-[33px] grid h-[20px] w-[20px] flex-none place-items-center rounded-full border xl:mr-[25px] xl:h-[40px] xl:w-[40px] ${
+          selected
+            ? "border-[#000F01] bg-[#000F01]"
+            : "border-[#999999] bg-white"
+        }`}
+      >
+        {selected && (
+          <span className="block h-[10px] w-[10px] rounded-full bg-white xl:h-[20px] xl:w-[20px]" />
+        )}
+      </span>
       <img
         src={iconCard}
         alt=""
@@ -38,7 +54,7 @@ function Row({ label, to, h, mh }) {
       </span>
     </>
   );
-  const cls = `flex ${mh} ${h} items-center bg-[#D9D9D9] pl-[75px] xl:pl-[95px]`;
+  const cls = `flex ${mh} ${h} items-center bg-[#D9D9D9] pl-[30px]`;
   return to ? (
     <Link to={to} className={cls}>
       {inner}
@@ -61,13 +77,23 @@ export default function JoinApplePay() {
         <div className="relative bg-white">
           <div className="px-[63px] pt-[50px] pb-[101px]">
             <div className="overflow-hidden rounded-[15px]">
-              <Row label="Card" to="/join/card" h="xl:h-[103px]" mh="h-[75px]" />
-              <Row label="Apple Pay" h="xl:h-[104px]" mh="h-[76px]" />
+              <Row
+                label="Card"
+                to="/join/card"
+                h="xl:h-[103px]"
+                mh="h-[75px]"
+              />
+              <Row label="Apple Pay" selected h="xl:h-[104px]" mh="h-[76px]" />
               <div className="bg-white pt-[20px]">
                 <PayButton />
               </div>
               <div className="bg-white pt-[30px]">
-                <Row label="Google Pay" to="/join/google-pay" h="xl:h-[103px]" mh="h-[75px]" />
+                <Row
+                  label="Google Pay"
+                  to="/join/google-pay"
+                  h="xl:h-[103px]"
+                  mh="h-[75px]"
+                />
               </div>
             </div>
           </div>
@@ -78,30 +104,43 @@ export default function JoinApplePay() {
         <div className="pb-[60px]" />
       </div>
       {/* Mobile */}
-      <main className="relative xl:hidden">
-        <BlurBg variant="page" />
+      <main className="relative bg-white xl:hidden">
         <div className="relative bg-white">
           <CreateGroupHead title="Payment Method" mBig />
         </div>
         <div className="relative bg-white">
           <div className="px-[30px] pt-[50px] pb-[60px]">
             <div className="overflow-hidden rounded-[15px]">
-              <Row label="Card" to="/join/card" h="xl:h-[103px]" mh="h-[75px]" />
-              <Row label="Apple Pay" h="xl:h-[104px]" mh="h-[76px]" />
+              <Row
+                label="Card"
+                to="/join/card"
+                h="xl:h-[103px]"
+                mh="h-[75px]"
+              />
+              <Row label="Apple Pay" selected h="xl:h-[104px]" mh="h-[76px]" />
               <div className="bg-white">
                 <div className="mx-[31px] xl:hidden">
                   <Link
                     to="/join/confirmed"
                     className="bg-btn flex h-[50px] items-center justify-center gap-[10px] rounded-[10px]"
                   >
-                    <img src={iconApple} alt="" className="h-[20px] w-[20px] object-contain" />
+                    <img
+                      src={iconApple}
+                      alt=""
+                      className="h-[20px] w-[20px] object-contain"
+                    />
                     <span className="text-[13px] leading-[16px] font-semibold text-white">
                       Apple Pay
                     </span>
                   </Link>
                 </div>
               </div>
-              <Row label="Google Pay" to="/join/google-pay" h="xl:h-[103px]" mh="h-[75px]" />
+              <Row
+                label="Google Pay"
+                to="/join/google-pay"
+                h="xl:h-[103px]"
+                mh="h-[75px]"
+              />
             </div>
           </div>
         </div>

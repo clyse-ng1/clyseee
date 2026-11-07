@@ -10,7 +10,7 @@ import iconError from "../assets/error-circle-red.svg";
    at +194, message, then the button pair. The grey "Get in touch" has no
    background in Figma (bare white text) — rendered as the grey button.
    Literal "\n" text fixed to a break. Mobile keeps its white card. */
-const SUB = "Subscription you've joined the waitlist for, We'll notify you when a group becomes available";
+const SUB = "Browse available groups and join the waitlist for, We'll notify you when a group becomes available";
 
 function ErrorText() {
   return (
@@ -55,15 +55,9 @@ export default function WaitlistError() {
         </div>
       </main>
       {/* Mobile */}
-      <main className="relative xl:hidden">
-        <BlurBg variant="page" />
-        <div className="relative px-[30px] pt-[46px]">
+      <main className="relative bg-white xl:hidden">
+        <div className="relative bg-white px-[30px] pt-[46px] pb-[40px]">
           <MemberMini />
-          <div className="mt-[19px] flex h-[33px] items-center justify-center rounded-[5px] border border-line bg-white">
-            <svg width="22" height="10" viewBox="0 0 22 10" aria-hidden>
-              <path d="M0 0h22L11 10z" fill="#9E9E9E" />
-            </svg>
-          </div>
           <h1 className="mt-[51px] text-[30px] leading-[37px] font-bold text-black">
             Waitlist
           </h1>

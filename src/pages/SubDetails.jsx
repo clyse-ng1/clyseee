@@ -221,8 +221,7 @@ export default function SubDetails() {
         </div>
       </main>
       {/* Mobile */}
-      <main className="relative xl:hidden">
-        <BlurBg variant="page" />
+      <main className="relative bg-white xl:hidden">
         <div className="relative px-[30px] pt-[46px] pb-[60px]">
           <SubDetailsMobile
             variant="details"

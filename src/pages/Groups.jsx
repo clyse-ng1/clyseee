@@ -183,15 +183,9 @@ export default function Groups() {
         </div>
       </main>
       {/* Mobile (M9 687:11080) */}
-      <main className="relative xl:hidden">
-        <BlurBg variant="page" />
-        <div className="relative px-[30px] pt-[46px]">
+      <main className="relative bg-white xl:hidden">
+        <div className="relative bg-white px-[30px] pt-[46px] pb-[40px]">
           <MemberMini />
-          <div className="mt-[19px] flex h-[33px] items-center justify-center rounded-[5px] border border-line bg-white">
-            <svg width="22" height="10" viewBox="0 0 22 10" aria-hidden>
-              <path d="M0 0h22L11 10z" fill="#9E9E9E" />
-            </svg>
-          </div>
           <div className="mt-[51px]">
             <TitleBlock />
           </div>

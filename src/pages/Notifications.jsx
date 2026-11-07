@@ -383,21 +383,9 @@ export default function Notifications() {
         </div>
       </main>
       {/* Mobile */}
-      <main className="relative xl:hidden">
-        <BlurBg variant="page" />
-        <div className="relative px-[30px] pt-[46px]">
+      <main className="relative bg-white xl:hidden">
+        <div className="relative bg-white px-[30px] pt-[46px] pb-[40px]">
           <MemberMini />
-          <div className="mt-[14px] flex h-[33px] items-center justify-center rounded-[5px] border border-line bg-white">
-            <svg width="16" height="8" viewBox="0 0 19 9" fill="none" aria-hidden>
-              <path
-                d="M1.5 1.5 9.5 7.5l8-6"
-                stroke="#6B6B6B"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-            </svg>
-          </div>
           <div className="mt-[30px] flex items-end justify-between gap-[12px]">
             <div>
               <h1 className="text-[20px] leading-[25px] font-bold text-black">

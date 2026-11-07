@@ -113,7 +113,7 @@ export default function JoinPlan() {
                 <PlanCard
                   key={i}
                   {...p}
-                  status={sel === i ? "Selected" : "Successful"}
+                  status={sel === i ? "Selected" : null}
                   selected={sel === i}
                   onSelect={() => setSel(i)}
                 />
@@ -128,9 +128,8 @@ export default function JoinPlan() {
         <div className="pb-[60px]" />
       </div>
       {/* Mobile */}
-      <main className="relative xl:hidden">
-        <BlurBg variant="page" />
-        <div className="relative px-[30px] pt-[46px]">
+      <main className="relative bg-white xl:hidden">
+        <div className="relative bg-white px-[30px] pt-[46px] pb-[40px]">
           <MemberMini />
         </div>
         <div className="relative mt-[103px] border-y border-[#BABABA] bg-white">
@@ -151,7 +150,7 @@ export default function JoinPlan() {
                 <PlanCard
                   key={i}
                   {...p}
-                  status={sel === i ? "Selected" : "Successful"}
+                  status={sel === i ? "Selected" : null}
                   selected={sel === i}
                   onSelect={() => setSel(i)}
                 />

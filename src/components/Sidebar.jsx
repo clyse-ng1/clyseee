@@ -8,10 +8,14 @@ import { SECTIONS } from "./sidebarNav";
 import { loadGroups } from "../lib/groupsCache";
 
 function Row({ r, active }) {
-  const cls = `relative flex h-[56px] w-[292px] items-center rounded-[10px] pl-[16px] pr-[14px] ${
+  /* The border is on every row, active or not, and the label keeps one size.
+     Before, the active row dropped its 1px border and grew its text to 22px,
+     so the whole sidebar nudged sideways and the label re-flowed every time a
+     menu item was clicked. */
+  const cls = `relative flex h-[56px] w-[292px] items-center rounded-[10px] border border-clyse pl-[16px] pr-[14px] ${
     active
       ? "bg-btn"
-      : "border border-clyse bg-white shadow-[0_0_7px_rgba(0,23,1,0.25)]"
+      : "bg-white shadow-[0_0_7px_rgba(0,23,1,0.25)]"
   }`;
   const inner = (
     <>
@@ -21,10 +25,8 @@ function Row({ r, active }) {
         className="h-[26px] w-[26px] flex-none"
       />
       <span
-        className={`ml-[12px] truncate font-semibold ${
-          active
-            ? "text-[22px] leading-[30px] text-[#F1F8F1]"
-            : "text-[18px] leading-[22px] text-ink"
+        className={`ml-[12px] truncate text-[18px] leading-[22px] font-semibold ${
+          active ? "text-[#F1F8F1]" : "text-ink"
         }`}
       >
         {r.label}

@@ -240,8 +240,7 @@ export default function GroupDetails() {
         </div>
       </main>
       {/* Mobile */}
-      <main className="relative xl:hidden">
-        <BlurBg variant="page" />
+      <main className="relative bg-white xl:hidden">
         <div className="relative px-[30px] pt-[46px] pb-[60px]">
           <h1 className="text-[30px] leading-[37px] font-bold text-black">
             Group Details

@@ -210,25 +210,6 @@ export default function Group() {
             </h1>
           </div>
 
-          <div className="relative z-20 mt-[50px] rounded-[20px] border border-line bg-white px-[21px] pt-[31px] pb-[20px] shadow-[2px_2px_7px_rgba(0,23,1,0.25)]">
-            <div className="bg-btn flex h-[50px] items-center rounded-[10px] border border-line pl-[21px] text-[25px] leading-[35px] font-semibold text-mint">
-              Netflix Premium
-            </div>
-            <DropSelect
-              value={sort}
-              options={["Name A–Z", "Name Z–A"]}
-              onChange={setSort}
-              ariaLabel="Sort members"
-              buttonClass="mt-[20px] flex h-[33px] w-full items-center justify-center rounded-[5px] border border-line bg-white px-[12px]"
-              labelClass="truncate text-[15px] font-semibold text-ink"
-              chevron={<img src={iconChevDown} alt="" className="h-[9px] w-[16px]" />}
-            />
-          </div>
-          <div className="mt-[20px] flex h-[50px] items-center justify-between rounded-[10px] border border-line bg-white px-[21px] text-[18px] leading-[22px] font-semibold text-black">
-            Service name
-            <img src={iconChevRight} alt="" className="h-[22px] w-[12px] text-ink" />
-          </div>
-
           <div className="flex flex-col gap-[6px]">
             {members.map((m) => (
               <MobileGroupCard key={m.name} avatar={m.avatar} name={m.name} />

@@ -26,7 +26,8 @@ const MAX_BYTES = 5 * 1024 * 1024;
 function checkFile(f) {
   if (!f) return "";
   if (!ACCEPT.includes(f.type)) return "Please upload a JPG, PNG or PDF file.";
-  if (f.size > MAX_BYTES) return "That file is over 5MB. Please pick a smaller one.";
+  if (f.size > MAX_BYTES)
+    return "That file is over 5MB. Please pick a smaller one.";
   return "";
 }
 
@@ -159,7 +160,7 @@ export default function CreateVerify() {
       <BlurBg variant="hero" />
       {/* Desktop */}
       <main className="relative z-10 mx-[163px] mt-[100px] hidden xl:block">
-        <StepHeader step={3} />
+        <StepHeader step={4} />
         <h2 className="mt-[50px] text-center text-[35px] leading-[43px] font-bold">
           Verify Subscription
         </h2>
@@ -186,19 +187,27 @@ export default function CreateVerify() {
             Other Custom Subscription
           </span>
         </button>
-        <Link
-          to="/create-group/review"
-          state={nextState}
-          className="mx-auto mt-[50px] grid h-[60px] w-[470px] place-items-center rounded-2xl bg-btn text-[18px] font-semibold text-mint"
-        >
-          Continue
-        </Link>
+        <div className="mx-auto mt-[50px] flex w-[990px] gap-[50px]">
+          <Link
+            to="/create-group/details"
+            className="grid h-[60px] w-[470px] place-items-center rounded-2xl border border-clyse text-[18px] font-semibold text-ink"
+          >
+            Go Back
+          </Link>
+          <Link
+            to="/create-group/review"
+            state={nextState}
+            className="grid h-[60px] w-[470px] place-items-center rounded-2xl bg-btn text-[18px] font-semibold text-mint"
+          >
+            Continue
+          </Link>
+        </div>
         <div className="pb-[150px]" />
       </main>
 
       {/* Mobile */}
       <main className="relative z-10 xl:hidden">
-        <StepHeader step={3} />
+        <StepHeader step={4} />
         <h2 className="mt-[36px] text-center text-[24.27px] leading-[30px] font-bold">
           Verify Subscription
         </h2>
@@ -225,13 +234,21 @@ export default function CreateVerify() {
             Other Custom Subscription
           </span>
         </button>
-        <Link
-          to="/create-group/review"
-          state={nextState}
-          className="mx-[30px] mt-[34px] grid h-[50px] w-[370px] place-items-center rounded-[11.1px] bg-btn text-[12.48px] font-semibold text-mint"
-        >
-          Continue
-        </Link>
+        <div className="mx-[30px] mt-[34px] flex gap-[24px]">
+          <Link
+            to="/create-group/details"
+            className="grid h-[50px] flex-1 place-items-center rounded-[11.1px] border border-clyse text-[12.48px] font-semibold text-ink"
+          >
+            Go Back
+          </Link>
+          <Link
+            to="/create-group/review"
+            state={nextState}
+            className="grid h-[50px] flex-1 place-items-center rounded-[11.1px] bg-btn text-[12.48px] font-semibold text-mint"
+          >
+            Continue
+          </Link>
+        </div>
         <div className="pb-[91px]" />
       </main>
     </div>

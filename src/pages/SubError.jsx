@@ -8,7 +8,6 @@ import iconError from "../assets/error-circle-red.svg";
 
 const SUB = "Manage your subscriptions, view details, and track your groups.";
 const MSG = "We couldn't load your subscription information. Please try again.";
-const M_MSG = "We couldn't load your wallet information. Please try again.";
 
 export default function SubError() {
   return (
@@ -46,15 +45,9 @@ export default function SubError() {
         </div>
       </main>
       {/* Mobile (W2 601:26793) */}
-      <main className="relative xl:hidden">
-        <BlurBg variant="page" />
-        <div className="relative px-[30px] pt-[46px]">
+      <main className="relative bg-white xl:hidden">
+        <div className="relative bg-white px-[30px] pt-[46px] pb-[40px]">
           <MemberMini />
-          <div className="mt-[19px] flex h-[33px] items-center justify-center rounded-[5px] border border-line bg-white">
-            <svg width="22" height="10" viewBox="0 0 22 10" aria-hidden>
-              <path d="M0 0h22L11 10z" fill="#9E9E9E" />
-            </svg>
-          </div>
           <h1 className="mt-[51px] text-[30px] leading-[37px] font-bold text-black">
             Subscription
           </h1>
@@ -70,7 +63,7 @@ export default function SubError() {
             Subscription unavailable
           </h2>
           <p className="mx-auto mt-[8px] max-w-[332px] text-center text-[13px] leading-[20px] font-semibold text-[#66726C]">
-            {M_MSG}
+            {MSG}
           </p>
           <div className="mt-[8px] flex justify-center">
             <MiniButton variant="red" to="/subscriptions">
