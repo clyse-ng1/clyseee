@@ -203,7 +203,10 @@ export default function Browse() {
     <div className="min-h-screen bg-white font-sans text-ink">
       <Navbar loggedIn />
       {/* Desktop */}
-      <main className="relative mx-auto hidden w-[1240px] pb-[100px] xl:block">
+      {/* Same shell as every other member page (mx-[20px] / min-[1440px]:mx-[100px])
+          so the sidebar does not jump sideways when Browse Group is clicked. The
+          372 + 38 + 830 children already measure 1240. */}
+      <main className="relative mx-[20px] hidden pb-[100px] min-[1440px]:mx-[100px] xl:block">
         <BlurBg variant="hero" />
         <div className="relative flex gap-[38px] pt-[101px]">
           <Sidebar active="Browse Group" />

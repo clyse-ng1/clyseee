@@ -96,7 +96,7 @@ export default function SubReport() {
       {/* Desktop */}
       <main className="relative mx-[20px] min-[1440px]:mx-[100px] hidden pb-[100px] xl:block">
         <BlurBg variant="hero" />
-        <div className="relative mt-[89px] flex gap-[38px]">
+        <div className="relative flex gap-[38px] pt-[101px]">
           <Sidebar active="My Subscription" />
           <SubDetailsDesktop
             variant="report"

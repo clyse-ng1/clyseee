@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../lib/useAuth";
 import logo from "../assets/logo.png";
 import avatarAccount from "../assets/avatar-account.webp";
@@ -82,6 +82,16 @@ export default function Navbar({ loggedIn = false, landing = false }) {
   const [accountOpen, setAccountOpen] = useState(false);
   const { user, logout } = useAuth();
   const navigate = useNavigate();
+  const { pathname } = useLocation();
+
+  /* Mobile drawer: which row is the current page? Exact match first, then the
+     longest prefix that matches (so /groups/browse keeps "My Group" lit and
+     /wallet/empty keeps "My Wallet" lit). */
+  const isRowActive = (to) => {
+    if (!to) return false;
+    if (to === "/dashboard" || to === "/browse" || to === "/profile") return pathname === to;
+    return pathname === to || pathname.startsWith(`${to}/`);
+  };
 
   const signOut = async () => {
     setOpen(false);
@@ -212,9 +222,25 @@ export default function Navbar({ loggedIn = false, landing = false }) {
                           key={r.label}
                           to={r.to}
                           onClick={() => setOpen(false)}
-                          className="flex h-[50px] w-[333px] max-w-full items-center text-[18px] leading-[22px] font-semibold text-white"
+                          aria-current={isRowActive(r.to) ? "page" : undefined}
+                          className={`flex h-[50px] w-[333px] max-w-full items-center gap-[12px] rounded-[8px] pl-[12px] text-[18px] leading-[22px] font-semibold transition ${
+                            isRowActive(r.to)
+                              ? "bg-[#0B5B18] text-white"
+                              : "text-white/85"
+                          }`}
                         >
-                          {r.label}
+                          <span
+                            aria-hidden="true"
+                            className={`h-[8px] w-[8px] flex-none rounded-full ${
+                              isRowActive(r.to) ? "bg-mint" : "bg-transparent"
+                            }`}
+                          />
+                          <span className="truncate">{r.label}</span>
+                          {isRowActive(r.to) && (
+                            <span className="ml-auto pr-[12px] text-[12px] leading-[16px] font-bold tracking-[0.12em] text-mint uppercase">
+                              Here
+                            </span>
+                          )}
                         </Link>
                       ))}
                   </div>
