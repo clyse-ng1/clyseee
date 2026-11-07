@@ -18,6 +18,8 @@ import iconQaPlus from "../assets/qa-plus.svg";
 import iconQaSliders from "../assets/qa-sliders.svg";
 import iconQaClock from "../assets/qa-clock.svg";
 import iconQaSupport from "../assets/qa-support.svg";
+import iconQaBolt from "../assets/qa-bolt.svg";
+import ExtraBlock from "../components/ExtraBlock";
 import iconMovies from "../assets/glyph-movies.svg";
 import iconMusic from "../assets/glyph-music.svg";
 import iconProductivity from "../assets/glyph-productivity.svg";
@@ -693,27 +695,8 @@ export default function Wallet() {
 
       {/* Mobile */}
       <main className="relative bg-white xl:hidden">
-        <div className="relative bg-white px-[30px] pt-[30px] pb-[21px]">
-          <div className="flex items-center gap-[6px]">
-            <img
-              src={user?.avatar_url || avatarAccount}
-              alt={name}
-              className="h-[50px] w-[50px] rounded-full object-cover"
-            />
-            <div>
-              <p className="text-[24.77px] leading-[28px] font-bold text-ink">
-                {name}
-              </p>
-              <p className="text-[12.88px] leading-[20px] font-semibold text-[#6B6B6B]">
-                Member on Clyse Since {since}
-              </p>
-            </div>
-          </div>
-          <MemberMenuButton active="My Wallet" />
-        </div>
-
-        <div className="relative mx-[30px] mt-[18px]">
-          <h1 className="text-[30px] leading-[37px] font-bold text-black">Wallet</h1>
+        <div className="relative mx-[30px] mt-[30px]">
+          <h1 className="text-[25px] leading-[32px] font-bold text-black">Wallet</h1>
           <p className="mt-[3px] text-[14px] leading-[20px] font-semibold text-[#6B6B6B]">
             Manage your balance, fund your wallet and track your transactions
           </p>
@@ -750,11 +733,6 @@ export default function Wallet() {
               onClick={openFund}
               className="relative flex h-[60px] w-full items-center justify-center rounded-[6.94px] bg-[#F1F8F1]"
             >
-              <img
-                src={iconFundArrow}
-                alt=""
-                className="absolute left-[30px] w-[15px]"
-              />
               <span className="flex items-center">
                 <img src={iconFundPlus} alt="" className="w-[18px]" />
                 <span className="ml-[12px] text-[18px] font-semibold text-ink">
@@ -767,11 +745,6 @@ export default function Wallet() {
               onClick={openFund}
               className="relative flex h-[60px] w-full items-center justify-center rounded-[6.94px] bg-[#048B0B]"
             >
-              <img
-                src={iconPlusWhite}
-                alt=""
-                className="absolute left-[28px] w-[18px]"
-              />
               <span className="flex items-center">
                 <span className="flex h-[30px] w-[30px] items-center justify-center rounded-full bg-white">
                   <img src={iconArrowInk} alt="" className="w-[15px] rotate-180" />
@@ -788,14 +761,12 @@ export default function Wallet() {
         </div>
 
         <div className="bg-btn relative mt-[50px] pb-[40px]">
-          <img
-            src={iconQaSupport}
-            alt=""
-            className="absolute top-[42px] left-[30px] h-[40px] w-[40px]"
-          />
-          <h2 className="mt-[40px] ml-[90px] text-[35px] leading-[43px] font-semibold text-white">
-            Quick Actions
-          </h2>
+          <div className="flex items-center gap-[20px] px-[30px] pt-[40px]">
+            <img src={iconQaBolt} alt="" className="h-[40px] w-[40px] flex-none" />
+            <h2 className="text-[35px] leading-[43px] font-semibold text-white">
+              Quick Actions
+            </h2>
+          </div>
           <div className="mx-[30px] mt-[30px] grid grid-cols-2 gap-[10px]">
             {QA_MOBILE.map((q) => (
               <QACard key={q.label} item={q} onFund={openFund} />
@@ -805,7 +776,7 @@ export default function Wallet() {
 
         <div className="relative mt-[50px] rounded-[20px] bg-white pt-[30px] pb-[30px]">
           <div className="flex items-start">
-            <h2 className="ml-[30px] w-[249px] text-center text-[25px] leading-[35px] font-semibold">
+            <h2 className="ml-[30px] text-[23px] leading-[32px] font-semibold whitespace-nowrap">
               Transaction History
             </h2>
             <button
@@ -871,25 +842,9 @@ export default function Wallet() {
           )}
         </div>
 
-        <div className="bg-mintband relative mt-[50px] rounded-[13.87px] pb-[16px]">
-          <h2 className="pt-[15px] text-center text-[24.27px] leading-[30px] font-bold text-ink">
-            Become an Owner
-          </h2>
-          <p className="mt-[21px] text-center text-[17.34px] leading-[25px] font-semibold text-ink">
-            Save money by offering your subscription
-          </p>
-          <Link
-            to="/create-group"
-            className="bg-btn mx-auto mt-[21px] flex h-[50px] w-[200px] items-center justify-center rounded-[6.94px] text-[12.48px] font-semibold text-mint"
-          >
-            Create
-          </Link>
-          <img
-            loading="lazy" decoding="async" src={ctaDash}
-            alt=""
-            className="mx-[28px] mt-[21px] aspect-[375/209] w-[calc(100%-56px)] max-w-[375px] object-cover"
-          />
-        </div>
+        {/* Figma WALLET MOBILE PAGE 481:11028 closes on the standard two-row
+            extra block (View Available Group / Create Group), not the owner card. */}
+        <ExtraBlock mobile className="mt-[50px]" />
       </main>
       <div className="xl:hidden">
       </div>

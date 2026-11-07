@@ -1,12 +1,11 @@
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import Sidebar from "../components/Sidebar";
 import SubCard, { SubCardSk } from "../components/SubCard";
 import GroupTabs from "../components/GroupTabs";
 import { loadGroups, readGroups, subscribeGroups } from "../lib/groupsCache";
 import ExtraBlock from "../components/ExtraBlock";
-import MemberMini from "../components/MemberMini";
 import { BlurBg } from "../components/Decor";
 import { api, brandOf, kobo, totalPriceKobo } from "../lib/api";
 import { groupBucket } from "../lib/useGroup";
@@ -63,6 +62,7 @@ function mapRow(g) {
 }
 
 export default function GroupBrowse() {
+  const navigate = useNavigate();
   const [groups, setGroups] = useState(() => readGroups());
   const [failed, setFailed] = useState(false);
   const [tab, setTab] = useState(0);
@@ -146,9 +146,28 @@ export default function GroupBrowse() {
       </main>
       {/* Mobile (M10 691:20651) */}
       <main className="relative bg-white xl:hidden">
-        <div className="relative bg-white px-[30px] pt-[46px] pb-[40px]">
-          <MemberMini />
-          <h1 className="mt-[51px] text-[30px] leading-[37px] font-bold text-black">
+        <div className="relative bg-white px-[30px] pt-[30px] pb-[40px]">
+          {/* Figma JOINT WAITLIST MOBILE PAGE 10: a back chevron sits directly
+              above the title. The member header that used to sit here (avatar +
+              name + "Member on Clyse Since") pushed the heading down and, on
+              narrow phones, overlapped it. */}
+          <button
+            type="button"
+            onClick={() => navigate(-1)}
+            aria-label="Back"
+            className="grid h-[44px] w-[44px] place-items-center rounded-full bg-white shadow-[0_0_13.87px_rgba(0,23,1,0.15)]"
+          >
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden>
+              <path
+                d="m14.5 5.5-7 6.5 7 6.5"
+                stroke="#001701"
+                strokeWidth="2.4"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </svg>
+          </button>
+          <h1 className="mt-[24px] text-[30px] leading-[37px] font-bold text-black">
             My Group
           </h1>
           <p className="text-[13px] leading-[20px] font-semibold text-[#6B6B6B]">

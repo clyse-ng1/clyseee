@@ -251,8 +251,11 @@ export default function Browse() {
                       key={b.brand}
                       type="button"
                       onClick={() => setPicked(picked === b.name ? null : b.name)}
-                      className={`flex min-h-[179px] flex-col items-center rounded-[16px] border border-clyse bg-white px-[16px] py-[20px] transition hover:shadow-[0_0_12px_rgba(4,139,11,0.15)] ${
-                        picked === b.name ? "shadow-[0_0_12px_rgba(4,139,11,0.15)]" : ""
+                      aria-pressed={picked === b.name}
+                      className={`flex min-h-[179px] cursor-pointer flex-col items-center rounded-[16px] border bg-white px-[16px] py-[20px] transition hover:border-[#048B0B] hover:shadow-[0_0_12px_rgba(4,139,11,0.18)] ${
+                        picked === b.name
+                          ? "border-[#048B0B] shadow-[0_0_12px_rgba(4,139,11,0.18)] ring-2 ring-[#B1DBB3]"
+                          : "border-clyse"
                       }`}
                     >
                       <BrandTile brand={b.brand} name={b.name} size={75} plain />
@@ -276,9 +279,20 @@ export default function Browse() {
                 )}
               </>
             )}
-            <h2 className="mt-[50px] text-[35px] leading-[43px] font-bold text-ink">
-              Join Group
-            </h2>
+            <div className="mt-[50px] flex items-baseline justify-between gap-[20px]">
+              <h2 className="text-[35px] leading-[43px] font-bold text-ink">Join Group</h2>
+              {picked && (
+                <button
+                  type="button"
+                  onClick={() => setPicked(null)}
+                  className="flex h-[36px] items-center gap-[8px] rounded-[18px] bg-mint px-[16px] text-[15px] font-semibold text-clyse"
+                >
+                  {picked}
+                  <span aria-hidden="true">×</span>
+                  <span className="sr-only">Clear service filter</span>
+                </button>
+              )}
+            </div>
             <div className="mt-[62px] grid grid-cols-3 gap-x-[38px] gap-y-[62px]">
               {loadingGroups
                 ? Array.from({ length: 3 }, (_, i) => <Sk key={`group-loading-${i}`} className="h-[250px] w-full !rounded-[16px]" />)
@@ -356,7 +370,12 @@ export default function Browse() {
                   key={b.brand}
                   type="button"
                   onClick={() => setPicked(picked === b.name ? null : b.name)}
-                  className="flex min-h-[130px] flex-col items-center rounded-[16px] border border-clyse bg-white px-[10px] py-[16px]"
+                  aria-pressed={picked === b.name}
+                  className={`flex min-h-[130px] cursor-pointer flex-col items-center rounded-[16px] border bg-white px-[10px] py-[16px] ${
+                    picked === b.name
+                      ? "border-[#048B0B] ring-2 ring-[#B1DBB3]"
+                      : "border-clyse"
+                  }`}
                 >
                   <BrandTile brand={b.brand} name={b.name} size={50} plain />
                   <span className="mt-[8px] line-clamp-2 min-h-[36px] text-[13px] leading-[18px] font-bold text-ink">
@@ -382,9 +401,21 @@ export default function Browse() {
             </button>
           )}
 
-          <h2 className="mt-[40px] text-[25px] leading-[30px] font-bold text-ink">
-            Available Group
-          </h2>
+          <div className="mt-[40px] flex items-center justify-between gap-[10px]">
+            <h2 className="text-[25px] leading-[30px] font-bold text-ink">
+              Available Group
+            </h2>
+            {picked && (
+              <button
+                type="button"
+                onClick={() => setPicked(null)}
+                className="flex h-[30px] items-center gap-[6px] rounded-[15px] bg-mint px-[12px] text-[12.5px] font-semibold text-clyse"
+              >
+                {picked} ×
+                <span className="sr-only">Clear service filter</span>
+              </button>
+            )}
+          </div>
           <div className="mt-[20px] grid grid-cols-2 gap-x-[16px] gap-y-[16px]">
             {loadingGroups
               ? Array.from({ length: 4 }, (_, i) => (

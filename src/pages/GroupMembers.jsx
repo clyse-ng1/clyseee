@@ -1,9 +1,11 @@
 import { useEffect, useState } from "react";
-import { Navigate, useLocation } from "react-router-dom";
+import { Link, Navigate, useLocation } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import Sidebar from "../components/Sidebar";
 import GroupTabs from "../components/GroupTabs";
 import ExtraBlock from "../components/ExtraBlock";
+import iconMovie from "../assets/figma/icon-movie.svg";
+import iconMusic from "../assets/figma/icon-music.svg";
 import MemberMini from "../components/MemberMini";
 import { BlurBg } from "../components/Decor";
 import Sk from "../components/Skeleton";
@@ -153,45 +155,67 @@ function MemberRow({ name, status, sub, mid, canRemove, busy, onRemove, onDetail
   );
 }
 
-/* Mobile row (M12): h87, 50px avatar + name/sub, hug pill, no tag. */
-function MemberRowM({ name, status, sub, mid, canRemove, busy, onRemove, onDetails }) {
+/* Mobile row (Figma PAGE 11): 370x86 card, 56px avatar, name + "Share <group>"
+   line, green VERIFIED INVOICE when access is confirmed, slot price pill at the
+   top right and a chevron on the right edge. */
+function MemberRowM({ name, verified, sub, mid, price, onDetails }) {
   return (
-    <div className="flex h-[87px] rounded-[20px] bg-white px-[11px] shadow-[0_0_20px_rgba(0,23,1,0.10)]">
-      <span className="grid h-[50px] w-[50px] flex-none place-items-center self-center rounded-full bg-[#DFFFE0] text-[18px] font-bold text-ink">
+    <div className="flex min-h-[86px] items-center rounded-[12px] bg-white px-[14px] py-[12px] shadow-[0_0_20px_rgba(0,23,1,0.10)]">
+      <span className="grid h-[56px] w-[56px] flex-none place-items-center rounded-full bg-[#DFFFE0] text-[18px] font-bold text-ink">
         {initials(name)}
       </span>
-      <span className="ml-[10px] min-w-0 pt-[16px]">
-        <span className="block text-[18px] leading-[22px] font-semibold whitespace-nowrap text-ink">
+      <span className="ml-[12px] min-w-0 flex-1">
+        <span className="block truncate text-[17px] leading-[22px] font-bold text-ink">
           {name}
         </span>
-        <span className="mt-[13px] block max-w-[158px] truncate text-[11px] leading-[20px] font-semibold whitespace-nowrap text-[#6B6B6B]">
+        <span className="mt-[2px] block truncate text-[12.5px] leading-[17px] font-semibold text-[#6B6B6B]">
           {sub}
         </span>
-      </span>
-      <span className="mt-[16px] ml-auto flex flex-none flex-col items-end">
-        <span
-          className={`flex h-[32px] items-center justify-center rounded-[5px] px-[10px] ${status.bg}`}
-        >
-          <span className={`text-[13px] leading-[16px] font-semibold whitespace-nowrap ${status.text}`}>
-            {status.label}
+        {verified ? (
+          <span className="mt-[4px] flex items-center gap-[4px]">
+            <svg width="12" height="12" viewBox="0 0 24 24" aria-hidden>
+              <circle cx="12" cy="12" r="12" fill="#048B0B" />
+              <path
+                d="m7 12.5 3.2 3.2L17 9"
+                stroke="#FFFFFF"
+                strokeWidth="2.6"
+                fill="none"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </svg>
+            <span className="text-[9.5px] leading-[12px] font-bold tracking-[0.4px] text-[#048B0B]">
+              VERIFIED INVOICE
+            </span>
           </span>
-        </span>
-        <RemoveButton
-          mid={mid}
-          canRemove={canRemove}
-          busy={busy}
-          onRemove={onRemove}
-          mobile
-        />
-        {mid && (
+        ) : null}
+      </span>
+      <span className="ml-[8px] flex flex-none flex-col items-end gap-[10px]">
+        {price ? (
+          <span className="flex h-[30px] items-center justify-center rounded-[5px] bg-[#B1DBB3] px-[10px]">
+            <span className="text-[12.5px] leading-[16px] font-semibold whitespace-nowrap text-ink">
+              {price}
+            </span>
+          </span>
+        ) : null}
+        {mid ? (
           <button
             type="button"
             onClick={onDetails}
-            className="mt-[4px] text-[12px] leading-[14px] font-semibold text-clyse"
+            aria-label={`${name} details`}
+            className="grid h-[22px] w-[22px] place-items-center"
           >
-            Details
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden>
+              <path
+                d="m9 5 7 7-7 7"
+                stroke="#001701"
+                strokeWidth="2.2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </svg>
           </button>
-        )}
+        ) : null}
       </span>
     </div>
   );
@@ -285,6 +309,7 @@ export default function GroupMembers() {
     bucket: memberBucket(m),
     name: m.first_name || m.full_name || "Member",
     status: memberPill(m),
+    verified: !!m.access?.confirmed,
     sub: [
       m.joined_at ? `Joined ${fmtDay(m.joined_at)}` : null,
       m.payment?.amount_kobo != null ? `Paid ${kobo(m.payment.amount_kobo)}` : null,
@@ -295,6 +320,16 @@ export default function GroupMembers() {
           : "Access not confirmed",
     ].filter(Boolean).join(" · "),
   }));
+  const groupName = [group?.service?.name, group?.plan?.name].filter(Boolean).join(" ") || "Group";
+  const groupGlyph = /music|audio|spotify|apple|boom/i.test(
+    [group?.service?.name, group?.service?.category].filter(Boolean).join(" "),
+  )
+    ? iconMusic
+    : iconMovie;
+  const slotPrice = (() => {
+    const raw = group?.plan?.price_kobo ?? group?.price_kobo ?? group?.slot_price_kobo ?? null;
+    return raw != null ? `${kobo(raw)}/Monthly` : null;
+  })();
   const groupLabel = group
     ? `Member | ${[group.service?.name, group.plan?.name].filter(Boolean).join(" ")} Plan`
     : SUB;
@@ -376,26 +411,45 @@ export default function GroupMembers() {
       </main>
       {/* Mobile (M12 693:22289): has subtitle + full-bleed rows card */}
       <main className="relative bg-white xl:hidden">
-        <div className="relative bg-white px-[30px] pt-[46px] pb-[40px]">
-          <MemberMini />
-          <h1 className="mt-[51px] text-[30px] leading-[37px] font-bold text-black">
-            Member
+        {/* Figma EMAIL VERIFICATION MOBILE PAGE 11 (the member roster): a back
+            chevron plus the group name, then the roster cards. No member
+            header, no page title, no tabs — those are desktop chrome. */}
+        <div className="mx-[30px] mt-[30px] flex items-center gap-[16px]">
+          <Link
+            to="/groups/browse"
+            aria-label="Back to my groups"
+            className="grid h-[44px] w-[44px] flex-none place-items-center rounded-full bg-white shadow-[0_0_13.87px_rgba(0,23,1,0.15)]"
+          >
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden>
+              <path
+                d="m14.5 5.5-7 6.5 7 6.5"
+                stroke="#001701"
+                strokeWidth="2.4"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </svg>
+          </Link>
+          <span
+            aria-hidden="true"
+            className="h-[26px] w-[26px] flex-none"
+            style={{
+              backgroundColor: "#001701",
+              maskImage: `url(${groupGlyph})`,
+              WebkitMaskImage: `url(${groupGlyph})`,
+              maskSize: "contain",
+              WebkitMaskSize: "contain",
+              maskRepeat: "no-repeat",
+              WebkitMaskRepeat: "no-repeat",
+              maskPosition: "center",
+            }}
+          />
+          <h1 className="min-w-0 truncate text-[25px] leading-[32px] font-bold text-ink">
+            {groupName}
           </h1>
-          <p className="text-[13px] leading-[20px] font-semibold text-[#6B6B6B]">
-            Manage your subscriptions, view details, and track your groups.
-          </p>
-          <p className="mt-[50px] text-right text-[13px] leading-[16px] font-semibold text-clyse">
-            View All
-          </p>
-          <GroupTabs tabs={tabs} className="mt-[12px]" active={tab} onSelect={setTab} loading={!members && !loadFailed} />
-          {group && (group.available_slots != null || group.slots_offered != null) && (
-            <p className="mt-[10px] text-right text-[12px] font-semibold text-[#6B6B6B]">
-              Slots available: {group.available_slots ?? Math.max(0, (group.slots_offered || 0) - (group.occupied_slots || 0))}
-              {group.slots_offered != null ? ` of ${group.slots_offered}` : ""}
-            </p>
-          )}
         </div>
-        <div className="mt-[30px] bg-white px-[30px] pt-[85px] pb-[50px]">
+
+        <div className="mt-[30px] bg-white px-[30px] pb-[40px]">
           {removeError && (
             <p className="mb-[16px] text-[13px] leading-[20px] font-semibold text-[#FF0000]">
               {removeError}
@@ -409,9 +463,7 @@ export default function GroupMembers() {
                 <MemberRowM
                   key={m.key || m.name}
                   {...m}
-                  sub={m.sub || groupLabel}
-                  busy={m.mid != null && busyId === m.mid}
-                  onRemove={() => doRemove(m.mid)}
+                  price={slotPrice}
                   onDetails={() => openDetail(m.mid)}
                 />
               ))
@@ -429,7 +481,6 @@ export default function GroupMembers() {
           </div>
         </div>
         <ExtraBlock mobile className="mt-[40px]" />
-        <div className="bg-white pb-[60px]" />
       </main>
       {detailMid && (
         <DetailModal

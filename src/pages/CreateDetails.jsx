@@ -242,10 +242,10 @@ export default function CreateDetails() {
         <h2 className="ml-[30px] mt-[34px] text-[24.27px] leading-[29.59px] font-bold">
           Group Details
         </h2>
-        <p className="ml-[30px] mt-[34px] text-[22px] leading-[27px] font-semibold">
+        <p className="ml-[30px] mt-[34px] text-[17.34px] leading-[24px] font-semibold">
           How many slots do you want to share?
         </p>
-        <div className="mx-[30px] mt-[41px] h-[210px] rounded-[20.8px] bg-white px-[22px] pt-[22px] shadow-[0_0_13.87px_rgba(0,23,1,0.10)]">
+        <div className="mx-[30px] mt-[34px] h-[210px] rounded-[16px] border border-clyse bg-white px-[22px] pt-[22px] shadow-[0_0_13.87px_rgba(0,23,1,0.10)]">
           <div className="flex h-[54px] items-center rounded-[6.9px] bg-[#E6E6E6] px-[6px]">
             <button
               type="button"
@@ -270,7 +270,7 @@ export default function CreateDetails() {
             </button>
           </div>
           <p className="mt-[10px] text-[17.34px] leading-[24px] font-semibold text-[#6B6B6B]">
-            Total slots: {capacity || 5}
+            Total Slot: {capacity || 5}
           </p>
           <p className="mt-[14px] text-[24.27px] leading-[30px] font-semibold">
             Pricing (Fixed by Clyse)
@@ -304,20 +304,20 @@ export default function CreateDetails() {
         </div>
 
         <p className="ml-[30px] mt-[32px] text-[17.34px] leading-[24px] font-semibold">
-          Provide Subscription Access Link
+          Paste Subscription Access Link
         </p>
         <input
           value={accessLink}
           onChange={(e) => setAccessLink(e.target.value)}
           placeholder="Paste your subscription access link here"
           aria-label="Subscription access link"
-          className="mx-[30px] mt-[12px] h-[46px] w-[calc(100%-60px)] rounded-[8px] border border-[#BABABA] bg-white px-[14px] text-[12.48px] font-semibold text-ink outline-none placeholder:text-[#999999]"
+          className="mx-[30px] mt-[10px] h-[102px] w-[calc(100%-60px)] rounded-[16px] border border-clyse bg-white px-[24px] text-[15px] leading-[22px] font-semibold text-ink underline decoration-[#001701] underline-offset-[3px] outline-none placeholder:text-[#999999] placeholder:no-underline"
         />
 
         <p className="ml-[30px] mt-[43px] text-[22px] leading-[27px] font-bold">
           Group Visibility
         </p>
-        <div className="ml-[66px] mt-[47px] flex items-center gap-[10px]">
+        <div className="mx-[30px] mt-[20px] flex flex-col gap-[16px] rounded-[16px] border border-clyse bg-white px-[20px] py-[20px]">
           <VisOption
             icon={iconAudience}
             title="Public Group"
@@ -326,8 +326,6 @@ export default function CreateDetails() {
             onSelect={() => setVis("public")}
             mobile
           />
-        </div>
-        <div className="ml-[66px] mt-[36px] flex items-center gap-[10px]">
           <VisOption
             icon={iconAudience}
             title="Private Group"
