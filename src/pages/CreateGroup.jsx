@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { useLocation } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 import { Link } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import { BlurBg } from "../components/Decor";
@@ -14,7 +14,7 @@ import { minPrice, useCatalogue } from "../lib/useCatalogue";
 const CARDS = [
   { brand: "netflix", title: "Netflix Premium", chip: "Entertainment" },
   { brand: "spotify", title: "Spotify Premium", chip: "Music" },
-  { brand: "youtube", title: "Youtube Premium", chip: "Entertainment" },
+  { brand: "youtube", title: "YouTube Premium", chip: "Entertainment" },
   { brand: "prime", title: "Prime Video", chip: "Streaming" },
   { brand: "canva", title: "Canva Pro", chip: "Design" },
   { brand: "capcut", title: "CapCut Pro", chip: "Editing" },
@@ -40,7 +40,7 @@ function DesktopCard({ card, from, selected, onSelect }) {
       <span className="mx-auto mt-[5px] grid h-[19px] w-[96px] place-items-center rounded-[3.58px] bg-[#B1DBB3] text-[10px] font-semibold text-clyse">
         {card.chip}
       </span>
-      <span className="mt-[10px] flex items-baseline justify-center gap-[4px]">
+      <span className="mt-[10px] flex items-baseline justify-center gap-0">
         <span className="text-[18px] leading-[22px] font-semibold text-ink">
           From &#8358;{from}/
         </span>
@@ -70,7 +70,7 @@ function MobileCard({ card, from, selected, onSelect }) {
       <span className="mx-auto mt-[3px] grid h-[12px] w-[62px] place-items-center rounded-[2.3px] bg-[#B1DBB3] text-[6.48px] font-semibold text-clyse">
         {card.chip}
       </span>
-      <span className="mt-[7px] flex items-baseline justify-center gap-[3px]">
+      <span className="mt-[7px] flex items-baseline justify-center gap-0">
         <span className="text-[11.66px] leading-[14px] font-semibold text-ink">
           From &#8358;{from}/
         </span>
@@ -84,11 +84,18 @@ function MobileCard({ card, from, selected, onSelect }) {
 
 export default function CreateGroup() {
   const incoming = useLocation().state || null;
+  const navigate = useNavigate();
   const [selected, setSelected] = useState(0);
   const [custom, setCustom] = useState(false);
   const [customName, setCustomName] = useState("");
   const [customPlan, setCustomPlan] = useState("");
+  const [q, setQ] = useState("");
   const services = useCatalogue();
+
+  /* Figma 887:49199 puts a "Browse Subscription" field between the heading and
+     the card grid. It filters the grid; the catalogue itself is unchanged. */
+  const needle = q.trim().toLowerCase();
+  const shownCards = CARDS.filter((c) => !needle || c.title.toLowerCase().includes(needle));
 
   const fromFor = (brand) => {
     const min = minPrice(services, brand);
@@ -116,27 +123,82 @@ export default function CreateGroup() {
           : {}),
       };
 
+  /* Bug 12/13 came back whenever /create-group/details was opened directly:
+     the picked brand only lived in router state. Mirror the choice into
+     sessionStorage so the price chain survives a refresh or a deep link. */
+  useEffect(() => {
+    try {
+      if (custom) {
+        sessionStorage.setItem(
+          "clyse-draft",
+          JSON.stringify({
+            custom: {
+              name: customName.trim(),
+              plan: "Custom plan",
+              priceKobo: Number.isFinite(customPriceKobo) ? customPriceKobo : null,
+            },
+          }),
+        );
+      } else {
+        sessionStorage.setItem(
+          "clyse-draft",
+          JSON.stringify({ brand: CARDS[selected].brand, title: CARDS[selected].title }),
+        );
+      }
+    } catch {}
+  }, [selected, custom, customName, customPlan, customPriceKobo]);
+
   return (
     <div className="relative min-h-screen bg-[#F5FBF5] font-sans text-ink">
       <Navbar loggedIn />
       <BlurBg variant="hero" />
       {/* Desktop */}
-      <main className="relative z-10 mx-[163px] mt-[100px] hidden xl:block">
+      <main className="relative z-10 mx-[100px] mt-[100px] hidden xl:block">
+        {/* Figma 887:49199 — mint circular back chevron sits above the card */}
+        <button
+          type="button"
+          onClick={() => navigate("/dashboard")}
+          aria-label="Back"
+          className="mb-[28px] grid h-[45px] w-[45px] place-items-center rounded-full bg-white shadow-[0_0_10px_rgba(0,23,1,0.08)] transition hover:bg-[#DFFFE0]"
+        >
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden>
+            <path d="M15 5l-7 7 7 7" stroke="#001701" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
+        </button>
+        <div className="rounded-[20px] bg-white px-[63px] pt-[30px] pb-[50px] shadow-[0_0_20px_rgba(0,23,1,0.08)]">
         <StepHeader step={1} />
-        <h2 className="mt-[50px] text-center text-[35px] leading-[43px] font-semibold">
+        <h2 className="mt-[50px] text-[35px] leading-[43px] font-semibold">
           What subscription do you want to share?
         </h2>
-        <div className="mt-[60px] grid grid-cols-4 gap-[38px]">
-          {CARDS.map((c, i) => (
+        <div className="mt-[50px] flex h-[80px] items-center gap-[18px] rounded-[10px] border border-[#57A35B] bg-white px-[32px]">
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" aria-hidden>
+            <circle cx="10.5" cy="10.5" r="7" stroke="#001701" strokeWidth="2" />
+            <path d="m16 16 4.5 4.5" stroke="#001701" strokeWidth="2" strokeLinecap="round" />
+          </svg>
+          <input
+            value={q}
+            onChange={(e) => setQ(e.target.value)}
+            placeholder="Browse Subscription"
+            aria-label="Browse Subscription"
+            className="w-full bg-transparent text-[22px] font-semibold text-ink outline-none placeholder:text-[#999999]"
+          />
+        </div>
+        <div className="mt-[40px] grid grid-cols-4 gap-[38px]">
+          {shownCards.map((c) => (
             <DesktopCard
               key={c.brand}
               card={c}
               from={fromFor(c.brand)}
-              selected={selected === i}
-              onSelect={() => setSelected(i)}
+              selected={CARDS[selected].brand === c.brand}
+              onSelect={() => setSelected(CARDS.indexOf(c))}
             />
           ))}
         </div>
+        {shownCards.length === 0 && (
+          <p className="mt-[40px] text-center text-[22px] font-semibold text-[#6B6B6B]">
+            No subscription matches “{q.trim()}”.
+          </p>
+        )}
         <button
           type="button"
           onClick={() => setCustom((v) => !v)}
@@ -147,11 +209,11 @@ export default function CreateGroup() {
         >
           <span
             aria-hidden="true"
-            className={`grid h-[20px] w-[20px] place-items-center rounded-full border-2 ${
-              custom ? "border-[#048B0B]" : "border-[#999999]"
-            }`}
+            className="grid h-[20px] w-[20px] flex-none place-items-center rounded-full bg-[#001701]"
           >
-            {custom && <span className="h-[10px] w-[10px] rounded-full bg-[#048B0B]" />}
+            <svg width="11" height="11" viewBox="0 0 12 12" aria-hidden>
+              <path d="M6 1v10M1 6h10" stroke="#FFFFFF" strokeWidth="2" strokeLinecap="round" />
+            </svg>
           </span>
           <span className="text-[25px] leading-[35px] font-semibold">
             Other Custom Subscription
@@ -197,6 +259,7 @@ export default function CreateGroup() {
           </Link>
         </div>
         <div className={custom ? "pb-[195px]" : "pb-[150px]"} />
+        </div>
       </main>
 
       {/* Mobile */}
@@ -205,14 +268,27 @@ export default function CreateGroup() {
         <h2 className="mt-[32px] px-[30px] text-center text-[22px] leading-[27px] font-semibold">
           What subscription do you want to share?
         </h2>
-        <div className="mt-[76px] grid grid-cols-2 gap-x-[24px] gap-y-[15px] px-[41px]">
-          {CARDS.map((c, i) => (
+        <div className="mx-[30px] mt-[24px] flex h-[51px] items-center gap-[12px] rounded-[7px] border-[0.69px] border-[#57A35B] bg-white px-[18px]">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden>
+            <circle cx="10.5" cy="10.5" r="7" stroke="#001701" strokeWidth="2" />
+            <path d="m16 16 4.5 4.5" stroke="#001701" strokeWidth="2" strokeLinecap="round" />
+          </svg>
+          <input
+            value={q}
+            onChange={(e) => setQ(e.target.value)}
+            placeholder="Browse Subscription"
+            aria-label="Browse Subscription"
+            className="w-full bg-transparent text-[15.5px] font-semibold text-ink outline-none placeholder:text-[#999999]"
+          />
+        </div>
+        <div className="mt-[26px] grid grid-cols-2 gap-x-[24px] gap-y-[15px] px-[41px]">
+          {shownCards.map((c) => (
             <MobileCard
               key={c.brand}
               card={c}
               from={fromFor(c.brand)}
-              selected={selected === i}
-              onSelect={() => setSelected(i)}
+              selected={CARDS[selected].brand === c.brand}
+              onSelect={() => setSelected(CARDS.indexOf(c))}
             />
           ))}
         </div>
@@ -226,11 +302,11 @@ export default function CreateGroup() {
         >
           <span
             aria-hidden="true"
-            className={`grid h-[16px] w-[16px] flex-none place-items-center rounded-full border-2 ${
-              custom ? "border-[#048B0B]" : "border-[#999999]"
-            }`}
+            className="grid h-[16px] w-[16px] flex-none place-items-center rounded-full bg-[#001701]"
           >
-            {custom && <span className="h-[8px] w-[8px] rounded-full bg-[#048B0B]" />}
+            <svg width="9" height="9" viewBox="0 0 12 12" aria-hidden>
+              <path d="M6 1v10M1 6h10" stroke="#FFFFFF" strokeWidth="2.4" strokeLinecap="round" />
+            </svg>
           </span>
           <span className="text-[17.34px] leading-[24px] font-semibold">
             Other Custom Subscription

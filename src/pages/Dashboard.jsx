@@ -95,11 +95,19 @@ function mapAvail(a) {
   };
 }
 
-function mapGroup(g) {
-  const offered = g.slots_offered ?? 0;
+/* /member/dashboard sends only open_slots / available_slots — no capacity and
+   no occupied count — so the slot bar rendered at 0% on every dashboard card.
+   /catalogue/groups does carry capacity / slots_offered / occupied_slots, so
+   the dashboard merges those in by group id (see slotMeta below). */
+function mapGroup(g, meta) {
   const total = totalPriceKobo(g);
-  const occupied = g.occupied_slots ?? 0;
-  const left = g.available_slots ?? Math.max(0, offered - occupied);
+  const left = g.available_slots ?? g.open_slots ?? 0;
+  /* The backend numbers that actually agree with each other are slots_offered
+     and the open count: occupied = offered - open (it matches occupied_slots
+     wherever the API bothers to send one, and it is the only reading that
+     matches the "N Slots left" text). capacity is the last resort. */
+  const offered = g.slots_offered ?? meta?.total ?? g.capacity ?? 0;
+  const occupied = offered ? Math.max(0, Math.min(offered, offered - left)) : 0;
   return {
     id: g.group_id || g.id,
     creator: g.creator?.first_name || g.creator_name || "Creator",
@@ -336,7 +344,7 @@ function GroupCard({ group }) {
             </span>
           </p>
         </div>
-        <div className="mt-[7px] ml-[1px] h-[6px] w-[201px] rounded-full bg-[#023F05]">
+        <div className="mt-[7px] ml-[1px] h-[6px] w-[201px] rounded-full bg-[#B1DBB3]/30">
           <div
             className="h-[6px] w-[143px] rounded-full bg-clyse"
             style={
@@ -409,7 +417,7 @@ function MobileGroupCard({ group }) {
             </span>
           </p>
         </div>
-        <div className="mt-[5px] h-[4px] w-[138px] rounded-full bg-[#023F05]">
+        <div className="mt-[5px] h-[4px] w-[138px] rounded-full bg-[#B1DBB3]/30">
           <div
             className="h-[4px] w-0 rounded-full bg-clyse"
             style={
@@ -531,12 +539,33 @@ export default function Dashboard() {
   const [dash, setDash] = useState(null);
   const [leavingId, setLeavingId] = useState(null);
   const [myGroups, setMyGroups] = useState(null);
+  const [slotMeta, setSlotMeta] = useState({});
 
   useEffect(() => {
     let live = true;
     (async () => {
       const { data } = await api("/member/dashboard");
       if (live) setDash(data || {});
+    })();
+    return () => {
+      live = false;
+    };
+  }, []);
+
+  /* Capacity / occupied slots for the Available Group cards. Public catalogue,
+     no auth needed; a failure just leaves the bar unfilled, never blocks. */
+  useEffect(() => {
+    let live = true;
+    (async () => {
+      const { data } = await api("/catalogue/groups?limit=50", { auth: false });
+      if (!live) return;
+      const map = {};
+      for (const g of data?.groups || []) {
+        const id = g.group_id || g.id;
+        if (!id) continue;
+        map[id] = { total: g.slots_offered ?? g.capacity ?? null };
+      }
+      setSlotMeta(map);
     })();
     return () => {
       live = false;
@@ -624,7 +653,9 @@ export default function Dashboard() {
   const availSubs = (dash?.available_subscriptions || [])
     .map(mapAvail)
     .map(withCat);
-  const groups = (dash?.available_groups || []).map(mapGroup);
+  const groups = (dash?.available_groups || []).map((g) =>
+    mapGroup(g, slotMeta[g.group_id || g.id]),
+  );
 
   return (
     <div className="min-h-screen bg-white font-sans text-ink">

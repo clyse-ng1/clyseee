@@ -100,10 +100,10 @@ export default function StepHeader({ step }) {
             </span>
           </span>
         </div>
-        <div className="mt-[50px] h-[15px] w-[1114px] rounded-full bg-[#B1DBB3]">
+        <div className="mt-[50px] h-[15px] w-full rounded-full bg-[#B1DBB3]">
           <div
             className="h-[15px] rounded-full bg-clyse"
-            style={{ width: (1114 * step) / 5 }}
+            style={{ width: `${(step / 5) * 100}%` }}
           />
         </div>
       </div>

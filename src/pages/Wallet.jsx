@@ -6,7 +6,7 @@ import Sidebar from "../components/Sidebar";
 import { BlurBg } from "../components/Decor";
 import DetailModal, { DetailRow } from "../components/DetailModal";
 import BrandTile from "../components/BrandTile";
-import { api, brandOf, displayName, fmtDay, fmtTx, kobo2 } from "../lib/api";
+import { api, brandOf, displayName, fmtDay, fmtTx, kobo2, titleCase } from "../lib/api";
 import { useAuth } from "../lib/useAuth";
 import iconBalance from "../assets/balance-glyph.svg";
 import iconHeroGlyph from "../assets/hero-glyph.svg";
@@ -74,22 +74,29 @@ const TX_ICONS = new Set([
 /* Every subscription row used to render the same green arrow because the only
    thing the API gave us was "Join group" — nothing brandable. The row now takes
    the service straight off the matched group when the payload carries a
-   group_id, and otherwise looks at any service/description field it can find. */
-function brandFromTx(t, groupById) {
-  const g = groupById?.[t.group_id || t.groupId || ""];
-  const candidates = [
-    g?.service?.name,
-    g?.service?.slug,
-    t.service?.name,
-    t.service_name,
-    t.service,
-    t.group?.service?.name,
-    t.description,
-    t.reference,
-  ].filter(Boolean);
+   group_id, and otherwise looks at any service/description field it can find.
+   Figma's rows are titled with the service ("Netflix Premium"), not the ledger
+   verb, so the service name is returned alongside the brand key. */
+function serviceFromTx(t, groupById) {
+  /* group_payment rows carry the group only in metadata.group_id — without it
+     every join row stayed generic even though the service was known. */
+  const g =
+    groupById?.[
+      t.group_id || t.groupId || t.metadata?.group_id || t.metadata?.groupId || ""
+    ];
+  const fromGroup = g?.service || t.service || t.group?.service || null;
+  if (fromGroup?.name || fromGroup?.slug) {
+    const brand = brandOf(fromGroup);
+    return {
+      brand: brand && TX_ICONS.has(brand) ? brand : null,
+      name: fromGroup.name || titleCase(fromGroup.slug || ""),
+      category: fromGroup.category || g?.category || "",
+    };
+  }
+  const candidates = [t.service_name, t.service, t.description, t.reference].filter(Boolean);
   for (const c of candidates) {
     const b = brandOf({ name: String(c) });
-    if (b && TX_ICONS.has(b)) return b;
+    if (b && TX_ICONS.has(b)) return { brand: b, name: String(c), category: "" };
   }
   return null;
 }
@@ -97,7 +104,13 @@ function brandFromTx(t, groupById) {
 function mapTx(t, groupById) {
   const kind = (t.kind || "").toLowerCase();
   const funding = kind === "wallet_funding";
-  const desc = t.description || (funding ? "Wallet Funding" : "Group Subscription");
+  const withdrawal = /withdraw|payout/.test(kind);
+  const svc = funding || withdrawal ? null : serviceFromTx(t, groupById);
+  /* Figma titles the row with the service; the raw "Join group" ledger text
+     only survives when the group could not be resolved. */
+  const desc = funding
+    ? "Wallet Funding"
+    : svc?.name || t.description || "Group Subscription";
   const sub = funding
     ? "From Bank Transfer"
     : kind === "adjustment"
@@ -114,12 +127,16 @@ function mapTx(t, groupById) {
   /* Only a real payout is a "withdraw"; a subscription debit with no brandable
      service gets a neutral subscription tile instead of the same money-out
      arrow, which read like a withdrawal on every row. */
-  const withdrawal = /withdraw|payout/.test(kind);
-  let icon = funding ? "funding" : withdrawal ? "withdraw" : "subscription";
-  if (!funding) {
-    const brand = brandFromTx(t, groupById);
-    if (brand) icon = brand;
-  }
+  /* "service" = a subscription whose service Figma has no brand card for
+     (DStv, Microsoft 365). BrandTile paints those with the category glyph on
+     Figma's black disc, same as the browse cards. */
+  const icon = funding
+    ? "funding"
+    : withdrawal
+      ? "withdraw"
+      : svc
+        ? svc.brand || "service"
+        : "subscription";
   return {
     key: t.id || t.reference,
     id: t.id || null,
@@ -129,6 +146,7 @@ function mapTx(t, groupById) {
     amount,
     status,
     icon,
+    category: svc?.category || "",
   };
 }
 
@@ -313,14 +331,28 @@ function FundModal({ open, onClose, onFunded }) {
 
 function RowIcon({ icon, size = 30 }) {
   const px = size === 40 ? "h-[40px] w-[40px]" : "h-[30px] w-[30px]";
+  /* Figma 481:11028 paints funding as a solid #048B0B disc with a white
+     down-arrow — the same shape family as the withdraw arrow, mirrored. */
   if (icon === "funding") {
     return (
       <span
-        className={`${px} flex flex-none items-center justify-center rounded-full bg-[#DFFFE0]`}
+        className={`${px} flex flex-none items-center justify-center rounded-full bg-clyse`}
       >
-        <span aria-hidden="true" className="text-[20px] leading-none font-bold text-clyse">
-          +
-        </span>
+        <svg
+          width={size === 40 ? 20 : 15}
+          height={size === 40 ? 20 : 15}
+          viewBox="0 0 20 20"
+          fill="none"
+          aria-hidden="true"
+        >
+          <path
+            d="M10 3.5v11M5.5 10.5 10 15l4.5-4.5"
+            stroke="#FFFFFF"
+            strokeWidth="1.9"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+        </svg>
       </span>
     );
   }
@@ -514,17 +546,23 @@ export default function Wallet() {
     };
   }, []);
 
-  /* Service names for the transaction rows come from the member's groups. */
+  /* Service names for the transaction rows. A "Join group" debit points at
+     somebody else's group, so the member's own list is not enough — the public
+     catalogue fills the rest, which is what puts a brand disc on every row
+     (bug 28 asked for exactly that). */
   useEffect(() => {
     let live = true;
     (async () => {
-      const { data, error } = await api("/member/groups");
-      if (!live || error) return;
-      setGroupById(
-        Object.fromEntries(
-          (data?.groups || []).map((g) => [g.id, g]),
-        ),
-      );
+      const own = await api("/member/groups");
+      const pub = await api("/catalogue/groups?limit=50", { auth: false });
+      if (!live) return;
+      const map = {};
+      for (const g of pub.data?.groups || []) {
+        const id = g.group_id || g.id;
+        if (id) map[id] = g;
+      }
+      for (const g of own.data?.groups || []) if (g?.id) map[g.id] = g;
+      setGroupById(map);
     })();
     return () => {
       live = false;
@@ -725,7 +763,13 @@ export default function Wallet() {
                         <RowIcon icon={r.icon} size={40} />
                       </span>
                     ) : (
-                      <BrandTile brand={r.icon} size={70} plain />
+                      <BrandTile
+                        brand={r.icon === "service" ? null : r.icon}
+                        name={r.desc}
+                        category={r.category}
+                        size={70}
+                        plain
+                      />
                     )}
                   </span>
                   <span className="absolute top-[28px] left-[122px] block w-[250px] truncate text-[20px] leading-[26px] font-bold text-ink">
@@ -873,7 +917,17 @@ export default function Wallet() {
                 onKeyDown={r.id ? (e) => e.key === "Enter" && openDetail(r.id) : undefined}
               >
                 <div className="flex items-start">
-                  <RowIcon icon={r.icon} size={40} />
+                  {MONEY_ICONS.has(r.icon) ? (
+                    <RowIcon icon={r.icon} size={40} />
+                  ) : (
+                    <BrandTile
+                      brand={r.icon === "service" ? null : r.icon}
+                      name={r.desc}
+                      category={r.category}
+                      size={40}
+                      plain
+                    />
+                  )}
                   <span className="ml-[12px]">
                     <span className="block text-[18px] leading-[22px] font-semibold text-black">
                       {r.desc}

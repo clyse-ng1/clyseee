@@ -68,7 +68,15 @@ function derive(membership, access) {
   // The access endpoint is authorized only for active/current memberships.
   // Keep any credentials out of the UI if status says access is unavailable.
   const canShowAccess = !!access && lifecycle === "active" && accessStatus !== "unavailable";
-  const code = group.invite_code || membership?.group_code || groupId;
+  /* Figma 912:19224 prints a short code ("AD-234250569575"), never the raw
+     UUID — bug 26 called out the long id. Fall back to a derived short code,
+     not to the UUID itself. */
+  const code =
+    group.invite_code ||
+    membership?.group_code ||
+    (groupId
+      ? `AD-${String(groupId).replace(/[^a-zA-Z0-9]/g, "").slice(0, 10).toUpperCase()}`
+      : "");
   // Access payload: { group_id, ..., access: { method, credentials,
   // invite_link, instructions } }. Credentials are a { field: value } map.
   const inner = canShowAccess ? access?.access || {} : {};
@@ -138,7 +146,17 @@ function derive(membership, access) {
     groupId: code ? `Group ID: ${code}` : "Group ID unavailable",
     rawGroupId: groupId,
     canShowAccess,
-    link: inner.invite_link || credText || inner.instructions || "",
+    /* Backend only hands us the invite token for invite-link groups (no full
+       URL), so the link is built here — same shape the share screen already
+       uses: /join/<token>. Credentials groups keep their credential block. */
+    link:
+      inner.invite_link ||
+      (String(inner.method || group.access_method || "") === "invite_link" && code
+        ? `${typeof window !== "undefined" ? window.location.origin : ""}/join/${code}`
+        : "") ||
+      credText ||
+      inner.instructions ||
+      "",
     accessMessage: canShowAccess
       ? "The creator has not shared access details yet."
       : "Access is unavailable for this membership status.",
@@ -286,14 +304,8 @@ export function SubDetailsDesktop({
             </div>
           ))}
         </div>
-        <div className="mt-[20px] grid grid-cols-2 gap-[12px]">
-          {v.axes.map((item) => (
-            <div key={item.label} className={`rounded-[10px] bg-white px-[18px] py-[14px] ${SHADOW}`}>
-              <p className="text-[14px] font-semibold text-[#6B6B6B]">{item.label} status</p>
-              <p className="mt-[3px] text-[18px] font-bold capitalize text-ink">{item.value}</p>
-            </div>
-          ))}
-        </div>
+        {/* Figma's Subscription Info card carries Plan / Billing / Payment
+            Method only; the four status tiles here were live-only. */}
         {v.canShowAccess && v.link ? (
           <div className={`mt-[50px] flex rounded-[10px] bg-white ${SHADOW}`}>
             <div className="min-w-0 py-[21px] pl-[26px]">

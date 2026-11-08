@@ -96,7 +96,7 @@ function JoinCard({ g, fluid = false }) {
         </p>
       </div>
 
-      <div className="mt-[10px] h-[6px] w-full overflow-hidden rounded-full bg-[#023F05] xl:mt-[14px]">
+      <div className="mt-[10px] h-[6px] w-full overflow-hidden rounded-full bg-[#B1DBB3]/30 xl:mt-[14px]">
         <span
           className="block h-full rounded-full bg-[#048B0B]"
           style={{ width: `${g.pct}%` }}
@@ -150,8 +150,10 @@ function mapService(a) {
 
 function mapGroup(g) {
   const left = g.open_slots ?? g.available_slots ?? 0;
-  const total = g.capacity ?? g.slots_offered ?? g.total_slots ?? (left + (g.occupied_slots ?? 0)) ?? 0;
-  const occupied = g.occupied_slots ?? Math.max(0, total - left);
+  /* Slots offered is the denominator Figma draws; occupied is derived from the
+     open count because occupied_slots is often 0 while slots are clearly gone. */
+  const total = g.slots_offered ?? g.capacity ?? g.total_slots ?? left ?? 0;
+  const occupied = total ? Math.max(0, Math.min(total, total - left)) : 0;
   return {
     avatar: null,
     name: [g.creator?.first_name, g.creator?.last_name].filter(Boolean).join(" ") || "Creator",
@@ -434,7 +436,7 @@ export default function Browse() {
               </Link>
             </div>
           ) : (
-                        <div className="mt-[24px] grid grid-cols-2 gap-[16px]">
+                        <div className="mt-[24px] grid grid-cols-2 gap-[18px]">
               <h2 className="col-span-2 text-[25px] leading-[30px] font-bold text-ink">
                 Available Subscription
               </h2>
@@ -446,21 +448,18 @@ export default function Browse() {
                   type="button"
                   onClick={() => setPicked(picked === b.name ? null : b.name)}
                   aria-pressed={picked === b.name}
-                  className={`flex min-h-[130px] cursor-pointer flex-col items-center rounded-[16px] border bg-white px-[10px] py-[16px] ${
+                  className={`flex h-[200px] cursor-pointer flex-col items-center rounded-[20px] border bg-[#F1F8F2] px-[8px] pt-[34px] pb-[16px] ${
                     picked === b.name
-                      ? "border-[#048B0B] bg-[#F1F8F1] ring-2 ring-[#B1DBB3]"
-                      : "border-[#BABABA] bg-white"
+                      ? "border-[#048B0B] ring-2 ring-[#B1DBB3]"
+                      : "border-[#001701]"
                   }`}
                 >
-                  <BrandTile brand={b.brand} name={b.name} size={50} plain />
-                  <span className="mt-[8px] line-clamp-2 min-h-[36px] text-[13px] leading-[18px] font-bold text-ink">
+                  <BrandTile brand={b.brand} name={b.name} size={75} plain />
+                  <span className="mt-[10px] line-clamp-2 w-full flex-none text-[19px] leading-[21px] font-bold text-[#001701]">
                     {b.name}
                   </span>
-                  <span className="mt-[6px] inline-flex h-[15px] w-[76px] items-center justify-center rounded-[2.86px] bg-[#B1DBB3] text-[8.93px] leading-[12px] font-semibold text-clyse">
+                  <span className="mt-auto inline-flex h-[19px] w-[96px] flex-none items-center justify-center rounded-[3.58px] bg-[#048B0B] text-[10px] leading-[15px] font-semibold text-white">
                     {b.chip || b.cat || "Entertainment"}
-                  </span>
-                  <span className="mt-[6px] text-[11.5px] leading-[14px] font-semibold text-ink">
-                    {b.price != null ? <>From {kobo(b.price)}/</> : <>From —/</>}<span className="text-[9px]">Monthly</span>
                   </span>
                 </button>
               ))}
@@ -470,7 +469,7 @@ export default function Browse() {
             <button
               type="button"
               onClick={() => setShowAllBrands((v) => !v)}
-              className="mt-[20px] flex h-[50px] w-full items-center justify-center rounded-[10px] border border-clyse bg-mint text-[14px] font-semibold text-ink"
+              className="mt-[20px] flex h-[47px] w-full items-center justify-center rounded-[20px] border border-[#001701] bg-[#F1F8F2] text-[16px] font-semibold text-[#001701]"
             >
               {showAllBrands ? "Show Less" : "Load More"}
             </button>

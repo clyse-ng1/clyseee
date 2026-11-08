@@ -207,7 +207,7 @@ export default function SubDetails() {
             membership={membership}
             access={access}
             actionSlot={confirmSlot}
-            renewSlot={renewal?.can_renew !== false && renewal ? <RenewButton renewal={renewal} /> : null}
+            renewSlot={<RenewButton renewal={renewal} />}
           />
           <div className="mt-[66px] text-center">
             <Link
@@ -228,7 +228,7 @@ export default function SubDetails() {
             membership={membership}
             access={access}
             actionSlot={confirmSlot}
-            renewSlot={renewal?.can_renew !== false && renewal ? <RenewButton renewal={renewal} /> : null}
+            renewSlot={<RenewButton renewal={renewal} />}
           />
           <div className="mt-[40px] text-center">
             <Link

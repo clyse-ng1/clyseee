@@ -56,13 +56,28 @@ function VisOption({ icon, title, sub, selected, onSelect, mobile = false }) {
   );
 }
 
+function readDraft() {
+  try {
+    const raw = sessionStorage.getItem("clyse-draft");
+    return raw ? JSON.parse(raw) : null;
+  } catch {
+    return null;
+  }
+}
+
 export default function CreateDetails() {
-  const incoming = useLocation().state || null;
+  /* Router state first, then the draft CreateGroup mirrors into sessionStorage.
+     Without the fallback, opening this step directly (refresh, deep link, back
+     button) printed "₦— / per month" and "Amount you'll get by the end —",
+     which is exactly what bugs 12 and 13 reported. */
+  const incoming = useLocation().state || readDraft() || null;
   const services = useCatalogue();
   const plan =
     incoming && !incoming.custom
       ? pickPlan(matchService(services, incoming.brand))
-      : null;
+      : !incoming
+        ? pickPlan((services || []).find((sv) => (sv.plans || []).length) || null)
+        : null;
   const unit =
     incoming?.unit ??
     incoming?.custom?.priceKobo ??
@@ -106,11 +121,12 @@ export default function CreateDetails() {
       <BlurBg variant="hero" />
       {/* Desktop */}
       <main className="relative z-10 mx-[100px] mt-[100px] hidden xl:block">
+        <div className="rounded-[20px] bg-white px-[60px] pt-[30px] pb-[50px] shadow-[0_0_20px_rgba(0,23,1,0.08)]">
         <StepHeader step={3} />
-        <h2 className="mt-[50px] text-center text-[35px] leading-[43px] font-bold">
+        <h2 className="mt-[50px] text-[35px] leading-[43px] font-bold">
           Group Details
         </h2>
-        <p className="mt-[50px] text-center text-[35px] leading-[43px] font-semibold">
+        <p className="mt-[50px] text-[35px] leading-[43px] font-bold">
           How many slots do you want to share?
         </p>
         <div className="mt-[20px] h-[250px] rounded-[30px] bg-white px-[30px] pt-[30px] shadow-[0_0_20px_rgba(0,23,1,0.10)]">
@@ -141,7 +157,7 @@ export default function CreateDetails() {
             Total slots: {capacity || 5}
           </p>
           <div className="mt-[20px] flex items-start justify-between">
-            <p className="text-[35px] leading-[43px] font-semibold">
+            <p className="text-[35px] leading-[43px] font-bold">
               Pricing (Fixed by Clyse)
             </p>
             <p className="text-[25px] leading-[35px] font-semibold text-[#6B6B6B]">
@@ -151,7 +167,7 @@ export default function CreateDetails() {
         </div>
 
 
-        <p className="mt-[45px] text-[25px] leading-[35px] font-semibold">
+        <p className="mt-[45px] text-[25px] leading-[35px] font-bold">
           Provide Subscription Access Link
         </p>
         <input
@@ -159,13 +175,14 @@ export default function CreateDetails() {
           onChange={(e) => setAccessLink(e.target.value)}
           placeholder="Paste your subscription access link here"
           aria-label="Subscription access link"
-          className="mt-[18px] h-[60px] w-[760px] rounded-[10px] border border-[#BABABA] bg-white px-[20px] text-[18px] font-semibold text-ink outline-none placeholder:text-[#999999]"
+          className="mt-[18px] h-[80px] w-full rounded-[10px] border border-clyse bg-white px-[20px] text-[18px] font-semibold text-ink outline-none placeholder:text-[#999999]"
         />
 
-        <p className="mt-[60px] text-[35px] leading-[43px] font-semibold">
+        <p className="mt-[60px] text-[35px] leading-[43px] font-bold">
           Group Visibility
         </p>
-        <div className="ml-[51px] mt-[66px] flex">
+        {/* Figma 887:49296 puts both visibility options inside one bordered box */}
+        <div className="mt-[40px] flex w-full items-center gap-[20px] rounded-[10px] border border-[#B1DBB3] bg-white px-[20px] py-[18px]">
           <div className="flex w-[387px] items-center gap-[13px]">
             <VisOption
               icon={iconAudience}
@@ -187,7 +204,7 @@ export default function CreateDetails() {
         </div>
 
         <div className="mt-[77px] flex items-start justify-between">
-          <p className="text-[25px] leading-[35px] font-semibold">
+          <p className="text-[25px] leading-[35px] font-bold">
             Amount you&apos;ll get by the end
           </p>
           <p className="text-[35px] leading-[43px] font-semibold">{amount}</p>
@@ -208,6 +225,7 @@ export default function CreateDetails() {
           </Link>
         </div>
         <div className="pb-[230px]" />
+        </div>
       </main>
 
       {/* Mobile */}
