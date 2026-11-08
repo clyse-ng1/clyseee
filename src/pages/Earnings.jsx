@@ -14,21 +14,24 @@ import iconCheck from "../assets/check-green-circle.svg";
 
 const SUB = "Track your earnings, manage payouts and grow with Clyse.";
 
+/* All four tiles share the mint/green treatment — the PM flagged the
+   green / lavender / peach mix as "wrong colours, redesign". */
+const TILE = "bg-[#DFFFE0]";
 const MINIS = [
-  { tile: "bg-[#DFFFE0]", glyph: iconNaira, label: "Total Earning", value: "\u2014", sub: "All time", vdTo: "/earnings/per-group" },
-  { tile: "bg-[#F2F1FF]", glyph: iconWallet, label: "Available Balance", value: "\u2014", sub: "Available for Withdraw", vdTo: "/wallet" },
-  { tile: "bg-[#FFEEE2]", glyph: iconClock, label: "Pending/Held", value: "\u2014", sub: "Under Review", vdTo: "/earnings/per-member" },
-  { tile: "bg-[#DFFFE0] xl:bg-[#DAFDDD]", glyph: iconCheck, label: "Withdrawn", value: "\u2014", sub: "\u2014", vdTo: "/wallet" },
+  { tile: TILE, glyph: iconNaira, label: "Total Earning", value: "\u2014", sub: "All time", vdTo: "/earnings/per-group" },
+  { tile: TILE, glyph: iconWallet, label: "Available Balance", value: "\u2014", sub: "Available for Withdraw", vdTo: "/wallet" },
+  { tile: TILE, glyph: iconClock, label: "Pending/Held", value: "\u2014", sub: "Under Review", vdTo: "/earnings/per-member" },
+  { tile: TILE, glyph: iconCheck, label: "Withdrawn", value: "\u2014", sub: "\u2014", vdTo: "/wallet" },
 ];
 
 const MONTHS = [
-  { label: "January", width: "w-[84px] xl:w-[134px]", active: true },
-  { label: "February", width: "w-[93px] xl:w-[146px]" },
-  { label: "March", width: "w-[75px] xl:w-[121px]" },
-  { label: "April", width: "w-[64px] xl:w-[106px]" },
-  { label: "May", width: "w-[60px] xl:w-[101px]" },
-  { label: "June", width: "w-[66px] xl:w-[108px]" },
-  { label: "July", width: "w-[62px] xl:w-[100px]" },
+  { label: "January", active: true },
+  { label: "February" },
+  { label: "March" },
+  { label: "April" },
+  { label: "May" },
+  { label: "June" },
+  { label: "July" },
 ];
 
 
@@ -201,17 +204,25 @@ function WithdrawModal({ open, onClose, earn, onDone }) {
   );
 }
 
-function MonthPills() {
+function MonthPills({ small = false }) {
   return (
-    <div className="scrollbar-none flex gap-[20px] overflow-x-auto">
+    <div className="scrollbar-none flex gap-[10px] overflow-x-auto pb-[2px]">
       {MONTHS.map((m) => (
         <button
           key={m.label}
-          className={`h-[44px] flex-none rounded-[10px] ${m.width} ${
-            m.active ? "bg-[#B1DBB3]" : "border border-[#E6E6E6] bg-white"
+          className={`flex-none rounded-[10px] whitespace-nowrap ${
+            small ? "h-[34px] px-[14px]" : "h-[44px] px-[20px]"
+          } ${
+            m.active
+              ? "border border-clyse bg-[#B1DBB3]"
+              : "border border-[#BABABA] bg-white"
           }`}
         >
-          <span className="text-[18px] leading-[22px] font-semibold text-ink">
+          <span
+            className={`font-semibold text-ink ${
+              small ? "text-[13px] leading-[18px]" : "text-[18px] leading-[22px]"
+            }`}
+          >
             {m.label}
           </span>
         </button>
@@ -348,15 +359,11 @@ export default function Earnings() {
                   </div>
                 </>
               )}
-              <button
-                type="button"
-                onClick={() => setWdOpen(true)}
-                className={`${withdrawBtn}`}
-              >
+              <Link to="/withdraw/amount" className={`${withdrawBtn}`}>
                 <span className="text-[18px] leading-[22px] font-semibold text-[#F1F8F1]">
                   Withdraw
                 </span>
-              </button>
+              </Link>
             </div>
             <div className={`mt-[50px] rounded-[20px] bg-white px-[41px] pt-[51px] pb-[51px] ${SHADOW}`}>
               <h2 className="text-[25px] leading-[30px] font-bold text-black">
@@ -446,18 +453,17 @@ export default function Earnings() {
               </>
             )}
           </div>
-          <button
-            type="button"
-            onClick={() => setWdOpen(true)}
-            className="bg-btn mt-[7px] grid h-[60px] w-full place-items-center rounded-[10px]"
+          <Link
+            to="/withdraw/amount"
+            className="bg-btn mt-[14px] grid h-[56px] w-full place-items-center rounded-[10px]"
           >
             <span className="text-[18px] leading-[22px] font-semibold text-[#F1F8F1]">
               Withdraw
             </span>
-          </button>
+          </Link>
         </div>
-        <div className={`relative mt-[50px] rounded-[20px] bg-white px-[31px] pt-[51px] pb-[51px] ${SHADOW}`}>
-          <h2 className="text-[25px] leading-[30px] font-bold text-black">
+        <div className={`relative mt-[30px] rounded-[20px] border border-clyse bg-white px-[20px] pt-[24px] pb-[24px] ${SHADOW}`}>
+          <h2 className="text-[22px] leading-[28px] font-bold text-black">
             Earnings Summary
           </h2>
           <div className="mt-[30px] flex flex-col gap-[20px]">
@@ -474,8 +480,8 @@ export default function Earnings() {
             )}
           </div>
         </div>
-        <div className={`relative mt-[50px] rounded-[20px] bg-white px-[31px] pt-[51px] pb-[51px] ${SHADOW}`}>
-          <h2 className="text-[25px] leading-[30px] font-bold text-black">
+        <div className={`relative mt-[24px] rounded-[20px] border border-clyse bg-white px-[20px] pt-[24px] pb-[24px] ${SHADOW}`}>
+          <h2 className="text-[22px] leading-[28px] font-bold text-black">
             Clyse Fees
           </h2>
           <div className="mt-[30px]">
@@ -495,21 +501,30 @@ export default function Earnings() {
               />
             )}
           </div>
-          <div className="mt-[20px]">
-            <MonthPills />
+          <div className="mt-[18px]">
+            <MonthPills small />
           </div>
-          <Link to="/earnings/per-group" className="mt-[8px] ml-[198px] block text-[18px] leading-[22px] font-semibold text-clyse">
-            View Details
-          </Link>
+          {/* Figma M17 Clyse Fees card ends at the month pills — no link. */}
+          <div className="mt-[10px] hidden justify-end xl:flex">
+            <Link
+              to="/earnings/per-group"
+              className="text-[14px] leading-[18px] font-semibold text-clyse"
+            >
+              View Details
+            </Link>
+          </div>
         </div>
-        <div className={`relative mt-[50px] rounded-[20px] bg-white pt-[30px] pb-[30px] ${SHADOW}`}>
+        <div className={`relative mt-[24px] rounded-[20px] border border-clyse bg-white pt-[24px] pb-[24px] ${SHADOW}`}>
           <div className="flex items-center px-[30px]">
             <h2 className="text-[18px] leading-[22px] font-bold text-ink">
               Payout History
             </h2>
-            <span className="ml-auto text-[13px] leading-[16px] font-semibold text-clyse">
+            <Link
+              to="/wallet"
+              className="ml-auto text-[13px] leading-[16px] font-semibold text-clyse"
+            >
               View all
-            </span>
+            </Link>
           </div>
           <div className="mt-[30px] flex flex-col gap-[15px] px-[10px]">
             {!lots && !failed ? (

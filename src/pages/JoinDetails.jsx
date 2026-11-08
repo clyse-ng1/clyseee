@@ -5,7 +5,6 @@ import SectionHead from "../components/SectionHead";
 import BrandTile from "../components/BrandTile";
 import PairButtons from "../components/PairButtons";
 import LogoMarquee from "../components/LogoMarquee";
-import MemberMini from "../components/MemberMini";
 import { BlurBg } from "../components/Decor";
 import iconBellGreen from "../assets/side-notification-green.svg";
 import { api, kobo } from "../lib/api";
@@ -219,9 +218,6 @@ export default function JoinDetails() {
       </div>
       {/* Mobile */}
       <main className="relative bg-white xl:hidden">
-        <div className="relative bg-white px-[30px] pt-[46px] pb-[40px]">
-          <MemberMini />
-        </div>
         <div className="relative mt-[103px] border-y border-[#BABABA] bg-white">
           <div className="px-[30px] py-[30px]">
             <SectionHead />

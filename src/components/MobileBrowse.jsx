@@ -87,7 +87,7 @@ export default function MobileBrowse() {
                 "Subscription",
               price: total != null ? kobo(total) : null,
               left: left === 1 ? "1 Slot left" : `${left} Slots left`,
-              linkTo: "/join/summary",
+              linkTo: "/join/preview",
               linkState: { group_id: g.group_id || g.id, preview: g },
             };
           }));

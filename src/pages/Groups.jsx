@@ -1,11 +1,11 @@
 import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import Sidebar from "../components/Sidebar";
 import SubCard, { SubCardSk } from "../components/SubCard";
 import GroupStats from "../components/GroupStats";
 import GroupTabs from "../components/GroupTabs";
 import ExtraBlock from "../components/ExtraBlock";
-import MemberMini from "../components/MemberMini";
 import { BlurBg } from "../components/Decor";
 import { api, brandOf, kobo, totalPriceKobo } from "../lib/api";
 import { groupBucket } from "../lib/useGroup";
@@ -130,10 +130,10 @@ export default function Groups() {
   };
   const tabs = [
     { label: `All (${counts.all})` },
-    { label: `Activated (${counts.active})`, width: "w-[140px]" },
-    { label: `Pending (${counts.pending})`, width: "w-[140px]" },
-    { label: `Expired (${counts.expired})`, width: "w-[140px]" },
-    { label: `Failed (${counts.failed})`, width: "w-[140px]" },
+    { label: `Activated (${counts.active})` },
+    { label: `Pending (${counts.pending})` },
+    { label: `Expired (${counts.expired})` },
+    { label: `Failed (${counts.failed})` },
   ];
   const shown = tab === 0 ? rows : rows.filter((r) => r.bucket === FILTERS[tab]);
   const stats = groups
@@ -184,9 +184,8 @@ export default function Groups() {
       </main>
       {/* Mobile (M9 687:11080) */}
       <main className="relative bg-white xl:hidden">
-        <div className="relative bg-white px-[30px] pt-[46px] pb-[40px]">
-          <MemberMini />
-          <div className="mt-[51px]">
+        <div className="relative bg-white px-[30px] pt-[30px] pb-[40px]">
+          <div className="mt-[0px]">
             <TitleBlock />
           </div>
           {!groups && !failed ? (
@@ -196,11 +195,20 @@ export default function Groups() {
           ) : (
             <>
               <GroupStats className="mt-[50px]" values={stats} />
-              <p className="mt-[30px] text-right text-[13px] leading-[16px] font-semibold text-clyse">
-                View All
-              </p>
-              <GroupTabs tabs={tabs} className="mt-[12px]" active={tab} onSelect={setTab} loading={false} />
-              <div className="mt-[30px] flex flex-col gap-[10px]">
+              <div className="mt-[22px] flex justify-end">
+                <Link
+                  to="/groups/browse"
+                  className="flex items-center gap-[6px] text-[13px] leading-[16px] font-semibold text-clyse"
+                >
+                  View All
+                  <svg width="12" height="10" viewBox="0 0 12 10" fill="none" aria-hidden>
+                    <path d="M1 5h9M6.5 1.5 10 5l-3.5 3.5" stroke="#048B0B" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
+                  </svg>
+                </Link>
+              </div>
+              <GroupTabs tabs={tabs} className="mt-[10px]" active={tab} onSelect={setTab} loading={false} />
+              {/* pb keeps the last card's shadow from being clipped (card 16) */}
+              <div className="mt-[24px] flex flex-col gap-[10px] pb-[8px]">
                 {shown.map((r) => (
                   <SubCard key={r.key || r.title} to="/groups/details" noView {...r} />
                 ))}

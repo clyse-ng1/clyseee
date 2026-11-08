@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import BrandTile from "./BrandTile";
+import { matchService, useCatalogue } from "../lib/useCatalogue";
 import Sk from "./Skeleton";
 import iconChevRight from "../assets/icon-chev-right.svg";
 
@@ -32,6 +33,23 @@ export default function SubCard({
   linkState,
 }) {
   const dimCls = dim ? "xl:opacity-60" : "";
+  /* The chip used to be the hard-coded word "Entertainment" on every card, so
+     DStv read Entertainment instead of Sports and Canva Pro instead of
+     Productivity (board card 25). It comes from the catalogue now. */
+  const services = useCatalogue();
+  const wanted = `${brand || ""} ${title || ""} ${mTitle || ""}`.toLowerCase();
+  const entry =
+    matchService(services, brand) ||
+    (services || []).find((a) => {
+      const n = `${a.service?.name || a.name || ""}`.toLowerCase();
+      return n && (wanted.includes(n) || n.includes(wanted.split(" ")[0] || "\u0000"));
+    }) ||
+    null;
+  const catRaw = entry?.service?.category || entry?.category || "";
+  const cat = catRaw
+    ? catRaw.replace(/[_-]+/g, " ").replace(/\b\w/g, (c) => c.toUpperCase())
+    : "Subscription";
+
   return (
     <Link
       to={to}
@@ -46,7 +64,7 @@ export default function SubCard({
             <span className="hidden xl:inline">{title}</span>
           </span>
           <span className="mt-[8px] block text-[10px] leading-[12px] font-semibold text-clyse xl:mt-[1px]">
-            Entertainment
+            {cat}
           </span>
           <span className="mt-[8px] block text-[13px] leading-[20px] font-semibold text-[#6B6B6B] xl:mt-[29px] xl:text-[18px] xl:leading-[22px]">
             <span className="xl:hidden">{mPlan || plan}</span>

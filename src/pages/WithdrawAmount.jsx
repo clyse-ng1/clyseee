@@ -29,6 +29,11 @@ export default function WithdrawAmount() {
 
   const avail = (earn?.available_kobo ?? 0) / 100;
   const naira = Number(String(amount).replace(/,/g, "")) || 0;
+  /* Continue used to look ready with an empty field (and with nothing to
+     withdraw at all). It is disabled until the amount is valid, and the page
+     says why underneath when the balance is empty. */
+  const can = naira > 0 && (!earn || naira <= avail);
+  const empty = !!earn && avail <= 0;
 
   const cont = (e) => {
     e.preventDefault();
@@ -68,7 +73,7 @@ export default function WithdrawAmount() {
             </svg>
           </button>
           <div className="mt-[28px] flex h-[139px] w-[1240px] items-center rounded-[20px] bg-white px-[63px] shadow-[0_0_20px_rgba(0,23,1,0.10)]">
-            <span className="grid h-[60px] w-[60px] flex-none place-items-center rounded-[5px] bg-[#F2F1FF]">
+            <span className="grid h-[60px] w-[60px] flex-none place-items-center rounded-[5px] bg-[#DFFFE0]">
               <img src={iconWallet} alt="" className="h-[25px] w-[25px]" />
             </span>
             <span className="ml-[20px]">
@@ -137,7 +142,10 @@ export default function WithdrawAmount() {
               </Link>
               <button
                 type="submit"
-                className="bg-btn grid h-[60px] w-[470px] flex-none place-items-center rounded-[16px]"
+                disabled={!can}
+                className={`grid h-[60px] w-[470px] flex-none place-items-center rounded-[16px] ${
+                  can ? "bg-btn" : "bg-[#999999]"
+                }`}
               >
                 <span className="text-[18px] leading-[22px] font-semibold text-[#F1F8F1]">
                   Continue
@@ -150,7 +158,7 @@ export default function WithdrawAmount() {
       {/* Mobile — JOINT WAITLIST MOBILE PAGE 20 / GROUP CREATION PAGE 7 (782:28346 / 777:27694) */}
       <main className="relative bg-white pb-[60px] xl:hidden">
         <div className="flex items-center gap-[20px] bg-white px-[30px] py-[34px]">
-          <span className="grid h-[50px] w-[50px] flex-none place-items-center rounded-[5px] bg-[#F2F1FF]">
+          <span className="grid h-[50px] w-[50px] flex-none place-items-center rounded-[5px] bg-[#DFFFE0]">
             <img src={iconWallet} alt="" className="h-[25px] w-[25px]" />
           </span>
           <span>
@@ -209,10 +217,18 @@ export default function WithdrawAmount() {
             <div className="mt-[30px] flex flex-col gap-[16px]">
               <button
                 type="submit"
-                className="bg-btn flex h-[55px] w-full items-center justify-center rounded-[12px] text-[16px] font-semibold text-mint"
+                disabled={!can}
+                className={`flex h-[55px] w-full items-center justify-center rounded-[12px] text-[16px] font-semibold text-mint ${
+                  can ? "bg-btn" : "bg-[#999999]"
+                }`}
               >
                 Continue
               </button>
+              {empty && (
+                <p className="text-center text-[13px] leading-[18px] font-semibold text-[#6B6B6B]">
+                  You have no available earnings to withdraw yet.
+                </p>
+              )}
               <Link
                 to={from}
                 className="flex h-[55px] w-full items-center justify-center rounded-[12px] border border-clyse bg-[#F1F8F1] text-[16px] font-semibold text-ink"

@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom";
 import Sk from "./Skeleton";
 
 /* Filter tab row (My Group / Member pages). First tab dark gradient +
@@ -23,14 +24,16 @@ export default function GroupTabs({ tabs, viewAll = false, className = "", activ
   }
   const current = onSelect ? active : 0;
   return (
-    <div className={`flex items-center ${className}`}>
-      <div className="scrollbar-none flex gap-[10px] overflow-x-auto">
+    <div className={`flex items-center gap-[16px] ${className}`}>
+      <div className="scrollbar-none flex min-w-0 flex-1 gap-[10px] overflow-x-auto">
         {tabs.map((t, i) => {
           const dark = i === current;
           const shell = dark
-            ? "bg-btn grid h-[42px] flex-none place-items-center rounded-[10px] px-[10px] xl:h-[54px]"
-            : "grid h-[42px] flex-none place-items-center rounded-[10px] border border-[#E6E6E6] bg-white px-[10px] xl:h-[54px]";
-          const width = t.width || (dark ? "w-[69px] xl:w-[94px]" : "w-[120px]");
+            ? "bg-btn grid h-[42px] flex-none place-items-center rounded-[10px] px-[14px] xl:h-[54px] xl:px-[20px]"
+            : "grid h-[42px] flex-none place-items-center rounded-[10px] border border-[#BABABA] bg-white px-[14px] xl:h-[54px] xl:px-[20px]";
+          /* Auto width on both viewports: the fixed 140px chips clipped
+             "Pending (0)" on a 430 screen. */
+          const width = t.width || "";
           const inner = (
             <span
               className={`text-[13px] leading-[16px] font-semibold whitespace-nowrap xl:text-[18px] xl:leading-[22px] ${
@@ -58,9 +61,12 @@ export default function GroupTabs({ tabs, viewAll = false, className = "", activ
         })}
       </div>
       {viewAll && (
-        <span className="ml-[32px] hidden flex-none text-[25px] leading-[30px] font-bold text-clyse xl:block">
+        <Link
+          to="/groups/browse"
+          className="hidden flex-none text-[18px] leading-[22px] font-bold text-clyse xl:block"
+        >
           View All
-        </span>
+        </Link>
       )}
     </div>
   );

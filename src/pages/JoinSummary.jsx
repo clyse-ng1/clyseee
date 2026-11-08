@@ -151,9 +151,17 @@ export default function JoinSummary() {
   // group.price or the nested plan depending on the endpoint.
   const price = group?.price || {};
   const unit =
-    price.unit_kobo ?? plan.unit_price_kobo ?? plan.unit_kobo ?? null;
+    price.unit_price_kobo ??
+    price.unit_kobo ??
+    plan.unit_price_kobo ??
+    plan.unit_kobo ??
+    null;
   const fee =
-    price.platform_kobo ?? plan.platform_fee_kobo ?? plan.platform_kobo ?? null;
+    price.platform_fee_kobo ??
+    price.platform_kobo ??
+    plan.platform_fee_kobo ??
+    plan.platform_kobo ??
+    null;
   const total =
     price.total_kobo ??
     plan.total_price_kobo ??
@@ -172,7 +180,7 @@ export default function JoinSummary() {
   const vPrice = total != null ? kobo(total) : "N2,000";
   const vUnit = unit != null ? kobo(unit) : vPrice;
   const vFee = fee != null ? kobo(fee) : real ? "Included" : "N200";
-  const vTotal = total != null ? kobo(total) : "N2,500";
+  const vTotal = total != null ? kobo(total) : "N2,200";
   const vBalance = balance != null ? kobo(balance) : "N3,000";
   const vInfo = group
     ? [
@@ -291,34 +299,51 @@ export default function JoinSummary() {
     });
   };
 
-  const balanceBlock =
-    !real || sufficient ? (
-      <>
-        <div className="mt-[40px] ml-[20px] flex items-center gap-[10px]">
-          <img src={iconCheck} alt="" className="h-[30px] w-[30px]" />
-          <p className="text-[25px] leading-[35px] font-semibold text-black">
-            Sufficient Balance
-          </p>
-        </div>
-        <p className="mt-[10px] ml-[20px] text-[18px] leading-[22px] font-semibold text-black">
-          Your wallet balance is enough to cover this payment
+  const shortfall =
+    total != null && balance != null && balance < total ? total - balance : null;
+
+  const balanceBlock = (
+    <div
+      className={`mt-[24px] rounded-[16px] border px-[16px] py-[14px] ${
+        !real || sufficient
+          ? "border-clyse bg-[#F1F8F1]"
+          : "border-[#FF0000]/60 bg-[#FFF5F4]"
+      }`}
+    >
+      <div className="flex items-center gap-[10px]">
+        {!real || sufficient ? (
+          <img src={iconCheck} alt="" className="h-[24px] w-[24px] flex-none" />
+        ) : (
+          <span
+            aria-hidden="true"
+            className="grid h-[24px] w-[24px] flex-none place-items-center rounded-full bg-[#FF0000] text-[16px] font-bold text-white"
+          >
+            !
+          </span>
+        )}
+        <p
+          className={`text-[18px] leading-[24px] font-semibold ${
+            !real || sufficient ? "text-ink" : "text-[#C41400]"
+          }`}
+        >
+          {!real || sufficient ? "Sufficient Balance" : "Insufficient Balance"}
         </p>
-      </>
-    ) : (
-      <>
-        <div className="mt-[40px] ml-[20px] flex items-center gap-[10px]">
-          <p className="text-[25px] leading-[35px] font-semibold text-[#FF0000]">
-            Insufficient Balance
-          </p>
-        </div>
-        <p className="mt-[10px] ml-[20px] text-[18px] leading-[22px] font-semibold text-black">
-          Fund your wallet to join this group.{" "}
-          <Link to="/wallet" className="text-clyse">
-            Fund Wallet
-          </Link>
-        </p>
-      </>
-    );
+      </div>
+      <p className="mt-[8px] text-[13px] leading-[19px] font-semibold text-[#4E4E4E]">
+        {!real || sufficient
+          ? "Your wallet balance is enough to cover this payment."
+          : `You need ${kobo(shortfall)} more to join this group.`}
+      </p>
+      {real && !sufficient && (
+        <Link
+          to="/wallet"
+          className="mt-[12px] flex h-[44px] w-full items-center justify-center rounded-[10px] bg-btn text-[15px] font-semibold text-mint"
+        >
+          Fund Wallet
+        </Link>
+      )}
+    </div>
+  );
 
   return (
     <div className="min-h-screen bg-white font-sans text-ink">
@@ -353,19 +378,19 @@ export default function JoinSummary() {
                 </p>
               </div>
               <div className="mt-[60px] flex gap-[30px]">
-                <div className="h-[153px] w-[266px] rounded-[7px] bg-[#DFFFE0] px-[30px] pt-[40px]">
-                  <p className="text-[18px] leading-[22px] font-semibold text-[#6B6B6B]">
+                <div className="h-[153px] w-[266px] rounded-[12px] border border-clyse bg-[#DFFFE0] px-[30px] pt-[32px] shadow-[0_0_16px_rgba(0,23,1,0.08)]">
+                  <p className="text-[18px] leading-[22px] font-semibold text-[#4E4E4E]">
                     Fixed Unit Price
                   </p>
                   <p className="mt-[8px] text-[35px] leading-[43px] font-bold text-ink">
                     {vUnit}
                   </p>
                 </div>
-                <div className="h-[151px] w-[268px] rounded-[7px] bg-[#F1F8F1] px-[31px] pt-[41px]">
-                  <p className="text-[18px] leading-[22px] font-semibold text-[#6B6B6B]">
+                <div className="h-[153px] w-[266px] rounded-[12px] border border-clyse bg-[#F1F8F1] px-[30px] pt-[32px] shadow-[0_0_16px_rgba(0,23,1,0.08)]">
+                  <p className="text-[18px] leading-[22px] font-semibold text-[#4E4E4E]">
                     Clyse Fee
                   </p>
-                  <p className="mt-[17px] text-[35px] leading-[43px] font-bold text-clyse">
+                  <p className="mt-[8px] text-[35px] leading-[43px] font-bold text-clyse">
                     {vFee}
                   </p>
                 </div>
@@ -373,13 +398,13 @@ export default function JoinSummary() {
               <h2 className="mt-[50px] text-[35px] leading-[43px] font-bold text-ink">
                 Group Information
               </h2>
-              <div className="mt-[35px] rounded-[30px] bg-white px-[30px] pt-[30px] pb-[30px]">
+              <div className="mt-[35px] divide-y divide-[#E3EDE3] rounded-[20px] border border-clyse bg-white px-[30px] shadow-[0_0_20px_rgba(0,23,1,0.08)]">
                 {vInfo.map(([k, v]) => (
-                  <div key={k} className="flex items-center justify-between py-[10px] first:pt-0 last:pb-0">
+                  <div key={k} className="flex items-center justify-between gap-[20px] py-[18px]">
                     <span className="text-[25px] leading-[35px] font-semibold text-[#4E4E4E]">
                       {k}
                     </span>
-                    <span className="text-[25px] leading-[35px] font-semibold text-[#013104]">
+                    <span className="text-right text-[25px] leading-[35px] font-semibold text-[#013104]">
                       {v}
                     </span>
                   </div>
@@ -393,24 +418,26 @@ export default function JoinSummary() {
                 Payment Summary
               </p>
             </div>
-            <div className="px-[30px] pt-[30px] pb-[30px]">
-              <div className="mx-[20px] flex items-center justify-between">
-                <span className="text-[25px] leading-[35px] font-semibold text-[#4E4E4E]">
-                  Fixed Unit Price
-                </span>
-                <span className="text-[25px] leading-[35px] font-semibold text-[#013104]">
-                  {vUnit}
-                </span>
+            <div className="px-[30px] pt-[10px] pb-[30px]">
+              <div className="divide-y divide-[#E3EDE3] rounded-[20px] border border-clyse bg-white px-[21px] shadow-[0_0_20px_rgba(0,23,1,0.08)]">
+                <div className="flex items-center justify-between gap-[20px] py-[18px]">
+                  <span className="text-[25px] leading-[35px] font-semibold text-[#4E4E4E]">
+                    Fixed Unit Price
+                  </span>
+                  <span className="text-[25px] leading-[35px] font-semibold text-[#013104]">
+                    {vUnit}
+                  </span>
+                </div>
+                <div className="flex items-center justify-between gap-[20px] py-[18px]">
+                  <span className="text-[25px] leading-[35px] font-semibold text-[#4E4E4E]">
+                    Clyse Fee
+                  </span>
+                  <span className="text-[25px] leading-[35px] font-semibold text-[#013104]">
+                    {vFee}
+                  </span>
+                </div>
               </div>
-              <div className="mt-[41px] mx-[20px] flex items-center justify-between">
-                <span className="text-[25px] leading-[35px] font-semibold text-[#4E4E4E]">
-                  Clyse Fee
-                </span>
-                <span className="text-[25px] leading-[35px] font-semibold text-[#013104]">
-                  {vFee}
-                </span>
-              </div>
-              <div className="mt-[61px] flex h-[85px] items-center rounded-[15px] bg-[#DFFFE0] px-[21px]">
+              <div className="mt-[30px] flex h-[85px] items-center rounded-[15px] border border-clyse bg-[#DFFFE0] px-[21px]">
                 <span className="text-[25px] leading-[35px] font-semibold text-[#036F09]">
                   Total Amount
                 </span>
@@ -421,11 +448,20 @@ export default function JoinSummary() {
               <p className="mt-[40px] text-[18px] leading-[22px] font-semibold text-black">
                 Have a Promo Code or Coupon?
               </p>
-              <input
-                placeholder="Enter Code or Coupon"
-                className="mt-[10px] h-[64px] w-full rounded-[10px] border border-[#999999] bg-white px-[21px] text-[18px] leading-[22px] font-semibold text-ink outline-none placeholder:text-[#999999]"
-              />
-              <div className="mt-[40px] rounded-[20px] bg-[#F1F8F1] px-[21px] pt-[31px] pb-[31px]">
+              <div className="mt-[10px] flex h-[64px] items-center gap-[10px] rounded-[10px] border border-[#999999] bg-white pr-[8px] pl-[21px]">
+                <input
+                  placeholder="Enter Code or Coupon"
+                  aria-label="Promo code or coupon"
+                  className="w-full bg-transparent text-[18px] leading-[22px] font-semibold text-ink outline-none placeholder:text-[#999999]"
+                />
+                <button
+                  type="button"
+                  className="h-[48px] flex-none rounded-[8px] border border-clyse px-[18px] text-[16px] font-semibold text-clyse"
+                >
+                  Apply
+                </button>
+              </div>
+              <div className="mt-[40px] rounded-[20px] border border-clyse bg-[#F1F8F1] px-[21px] pt-[24px] pb-[24px]">
                 <p className="text-[18px] leading-[22px] font-semibold text-[#6B6B6B]">
                   Current Wallet Balance
                 </p>
@@ -479,20 +515,20 @@ export default function JoinSummary() {
                 </p>
               </div>
             </div>
-            <div className="mt-[60px] flex gap-[30px]">
-              <div className="h-[95px] w-[169px] rounded-[7px] bg-[#DFFFE0] px-[32px] pt-[20px]">
-                <p className="text-[13px] leading-[20px] font-semibold text-[#6B6B6B]">
+            <div className="mt-[26px] flex gap-[16px]">
+              <div className="flex-1 rounded-[12px] border border-clyse bg-[#DFFFE0] px-[16px] py-[16px]">
+                <p className="text-[12px] leading-[18px] font-semibold text-[#4E4E4E]">
                   Fixed Unit Price
                 </p>
-                <p className="text-[25px] leading-[30px] font-bold text-ink">
+                <p className="mt-[2px] text-[22px] leading-[28px] font-bold text-ink">
                   {vUnit}
                 </p>
               </div>
-              <div className="h-[97px] w-[171px] rounded-[7px] bg-[#F1F8F1] px-[53px] pt-[21px]">
-                <p className="text-[13px] leading-[20px] font-semibold text-[#6B6B6B]">
+              <div className="flex-1 rounded-[12px] border border-clyse bg-[#F1F8F1] px-[16px] py-[16px]">
+                <p className="text-[12px] leading-[18px] font-semibold text-[#4E4E4E]">
                   Clyse Fee
                 </p>
-                <p className="text-[25px] leading-[30px] font-bold text-clyse">
+                <p className="mt-[2px] text-[22px] leading-[28px] font-bold text-clyse">
                   {vFee}
                 </p>
               </div>
@@ -500,13 +536,13 @@ export default function JoinSummary() {
             <h2 className="mt-[30px] text-[25px] leading-[30px] font-bold text-ink">
               Group Information
             </h2>
-            <div className="mt-[28px] rounded-[30px] bg-white px-[14px] pt-[30px] pb-[30px]">
+            <div className="mt-[18px] divide-y divide-[#E3EDE3] rounded-[16px] border border-clyse bg-white px-[16px] shadow-[0_0_13.87px_rgba(0,23,1,0.06)]">
               {vInfo.map(([k, v]) => (
-                <div key={k} className="flex items-center justify-between py-[10px] first:pt-0 last:pb-0">
-                  <span className="text-[13px] leading-[20px] font-semibold text-[#4E4E4E]">
+                <div key={k} className="flex items-center justify-between gap-[12px] py-[14px]">
+                  <span className="text-[13px] leading-[18px] font-semibold text-[#4E4E4E]">
                     {k}
                   </span>
-                  <span className="text-[18px] leading-[22px] font-semibold text-[#013104]">
+                  <span className="text-right text-[14px] leading-[18px] font-semibold break-words text-[#013104]">
                     {v}
                   </span>
                 </div>
@@ -519,23 +555,25 @@ export default function JoinSummary() {
             <p className="text-[35px] leading-[43px] font-bold text-ink">
               Payment Summary
             </p>
-            <div className="mt-[30px] flex items-center justify-between">
-              <span className="ml-[20px] text-[13px] leading-[20px] font-semibold text-[#4E4E4E]">
-                Fixed Unit Price
-              </span>
-              <span className="mr-[20px] text-[25px] leading-[35px] font-semibold text-[#013104]">
-                {vUnit}
-              </span>
+            <div className="mt-[20px] divide-y divide-[#E3EDE3] rounded-[16px] border border-clyse bg-white px-[16px] shadow-[0_0_13.87px_rgba(0,23,1,0.06)]">
+              <div className="flex items-center justify-between gap-[12px] py-[14px]">
+                <span className="text-[13px] leading-[18px] font-semibold text-[#4E4E4E]">
+                  Fixed Unit Price
+                </span>
+                <span className="text-[16px] leading-[20px] font-semibold text-[#013104]">
+                  {vUnit}
+                </span>
+              </div>
+              <div className="flex items-center justify-between gap-[12px] py-[14px]">
+                <span className="text-[13px] leading-[18px] font-semibold text-[#4E4E4E]">
+                  Clyse Fee
+                </span>
+                <span className="text-[16px] leading-[20px] font-semibold text-[#013104]">
+                  {vFee}
+                </span>
+              </div>
             </div>
-            <div className="mt-[41px] flex items-center justify-between">
-              <span className="ml-[20px] text-[13px] leading-[20px] font-semibold text-[#4E4E4E]">
-                Clyse Fee
-              </span>
-              <span className="mr-[20px] text-[25px] leading-[35px] font-semibold text-[#013104]">
-                {vFee}
-              </span>
-            </div>
-            <div className="mt-[61px] flex h-[79px] items-center rounded-[15px] bg-[#DFFFE0] px-[21px]">
+            <div className="mt-[20px] flex h-[79px] items-center rounded-[15px] border border-clyse bg-[#DFFFE0] px-[21px]">
               <span className="text-[18px] leading-[22px] font-semibold text-[#036F09]">
                 Total Amount
               </span>
@@ -543,22 +581,31 @@ export default function JoinSummary() {
                 {vTotal}
               </span>
             </div>
-            <p className="mt-[40px] text-[18px] leading-[22px] font-semibold text-black">
+            <p className="mt-[32px] text-[16px] leading-[22px] font-semibold text-black">
               Have a Promo Code or Coupon?
             </p>
-            <input
-              placeholder="Enter Code or Coupon"
-              className="mt-[10px] h-[64px] w-full rounded-[10px] border border-[#999999] bg-white px-[21px] text-[18px] leading-[22px] font-semibold text-ink outline-none placeholder:text-[#999999]"
-            />
-            <div className="mt-[40px] rounded-[20px] bg-[#F1F8F1] px-[21px] pt-[31px] pb-[31px]">
-              <p className="text-[18px] leading-[22px] font-semibold text-[#6B6B6B]">
+            <div className="mt-[10px] flex h-[56px] items-center gap-[8px] rounded-[10px] border border-[#999999] bg-white pr-[6px] pl-[16px]">
+              <input
+                placeholder="Enter Code or Coupon"
+                aria-label="Promo code or coupon"
+                className="w-full bg-transparent text-[15px] font-semibold text-ink outline-none placeholder:text-[#999999]"
+              />
+              <button
+                type="button"
+                className="h-[44px] flex-none rounded-[8px] border border-clyse px-[14px] text-[14px] font-semibold text-clyse"
+              >
+                Apply
+              </button>
+            </div>
+            <div className="mt-[32px] rounded-[16px] border border-clyse bg-[#F1F8F1] px-[16px] pt-[18px] pb-[18px]">
+              <p className="text-[13px] leading-[18px] font-semibold text-[#4E4E4E]">
                 Current Wallet Balance
               </p>
               <div className="mt-[10px] flex items-center gap-[10px]">
                 <span className="grid h-[32px] w-[32px] flex-none place-items-center rounded-[14px] bg-[#048B0B]">
                   <img src={iconBanknote} alt="" className="h-[18px] w-[18px]" />
                 </span>
-                <span className="text-[30px] leading-[37px] font-bold text-ink">
+                <span className="text-[24px] leading-[30px] font-bold text-ink">
                   {vBalance}
                 </span>
               </div>

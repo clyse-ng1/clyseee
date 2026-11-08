@@ -20,8 +20,11 @@ import avatarAccount from "../assets/avatar-account.webp";
    client-side, and an empty filter renders the "No Result" state. Copy fix: "Sbcription" ->
    "Subscription", "Suggeste" -> "Suggest", "Availabe" -> "Available". */
 
-const CATS = [
-  "All",
+/* Figma's chip row, in Figma order. Only chips that actually have a service in
+   the catalogue are rendered, and any category the catalogue adds later is
+   appended — otherwise "Security & VPN" / "Cloud" / "Delivery" filtered to
+   nothing and the No Result panel showed up next to a real DStv card. */
+const FIGMA_CATS = [
   "Movies & Series",
   "Streaming",
   "Music",
@@ -29,50 +32,103 @@ const CATS = [
   "Delivery",
   "Cloud",
   "Productivity",
+  "Sports",
+  "Software",
+  "Other",
 ];
 
+function SlotIcon() {
+  return (
+    <svg width="9" height="9" viewBox="0 0 9 9" fill="none" aria-hidden="true">
+      <circle cx="4.5" cy="2.6" r="2" fill="currentColor" />
+      <path d="M1 8.2c0-1.9 1.6-3.1 3.5-3.1S8 6.3 8 8.2H1Z" fill="currentColor" />
+    </svg>
+  );
+}
+function KeyIcon() {
+  return (
+    <svg width="9" height="9" viewBox="0 0 9 9" fill="none" aria-hidden="true">
+      <circle cx="3" cy="3" r="2.1" stroke="currentColor" strokeWidth="1.1" />
+      <path d="M4.4 4.4 8 8M6.2 6.2l1-1M7.2 7.2l1-1" stroke="currentColor" strokeWidth="1.1" strokeLinecap="round" />
+    </svg>
+  );
+}
+
+/* Join Group card — Figma 806:31476 "Join Group" tiles: 251x341, r20, dark
+   green; 95px avatar, 25/700 name, "Your Contribution" box r8, a 6px progress
+   bar (fill = occupied/capacity), then a slot line and the access method. The
+   three little "Cut / N Slots / Coverage" boxes that used to sit here are not
+   in any Figma frame. */
 function JoinCard({ g, fluid = false }) {
   return (
-    <div
-      className={`bg-btn relative rounded-[16px] px-[20px] pt-[34px] pb-[20px] text-center ${
-        fluid ? "w-full" : "w-[253px] flex-none"
+    <article
+      className={`bg-btn flex w-full flex-col rounded-[20px] px-[14px] pt-[14px] pb-[14px] xl:px-[23px] xl:pt-[20px] xl:pb-[20px] ${
+        fluid ? "" : ""
       }`}
     >
-      <img
-        src={g.avatar || avatarAccount}
-        alt=""
-        className="absolute -top-[32px] left-1/2 h-[64px] w-[64px] -translate-x-1/2 rounded-full border-2 border-white object-cover"
-      />
-      <p className="mt-[8px] truncate text-[18px] leading-[22px] font-bold text-white">
-        {g.name}
-      </p>
-      <p className="mt-[4px] text-[13px] leading-[16px] font-semibold text-mint">
-        Share {g.service}
-      </p>
-      <p className="mt-[10px] text-[12px] leading-[15px] font-semibold text-mint">
-        Your Contribution
-      </p>
-      <p className="mt-[4px] text-[22px] leading-[27px] font-bold text-white">
-        {g.price}
-        <span className="text-[12px] font-semibold text-mint">/Monthly</span>
-      </p>
-      <div className="mt-[10px] border-t border-white/25 pt-[10px]">
-        <p className="flex items-center justify-between text-[12px] leading-[15px] font-semibold text-mint">
-          <span>{g.left}</span>
-          <span>{g.ratio}</span>
+      <div className="flex flex-col items-center text-center">
+        <img
+          src={g.avatar || avatarAccount}
+          alt=""
+          className="h-[56px] w-[56px] rounded-full border-[2.5px] border-[#F1F8F2] object-cover xl:h-[74px] xl:w-[74px]"
+        />
+        <p className="mt-[8px] w-full truncate text-[16px] leading-[20px] font-bold text-white xl:text-[22px] xl:leading-[26px]">
+          {g.name}
         </p>
-        <p className="mt-[6px] text-left text-[11px] leading-[14px] font-semibold text-mint">
-          Access Method: {g.access || "Login Credential"}
+        <p className="mt-[2px] w-full truncate text-[10px] leading-[14px] font-semibold text-white xl:text-[11px] xl:leading-[16px]">
+          Share <span className="text-[11px] font-bold xl:text-[13px]">{g.service}</span>
         </p>
       </div>
+
+      <div className="mx-auto mt-[12px] h-px w-full bg-[#B1DBB3]/40" />
+
+      <div className="mt-[12px] rounded-[8px] bg-[#02580B] px-[10px] py-[8px] text-center">
+        <p className="text-[9px] leading-[12px] font-semibold text-white">
+          Your Contribution
+        </p>
+        <p className="mt-[1px] flex items-baseline justify-center gap-[2px]">
+          <span className="text-[16px] leading-[20px] font-semibold text-white xl:text-[21px] xl:leading-[25px]">
+            {g.price}
+          </span>
+          <span className="text-[10px] leading-[16px] font-semibold text-[#B1DBB3]">
+            /Monthly
+          </span>
+        </p>
+      </div>
+
+      <div className="mt-[10px] h-[6px] w-full overflow-hidden rounded-full bg-[#023F05] xl:mt-[14px]">
+        <span
+          className="block h-full rounded-full bg-[#048B0B]"
+          style={{ width: `${g.pct}%` }}
+        />
+      </div>
+
+      <div className="mt-[8px] flex items-center justify-between gap-[8px] text-[11px] leading-[15px] font-semibold text-[#F1F8F2] xl:text-[13px] xl:leading-[17px]">
+        <span className="flex min-w-0 items-center gap-[5px]">
+          <SlotIcon />
+          <span className="truncate">{g.left}</span>
+        </span>
+        <span className="flex-none">{g.ratio}</span>
+      </div>
+
+      <div className="mt-[6px] flex items-center gap-[6px] text-white">
+        <KeyIcon />
+        <span className="flex-none text-[9px] leading-[13px] font-semibold whitespace-nowrap opacity-90 xl:text-[10px] xl:leading-[15px]">
+          Access Method:
+        </span>
+        <span className="truncate text-[10px] leading-[13px] font-semibold xl:text-[11px] xl:leading-[15px]">
+          {g.access || "Login Credential"}
+        </span>
+      </div>
+
       <Link
         to={g.linkTo || "/join"}
         state={g.linkState}
-        className="mt-[12px] flex h-[36px] w-full items-center justify-center rounded-[8px] bg-white text-[14px] font-bold text-ink transition hover:bg-mint"
+        className="mt-[12px] flex h-[34px] w-full items-center justify-center rounded-[8px] bg-[#F1F8F2] text-[14px] font-semibold text-[#001701] transition hover:bg-white xl:mt-[14px] xl:h-[38px] xl:text-[16px]"
       >
         Join
       </Link>
-    </div>
+    </article>
   );
 }
 
@@ -94,15 +150,19 @@ function mapService(a) {
 
 function mapGroup(g) {
   const left = g.open_slots ?? g.available_slots ?? 0;
+  const total = g.capacity ?? g.slots_offered ?? g.total_slots ?? (left + (g.occupied_slots ?? 0)) ?? 0;
+  const occupied = g.occupied_slots ?? Math.max(0, total - left);
   return {
     avatar: null,
     name: [g.creator?.first_name, g.creator?.last_name].filter(Boolean).join(" ") || "Creator",
     service: [g.service?.name, g.plan?.name].filter(Boolean).join(" ") || "Subscription",
-    price: totalPriceKobo(g) != null ? kobo(totalPriceKobo(g)) : "—",
+    price: totalPriceKobo(g) != null ? kobo(totalPriceKobo(g)) : "\u2014",
     left: left === 1 ? "1 Slot left" : `${left} Slots left`,
-    ratio: `${left} open`,
+    /* Figma prints the occupancy as filled/capacity ("3/4"), not "3 open". */
+    ratio: total ? `${occupied}/${total}` : `${left} open`,
+    pct: total ? Math.min(100, Math.round((occupied / total) * 100)) : 0,
     access: accessLabel(g.access_method),
-    linkTo: "/join/summary",
+    linkTo: "/join/preview",
     linkState: { group_id: g.group_id || g.id, preview: g },
   };
 }
@@ -136,6 +196,13 @@ export default function Browse() {
   const loadingBrands = services === null;
   const loadingGroups = availGroups === null;
 
+  const presentCats = (liveBrands || []).reduce((acc, b) => {
+    const key = (b.cat || "").trim();
+    if (key) acc[key.toLowerCase()] = true;
+    return acc;
+  }, {});
+  const hasCat = (c) => !!presentCats[c.trim().toLowerCase()];
+
   /* Picking a service must not remove the other services from the grid — it
      narrows the available-groups list below instead. Only the typed search and
      the category chips filter the cards. */
@@ -164,15 +231,20 @@ export default function Browse() {
   const brandList = showAllBrands ? brands : brands.slice(0, 6);
   const groupList = showAllGroups ? groups : groups.slice(0, 6);
 
+  const cats = ["All", ...FIGMA_CATS.filter((c) => hasCat(c)),
+    ...Object.keys(presentCats).filter(
+      (c) => !FIGMA_CATS.some((f) => f.toLowerCase() === c.toLowerCase()),
+    ).map(titleCase)];
+
   const chips = (mobile = false) => (
     <div
       className={
         mobile
           ? "scrollbar-none -mx-[30px] flex gap-[10px] overflow-x-auto px-[30px] pb-[4px]"
-          : "scrollbar-none flex gap-[16px] overflow-x-auto pb-[4px]"
+          : "scrollbar-none flex gap-[12px] overflow-x-auto pb-[4px]"
       }
     >
-      {CATS.map((c) => {
+      {cats.map((c) => {
         const active = cat === c;
         return (
           <button
@@ -185,11 +257,11 @@ export default function Browse() {
             className={`flex-none font-semibold whitespace-nowrap transition ${
               mobile
                 ? "h-[42px] rounded-[8px] px-[14px] text-[12.5px]"
-                : "h-[44px] rounded-[10px] px-[20px] text-[18px]"
+                : "h-[48px] rounded-[6px] px-[20px] text-[15px]"
             } ${
               active
-                ? "bg-btn text-white"
-                : "border border-clyse bg-white text-ink hover:bg-mint"
+                ? "bg-[#021E02] text-white"
+                : "border border-[#001701] bg-white text-[#001701] hover:bg-[#F1F8F2]"
             }`}
           >
             {c}
@@ -246,7 +318,7 @@ export default function Browse() {
                 <h1 className="mt-[30px] text-[35px] leading-[43px] font-bold text-ink">
                   Available Group Subscription
                 </h1>
-                <div className="mt-[30px] grid grid-cols-3 gap-x-[82px] gap-y-[50px]">
+                <div className="mt-[30px] grid grid-cols-3 gap-x-[40px] gap-y-[24px]">
                   {loadingBrands
                     ? Array.from({ length: 6 }, (_, i) => <Sk key={`brand-loading-${i}`} className="h-[179px] w-full !rounded-[16px]" />)
                     : brandList.map((b) => (
@@ -255,17 +327,17 @@ export default function Browse() {
                       type="button"
                       onClick={() => setPicked(picked === b.name ? null : b.name)}
                       aria-pressed={picked === b.name}
-                      className={`flex min-h-[179px] cursor-pointer flex-col items-center rounded-[16px] border bg-white px-[16px] py-[20px] transition hover:border-[#048B0B] hover:shadow-[0_0_12px_rgba(4,139,11,0.18)] ${
+                      className={`flex h-[221px] cursor-pointer flex-col items-center rounded-[20px] border bg-[#F1F8F2] px-[16px] pt-[21px] pb-[16px] transition ${
                         picked === b.name
-                          ? "border-[#048B0B] shadow-[0_0_12px_rgba(4,139,11,0.18)] ring-2 ring-[#B1DBB3]"
-                          : "border-clyse"
+                          ? "border-[#048B0B] shadow-[0_0_12px_rgba(4,139,11,0.25)]"
+                          : "border-[#001701] hover:shadow-[0_0_12px_rgba(0,23,1,0.15)]"
                       }`}
                     >
                       <BrandTile brand={b.brand} name={b.name} size={75} plain />
-                      <span className="mt-[12px] line-clamp-2 min-h-[44px] text-[18px] leading-[22px] font-bold text-ink">
+                      <span className="mt-[13px] line-clamp-2 w-full text-[25px] leading-[27px] font-bold text-[#001701]">
                         {b.name}
                       </span>
-                      <span className="mt-[10px] inline-flex h-[19px] w-[96px] items-center justify-center rounded-[3.58px] bg-[#B1DBB3] text-[10px] leading-[15px] font-semibold text-clyse">
+                      <span className="mt-auto inline-flex h-[19px] w-[96px] flex-none items-center justify-center rounded-[3.58px] bg-[#048B0B] text-[10px] leading-[15px] font-semibold text-white">
                         {b.chip || b.cat || "Entertainment"}
                       </span>
                     </button>
@@ -275,7 +347,7 @@ export default function Browse() {
                   <button
                     type="button"
                     onClick={() => setShowAllBrands((v) => !v)}
-                    className="mt-[30px] flex h-[56px] w-full items-center justify-center rounded-[10px] border border-clyse bg-mint text-[18px] font-semibold text-ink transition hover:bg-white"
+                    className="mt-[30px] flex h-[47px] w-full items-center justify-center rounded-[20px] border border-[#001701] bg-[#F1F8F2] text-[17px] font-semibold text-[#001701] transition hover:bg-white"
                   >
                     {showAllBrands ? "Show Less" : "Load More"}
                   </button>
@@ -283,7 +355,7 @@ export default function Browse() {
               </>
             )}
             <div className="mt-[50px] flex items-baseline justify-between gap-[20px]">
-              <h2 className="text-[35px] leading-[43px] font-bold text-ink">Join Group</h2>
+              <h2 className="flex-none text-[35px] leading-[43px] font-bold text-ink">Join Group</h2>
               {picked && (
                 <button
                   type="button"
@@ -296,7 +368,7 @@ export default function Browse() {
                 </button>
               )}
             </div>
-            <div className="mt-[62px] grid grid-cols-3 gap-x-[38px] gap-y-[62px]">
+            <div className="mt-[30px] grid grid-cols-3 gap-x-[24px] gap-y-[24px]">
               {loadingGroups
                 ? Array.from({ length: 3 }, (_, i) => <Sk key={`group-loading-${i}`} className="h-[250px] w-full !rounded-[16px]" />)
                 : groupList.map((g, i) => <JoinCard key={`${g.name}-${i}`} g={g} />)}
@@ -312,7 +384,7 @@ export default function Browse() {
               <button
                 type="button"
                 onClick={() => setShowAllGroups((v) => !v)}
-                className="mt-[50px] flex h-[56px] w-full items-center justify-center rounded-[10px] border border-clyse bg-mint text-[18px] font-semibold text-ink transition hover:bg-white"
+                className="mt-[50px] flex h-[47px] w-full items-center justify-center rounded-[20px] border border-[#001701] bg-[#F1F8F2] text-[17px] font-semibold text-[#001701] transition hover:bg-white"
               >
                 {showAllGroups ? "Show Less" : "View More"}
               </button>
@@ -376,8 +448,8 @@ export default function Browse() {
                   aria-pressed={picked === b.name}
                   className={`flex min-h-[130px] cursor-pointer flex-col items-center rounded-[16px] border bg-white px-[10px] py-[16px] ${
                     picked === b.name
-                      ? "border-[#048B0B] ring-2 ring-[#B1DBB3]"
-                      : "border-clyse"
+                      ? "border-[#048B0B] bg-[#F1F8F1] ring-2 ring-[#B1DBB3]"
+                      : "border-[#BABABA] bg-white"
                   }`}
                 >
                   <BrandTile brand={b.brand} name={b.name} size={50} plain />
@@ -405,16 +477,17 @@ export default function Browse() {
           )}
 
           <div className="mt-[40px] flex items-center justify-between gap-[10px]">
-            <h2 className="text-[25px] leading-[30px] font-bold text-ink">
+            <h2 className="flex-none text-[25px] leading-[30px] font-bold text-ink">
               Available Group
             </h2>
             {picked && (
               <button
                 type="button"
                 onClick={() => setPicked(null)}
-                className="flex h-[30px] items-center gap-[6px] rounded-[15px] bg-mint px-[12px] text-[12.5px] font-semibold text-clyse"
+                className="flex h-[30px] min-w-0 max-w-[45%] items-center gap-[6px] rounded-[15px] bg-mint px-[12px] text-[12.5px] font-semibold text-clyse"
               >
-                {picked} ×
+                <span className="truncate">{picked}</span>
+                <span aria-hidden="true" className="flex-none">×</span>
                 <span className="sr-only">Clear service filter</span>
               </button>
             )}

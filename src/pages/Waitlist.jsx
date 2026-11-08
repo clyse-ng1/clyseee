@@ -4,7 +4,6 @@ import Navbar from "../components/Navbar";
 import Sidebar from "../components/Sidebar";
 import WaitlistCard, { WaitlistCardSk } from "../components/WaitlistCard";
 import ExtraBlock from "../components/ExtraBlock";
-import MemberMini from "../components/MemberMini";
 import { EmptyCard } from "./WaitlistEmpty";
 import { BlurBg } from "../components/Decor";
 import { api, brandOf, fmtDay, kobo } from "../lib/api";
@@ -118,9 +117,8 @@ export default function Waitlist() {
       </main>
       {/* Mobile */}
       <main className="relative bg-white xl:hidden">
-        <div className="relative bg-white px-[30px] pt-[46px] pb-[40px]">
-          <MemberMini />
-          <h1 className="mt-[51px] text-[30px] leading-[37px] font-bold text-black">
+        <div className="relative bg-white px-[30px] pt-[30px] pb-[40px]">
+          <h1 className="mt-[0px] text-[30px] leading-[37px] font-bold text-black">
             Waitlist
           </h1>
           <p className="text-[13px] leading-[20px] font-semibold text-[#6B6B6B]">

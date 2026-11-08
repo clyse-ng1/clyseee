@@ -39,7 +39,7 @@ function ModalCard() {
   };
 
   return (
-    <div className="w-full bg-white px-[40px] pt-[40px] pb-[40px] xl:w-[700px] xl:px-[40px]">
+    <div className="w-full rounded-[20px] border border-clyse bg-white px-[30px] pt-[30px] pb-[30px] shadow-[0_0_30px_rgba(0,23,1,0.20)] xl:w-[700px] xl:px-[40px] xl:pt-[40px] xl:pb-[40px]">
       <img src={iconError} alt="" className="mx-auto h-[70px] w-[70px]" />
       <h2 className="mt-[12px] text-center text-[25px] leading-[35px] font-bold text-ink">
         Leave Waitlist
@@ -55,10 +55,10 @@ function ModalCard() {
         </p>
       )}
       <div className="mt-[40px] flex flex-col items-center gap-[30px] xl:flex-row xl:justify-center">
-        <MiniButton variant="gray" to="/waitlist">
+        <MiniButton variant="gray" to="/waitlist" icons={false}>
           Stay
         </MiniButton>
-        <MiniButton variant="red" onClick={leave} busy={busy}>
+        <MiniButton variant="red" onClick={leave} busy={busy} icons={false}>
           Yes, Leave
         </MiniButton>
       </div>

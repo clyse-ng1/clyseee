@@ -6,20 +6,12 @@ import StepHeader from "../components/StepHeader";
 import { matchService, pickPlan, useCatalogue } from "../lib/useCatalogue";
 import iconFaMinus from "../assets/icon-fa-minus.svg";
 import iconFaPlus from "../assets/icon-fa-plus.svg";
-import iconRadio from "../assets/icon-radio.svg";
-import iconRadioOff from "../assets/icon-radio-off.svg";
 import iconAudience from "../assets/figma/icon-audience.svg";
 
 /* Step 2 — group details. Stepper is live (amount = slots x unit price) and
    the access radios swap black/grey exactly as drawn in Figma. The visibility
    options are tappable (needed for the API); the highlight ring is an
    addition. Unit price and slot cap go live from the catalogue plan. */
-const ACCESS = [
-  "Clyse secure payment",
-  "Direct payment to owner",
-  "Other method",
-];
-
 function VisOption({ icon, title, sub, selected, onSelect, mobile = false }) {
   const inner = (
     <>
@@ -72,12 +64,16 @@ export default function CreateDetails() {
       ? pickPlan(matchService(services, incoming.brand))
       : null;
   const unit =
-    incoming?.unit ?? plan?.unit_price_kobo ?? plan?.total_price_kobo ?? null;
+    incoming?.unit ??
+    incoming?.custom?.priceKobo ??
+    plan?.unit_price_kobo ??
+    plan?.total_price_kobo ??
+    null;
   const capacity = plan?.member_slot_capacity ?? null;
   const max = capacity ? Math.min(5, capacity) : 5;
 
   const [slots, setSlots] = useState(3);
-  const [access, setAccess] = useState(0);
+  const access = 0; // access method is fixed: Clyse secure payment
   const [accessLink, setAccessLink] = useState(incoming?.accessLink || "");
   const [vis, setVis] = useState("public");
   const shown = Math.min(slots, max);
@@ -154,28 +150,6 @@ export default function CreateDetails() {
           </div>
         </div>
 
-        <p className="mt-[30px] text-[35px] leading-[43px] font-semibold">
-          How do members get access?
-        </p>
-        <div className="mt-[50px] space-y-[20px]">
-          {ACCESS.map((label, i) => (
-            <button
-              key={label}
-              type="button"
-              onClick={() => setAccess(i)}
-              className="flex items-center gap-[11px]"
-            >
-              <img
-                src={access === i ? iconRadio : iconRadioOff}
-                alt=""
-                className="h-[25px] w-[25px]"
-              />
-              <span className="text-[25px] leading-[35px] font-semibold">
-                {label}
-              </span>
-            </button>
-          ))}
-        </div>
 
         <p className="mt-[45px] text-[25px] leading-[35px] font-semibold">
           Provide Subscription Access Link
@@ -280,28 +254,6 @@ export default function CreateDetails() {
           </p>
         </div>
 
-        <p className="ml-[30px] mt-[21px] text-[22px] leading-[27px] font-bold">
-          How do members get access?
-        </p>
-        <div className="ml-[53px] mt-[35px] space-y-[15px]">
-          {ACCESS.map((label, i) => (
-            <button
-              key={label}
-              type="button"
-              onClick={() => setAccess(i)}
-              className="flex items-center gap-[9px]"
-            >
-              <img
-                src={access === i ? iconRadio : iconRadioOff}
-                alt=""
-                className="h-[17px] w-[17px]"
-              />
-              <span className="text-[17.34px] leading-[24px] font-semibold">
-                {label}
-              </span>
-            </button>
-          ))}
-        </div>
 
         <p className="ml-[30px] mt-[32px] text-[17.34px] leading-[24px] font-semibold">
           Paste Subscription Access Link

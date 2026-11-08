@@ -68,8 +68,8 @@ function StepHead({ mobile = false }) {
       <span
         className={
           mobile
-            ? "grid h-[50px] w-[50px] flex-none place-items-center rounded-[5px] bg-[#F2F1FF]"
-            : "grid h-[60px] w-[60px] flex-none place-items-center rounded-[5px] bg-[#F2F1FF]"
+            ? "grid h-[50px] w-[50px] flex-none place-items-center rounded-[10px] bg-[#DFFFE0]"
+            : "grid h-[60px] w-[60px] flex-none place-items-center rounded-[10px] bg-[#DFFFE0]"
         }
       >
         <img
@@ -419,22 +419,32 @@ export default function SelectBank() {
               >
                 Select Bank
               </label>
-              <select
-                id="sb-bank"
-                value={bankCode}
-                onChange={(e) => {
-                  setBankCode(e.target.value);
-                  setError("");
-                }}
-                className="mt-[15px] h-[60px] w-full appearance-none rounded-[16px] border border-[#999999] bg-[#F1F8F1] px-[24px] text-[20px] font-semibold text-ink outline-none focus:border-clyse"
-              >
-                <option value="">Select your bank</option>
-                {(banks || []).map((b) => (
-                  <option key={b.code} value={b.code}>
-                    {b.name}
-                  </option>
-                ))}
-              </select>
+              <div className="relative mt-[15px]">
+                <select
+                  id="sb-bank"
+                  value={bankCode}
+                  onChange={(e) => {
+                    setBankCode(e.target.value);
+                    setError("");
+                  }}
+                  className="h-[60px] w-full appearance-none rounded-[16px] border border-[#999999] bg-[#F1F8F1] px-[24px] pr-[56px] text-[20px] font-semibold text-ink outline-none focus:border-clyse"
+                >
+                  <option value="">Select your bank</option>
+                  {(banks || []).map((b) => (
+                    <option key={b.code} value={b.code}>
+                      {b.name}
+                    </option>
+                  ))}
+                </select>
+                <svg
+                  aria-hidden="true"
+                  className="pointer-events-none absolute top-1/2 right-[20px] h-[12px] w-[18px] -translate-y-1/2"
+                  viewBox="0 0 18 12"
+                  fill="none"
+                >
+                  <path d="M1 1.5 9 9.5l8-8" stroke="#048B0B" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+              </div>
               {error && (
                 <p className="mt-[20px] text-center text-[16px] font-semibold text-[#FF0000]">
                   {error}
@@ -463,6 +473,11 @@ export default function SelectBank() {
                   </span>
                 </button>
               </div>
+              {!addValid && (
+                <p className="mt-[14px] text-center text-[15px] leading-[20px] font-semibold text-[#6B6B6B]">
+                  Enter a 10-digit account number and choose a bank to continue.
+                </p>
+              )}
             </div>
           )}
         </div>
@@ -588,22 +603,32 @@ export default function SelectBank() {
               >
                 Select Bank
               </label>
-              <select
-                id="sb-bank-m"
-                value={bankCode}
-                onChange={(e) => {
-                  setBankCode(e.target.value);
-                  setError("");
-                }}
-                className="mt-[12px] h-[56px] w-full appearance-none rounded-[12px] border border-[#999999] bg-[#F1F8F1] px-[18px] text-[16px] font-semibold text-ink outline-none focus:border-clyse"
-              >
-                <option value="">Select your bank</option>
-                {(banks || []).map((b) => (
-                  <option key={b.code} value={b.code}>
-                    {b.name}
-                  </option>
-                ))}
-              </select>
+              <div className="relative mt-[12px]">
+                <select
+                  id="sb-bank-m"
+                  value={bankCode}
+                  onChange={(e) => {
+                    setBankCode(e.target.value);
+                    setError("");
+                  }}
+                  className="h-[56px] w-full appearance-none rounded-[12px] border border-[#999999] bg-[#F1F8F1] px-[18px] pr-[48px] text-[16px] font-semibold text-ink outline-none focus:border-clyse"
+                >
+                  <option value="">Select your bank</option>
+                  {(banks || []).map((b) => (
+                    <option key={b.code} value={b.code}>
+                      {b.name}
+                    </option>
+                  ))}
+                </select>
+                <svg
+                  aria-hidden="true"
+                  className="pointer-events-none absolute top-1/2 right-[20px] h-[12px] w-[18px] -translate-y-1/2"
+                  viewBox="0 0 18 12"
+                  fill="none"
+                >
+                  <path d="M1 1.5 9 9.5l8-8" stroke="#048B0B" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+              </div>
               {error && (
                 <p className="mt-[16px] text-center text-[14px] font-semibold text-[#FF0000]">
                   {error}
@@ -628,6 +653,11 @@ export default function SelectBank() {
                   Go Back
                 </button>
               </div>
+              {!addValid && (
+                <p className="mt-[12px] text-center text-[13px] leading-[18px] font-semibold text-[#6B6B6B]">
+                  Enter a 10-digit account number and choose a bank to continue.
+                </p>
+              )}
             </div>
           )}
         </div>

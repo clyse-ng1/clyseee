@@ -5,7 +5,6 @@ import { BlurBg } from "../components/Decor";
 import StepHeader from "../components/StepHeader";
 import iconUpload from "../assets/icon-upload.svg";
 import iconUploadSm from "../assets/icon-upload-sm.svg";
-import iconPlusCircle from "../assets/icon-plus-circle.svg";
 
 /* Step 3 — verify subscription. Dropzones open a real file picker; the small
    (i) buttons toggle Figma's "how to find it" popovers (closed by default,
@@ -178,15 +177,6 @@ export default function CreateVerify() {
           label="Upload Payment Receipt"
           onFile={(f) => setProofs((p) => ({ ...p, receipt: f }))}
         />
-        <button
-          type="button"
-          className="mt-[30px] flex h-[60px] w-full items-center justify-center gap-[9px] rounded-2xl border border-[#999999] bg-mint"
-        >
-          <img src={iconPlusCircle} alt="" className="h-[35px] w-[35px]" />
-          <span className="text-[25px] leading-[35px] font-semibold">
-            Other Custom Subscription
-          </span>
-        </button>
         <div className="mx-auto mt-[50px] flex w-[990px] gap-[50px]">
           <Link
             to="/create-group/details"
@@ -225,15 +215,6 @@ export default function CreateVerify() {
           label="Upload Payment Receipt"
           onFile={(f) => setProofs((p) => ({ ...p, receipt: f }))}
         />
-        <button
-          type="button"
-          className="mx-[30px] mt-[21px] flex h-[50px] w-[370px] items-center justify-center gap-[7px] rounded-[11.1px] border border-[#999999] bg-mint"
-        >
-          <img src={iconPlusCircle} alt="" className="h-[24px] w-[24px]" />
-          <span className="text-[17.34px] leading-[24px] font-semibold">
-            Other Custom Subscription
-          </span>
-        </button>
         <div className="mx-[30px] mt-[34px] flex gap-[24px]">
           <Link
             to="/create-group/details"

@@ -167,9 +167,13 @@ export function EarnMini({ tile, glyph, label, value, sub, vdTo, onVd, wide = fa
     : "text-[30px] leading-[37px] xl:text-[35px] xl:leading-[43px]";
   return (
     <div className={wide ? "w-full xl:w-[748px]" : "w-full xl:w-[349px]"}>
-      <div className={`rounded-[10px] bg-white px-[21px] pt-[21px] ${wide ? "h-[149px]" : "h-[156px]"} ${SHADOW}`}>
+      <div
+        className={`rounded-[10px] border border-clyse bg-white px-[21px] pt-[21px] pb-[16px] ${
+          wide ? "xl:h-[149px]" : "xl:h-[156px]"
+        } ${SHADOW}`}
+      >
         <div className="flex">
-          <span className={`grid h-[42px] w-[42px] flex-none place-items-center rounded-[5px] ${tile}`}>
+          <span className={`grid h-[44px] w-[44px] flex-none place-items-center rounded-[10px] ${tile}`}>
             <img src={glyph} alt="" className="h-[30px] w-[30px]" />
           </span>
           <span className="ml-[30px]">
@@ -184,21 +188,30 @@ export function EarnMini({ tile, glyph, label, value, sub, vdTo, onVd, wide = fa
             </span>
           </span>
         </div>
+        {/* Card 21: "View Details" used to float outside and below the card.
+            Figma M17/M18 tiles carry no such link, so on mobile it is gone; it
+            stays on the desktop overview, which has no Figma frame of its own. */}
+        {!noVd && (
+          <div className="mt-[10px] hidden justify-end xl:flex">
+            {onVd ? (
+              <button
+                type="button"
+                onClick={onVd}
+                className="text-[14px] leading-[18px] font-semibold text-clyse xl:text-[18px] xl:leading-[22px]"
+              >
+                View Details
+              </button>
+            ) : (
+              <Link
+                to={vdTo}
+                className="text-[14px] leading-[18px] font-semibold text-clyse xl:text-[18px] xl:leading-[22px]"
+              >
+                View Details
+              </Link>
+            )}
+          </div>
+        )}
       </div>
-      {!noVd &&
-        (onVd ? (
-          <button
-            type="button"
-            onClick={onVd}
-            className="mt-[21px] ml-[198px] block text-[18px] leading-[22px] font-semibold text-clyse"
-          >
-            View Details
-          </button>
-        ) : (
-          <Link to={vdTo} className="mt-[21px] ml-[198px] block text-[18px] leading-[22px] font-semibold text-clyse">
-            View Details
-          </Link>
-        ))}
     </div>
   );
 }

@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import Sidebar from "../components/Sidebar";
-import MemberMini from "../components/MemberMini";
 import { BlurBg } from "../components/Decor";
 import { api, fmtDate } from "../lib/api";
 
@@ -17,7 +16,7 @@ function Status({ value }) {
 }
 
 function Shell({ title, children }) {
-  return <div className="min-h-screen bg-white font-sans text-ink"><Navbar loggedIn /><main className="relative mx-[20px] min-[1440px]:mx-[100px] pb-16"><BlurBg variant="hero"/><div className="relative mt-10 flex gap-[38px] xl:mt-[89px]"><div className="hidden xl:block"><Sidebar active="Subscription Requests"/></div><div className="min-w-0 flex-1 xl:max-w-[830px]"><div className="xl:hidden mb-6"><MemberMini/></div><h1 className="text-[28px] font-bold text-black xl:text-[35px]">{title}</h1>{children}</div></div></main></div>;
+  return <div className="min-h-screen bg-white font-sans text-ink"><Navbar loggedIn /><main className="relative mx-[20px] min-[1440px]:mx-[100px] pb-16"><BlurBg variant="hero"/><div className="relative mt-10 flex gap-[38px] xl:mt-[89px]"><div className="hidden xl:block"><Sidebar active="Subscription Requests"/></div><div className="min-w-0 flex-1 xl:max-w-[830px]"><h1 className="text-[28px] font-bold text-black xl:text-[35px]">{title}</h1>{children}</div></div></main></div>;
 }
 
 function RequestForm({ initial = {}, requestId, onComplete }) {

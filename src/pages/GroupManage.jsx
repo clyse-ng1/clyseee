@@ -3,7 +3,7 @@ import { Link, Navigate, useLocation, useNavigate } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import Sidebar from "../components/Sidebar";
 import ExtraBlock from "../components/ExtraBlock";
-import MemberMini from "../components/MemberMini";
+import NotifPrefs from "../components/NotifPrefs";
 import { BlurBg } from "../components/Decor";
 import { api, fmtTx } from "../lib/api";
 import Sk from "../components/Skeleton";
@@ -418,9 +418,9 @@ export default function GroupManage() {
             <div className="mt-[50px]">
               <Tiles groupId={groupId} />
             </div>
-            <div className={`mt-[30px] rounded-[20px] bg-white px-[40px] pt-[50px] pb-[50px] ${SHADOW}`}>
+            <div className={`mt-[30px] rounded-[20px] border border-clyse bg-white px-[40px] pt-[30px] pb-[30px] ${SHADOW}`}>
               <div className="flex items-start justify-between">
-                <h2 className="text-[35px] leading-[43px] font-bold text-ink">
+                <h2 className="text-[30px] leading-[38px] font-bold text-ink">
                   Notification
                 </h2>
                 <span className="mt-[10px] text-right text-[18px] leading-[22px] font-semibold text-clyse">
@@ -446,7 +446,7 @@ export default function GroupManage() {
                   )}
                 </span>
               </div>
-              <div className="mt-[70px]">
+              <div className="mt-[24px]">
                 {loadFailed && !items ? (
                   <p className="text-[18px] leading-[22px] font-semibold text-[#FF0000]">
                     Could not load activity. Please try again.
@@ -476,7 +476,11 @@ export default function GroupManage() {
                   }}
                 />
               )}
-              <div className="mt-[70px] flex gap-[40px]">
+              <p className="mt-[26px] border-t border-[#EDF3ED] pt-[20px] text-[16px] leading-[22px] font-semibold text-[#6B6B6B]">
+                Notify me about
+              </p>
+              <NotifPrefs className="mt-[4px]" />
+              <div className="mt-[30px] flex gap-[40px]">
                 <button
                   onClick={() => setEditing((v) => !v)}
                   className="h-[60px] w-[356px] flex-none cursor-pointer rounded-[10px] border border-clyse bg-white shadow-[0_0_7px_rgba(0,23,1,0.25)]"
@@ -493,23 +497,22 @@ export default function GroupManage() {
       </main>
       {/* Mobile (M13 696:23520): has subtitle, full-bleed card, Delete only */}
       <main className="relative bg-white xl:hidden">
-        <div className="relative bg-white px-[30px] pt-[46px] pb-[40px]">
-          <MemberMini />
-          <h1 className="mt-[51px] text-[30px] leading-[37px] font-bold text-black">
+        <div className="relative bg-white px-[30px] pt-[30px] pb-[40px]">
+          <h1 className="mt-[0px] text-[30px] leading-[37px] font-bold text-black">
             Manage Group
           </h1>
           <p className="text-[13px] leading-[20px] font-semibold text-[#6B6B6B]">
             {SUB}
           </p>
-          <div className="mt-[50px]">
+          <div className="mt-[30px]">
             <TilesM groupId={groupId} />
           </div>
         </div>
-        <div className="mt-[30px] bg-white px-[30px] pt-[50px] pb-[50px]">
-          <h2 className="text-[35px] leading-[43px] font-bold text-ink">
+        <div className="mx-[30px] mt-[24px] rounded-[20px] border border-clyse bg-white px-[20px] pt-[24px] pb-[24px] shadow-[0_0_13.87px_rgba(0,23,1,0.06)]">
+          <h2 className="text-[25px] leading-[31px] font-bold text-ink">
             Notification
           </h2>
-          <div className="mt-[70px]">
+          <div className="mt-[18px]">
             {loadFailed && !items ? (
               <p className="text-[13px] leading-[20px] font-semibold text-[#FF0000]">
                 Could not load activity. Please try again.
@@ -523,6 +526,10 @@ export default function GroupManage() {
               </p>
             )}
           </div>
+          <p className="mt-[22px] border-t border-[#EDF3ED] pt-[18px] text-[13px] leading-[19px] font-semibold text-[#6B6B6B]">
+            Notify me about
+          </p>
+          <NotifPrefs className="mt-[4px]" compact />
           <DeleteButton groupId={groupId} mobile />
         </div>
         <ExtraBlock mobile className="mt-[40px]" />

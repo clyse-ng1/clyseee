@@ -3,7 +3,6 @@ import { Link } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import Sidebar from "../components/Sidebar";
 import ExtraBlock from "../components/ExtraBlock";
-import MemberMini from "../components/MemberMini";
 import { BlurBg } from "../components/Decor";
 import { api, fmtDay } from "../lib/api";
 import Sk from "../components/Skeleton";
@@ -87,7 +86,7 @@ function RowSk() {
   return (
     <div
       aria-hidden
-      className="flex min-h-[100px] w-full items-center gap-[16px] rounded-[20px] border border-[#999999] bg-white px-[18px] py-[14px] xl:h-[124px] xl:gap-[20px] xl:px-[21px] xl:py-0"
+      className="flex min-h-[100px] w-full items-center gap-[16px] rounded-[16px] border border-clyse bg-white px-[16px] py-[14px] shadow-[0_0_13.87px_rgba(0,23,1,0.06)] xl:h-[124px] xl:gap-[20px] xl:px-[21px] xl:py-0"
     >
       <Sk className="h-[50px] w-[50px] flex-none !rounded-[12px]" />
       <span className="min-w-0 flex-1">
@@ -122,7 +121,7 @@ function Row({ icon, title, sub, date, unread, onOpen }) {
     </>
   );
   const cls =
-    "flex min-h-[100px] w-full items-center gap-[16px] rounded-[20px] border border-[#999999] bg-white px-[18px] py-[14px] text-left xl:h-[124px] xl:gap-[20px] xl:px-[21px] xl:py-0";
+    "flex min-h-[100px] w-full items-center gap-[16px] rounded-[16px] border border-clyse bg-white px-[16px] py-[14px] text-left shadow-[0_0_13.87px_rgba(0,23,1,0.06)] xl:h-[124px] xl:gap-[20px] xl:px-[21px] xl:py-0";
   if (onOpen) {
     return (
       <button type="button" onClick={onOpen} className={`${cls} transition hover:border-clyse`}>
@@ -153,7 +152,7 @@ function Prefs({ prefs, onToggle }) {
   const entries = Object.entries(prefs || {});
   if (!entries.length) return null;
   return (
-    <div className="mt-[35px] rounded-[20px] border border-[#999999] bg-white px-[21px] py-[24px]">
+    <div className="mt-[24px] rounded-[16px] border border-clyse bg-white px-[18px] py-[20px] shadow-[0_0_13.87px_rgba(0,23,1,0.06)]">
       <p className="text-[20px] leading-[26px] font-semibold text-black xl:text-[25px] xl:leading-[35px]">
         Notification Settings
       </p>
@@ -318,7 +317,7 @@ export default function Notifications() {
         ))
       )}
       {items && items.length === 0 && (
-        <p className="rounded-[20px] border border-[#999999] bg-white px-[18px] py-[30px] text-center text-[16px] font-semibold text-[#6B6B6B]">
+        <p className="rounded-[14px] border border-clyse bg-[#F1F8F1] px-[18px] py-[24px] text-center text-[16px] leading-[22px] font-semibold text-[#4E4E4E]">
           You&apos;re all caught up — no notifications yet.
         </p>
       )}
@@ -365,18 +364,6 @@ export default function Notifications() {
                   {loadingMore ? "Loading…" : "Show older notifications"}
                 </button>
               )}
-              <Link
-                to="/groups/manage"
-                className="mt-[35px] flex h-[60px] w-[356px] items-center justify-center gap-[20px] rounded-[10px] border border-clyse bg-white text-[18px] font-semibold text-ink transition hover:bg-mint"
-              >
-                <svg width="30" height="30" viewBox="0 0 24 24" fill="none">
-                  <rect x="4" y="4" width="7" height="7" rx="1.5" stroke="#048B0B" strokeWidth="1.8" />
-                  <rect x="13" y="4" width="7" height="7" rx="1.5" stroke="#048B0B" strokeWidth="1.8" />
-                  <rect x="4" y="13" width="7" height="7" rx="1.5" stroke="#048B0B" strokeWidth="1.8" />
-                  <rect x="13" y="13" width="7" height="7" rx="1.5" stroke="#048B0B" strokeWidth="1.8" />
-                </svg>
-                Manage Group
-              </Link>
               <Prefs prefs={prefs} onToggle={togglePref} />
             </div>
           </div>
@@ -384,9 +371,8 @@ export default function Notifications() {
       </main>
       {/* Mobile */}
       <main className="relative bg-white xl:hidden">
-        <div className="relative bg-white px-[30px] pt-[46px] pb-[40px]">
-          <MemberMini />
-          <div className="mt-[30px] flex items-end justify-between gap-[12px]">
+        <div className="relative bg-white px-[30px] pt-[30px] pb-[40px]">
+          <div className="flex items-end justify-between gap-[12px]">
             <div>
               <h1 className="text-[20px] leading-[25px] font-bold text-black">
                 Notification
@@ -414,7 +400,7 @@ export default function Notifications() {
               />
             ))}
             {items && items.length === 0 && (
-              <p className="rounded-[20px] border border-[#999999] bg-white px-[18px] py-[30px] text-center text-[14px] font-semibold text-[#6B6B6B]">
+              <p className="rounded-[14px] border border-clyse bg-[#F1F8F1] px-[16px] py-[24px] text-center text-[14px] leading-[20px] font-semibold text-[#4E4E4E]">
                 You&apos;re all caught up — no notifications yet.
               </p>
             )}
@@ -429,18 +415,6 @@ export default function Notifications() {
               {loadingMore ? "Loading…" : "Show older notifications"}
             </button>
           )}
-          <Link
-            to="/groups/manage"
-            className="mt-[24px] flex h-[55px] w-full items-center justify-center gap-[12px] rounded-[10px] border border-clyse bg-white text-[16px] font-semibold text-ink"
-          >
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-              <rect x="4" y="4" width="7" height="7" rx="1.5" stroke="#048B0B" strokeWidth="1.8" />
-              <rect x="13" y="4" width="7" height="7" rx="1.5" stroke="#048B0B" strokeWidth="1.8" />
-              <rect x="4" y="13" width="7" height="7" rx="1.5" stroke="#048B0B" strokeWidth="1.8" />
-              <rect x="13" y="13" width="7" height="7" rx="1.5" stroke="#048B0B" strokeWidth="1.8" />
-            </svg>
-            Manage Group
-          </Link>
           <Prefs prefs={prefs} onToggle={togglePref} />
         </div>
         <ExtraBlock mobile className="mt-[40px]" />

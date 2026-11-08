@@ -1,6 +1,4 @@
 import DarkButton from "./DarkButton";
-import iconArrowInk from "../assets/arrow-ink.svg";
-import iconFundPlus from "../assets/fund-plus.svg";
 
 /* Join plan-picker card. Unselected: gray stroke, no status label at all —
    the mobile frames (JOINT WAITLIST MOBILE PAGE 2) only ever show a chip on
@@ -41,23 +39,15 @@ export default function PlanCard({ name, price, features, status, selected, onSe
         {features}
       </p>
       {selected ? (
-        <DarkButton onClick={onSelect} className="mt-[40px] w-full">
+        <DarkButton onClick={onSelect} className="mt-[32px] w-full" icons={false}>
           Select
         </DarkButton>
       ) : (
         <button
           type="button"
           onClick={onSelect}
-          className="relative mt-[40px] flex h-[60px] w-full items-center justify-center rounded-[10px] border border-[#BABABA] bg-white text-[18px] leading-[22px] font-semibold text-ink"
+          className="mt-[32px] flex h-[56px] w-full items-center justify-center rounded-[10px] border border-[#BABABA] bg-white text-[17px] leading-[22px] font-semibold text-ink transition hover:border-clyse"
         >
-          <span className="absolute top-1/2 left-[28px] -translate-y-1/2">
-            <img src={iconFundPlus} alt="" className="h-[18px] w-[18px]" />
-            <img
-              src={iconArrowInk}
-              alt=""
-              className="absolute top-1/2 left-1/2 h-[15px] w-[15px] -translate-x-1/2 -translate-y-1/2"
-            />
-          </span>
           Select
         </button>
       )}

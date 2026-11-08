@@ -6,7 +6,6 @@ import { BlurBg } from "../components/Decor";
 import StepHeader from "../components/StepHeader";
 import BrandTile from "../components/BrandTile";
 import { minPrice, useCatalogue } from "../lib/useCatalogue";
-import iconPlusCircle from "../assets/icon-plus-circle.svg";
 
 /* Step 1 — pick a subscription (desktop grid 4x2, mobile 2x4).
    NOTE: no footer on the creation flow (Component 3 is hidden in Figma);
@@ -95,9 +94,16 @@ export default function CreateGroup() {
     const min = minPrice(services, brand);
     return min != null ? Math.round(min / 100).toLocaleString("en-US") : "—";
   };
+  const customPriceKobo = customPlan
+    ? Number.parseInt(customPlan, 10) * 100
+    : null;
   const nextState = custom
     ? {
-        custom: { name: customName.trim(), plan: customPlan.trim() },
+        custom: {
+          name: customName.trim(),
+          plan: "Custom plan",
+          priceKobo: Number.isFinite(customPriceKobo) ? customPriceKobo : null,
+        },
         ...(incoming?.fromWaitlist
           ? { fromWaitlist: incoming.fromWaitlist }
           : {}),
@@ -134,9 +140,19 @@ export default function CreateGroup() {
         <button
           type="button"
           onClick={() => setCustom((v) => !v)}
-          className="mt-[60px] flex h-[60px] w-full items-center justify-center gap-[9px] rounded-2xl border border-[#999999] bg-mint"
+          aria-pressed={custom}
+          className={`mt-[60px] flex h-[60px] w-full items-center justify-center gap-[12px] rounded-2xl border bg-mint transition ${
+            custom ? "border-[#048B0B] shadow-[0_0_12px_rgba(4,139,11,0.18)]" : "border-[#999999]"
+          }`}
         >
-          <img src={iconPlusCircle} alt="" className="h-[35px] w-[35px]" />
+          <span
+            aria-hidden="true"
+            className={`grid h-[20px] w-[20px] place-items-center rounded-full border-2 ${
+              custom ? "border-[#048B0B]" : "border-[#999999]"
+            }`}
+          >
+            {custom && <span className="h-[10px] w-[10px] rounded-full bg-[#048B0B]" />}
+          </span>
           <span className="text-[25px] leading-[35px] font-semibold">
             Other Custom Subscription
           </span>
@@ -203,9 +219,19 @@ export default function CreateGroup() {
         <button
           type="button"
           onClick={() => setCustom((v) => !v)}
-          className="mx-[30px] mt-[148px] flex h-[50px] w-[calc(100%-60px)] max-w-[370px] items-center justify-center gap-[7px] rounded-[11.1px] border border-[#999999] bg-mint"
+          aria-pressed={custom}
+          className={`mx-[30px] mt-[148px] flex h-[50px] w-[calc(100%-60px)] max-w-[370px] items-center justify-center gap-[9px] rounded-[11.1px] border bg-mint transition ${
+            custom ? "border-[#048B0B] shadow-[0_0_12px_rgba(4,139,11,0.18)]" : "border-[#999999]"
+          }`}
         >
-          <img src={iconPlusCircle} alt="" className="h-[24px] w-[24px]" />
+          <span
+            aria-hidden="true"
+            className={`grid h-[16px] w-[16px] flex-none place-items-center rounded-full border-2 ${
+              custom ? "border-[#048B0B]" : "border-[#999999]"
+            }`}
+          >
+            {custom && <span className="h-[8px] w-[8px] rounded-full bg-[#048B0B]" />}
+          </span>
           <span className="text-[17.34px] leading-[24px] font-semibold">
             Other Custom Subscription
           </span>
@@ -242,9 +268,14 @@ export default function CreateGroup() {
             Go Back
           </Link>
           <Link
-            to="/create-group/plan"
+            to={(custom && !customName.trim()) || (custom && !customPriceKobo) ? "/create-group" : "/create-group/plan"}
             state={nextState}
-            className="grid h-[50px] flex-1 place-items-center rounded-[11.1px] bg-btn text-[11.66px] font-semibold text-mint"
+            aria-disabled={(custom && (!customName.trim() || !customPriceKobo)) || undefined}
+            className={`grid h-[50px] flex-1 place-items-center rounded-[11.1px] text-[11.66px] font-semibold ${
+              custom && (!customName.trim() || !customPriceKobo)
+                ? "bg-[#EDF3ED] text-[#8A9A8D]"
+                : "bg-btn text-mint"
+            }`}
           >
             Continue
           </Link>

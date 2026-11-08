@@ -5,7 +5,7 @@ import { BlurBg } from "../components/Decor";
 import iconError from "../assets/error-icon.svg";
 import iconFundArrow from "../assets/fund-arrow.svg";
 import iconPlusWhite from "../assets/plus-white.svg";
-import MemberMini, { MemberMenuButton } from "../components/MemberMini";
+import { MemberMenuButton } from "../components/MemberMini";
 import ctaDash from "../assets/cta-dash.webp";
 import chevronRight from "../assets/angle-right.svg";
 
@@ -70,7 +70,6 @@ export default function WalletError() {
       {/* Mobile */}
       <main className="relative bg-white xl:hidden">
         <div className="relative bg-white px-[30px] pt-[30px] pb-[21px]">
-          <MemberMini />
           <MemberMenuButton active="My Wallet" />
         </div>
 

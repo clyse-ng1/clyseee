@@ -165,7 +165,14 @@ const MONTHS = [
 /** kobo (integer) -> "₦2,200" */
 export function kobo(amountKobo) {
   const n = Number(amountKobo) || 0;
-  return `₦${(n / 100).toLocaleString("en-NG", { maximumFractionDigits: 2 })}`;
+  /* Whole naira stay short (₦1,400) but a zero balance reads ₦0.00, which is
+     what the PM asked for on the earnings/group cards. */
+  if (n === 0) return "₦0.00";
+  const naira = n / 100;
+  return `₦${naira.toLocaleString("en-NG", {
+    minimumFractionDigits: Number.isInteger(naira) ? 0 : 2,
+    maximumFractionDigits: 2,
+  })}`;
 }
 
 /** Normalize the documented total-price variants used by catalogue/group APIs. */
@@ -279,8 +286,15 @@ export function fmtTx(iso) {
 
 /** kobo -> "124,000" (plain grouped naira, no symbol — EarnMini format) */
 export function nairaNum(amountKobo) {
+  /* Carries the symbol and a two-decimal zero, so an empty earnings card reads
+     ₦0.00 instead of a bare 0 (PM, board card 21). */
   const n = Number(amountKobo) || 0;
-  return (n / 100).toLocaleString("en-NG", { maximumFractionDigits: 2 });
+  if (n === 0) return "₦0.00";
+  const naira = n / 100;
+  return `₦${naira.toLocaleString("en-NG", {
+    minimumFractionDigits: Number.isInteger(naira) ? 0 : 2,
+    maximumFractionDigits: 2,
+  })}`;
 }
 
 /* "Sep 20, 2025 · …" / "28 Sep 2026" -> "September" ("" when dateless). */

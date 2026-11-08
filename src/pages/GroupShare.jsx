@@ -3,7 +3,6 @@ import { Navigate, useLocation } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import Sidebar from "../components/Sidebar";
 import ExtraBlock from "../components/ExtraBlock";
-import MemberMini from "../components/MemberMini";
 import { BlurBg } from "../components/Decor";
 import { api } from "../lib/api";
 import { useGroupId } from "../lib/useGroup";
@@ -128,13 +127,10 @@ export default function GroupShare() {
           <Sidebar active="My Group" />
           <div className="w-[830px] flex-none">
             <h1 className="text-[35px] leading-[43px] font-bold text-black">
-              Member
+              Invite Member
             </h1>
-            <div className="mt-[50px] rounded-[20px] bg-white px-[63px] pt-[135px] pb-[110px] shadow-[0_0_20px_rgba(0,23,1,0.10)]">
-              <div className="flex justify-center">
-                <LinkGlyph />
-              </div>
-              <p className="mt-[85px] text-center text-[35px] leading-[43px] font-bold text-ink">
+            <div className="mt-[50px] rounded-[20px] border border-clyse bg-white px-[63px] pt-[70px] pb-[70px] shadow-[0_0_20px_rgba(0,23,1,0.10)]">
+              <p className="text-center text-[35px] leading-[43px] font-bold text-ink">
                 Share your group link
               </p>
               <p className="mt-[10px] text-center text-[18px] leading-[22px] font-semibold text-[#4E4E4E]">
@@ -196,16 +192,12 @@ export default function GroupShare() {
       </main>
       {/* Mobile (responsive: no mobile Figma) */}
       <main className="relative bg-white xl:hidden">
-        <div className="relative bg-white px-[30px] pt-[46px] pb-[40px]">
-          <MemberMini />
-          <h1 className="mt-[51px] text-[30px] leading-[37px] font-bold text-black">
-            Member
+        <div className="relative bg-white px-[30px] pt-[30px] pb-[40px]">
+          <h1 className="mt-[0px] text-[30px] leading-[37px] font-bold text-black">
+            Invite Member
           </h1>
-          <div className="mt-[30px] rounded-[20px] bg-white px-[20px] pt-[50px] pb-[40px] shadow-[0_0_20px_rgba(0,23,1,0.10)]">
-            <div className="flex justify-center">
-              <LinkGlyph className="h-[48px] w-[48px]" />
-            </div>
-            <p className="mt-[30px] text-center text-[25px] leading-[30px] font-bold text-ink">
+          <div className="mt-[26px] rounded-[20px] border border-clyse bg-white px-[20px] pt-[30px] pb-[30px] shadow-[0_0_20px_rgba(0,23,1,0.10)]">
+            <p className="text-center text-[25px] leading-[30px] font-bold text-ink">
               Share your group link
             </p>
             <p className="mt-[10px] text-center text-[13px] leading-[20px] font-semibold text-[#4E4E4E]">

@@ -5,6 +5,7 @@ import Sk from "../components/Skeleton";
 import Sidebar from "../components/Sidebar";
 import { BlurBg } from "../components/Decor";
 import DetailModal, { DetailRow } from "../components/DetailModal";
+import BrandTile from "../components/BrandTile";
 import { api, brandOf, displayName, fmtDay, fmtTx, kobo2 } from "../lib/api";
 import { useAuth } from "../lib/useAuth";
 import iconBalance from "../assets/balance-glyph.svg";
@@ -64,9 +65,36 @@ const DOT = {
   Fail: "bg-[#FF0000]",
 };
 
-const TX_ICONS = new Set(["netflix", "spotify", "youtube", "canva", "amazon"]);
+const MONEY_ICONS = new Set(["funding", "subscription", "withdraw"]);
 
-function mapTx(t) {
+const TX_ICONS = new Set([
+  "netflix", "spotify", "youtube", "canva", "amazon", "prime", "adobe", "capcut", "apple",
+]);
+
+/* Every subscription row used to render the same green arrow because the only
+   thing the API gave us was "Join group" — nothing brandable. The row now takes
+   the service straight off the matched group when the payload carries a
+   group_id, and otherwise looks at any service/description field it can find. */
+function brandFromTx(t, groupById) {
+  const g = groupById?.[t.group_id || t.groupId || ""];
+  const candidates = [
+    g?.service?.name,
+    g?.service?.slug,
+    t.service?.name,
+    t.service_name,
+    t.service,
+    t.group?.service?.name,
+    t.description,
+    t.reference,
+  ].filter(Boolean);
+  for (const c of candidates) {
+    const b = brandOf({ name: String(c) });
+    if (b && TX_ICONS.has(b)) return b;
+  }
+  return null;
+}
+
+function mapTx(t, groupById) {
   const kind = (t.kind || "").toLowerCase();
   const funding = kind === "wallet_funding";
   const desc = t.description || (funding ? "Wallet Funding" : "Group Subscription");
@@ -83,10 +111,14 @@ function mapTx(t) {
   const st = (t.status || "").toLowerCase();
   const status =
     st === "successful" ? "Successful" : st === "pending" || st === "reversed_pending" ? "Pending" : "Fail";
-  let icon = "withdraw";
+  /* Only a real payout is a "withdraw"; a subscription debit with no brandable
+     service gets a neutral subscription tile instead of the same money-out
+     arrow, which read like a withdrawal on every row. */
+  const withdrawal = /withdraw|payout/.test(kind);
+  let icon = funding ? "funding" : withdrawal ? "withdraw" : "subscription";
   if (!funding) {
-    const b = brandOf({ name: desc });
-    if (b && TX_ICONS.has(b)) icon = b;
+    const brand = brandFromTx(t, groupById);
+    if (brand) icon = brand;
   }
   return {
     key: t.id || t.reference,
@@ -281,6 +313,35 @@ function FundModal({ open, onClose, onFunded }) {
 
 function RowIcon({ icon, size = 30 }) {
   const px = size === 40 ? "h-[40px] w-[40px]" : "h-[30px] w-[30px]";
+  if (icon === "funding") {
+    return (
+      <span
+        className={`${px} flex flex-none items-center justify-center rounded-full bg-[#DFFFE0]`}
+      >
+        <span aria-hidden="true" className="text-[20px] leading-none font-bold text-clyse">
+          +
+        </span>
+      </span>
+    );
+  }
+  if (icon === "subscription") {
+    return (
+      <span
+        className={`${px} flex flex-none items-center justify-center rounded-full bg-[#DFFFE0]`}
+      >
+        <svg
+          width={size === 40 ? 20 : 15}
+          height={size === 40 ? 20 : 15}
+          viewBox="0 0 20 20"
+          fill="none"
+          aria-hidden="true"
+        >
+          <rect x="2" y="4" width="16" height="12" rx="2.5" stroke="#048B0B" strokeWidth="1.7" />
+          <path d="M2 8h16" stroke="#048B0B" strokeWidth="1.7" strokeLinecap="round" />
+        </svg>
+      </span>
+    );
+  }
   if (icon === "withdraw") {
     return (
       <span
@@ -376,13 +437,13 @@ function QACard({ item, onFund }) {
 /* Loading stand-ins (shimmer, never mock content). */
 function TxRowSk() {
   return (
-    <div className="relative h-[88px]">
-      <Sk className="absolute top-[28px] left-[30px] h-[32px] w-[32px] !rounded-full" />
-      <Sk className="absolute top-[36px] left-[67px] h-[14px] w-[120px]" />
-      <Sk className="absolute top-[27px] left-[250px] h-[18px] w-[180px]" />
-      <Sk className="absolute top-[50px] left-[250px] h-[13px] w-[130px]" />
-      <Sk className="absolute top-[35px] left-[440px] h-[18px] w-[110px]" />
-      <Sk className="absolute top-[31px] left-[610px] h-[30px] w-[140px] !rounded-[10px]" />
+    <div className="relative h-[111px]">
+      <Sk className="absolute top-[20px] left-[30px] h-[70px] w-[70px] !rounded-full" />
+      <Sk className="absolute top-[28px] left-[122px] h-[20px] w-[180px]" />
+      <Sk className="absolute top-[58px] left-[122px] h-[14px] w-[130px]" />
+      <Sk className="absolute top-[42px] left-[380px] h-[14px] w-[110px]" />
+      <Sk className="absolute top-[42px] left-[548px] h-[18px] w-[110px]" />
+      <Sk className="absolute top-[33px] left-[680px] h-[40px] w-[120px] !rounded-[10px]" />
     </div>
   );
 }
@@ -412,6 +473,7 @@ export default function Wallet() {
   const [wallet, setWallet] = useState(null);
   const [walletFailed, setWalletFailed] = useState(false);
   const [txns, setTxns] = useState(null);
+  const [groupById, setGroupById] = useState({});
   const [txError, setTxError] = useState(false);
   const [limit, setLimit] = useState(7);
   const [fundOpen, setFundOpen] = useState(false);
@@ -437,7 +499,7 @@ export default function Wallet() {
   const name = displayName(user) || "Marcus Saris";
   const since = fmtDay(user?.created_at) || "20/11/2026";
   const balance = wallet ? kobo2(wallet.wallet?.balance_kobo ?? wallet.balance_kobo) : "\u2014";
-  const rows = txns ? txns.map(mapTx) : null;
+  const rows = txns ? txns.map((t) => mapTx(t, groupById)) : null;
 
   useEffect(() => {
     let live = true;
@@ -446,6 +508,23 @@ export default function Wallet() {
       if (!live) return;
       if (error) setWalletFailed(true);
       else if (data) setWallet(data);
+    })();
+    return () => {
+      live = false;
+    };
+  }, []);
+
+  /* Service names for the transaction rows come from the member's groups. */
+  useEffect(() => {
+    let live = true;
+    (async () => {
+      const { data, error } = await api("/member/groups");
+      if (!live || error) return;
+      setGroupById(
+        Object.fromEntries(
+          (data?.groups || []).map((g) => [g.id, g]),
+        ),
+      );
     })();
     return () => {
       live = false;
@@ -575,23 +654,10 @@ export default function Wallet() {
                 <button
                   type="button"
                   onClick={openFund}
-                  className="flex h-[60px] w-[223px] items-center rounded-[10px] bg-[#048B0B] pl-[28px]"
+                  className="flex h-[60px] w-[223px] items-center justify-center rounded-[10px] bg-[#048B0B]"
                 >
-                  <span className="relative h-[30px] w-[36px] flex-none">
-                    <img
-                      src={iconPlusWhite}
-                      alt=""
-                      className="absolute top-[6px] left-0 w-[18px]"
-                    />
-                    <span className="absolute top-0 left-[6px] flex h-[30px] w-[30px] items-center justify-center rounded-full bg-white">
-                      <img
-                        src={iconArrowInk}
-                        alt=""
-                        className="w-[15px] rotate-180"
-                      />
-                    </span>
-                  </span>
-                  <span className="ml-[10px] whitespace-nowrap text-[18px] font-semibold text-white">
+                  {/* Card 27: the white circled arrow read wrong — plain label. */}
+                  <span className="whitespace-nowrap text-[18px] font-semibold text-white">
                     Withdraw Fund
                   </span>
                 </button>
@@ -625,11 +691,21 @@ export default function Wallet() {
                   View all
                 </button>
               </div>
-              <div className="relative mt-[40px] h-[50px] text-[13px] leading-[20px] font-semibold text-[#6B6B6B]">
-                <span className="absolute top-[13px] left-[30px]">Date &amp; Time</span>
-                <span className="absolute top-[13px] left-[213px]">Group</span>
-                <span className="absolute top-[13px] left-[397px]">Amount</span>
-                <span className="absolute top-[13px] left-[567px]">Status</span>
+              {/* Figma 889:80439 table header: Group (20/700 black) first, then
+                  16/600 grey Date & Time / Amount / Status at x 380 / 514 / 689. */}
+              <div className="relative mt-[38px] h-[70px]">
+                <span className="absolute top-[17px] left-[30px] text-[20px] leading-[35px] font-bold text-black">
+                  Group
+                </span>
+                <span className="absolute top-[24px] left-[380px] text-[16px] leading-[20px] font-semibold text-[#6B6B6B]">
+                  Date &amp; Time
+                </span>
+                <span className="absolute top-[24px] left-[548px] text-[16px] leading-[20px] font-semibold text-[#6B6B6B]">
+                  Amount
+                </span>
+                <span className="absolute top-[24px] left-[689px] text-[16px] leading-[20px] font-semibold text-[#6B6B6B]">
+                  Status
+                </span>
               </div>
               {!rows && !txError ? (
                 [0, 1, 2, 3, 4, 5, 6].map((i) => <TxRowSk key={i} />)
@@ -637,42 +713,41 @@ export default function Wallet() {
                 (rows || []).map((r, i) => (
                 <div
                   key={r.key || i}
-                  className={`relative h-[88px] ${r.id ? "cursor-pointer" : ""}`}
+                  className={`relative h-[111px] ${r.id ? "cursor-pointer" : ""}`}
                   onClick={r.id ? () => openDetail(r.id) : undefined}
                   role={r.id ? "button" : undefined}
                   tabIndex={r.id ? 0 : undefined}
                   onKeyDown={r.id ? (e) => e.key === "Enter" && openDetail(r.id) : undefined}
                 >
-                  <span className="absolute top-[28px] left-[30px]">
-                    <RowIcon icon={r.icon} />
+                  <span className="absolute top-[20px] left-[30px] flex h-[70px] w-[70px] items-center">
+                    {MONEY_ICONS.has(r.icon) ? (
+                      <span className="flex h-[70px] w-[70px] items-center">
+                        <RowIcon icon={r.icon} size={40} />
+                      </span>
+                    ) : (
+                      <BrandTile brand={r.icon} size={70} plain />
+                    )}
                   </span>
-                  <span className="absolute top-[33px] left-[67px] text-[13px] leading-[20px] font-semibold text-[#6B6B6B]">
+                  <span className="absolute top-[28px] left-[122px] block w-[250px] truncate text-[20px] leading-[26px] font-bold text-ink">
+                    {r.desc}
+                  </span>
+                  <span className="absolute top-[58px] left-[122px] block w-[250px] truncate text-[16px] leading-[20px] font-semibold text-[#6B6B6B]">
+                    {r.sub}
+                  </span>
+                  <span className="absolute top-[42px] left-[380px] w-[152px] text-[14px] leading-[18px] font-semibold text-[#6B6B6B]">
                     {r.date}
                   </span>
-                  <span className="absolute top-[25px] left-[250px]">
-                    <span className="block text-[18px] leading-[22px] font-semibold text-ink">
-                      {r.desc}
-                    </span>
-                    <span className="-mt-[4px] block text-[13px] leading-[20px] font-semibold text-[#6B6B6B]">
-                      {r.sub}
-                    </span>
-                  </span>
-                  <span className="absolute top-[33px] left-[440px] text-[18px] leading-[22px] font-semibold text-[#6B6B6B]">
+                  <span className="absolute top-[42px] left-[548px] text-[18px] leading-[22px] font-semibold whitespace-nowrap text-ink">
                     {r.amount}
                   </span>
                   <span
-                    className={`absolute top-[31px] left-[610px] flex h-[30px] w-[140px] items-center rounded-[10px] pl-[20px] ${PILL[r.status]}`}
+                    className={`absolute top-[33px] left-[680px] flex h-[40px] w-[120px] items-center rounded-[10px] pl-[16px] ${PILL[r.status]}`}
                   >
-                    <span className={`h-[8px] w-[8px] rounded-full ${DOT[r.status]}`} />
-                    <span className="ml-[10px] text-[15px] leading-[18px] font-semibold">
+                    <span className={`h-[10px] w-[10px] flex-none rounded-full ${DOT[r.status]}`} />
+                    <span className="ml-[8px] text-[14px] leading-[17px] font-semibold">
                       {r.status}
                     </span>
                   </span>
-                  <img
-                    src={iconNavArrow}
-                    alt=""
-                    className="absolute top-[39px] right-[35px] w-[6px]"
-                  />
                 </div>
                 ))
               )}
@@ -745,13 +820,8 @@ export default function Wallet() {
               onClick={openFund}
               className="relative flex h-[60px] w-full items-center justify-center rounded-[6.94px] bg-[#048B0B]"
             >
-              <span className="flex items-center">
-                <span className="flex h-[30px] w-[30px] items-center justify-center rounded-full bg-white">
-                  <img src={iconArrowInk} alt="" className="w-[15px] rotate-180" />
-                </span>
-                <span className="ml-[10px] text-[18px] font-semibold whitespace-nowrap text-white">
-                  Withdraw Fund
-                </span>
+              <span className="text-[18px] font-semibold whitespace-nowrap text-white">
+                Withdraw Fund
               </span>
             </button>
           </div>
@@ -794,7 +864,9 @@ export default function Wallet() {
               (rows || []).map((r, i) => (
               <div
                 key={r.key || i}
-                className={`mx-[10px] h-[114px] px-[21px] pt-[17px] ${r.id ? "cursor-pointer" : ""}`}
+                className={`mx-[10px] rounded-[12px] border border-clyse bg-white px-[16px] py-[16px] shadow-[0_0_13.87px_rgba(0,23,1,0.06)] ${
+                  r.id ? "cursor-pointer" : ""
+                }`}
                 onClick={r.id ? () => openDetail(r.id) : undefined}
                 role={r.id ? "button" : undefined}
                 tabIndex={r.id ? 0 : undefined}
@@ -814,12 +886,12 @@ export default function Wallet() {
                     {r.amount}
                   </span>
                 </div>
-                <div className="relative mt-[10px] h-[28px]">
-                  <span className="absolute top-[4px] left-0 text-[13px] leading-[20px] font-semibold text-[#66726C]">
+                <div className="relative mt-[12px] flex items-center justify-between">
+                  <span className="text-[13px] leading-[20px] font-semibold text-[#66726C]">
                     {r.date}
                   </span>
                   <span
-                    className={`absolute top-0 right-0 flex h-[28px] w-[101px] items-center rounded-[14px] pl-[15px] ${PILL[r.status]}`}
+                    className={`flex h-[28px] w-[101px] items-center justify-center rounded-[14px] ${PILL[r.status]}`}
                   >
                     <span className="text-[13px] leading-[20px] font-semibold">
                       {r.status}

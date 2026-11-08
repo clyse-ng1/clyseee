@@ -3,7 +3,6 @@ import { useNavigate } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import Sidebar from "../components/Sidebar";
 import ExtraBlock from "../components/ExtraBlock";
-import MemberMini from "../components/MemberMini";
 import { BlurBg } from "../components/Decor";
 import { useAuth } from "../lib/useAuth";
 import { api } from "../lib/api";
@@ -303,7 +302,7 @@ export default function Profile() {
           <button
             type="button"
             onClick={() => startEdit(r.key, r.value)}
-            className="ml-auto flex-none text-[18px] leading-[22px] font-semibold text-clyse transition hover:opacity-70"
+            className="mt-[20px] ml-auto flex-none self-start text-[16px] leading-[22px] font-semibold text-clyse transition hover:opacity-70 xl:mt-0 xl:self-center xl:text-[18px]"
           >
             Edit
           </button>
@@ -371,14 +370,14 @@ export default function Profile() {
               </div>
             </div>
             {/* Personal info */}
-            <div className="mt-[50px] rounded-[20px] bg-white px-[30px] py-[40px] shadow-[0_0_20px_rgba(0,23,1,0.10)]">
+            <div className="mt-[30px] rounded-[20px] border border-clyse bg-white px-[30px] py-[30px] shadow-[0_0_20px_rgba(0,23,1,0.08)]">
               <h2 className="text-[25px] leading-[35px] font-semibold text-black">
                 Personal Information
               </h2>
               <div className="mt-[10px]">{personal.map(renderPersonalRow)}</div>
             </div>
             {/* Account */}
-            <div className="mt-[50px] rounded-[20px] bg-white px-[30px] py-[40px] shadow-[0_0_20px_rgba(0,23,1,0.10)]">
+            <div className="mt-[30px] rounded-[20px] border border-clyse bg-white px-[30px] py-[30px] shadow-[0_0_20px_rgba(0,23,1,0.08)]">
               <h2 className="text-[25px] leading-[35px] font-semibold text-black">
                 Account Settings
               </h2>
@@ -503,9 +502,8 @@ export default function Profile() {
       </main>
       {/* Mobile */}
       <main className="relative bg-white xl:hidden">
-        <div className="relative bg-white px-[30px] pt-[46px] pb-[40px]">
-          <MemberMini />
-          <div className="bg-btn -mx-[30px] mt-[30px] flex min-h-[236px] items-center gap-[20px] px-[30px] py-[30px]">
+        <div className="relative bg-white px-[30px] pt-[30px] pb-[40px]">
+          <div className="bg-btn -mx-[30px] flex min-h-[236px] items-center gap-[20px] px-[30px] py-[30px]">
             <img
               src={photo || user?.avatar_url || avatarAccount}
               alt={name}
@@ -549,13 +547,13 @@ export default function Profile() {
               </button>
             </div>
           </div>
-          <div className="mt-[24px] rounded-[20px] bg-white p-[20px] shadow-[0_0_20px_rgba(0,23,1,0.10)]">
+          <div className="mt-[20px] rounded-[20px] border border-clyse bg-white p-[20px] shadow-[0_0_16px_rgba(0,23,1,0.08)]">
             <h2 className="text-[20px] font-semibold text-black">
               Personal Information
             </h2>
             <div className="mt-[6px]">{personal.map(renderPersonalRow)}</div>
           </div>
-          <div className="mt-[24px] rounded-[20px] bg-white p-[20px] shadow-[0_0_20px_rgba(0,23,1,0.10)]">
+          <div className="mt-[20px] rounded-[20px] border border-clyse bg-white p-[20px] shadow-[0_0_16px_rgba(0,23,1,0.08)]">
             <h2 className="text-[20px] font-semibold text-black">
               Account Settings
             </h2>

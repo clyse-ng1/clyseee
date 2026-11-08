@@ -14,7 +14,7 @@ import iconQaPlus from "../assets/qa-plus.svg";
 import iconQaSliders from "../assets/qa-sliders.svg";
 import iconQaClock from "../assets/qa-clock.svg";
 import iconQaSupport from "../assets/qa-support.svg";
-import MemberMini, { MemberMenuButton } from "../components/MemberMini";
+import { MemberMenuButton } from "../components/MemberMini";
 import ctaDash from "../assets/cta-dash.webp";
 import chevronRight from "../assets/angle-right.svg";
 
@@ -76,7 +76,6 @@ export default function WalletEmpty() {
       {/* Mobile */}
       <main className="relative bg-white xl:hidden">
         <div className="relative bg-white px-[30px] pt-[30px] pb-[21px]">
-          <MemberMini />
           <MemberMenuButton active="My Wallet" />
         </div>
 

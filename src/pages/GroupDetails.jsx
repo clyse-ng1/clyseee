@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Link, Navigate, useLocation } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import { BlurBg } from "../components/Decor";
+import CreateGroupHead from "../components/CreateGroupHead";
 import { api, fmtDate } from "../lib/api";
 import { useGroupId } from "../lib/useGroup";
 import iconCopy from "../assets/copy-black.svg";
@@ -180,11 +181,11 @@ export default function GroupDetails() {
       {/* Desktop (908:20971) */}
       <main className="relative hidden pb-[100px] xl:block">
         <BlurBg variant="hero" />
-        <div className="relative mx-auto mt-[121px] w-[830px]">
-          <h1 className="text-[35px] leading-[43px] font-bold text-black">
-            Group Details
-          </h1>
-          <div className={`mt-[50px] rounded-[20px] bg-white px-[40px] pt-[50px] pb-[50px] ${SHADOW}`}>
+        <div className="relative mx-auto mt-[101px] w-[830px]">
+          <div className="-mx-[40px] border-b border-[#BABABA]">
+            <CreateGroupHead title="Group Details" />
+          </div>
+          <div className={`mt-[40px] rounded-[20px] border border-clyse bg-white px-[40px] pt-[50px] pb-[50px] ${SHADOW}`}>
             <h2 className="text-[35px] leading-[43px] font-bold text-ink">
               Group Info
             </h2>
@@ -212,27 +213,21 @@ export default function GroupDetails() {
             </div>
             <div className="mt-[35px] h-[2px] w-[742px] bg-[#048B0B]" />
           </div>
-          <div className="mt-[53px] text-center">
-            <Link
-              to="/dashboard"
-              className="text-[25px] leading-[35px] font-semibold text-[#048B0B]"
-            >
-              Back to Dashboard
-            </Link>
-          </div>
-          <div className="mt-[16px] text-center">
+          {/* Card 18: the footer was bare underlined text, including a
+              "Back to Dashboard" link the PM asked us to drop. Two contained
+              buttons now. */}
+          <div className="mt-[40px] flex gap-[30px]">
             <Link
               to="/groups/manage"
               state={{ group_id: groupId }}
-              className="text-[16px] leading-[20px] font-semibold text-clyse"
+              className="grid h-[60px] flex-1 place-items-center rounded-[12px] border border-clyse bg-white text-[18px] font-semibold text-ink transition hover:bg-mint"
             >
               Manage Group
             </Link>
-            <span className="mx-[12px] text-[#999999]">·</span>
             <Link
               to="/groups/share"
               state={{ group_id: groupId }}
-              className="text-[16px] leading-[20px] font-semibold text-clyse"
+              className="bg-btn grid h-[60px] flex-1 place-items-center rounded-[12px] text-[18px] font-semibold text-mint"
             >
               Invite Member
             </Link>
@@ -241,11 +236,11 @@ export default function GroupDetails() {
       </main>
       {/* Mobile */}
       <main className="relative bg-white xl:hidden">
-        <div className="relative px-[30px] pt-[46px] pb-[60px]">
-          <h1 className="text-[30px] leading-[37px] font-bold text-black">
-            Group Details
-          </h1>
-          <div className={`mt-[30px] rounded-[20px] bg-white p-[24px] ${SHADOW}`}>
+        <div className="relative border-b border-[#BABABA]">
+          <CreateGroupHead title="Group Details" />
+        </div>
+        <div className="relative px-[30px] pt-[24px] pb-[60px]">
+          <div className={`rounded-[20px] border border-clyse bg-white p-[24px] ${SHADOW}`}>
             <h2 className="text-[25px] leading-[30px] font-bold text-ink">
               Group Info
             </h2>
@@ -273,27 +268,18 @@ export default function GroupDetails() {
             </div>
             <div className="mt-[20px] h-[2px] w-full bg-[#048B0B]" />
           </div>
-          <div className="mt-[40px] text-center">
-            <Link
-              to="/dashboard"
-              className="text-[20px] leading-[24px] font-semibold text-[#048B0B]"
-            >
-              Back to Dashboard
-            </Link>
-          </div>
-          <div className="mt-[16px] text-center">
+          <div className="mt-[30px] flex gap-[14px]">
             <Link
               to="/groups/manage"
               state={{ group_id: groupId }}
-              className="text-[16px] leading-[20px] font-semibold text-clyse"
+              className="grid h-[50px] flex-1 place-items-center rounded-[11.1px] border border-clyse bg-white text-[14px] font-semibold text-ink"
             >
               Manage Group
             </Link>
-            <span className="mx-[12px] text-[#999999]">·</span>
             <Link
               to="/groups/share"
               state={{ group_id: groupId }}
-              className="text-[16px] leading-[20px] font-semibold text-clyse"
+              className="bg-btn grid h-[50px] flex-1 place-items-center rounded-[11.1px] text-[14px] font-semibold text-mint"
             >
               Invite Member
             </Link>

@@ -39,7 +39,11 @@ export default function CreateReview() {
     : null;
   const planId = fromWaitlist || incoming?.planId || plan?.id || null;
   const unit =
-    incoming?.unit ?? plan?.unit_price_kobo ?? plan?.total_price_kobo ?? null;
+    incoming?.unit ??
+    incoming?.custom?.priceKobo ??
+    plan?.unit_price_kobo ??
+    plan?.total_price_kobo ??
+    null;
   const slots = incoming?.slots ?? 3;
   const vis = incoming?.visibility || "public";
   const title = incoming?.custom?.name || incoming?.title || "Netflix Premium";
@@ -272,48 +276,59 @@ export default function CreateReview() {
         <h2 className="mt-[35px] text-center text-[22px] leading-[27px] font-bold">
           Review Group
         </h2>
-        <div className="ml-[44px] mt-[58px] flex items-center gap-[20px]">
-          <span
-            className="grid h-[42px] w-[42px] flex-none place-items-center rounded-full"
-            style={{ background: LOGO_BG }}
-          >
-            <img src={iconMoviesWhite} alt="" className="w-[23px]" />
-          </span>
-          <span>
-            <span className="block text-[22px] leading-[27px] font-semibold">
-              {title}
+        {/* Figma review screen: everything sits in white cards rather than
+            floating on the tinted background (PM: "containers missing"). */}
+        <div className="mx-[30px] mt-[30px] rounded-[16px] border border-clyse bg-white px-[20px] py-[18px] shadow-[0_0_13.87px_rgba(0,23,1,0.06)]">
+          <div className="flex items-center gap-[14px]">
+            <span
+              className="grid h-[42px] w-[42px] flex-none place-items-center rounded-full"
+              style={{ background: LOGO_BG }}
+            >
+              <img src={iconMoviesWhite} alt="" className="w-[23px]" />
             </span>
-            <span className="mt-[3px] flex items-baseline">
-              <span className="text-[12.48px] leading-[15px] font-semibold">
-                From &#8358;{unitLabel}
+            <span className="min-w-0">
+              <span className="block truncate text-[20px] leading-[26px] font-semibold">
+                {title}
               </span>
-              <span className="text-[9.02px] leading-[11px] font-semibold text-ash">
-                /Monthly
+              <span className="mt-[3px] flex items-baseline">
+                <span className="text-[13px] leading-[16px] font-semibold">
+                  From &#8358;{unitLabel}
+                </span>
+                <span className="text-[10px] leading-[12px] font-semibold text-ash">
+                  /Monthly
+                </span>
               </span>
             </span>
-          </span>
+          </div>
         </div>
-        <div className="ml-[51px] mt-[64px] text-[17.34px] leading-[24px] font-semibold">
-          <p>{rows[0]}</p>
-          <p className="mt-[39px]">{rows[1]}</p>
-          <p className="mt-[15px]">{rows[2]}</p>
-        </div>
-        <p className="ml-[51px] mt-[63px] text-[17.34px] leading-[24px] font-semibold text-ash">
-          Subscription Proof
-        </p>
-        <div className="ml-[53px] mt-[19px] space-y-[22px]">
-          {proofs.map((p) => (
-            <div key={p} className="flex items-center gap-[8px]">
-              <img
-                src={iconProofCheckSm}
-                alt=""
-                className="h-[17px] w-[17px]"
-              />
-              <span className="text-[17.34px] leading-[24px] font-semibold">
-                {p}
-              </span>
-            </div>
+
+        <div className="mx-[30px] mt-[16px] rounded-[16px] bg-white px-[20px] py-[18px] shadow-[0_0_13.87px_rgba(0,23,1,0.06)]">
+          {rows.map((r, i) => (
+            <p
+              key={r}
+              className={`text-[15px] leading-[22px] font-semibold text-ink ${
+                i ? "mt-[12px] border-t border-[#EDF3ED] pt-[12px]" : ""
+              }`}
+            >
+              {r}
+            </p>
           ))}
+        </div>
+
+        <div className="mx-[30px] mt-[16px] rounded-[16px] bg-white px-[20px] py-[18px] shadow-[0_0_13.87px_rgba(0,23,1,0.06)]">
+          <p className="text-[13px] leading-[18px] font-semibold text-ash">
+            Subscription Proof
+          </p>
+          <div className="mt-[12px] space-y-[10px]">
+            {proofs.map((p) => (
+              <div key={p} className="flex items-center gap-[10px]">
+                <img src={iconProofCheck} alt="" className="h-[18px] w-[18px]" />
+                <span className="text-[15px] leading-[22px] font-semibold">
+                  {p}
+                </span>
+              </div>
+            ))}
+          </div>
         </div>
         {mobileCta}
         <div className="pb-[103px]" />

@@ -3,7 +3,6 @@ import { useNavigate } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import Sidebar from "../components/Sidebar";
 import ExtraBlock from "../components/ExtraBlock";
-import MemberMini from "../components/MemberMini";
 import { BlurBg } from "../components/Decor";
 import avatar1 from "../assets/avatar-1.webp";
 import avatar2 from "../assets/avatar-2.webp";
@@ -202,9 +201,8 @@ export default function Messages() {
       </main>
       {/* Mobile */}
       <main className="relative bg-white xl:hidden">
-        <div className="relative bg-white px-[30px] pt-[46px] pb-[40px]">
-          <MemberMini />
-          <div className="mt-[24px]">
+        <div className="relative bg-white px-[30px] pt-[30px] pb-[40px]">
+          <div>
             <BackButton onClick={() => (open != null ? setOpen(null) : navigate(-1))} />
           </div>
           {open == null ? (

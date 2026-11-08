@@ -5,7 +5,6 @@ import JoinCard from "../components/JoinCard";
 import Sk from "../components/Skeleton";
 import ExtraBlock from "../components/ExtraBlock";
 import { BlurBg } from "../components/Decor";
-import MemberMini from "../components/MemberMini";
 import { api, brandOf, kobo } from "../lib/api";
 
 const SUB = "Browse available groups and join the waitlist for, We'll notify you when a group becomes available";
@@ -80,9 +79,8 @@ export default function Join() {
       {/* Mobile — Figma's overlapping sort/filter drafts inside the member
           block are omitted (broken layers); page = member + strip + cards. */}
       <main className="relative bg-white xl:hidden">
-        <div className="relative bg-white px-[30px] pt-[46px] pb-[40px]">
-          <MemberMini />
-          <h1 className="mt-[51px] text-[30px] leading-[37px] font-bold text-black">
+        <div className="relative bg-white px-[30px] pt-[30px] pb-[40px]">
+          <h1 className="mt-[0px] text-[30px] leading-[37px] font-bold text-black">
             Join Waitlist
           </h1>
           <p className="text-[13px] leading-[20px] font-semibold text-[#6B6B6B]">

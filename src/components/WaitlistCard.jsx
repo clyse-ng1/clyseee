@@ -2,7 +2,6 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import BrandTile from "./BrandTile";
 import Sk from "./Skeleton";
-import iconExit from "../assets/exit.svg";
 import iconUsers from "../assets/stat-users.svg";
 import iconDate from "../assets/stat-date.svg";
 import iconBell from "../assets/notif-bell-sm.svg";
@@ -14,13 +13,13 @@ import iconBell from "../assets/notif-bell-sm.svg";
    it carries Spotify's green tile + arcs icon. */
 function Slot({ icon, label, value }) {
   return (
-    <div className="flex w-[190px] flex-none pl-[11px]">
-      <img src={icon} alt="" className="mt-[16px] h-[20px] w-[20px] flex-none" />
-      <div className="ml-[20px]">
+    <div className="flex min-w-0 flex-1 items-center gap-[10px] xl:w-[190px] xl:flex-none xl:pl-[11px]">
+      <img src={icon} alt="" className="h-[18px] w-[18px] flex-none xl:h-[20px] xl:w-[20px]" />
+      <div className="min-w-0">
         <p className="text-[13px] leading-[16px] font-semibold text-[#6B6B6B]">
           {label}
         </p>
-        <p className="mt-[10px] text-[18px] leading-[22px] font-semibold text-ink">
+        <p className="mt-[2px] text-[16px] leading-[20px] font-semibold break-words text-ink xl:mt-[10px] xl:text-[18px] xl:leading-[22px]">
           {value}
         </p>
       </div>
@@ -44,9 +43,13 @@ export default function WaitlistCard({
   const on = notifOn ?? localOn;
   const toggle = onNotifToggle || (() => setLocalOn((v) => !v));
   return (
-    <article className={`w-full rounded-[20px] bg-white px-[31px] pt-[31px] pb-[31px] shadow-[0_0_20px_rgba(0,23,1,0.10)] xl:w-[830px] ${createPlanId ? "" : "xl:h-[258px]"}`}>
+    <article
+      className={`w-full rounded-[20px] border border-clyse bg-white px-[20px] pt-[22px] pb-[22px] shadow-[0_0_20px_rgba(0,23,1,0.08)] xl:px-[31px] xl:pt-[31px] xl:pb-[31px] xl:w-[830px] ${
+        createPlanId ? "" : "xl:h-[258px]"
+      }`}
+    >
 
-      <div className="flex items-center gap-[43px] xl:gap-[31px]">
+      <div className="flex items-start gap-[16px] xl:items-center xl:gap-[31px]">
         <BrandTile brand={brand} size={75} plain />
         <div>
           <h3 className="text-[25px] leading-[28px] font-bold text-ink">
@@ -75,20 +78,19 @@ export default function WaitlistCard({
           <Slot icon={iconDate} label="Date Joined" value={date} />
         </div>
       </div>
-      <div className="mt-[40px] flex flex-col xl:mt-[30px] xl:flex-row xl:items-center xl:gap-[22px]">
+      <div className="mt-[16px] flex flex-col xl:mt-[30px] xl:flex-row xl:items-center xl:gap-[22px]">
         <Link
           to="/waitlist/leave"
           state={leaveState}
-          className="flex h-[60px] w-full items-center justify-center gap-[5px] rounded-[10px] border border-[#047D0A] bg-white text-[18px] leading-[22px] font-semibold text-clyse xl:w-[374px] xl:flex-none"
+          className="flex h-[52px] w-full items-center justify-center rounded-[10px] border border-[#047D0A] bg-white text-[16px] leading-[22px] font-semibold text-clyse xl:h-[60px] xl:w-[374px] xl:flex-none xl:text-[18px]"
         >
-          <img src={iconExit} alt="" className="h-[25px] w-[25px]" />
           Leave Waitlist
         </Link>
-        <div className="mt-[40px] flex gap-[2px] xl:hidden">
+        <div className="mt-[16px] flex items-center gap-[10px] rounded-[10px] bg-[#F1F8F1] px-[12px] py-[10px] xl:hidden">
           <Slot icon={iconUsers} label={posLabel} value={posValue} />
           <Slot icon={iconDate} label="Date Joined" value={date} />
         </div>
-        <div className="mt-[25px] flex h-[60px] items-center xl:mt-0">
+        <div className="mt-[14px] flex h-[44px] items-center xl:mt-0 xl:h-[60px]">
           <img src={iconBell} alt="" className="h-[24px] w-[24px] flex-none" />
           <span className="ml-[20px] text-[18px] leading-[22px] font-semibold text-[#6B6B6B]">
             Group Notification
@@ -102,11 +104,13 @@ export default function WaitlistCard({
             aria-checked={on}
             aria-label="Group notification"
             onClick={toggle}
-            className="relative ml-[9px] h-[18px] w-[70px] flex-none rounded-[12.5px] bg-[#D9D9D9]"
+            className={`relative ml-[9px] h-[22px] w-[48px] flex-none rounded-full transition ${
+              on ? "bg-clyse" : "bg-[#D9D9D9]"
+            }`}
           >
             <span
-              className={`absolute top-[2px] h-[14px] w-[14px] rounded-full bg-white transition-all ${
-                on ? "right-[2px]" : "left-[2px]"
+              className={`absolute top-[3px] h-[16px] w-[16px] rounded-full bg-white transition-all ${
+                on ? "right-[3px]" : "left-[3px]"
               }`}
             />
           </button>

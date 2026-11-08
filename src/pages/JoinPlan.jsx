@@ -4,18 +4,17 @@ import Navbar from "../components/Navbar";
 import PlanCard from "../components/PlanCard";
 import PairButtons from "../components/PairButtons";
 import LogoMarquee from "../components/LogoMarquee";
-import MemberMini from "../components/MemberMini";
 import SectionHead from "../components/SectionHead";
 import { BlurBg } from "../components/Decor";
 import { api, kobo } from "../lib/api";
+import { matchService, planTotal, useCatalogue } from "../lib/useCatalogue";
 
 /* Figma shows the middle plan selected — selection is live: tapping any
-   Select moves the pill + dark button + green stroke to that card. */
-const PLANS = [
-  { name: "Standard with ads", price: "N2,000", features: "1080p | 2 screens | limited ads" },
-  { name: "Standard with ads", price: "N2,000", features: "1080p | 2 screens | limited ads" },
-  { name: "Standard with ads", price: "N2,000", features: "1080p | 2 screens | limited ads" },
-];
+   Select moves the pill + dark button + green stroke to that card.
+   The three placeholder cards that shipped as a fallback ("Standard with ads"
+   three times) are gone: with no navigation state the page now reads the real
+   catalogue, which is what the PM was looking at when they flagged the icons
+   and spacing (board card 33). */
 
 function mapPlan(a, service, brand) {
   const title =
@@ -84,11 +83,46 @@ export default function JoinPlan() {
     };
   }, [incomingService, incomingBrand, incomingPlanId, incomingPlan, incomingPrice, incomingSlots, incomingWaiting]);
 
-  const list = plans || PLANS;
+  /* Catalogue fallback: the incoming service when we have one, otherwise the
+     first service that actually has a priced plan. */
+  const services = useCatalogue();
+  const cataloguePlans = (() => {
+    if (plans) return null;
+    if (!services) return null;
+    const entry =
+      (incomingService && matchService(services, incomingService)) ||
+      services.find((a) => (a.plans || a.catalogue_plans || []).some((p) => Number.isFinite(planTotal(p))));
+    if (!entry) return null;
+    const svc = entry.service || entry;
+    return (entry.plans || entry.catalogue_plans || [])
+      .filter((p) => Number.isFinite(planTotal(p)))
+      .map((p) => ({
+        name: p.name || "Plan",
+        price: kobo(planTotal(p)),
+        features:
+          p.member_slot_capacity != null
+            ? `${p.member_slot_capacity} slots · monthly billing`
+            : "Monthly billing",
+        state: {
+          plan_id: p.id,
+          service: svc.name || incomingService || "",
+          plan: p.name || "",
+          title: [svc.name, p.name].filter(Boolean).join(" "),
+          brand: incomingBrand,
+          price_kobo: planTotal(p),
+          open_slots: p.open_slots ?? 0,
+          people_waiting: p.people_waiting ?? 0,
+        },
+      }));
+  })();
+
+  const list = plans || cataloguePlans || [];
   const heading = incoming?.service
     ? `Choose your ${incoming.service} plan`
-    : "Choose your Netflix plan";
-  const nextState = plans ? (plans[sel] || plans[0]).state : incoming;
+    : cataloguePlans?.[0]?.state?.service
+      ? `Choose your ${cataloguePlans[0].state.service} plan`
+      : "Choose your plan";
+  const nextState = list.length ? list[sel]?.state || list[0].state : incoming;
   return (
     <div className="min-h-screen bg-white font-sans text-ink">
       <Navbar loggedIn />
@@ -129,10 +163,7 @@ export default function JoinPlan() {
       </div>
       {/* Mobile */}
       <main className="relative bg-white xl:hidden">
-        <div className="relative bg-white px-[30px] pt-[46px] pb-[40px]">
-          <MemberMini />
-        </div>
-        <div className="relative mt-[103px] border-y border-[#BABABA] bg-white">
+        <div className="relative border-y border-[#BABABA] bg-white">
           <div className="px-[30px] py-[30px]">
             <SectionHead mobile />
           </div>

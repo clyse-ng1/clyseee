@@ -52,6 +52,7 @@ import Earnings from "./pages/Earnings";
 import EarningsPerGroup from "./pages/EarningsPerGroup";
 import EarningsPerMember from "./pages/EarningsPerMember";
 import JoinDetails from "./pages/JoinDetails";
+import JoinPreview from "./pages/JoinPreview";
 import JoinSuccess from "./pages/JoinSuccess";
 import JoinAlready from "./pages/JoinAlready";
 import JoinFailed from "./pages/JoinFailed";
@@ -197,7 +198,8 @@ export default function App() {
           <Route path="/wallet/error" element={<WalletError />} />
           <Route path="/join" element={<Join />} />
           <Route path="/join/:token" element={<JoinSummary />} />
-          <Route path="/join/plan" element={<JoinPlan />} />
+          <Route path="/join/preview" element={<JoinPreview />} />
+        <Route path="/join/plan" element={<JoinPlan />} />
           <Route path="/join/group" element={<Navigate to="/marketplace" replace />} />
           <Route path="/join/summary" element={<JoinSummary />} />
           <Route path="/join/summary-error" element={<JoinSummaryError />} />

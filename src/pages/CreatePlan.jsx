@@ -81,31 +81,41 @@ function PlanCard({ plan, active, onPick, mobile = false }) {
 export default function CreatePlan() {
   const incoming = useLocation().state || null;
   const services = useCatalogue();
-  const [sel, setSel] = useState(1);
+  const [sel, setSel] = useState(0);
 
-  const entry =
-    incoming && !incoming.custom
-      ? matchService(services, incoming.brand)
-      : null;
+  const custom = !!incoming?.custom;
+  const entry = !custom ? matchService(services, incoming?.brand) : null;
   const livePlans = entry?.plans || entry?.catalogue_plans || [];
-  const plans = livePlans.length
-    ? livePlans.map((p) => ({
-        id: p.id ?? p.plan_id ?? p.uuid ?? null,
-        name: p.name || p.plan_name || "Plan",
-        desc: p.description || p.features_label || p.tagline || "",
-        kobo: planTotal(p),
-        raw: p,
-      }))
-    : incoming?.custom
-      ? [
-          {
-            id: null,
-            name: incoming.custom.plan || "Custom plan",
-            kobo: null,
-            raw: null,
-          },
-        ]
-      : [];
+
+  /* Only plans that carry a price are offered. `planTotal` returns Infinity
+     when the catalogue row has no total, and that used to be printed as
+     "N—/Monthly" — a plan you could select but never pay for. */
+  const pricedPlans = livePlans
+    .map((p) => ({
+      id: p.id ?? p.plan_id ?? p.uuid ?? null,
+      name: p.name || p.plan_name || "Plan",
+      desc: p.description || p.features_label || p.tagline || "",
+      kobo: planTotal(p),
+      raw: p,
+    }))
+    .filter((p) => p.id && Number.isFinite(p.kobo));
+
+  /* Custom subscription: the owner typed the monthly price on step 1, so that
+     is the plan. Nothing here invents a price. */
+  const customPlan = {
+    id: null,
+    name: incoming?.custom?.plan || "Custom plan",
+    desc: "",
+    kobo:
+      incoming?.custom?.priceKobo != null &&
+      Number.isFinite(incoming.custom.priceKobo)
+        ? incoming.custom.priceKobo
+        : null,
+    raw: null,
+  };
+
+  const plans = custom ? [customPlan] : pricedPlans;
+  const loading = !custom && services === null;
 
   const chosen = plans[Math.min(sel, Math.max(plans.length - 1, 0))] || null;
   const title = incoming?.custom?.name || incoming?.title || "subscription";
@@ -123,6 +133,17 @@ export default function CreatePlan() {
           : "mt-[60px] grid grid-cols-3 gap-[30px]"
       }
     >
+      {loading &&
+        [0, 1, 2].map((i) => (
+          <div
+            key={`plan-loading-${i}`}
+            className={
+              mobile
+                ? "h-[130px] w-full animate-pulse rounded-[16px] bg-[#EDF3ED]"
+                : "h-[190px] animate-pulse rounded-[16px] bg-[#EDF3ED]"
+            }
+          />
+        ))}
       {plans.map((p, i) => (
         <PlanCard
           key={`${p.id}-${i}`}
@@ -153,9 +174,11 @@ export default function CreatePlan() {
         {cards(false)}
         {!plans.length && (
           <p className="mt-[40px] text-[18px] font-semibold text-ash">
-            {services === null
+            {loading
               ? "Loading plans…"
-              : "No plans available for this subscription yet."}
+              : custom
+                ? "Custom subscriptions need an approved catalogue plan before a group can go live. Go back and pick a subscription instead."
+                : "No plans available for this subscription yet."}
           </p>
         )}
         <div className="mx-auto mt-[50px] flex w-[990px] items-center justify-center gap-[50px]">
@@ -165,13 +188,19 @@ export default function CreatePlan() {
           >
             Go Back
           </Link>
-          <Link
-            to="/create-group/details"
-            state={nextState}
-            className="grid h-[60px] w-[470px] place-items-center rounded-2xl bg-btn text-[18px] font-semibold text-mint"
-          >
-            Continue
-          </Link>
+          {chosen?.id ? (
+            <Link
+              to="/create-group/details"
+              state={nextState}
+              className="grid h-[60px] w-[470px] place-items-center rounded-2xl bg-btn text-[18px] font-semibold text-mint"
+            >
+              Continue
+            </Link>
+          ) : (
+            <span className="grid h-[60px] w-[470px] place-items-center rounded-2xl bg-[#EDF3ED] text-[18px] font-semibold text-[#8A9A8D]">
+              Choose a plan
+            </span>
+          )}
         </div>
         <div className="pb-[150px]" />
       </main>

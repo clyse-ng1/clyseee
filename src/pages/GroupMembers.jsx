@@ -6,7 +6,6 @@ import GroupTabs from "../components/GroupTabs";
 import ExtraBlock from "../components/ExtraBlock";
 import iconMovie from "../assets/figma/icon-movie.svg";
 import iconMusic from "../assets/figma/icon-music.svg";
-import MemberMini from "../components/MemberMini";
 import { BlurBg } from "../components/Decor";
 import Sk from "../components/Skeleton";
 import DetailModal, { DetailRow } from "../components/DetailModal";

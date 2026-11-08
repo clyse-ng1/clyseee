@@ -42,9 +42,14 @@ export function planTotal(p) {
   return p.total_kobo ?? p.total_price_kobo ?? p.unit_price_kobo ?? Infinity;
 }
 
-/** Pick the cheapest plan (matches the cards' "From ₦…" price). */
+/** Pick the cheapest priced plan (matches the cards' "From ₦…" price).
+    Rows with no total (e.g. youtube-premium has none today) are skipped: they
+    used to win the reduce with Infinity and then print "N—" all the way
+    through the create-group flow. */
 export function pickPlan(entry) {
-  const plans = entry?.plans || entry?.catalogue_plans || [];
+  const plans = (entry?.plans || entry?.catalogue_plans || []).filter((p) =>
+    Number.isFinite(planTotal(p)),
+  );
   return plans.reduce((best, p) => {
     const t = planTotal(p);
     const b = best ? planTotal(best) : Infinity;

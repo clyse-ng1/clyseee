@@ -2,7 +2,6 @@ import { useCallback, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import Sidebar from "../components/Sidebar";
-import MemberMini from "../components/MemberMini";
 import { BlurBg } from "../components/Decor";
 import { api, brandOf, fmtDate, kobo } from "../lib/api";
 
@@ -128,7 +127,7 @@ export default function SubscriptionHistory() {
         <div className="relative flex gap-8">
           <div className="hidden xl:block"><Sidebar active="My Subscription" /></div>
           <div className="min-w-0 flex-1">
-            <div className="mb-6 xl:hidden"><MemberMini /></div>
+            
             <div className="mb-6 flex flex-wrap items-end justify-between gap-4">
               <div>
                 <Link to="/subscriptions" className="text-sm font-semibold text-[#048B0B] hover:underline">← Back to subscriptions</Link>

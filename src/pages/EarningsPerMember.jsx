@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import Sidebar from "../components/Sidebar";
 import { BlurBg } from "../components/Decor";
@@ -57,6 +58,7 @@ export default function EarningsPerMember() {
             group: groupName,
             plan: planName,
             payment: nairaNum(sum),
+            sumKobo: sum,
             mPayment: kobo2(sum),
             status: memberStatus(m, lots),
             mBrand: brandOf(grp.service),
@@ -81,6 +83,31 @@ export default function EarningsPerMember() {
   const dShown = dRows.filter(matchF);
   const mShown = mRows.filter(matchF);
 
+  const sumOf = (list) => list.reduce((t, r) => t + (r.sumKobo || 0), 0);
+  const Summary = ({ small = false }) => (
+    <div className={`grid grid-cols-3 gap-[10px] ${small ? "mt-[18px]" : "mt-[30px]"}`}>
+      {[
+        ["Total paid in", kobo2(sumOf(dShown))],
+        ["Members", String(dShown.length)],
+        ["Groups", String(new Set(dShown.map((r) => r.group)).size)],
+      ].map(([label, value]) => (
+        <div
+          key={label}
+          className={`rounded-[12px] border border-clyse bg-white shadow-[0_0_13.87px_rgba(0,23,1,0.06)] ${
+            small ? "px-[12px] py-[12px]" : "px-[20px] py-[18px]"
+          }`}
+        >
+          <p className={`font-semibold text-[#6B6B6B] ${small ? "text-[11px] leading-[15px]" : "text-[16px] leading-[20px]"}`}>
+            {label}
+          </p>
+          <p className={`mt-[2px] font-bold break-words text-ink ${small ? "text-[15px] leading-[19px]" : "text-[24px] leading-[30px]"}`}>
+            {value}
+          </p>
+        </div>
+      ))}
+    </div>
+  );
+
   return (
     <div className="min-h-screen bg-white font-sans text-ink">
       <Navbar loggedIn />
@@ -100,7 +127,8 @@ export default function EarningsPerMember() {
               <FilterSelect label="All Groups" options={groupOpts} value={groupF} onChange={setGroupF} className="min-w-0 flex-1" />
               <FilterSelect label="Last Month" options={monthOpts} value={monthF} onChange={setMonthF} className="min-w-0 flex-1" />
             </div>
-            <div className={`mt-[50px] rounded-[20px] bg-white px-[30px] ${SHADOW}`}>
+            <Summary />
+            <div className={`mt-[24px] rounded-[20px] border border-clyse bg-white px-[30px] ${SHADOW}`}>
               <div className="flex h-[70px] items-center">
                 <span className="w-[350px] flex-none text-[20px] leading-[24px] font-bold text-black">
                   Members
@@ -140,30 +168,33 @@ export default function EarningsPerMember() {
         </div>
       </main>
       {/* Mobile (M19 777:26955): 20px title, mint filters, no Extra */}
-      <main className="relative pb-[50px] xl:hidden">
-        <BlurBg variant="page" />
-        <div className="relative bg-white px-[30px] pt-[46px] pb-[40px]">
+      <main className="relative bg-white pb-[50px] xl:hidden">
+        <div className="relative bg-white px-[30px] pt-[30px] pb-[24px]">
           <h1 className="text-[20px] leading-[24px] font-bold text-black">
             Earnings Per Member
           </h1>
           <p className="text-[13px] leading-[20px] font-semibold text-[#6B6B6B]">
             {SUB}
           </p>
-          <div className="mt-[50px] flex gap-[16px]">
+          <div className="mt-[24px] flex gap-[16px]">
             <FilterSelect label="All Groups" options={groupOpts} value={groupF} onChange={setGroupF} className="min-w-0 flex-1 shadow-[0_0_12px_rgba(0,23,1,0.10)]" />
             <FilterSelect label="Last Month" options={monthOpts} value={monthF} onChange={setMonthF} className="min-w-0 flex-1 shadow-[0_0_12px_rgba(0,23,1,0.10)]" />
           </div>
+          <Summary small />
         </div>
-        <div className={`relative mt-[30px] rounded-[20px] bg-white pt-[30px] pb-[30px] ${SHADOW}`}>
-          <div className="flex items-center px-[50px]">
+        <div className={`relative mx-[30px] mt-[18px] rounded-[20px] border border-clyse bg-white pt-[22px] pb-[22px] ${SHADOW}`}>
+          <div className="flex items-center px-[20px]">
             <h2 className="text-[18px] leading-[22px] font-bold text-ink">
               Transaction History
             </h2>
-            <span className="ml-auto text-[13px] leading-[16px] font-semibold text-clyse">
+            <Link
+              to="/earnings"
+              className="ml-auto text-[13px] leading-[16px] font-semibold text-clyse"
+            >
               View all
-            </span>
+            </Link>
           </div>
-          <div className="mt-[30px] flex flex-col gap-[15px] px-[30px]">
+          <div className="mt-[18px] flex flex-col gap-[12px] px-[16px]">
             {!rows && !failed ? (
               [0, 1, 2, 3].map((i) => <EarningMemberRowSk key={i} />)
             ) : (
