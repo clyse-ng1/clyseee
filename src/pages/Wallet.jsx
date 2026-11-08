@@ -530,6 +530,9 @@ export default function Wallet() {
   const fundingRef = searchParams.get("reference") || searchParams.get("trxref");
   const name = displayName(user) || "Marcus Saris";
   const since = fmtDay(user?.created_at) || "20/11/2026";
+  const balanceKobo = wallet
+    ? wallet.wallet?.balance_kobo ?? wallet.balance_kobo ?? 0
+    : null;
   const balance = wallet ? kobo2(wallet.wallet?.balance_kobo ?? wallet.balance_kobo) : "\u2014";
   const rows = txns ? txns.map((t) => mapTx(t, groupById)) : null;
 
@@ -689,16 +692,19 @@ export default function Wallet() {
                     Add Fund
                   </span>
                 </button>
-                <button
-                  type="button"
-                  onClick={openFund}
+                {/* Bug 38: this opened the Paystack funding modal, so withdraw
+                    step 1 was unreachable. It now starts the withdraw flow and
+                    hands it the wallet balance. */}
+                <Link
+                  to="/withdraw/amount"
+                  state={{ from: "/wallet", availableKobo: balanceKobo }}
                   className="flex h-[60px] w-[223px] items-center justify-center rounded-[10px] bg-[#048B0B]"
                 >
                   {/* Card 27: the white circled arrow read wrong — plain label. */}
                   <span className="whitespace-nowrap text-[18px] font-semibold text-white">
                     Withdraw Fund
                   </span>
-                </button>
+                </Link>
               </div>
               <span className="absolute top-[71px] right-[32px] flex h-[112px] w-[112px] items-center justify-center rounded-full bg-white">
                 <img src={iconHeroGlyph} alt="" className="w-[44px]" />
@@ -859,15 +865,15 @@ export default function Wallet() {
                 </span>
               </span>
             </button>
-            <button
-              type="button"
-              onClick={openFund}
+            <Link
+              to="/withdraw/amount"
+              state={{ from: "/wallet", availableKobo: balanceKobo }}
               className="relative flex h-[60px] w-full items-center justify-center rounded-[6.94px] bg-[#048B0B]"
             >
               <span className="text-[18px] font-semibold whitespace-nowrap text-white">
                 Withdraw Fund
               </span>
-            </button>
+            </Link>
           </div>
           <span className="absolute top-[58px] right-[30px] flex h-[70px] w-[70px] items-center justify-center rounded-full bg-white">
             <img src={iconHeroGlyph} alt="" className="w-[44px]" />

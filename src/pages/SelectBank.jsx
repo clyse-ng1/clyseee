@@ -3,7 +3,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import { BlurBg } from "../components/Decor";
 import { api, kobo2 } from "../lib/api";
-import iconWallet from "../assets/wallet-box.svg";
+import iconWallet from "../assets/wallet-box-purple.svg";
 
 /* Withdraw step 2/3 — Figma 889:78075 (GC24 select) + 889:80152 (GC26 add
    form). Lists live bank accounts; "Add New Bank Account" swaps to the
@@ -68,8 +68,8 @@ function StepHead({ mobile = false }) {
       <span
         className={
           mobile
-            ? "grid h-[50px] w-[50px] flex-none place-items-center rounded-[10px] bg-[#DFFFE0]"
-            : "grid h-[60px] w-[60px] flex-none place-items-center rounded-[10px] bg-[#DFFFE0]"
+            ? "grid h-[50px] w-[50px] flex-none place-items-center rounded-[10px] bg-[#F2F1FF]"
+            : "grid h-[60px] w-[60px] flex-none place-items-center rounded-[10px] bg-[#F2F1FF]"
         }
       >
         <img
@@ -226,7 +226,9 @@ export default function SelectBank() {
         );
         return;
       }
-      navigate("/earnings");
+      /* land back where the flow started — a wallet withdrawal used to drop
+         the user on /earnings, which is not where the money sat. */
+      navigate(from);
       return;
     }
     setBusy(false);
