@@ -3,7 +3,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import { BlurBg } from "../components/Decor";
 import { api, kobo2 } from "../lib/api";
-import iconWallet from "../assets/wallet-box-purple.svg";
+import iconWallet from "../assets/wallet-box-green.svg";
 
 /* Withdraw step 2/3 — Figma 889:78075 (GC24 select) + 889:80152 (GC26 add
    form). Lists live bank accounts; "Add New Bank Account" swaps to the
@@ -56,20 +56,22 @@ function BackButton({ onClick }) {
   );
 }
 
-function StepHead({ mobile = false }) {
+function StepHead({ mobile = false, bare = false }) {
   return (
     <div
       className={
         mobile
-          ? "flex items-center gap-[20px] bg-white px-[30px] py-[34px]"
-          : "flex h-[139px] w-[1240px] items-center rounded-[20px] bg-white px-[63px] shadow-[0_0_20px_rgba(0,23,1,0.10)]"
+          ? "flex items-center gap-[20px] border-b border-[#BABABA] bg-white px-[30px] py-[34px]"
+          : bare
+            ? "flex items-center"
+            : "flex h-[139px] w-[1240px] items-center rounded-[20px] bg-white px-[63px] shadow-[0_0_20px_rgba(0,23,1,0.10)]"
       }
     >
       <span
         className={
           mobile
-            ? "grid h-[50px] w-[50px] flex-none place-items-center rounded-[10px] bg-[#F2F1FF]"
-            : "grid h-[60px] w-[60px] flex-none place-items-center rounded-[10px] bg-[#F2F1FF]"
+            ? "grid h-[50px] w-[50px] flex-none place-items-center rounded-[10px] bg-[#DFFFE0]"
+            : "grid h-[60px] w-[60px] flex-none place-items-center rounded-[10px] bg-[#DFFFE0]"
         }
       >
         <img
@@ -212,23 +214,24 @@ export default function SelectBank() {
       return;
     }
     if (amount != null) {
-      const { error: wdError } = await api("/member/earnings/withdraw", {
-        method: "POST",
-        body: { amount_kobo: Math.round(Number(amount) * 100) },
-      });
+      /* Step 3 (Figma 889:78173) shows the amount, the bank and the arrival
+         estimate before anything is posted. The POST moved to that page, so
+         Continue here only saves the account and hands over. */
+      const picked = (accounts || []).find((a) => a.account_id === selected);
+      const handover = {
+        from,
+        amount,
+        account: {
+          bank: picked?.bank?.name || picked?.bank_name || "",
+          last4: picked?.account_last4 || "",
+          account_id: selected,
+        },
+      };
+      try {
+        sessionStorage.setItem("clyse-wd", JSON.stringify(handover));
+      } catch {}
       setBusy(false);
-      if (wdError) {
-        setError(
-          wdError.code === "no_payout_account"
-            ? "Add a verified bank account to receive payouts."
-            : wdError.message ||
-                "Could not start the withdrawal. Please try again.",
-        );
-        return;
-      }
-      /* land back where the flow started — a wallet withdrawal used to drop
-         the user on /earnings, which is not where the money sat. */
-      navigate(from);
+      navigate("/withdraw/details", { state: handover });
       return;
     }
     setBusy(false);
@@ -292,11 +295,14 @@ export default function SelectBank() {
         <BlurBg variant="page" />
         <div className="relative mx-[20px] min-[1440px]:mx-[100px] mt-[29px]">
           <BackButton onClick={() => navigate(-1)} />
-          <div className="mt-[28px]">
-            <StepHead />
-          </div>
+          {/* Figma 889:78075 / 889:78134: header, rule, progress, form and
+              buttons all live inside ONE card, not a header card plus a form. */}
           {view === "select" ? (
-            <div className="mt-[20px] w-[1240px] rounded-[20px] bg-white px-[63px] pt-[50px] pb-[50px] shadow-[0_0_20px_rgba(0,23,1,0.10)]">
+            <div className="mt-[28px] w-[1240px] overflow-hidden rounded-[20px] bg-white shadow-[0_0_20px_rgba(0,23,1,0.10)]">
+              <div className="border-b border-[#BABABA] px-[63px] py-[30px]">
+                <StepHead bare />
+              </div>
+              <div className="px-[63px] pt-[50px] pb-[50px]">
               <div className="h-[15px] w-full overflow-hidden rounded-full bg-[#B1DBB3]">
                 <div className="h-full w-2/3 rounded-full bg-clyse" />
               </div>
@@ -374,9 +380,14 @@ export default function SelectBank() {
                   </span>
                 </button>
               </div>
+              </div>
             </div>
           ) : (
-            <div className="mt-[20px] w-[1240px] rounded-[20px] bg-white px-[63px] pt-[50px] pb-[50px] shadow-[0_0_20px_rgba(0,23,1,0.10)]">
+            <div className="w-[1240px] overflow-hidden rounded-[20px] bg-white shadow-[0_0_20px_rgba(0,23,1,0.10)]">
+              <div className="border-b border-[#BABABA] px-[63px] py-[30px]">
+                <StepHead bare />
+              </div>
+              <div className="px-[63px] pt-[50px] pb-[50px]">
               <div className="h-[15px] w-full overflow-hidden rounded-full bg-[#B1DBB3]">
                 <div className="h-full w-2/3 rounded-full bg-clyse" />
               </div>
@@ -480,6 +491,7 @@ export default function SelectBank() {
                   Enter a 10-digit account number and choose a bank to continue.
                 </p>
               )}
+              </div>
             </div>
           )}
         </div>
@@ -541,17 +553,8 @@ export default function SelectBank() {
                   {error}
                 </p>
               )}
-              <div className="mt-[30px] flex flex-col gap-[16px]">
-                <button
-                  type="button"
-                  onClick={cont}
-                  disabled={!selected || busy}
-                  className={`flex h-[55px] w-full items-center justify-center rounded-[12px] text-[16px] font-semibold text-mint ${
-                    selected && !busy ? "bg-btn" : "bg-[#999999]"
-                  }`}
-                >
-                  {busy ? "Saving…" : "Continue"}
-                </button>
+              {/* Figma 782:28597 mobile: Go Back left, Continue right. */}
+              <div className="mt-[30px] flex gap-[14px]">
                 <button
                   type="button"
                   onClick={() =>
@@ -559,9 +562,19 @@ export default function SelectBank() {
                       ? navigate("/withdraw/amount", { state: { from } })
                       : navigate(from)
                   }
-                  className="flex h-[55px] w-full items-center justify-center rounded-[12px] border border-clyse bg-[#F1F8F1] text-[16px] font-semibold text-ink"
+                  className="flex h-[50px] flex-[176] items-center justify-center rounded-[10px] border border-clyse bg-[#F1F8F1] text-[13px] font-semibold text-ink"
                 >
                   Go Back
+                </button>
+                <button
+                  type="button"
+                  onClick={cont}
+                  disabled={!selected || busy}
+                  className={`flex h-[50px] flex-[174] items-center justify-center rounded-[10px] text-[13px] font-semibold text-mint ${
+                    selected && !busy ? "bg-btn" : "bg-[#999999]"
+                  }`}
+                >
+                  {busy ? "Saving…" : "Continue"}
                 </button>
               </div>
             </div>
@@ -636,23 +649,23 @@ export default function SelectBank() {
                   {error}
                 </p>
               )}
-              <div className="mt-[30px] flex flex-col gap-[16px]">
+              <div className="mt-[30px] flex gap-[14px]">
+                <button
+                  type="button"
+                  onClick={() => setView("select")}
+                  className="flex h-[50px] flex-[176] items-center justify-center rounded-[10px] border border-clyse bg-[#F1F8F1] text-[13px] font-semibold text-ink"
+                >
+                  Go Back
+                </button>
                 <button
                   type="button"
                   onClick={addAccount}
                   disabled={!addValid || busy}
-                  className={`flex h-[55px] w-full items-center justify-center rounded-[12px] text-[16px] font-semibold text-mint ${
+                  className={`flex h-[50px] flex-[174] items-center justify-center rounded-[10px] text-[13px] font-semibold text-mint ${
                     addValid && !busy ? "bg-btn" : "bg-[#999999]"
                   }`}
                 >
                   {busy ? "Verifying…" : "Continue"}
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setView("select")}
-                  className="flex h-[55px] w-full items-center justify-center rounded-[12px] border border-clyse bg-[#F1F8F1] text-[16px] font-semibold text-ink"
-                >
-                  Go Back
                 </button>
               </div>
               {!addValid && (

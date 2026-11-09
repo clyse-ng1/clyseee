@@ -47,7 +47,7 @@ export default function JoinPlan() {
   const incomingPrice = incoming?.price_kobo ?? null;
   const incomingSlots = incoming?.open_slots ?? 0;
   const incomingWaiting = incoming?.people_waiting ?? 0;
-  const [sel, setSel] = useState(1);
+  const [sel, setSel] = useState(0);
   const [plans, setPlans] = useState(null);
 
   useEffect(() => {
@@ -123,19 +123,21 @@ export default function JoinPlan() {
       ? `Choose your ${cataloguePlans[0].state.service} plan`
       : "Choose your plan";
   const nextState = list.length ? list[sel]?.state || list[0].state : incoming;
+  /* This page serves both flows; Figma labels it "Join Group" for the group
+     flow. It said "Join Waitlist" on both. */
+  const headTitle = incoming?.fromWaitlist ? "Join Waitlist" : "Join Group";
   return (
     <div className="min-h-screen bg-white font-sans text-ink">
       <Navbar loggedIn />
       {/* Desktop */}
       <main className="relative mx-[20px] min-[1440px]:mx-[100px] hidden xl:block">
         <BlurBg variant="hero" />
-        <div className="relative mt-[102px] border-y border-[#BABABA] bg-white">
-          <div className="py-[30px] pl-[63px]">
-            <SectionHead />
+        {/* Figma 889:52178: one white card, header row separated by a divider. */}
+        <div className="relative mt-[102px] rounded-[20px] bg-white shadow-[0_0_20px_rgba(0,23,1,0.08)]">
+          <div className="border-b border-[#BABABA] py-[30px] pl-[63px]">
+            <SectionHead title={headTitle} />
           </div>
-        </div>
-        <div className="relative bg-white">
-          <div className="px-[63px] pt-[30px] pb-[30px]">
+          <div className="px-[63px] pt-[30px] pb-[40px]">
             <h1 className="text-[35px] leading-[43px] font-bold text-black">
               {heading}
             </h1>

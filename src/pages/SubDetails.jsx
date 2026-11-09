@@ -217,7 +217,6 @@ export default function SubDetails() {
               Back to Dashboard
             </Link>
           </div>
-          <KeepLinks membershipId={membershipId} />
         </div>
       </main>
       {/* Mobile */}
@@ -238,7 +237,6 @@ export default function SubDetails() {
               Back to Dashboard
             </Link>
           </div>
-          <KeepLinks membershipId={membershipId} />
         </div>
       </main>
     </div>

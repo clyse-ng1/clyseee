@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import { BlurBg } from "../components/Decor";
@@ -65,21 +65,32 @@ function PlanCard({ plan, active, onPick, mobile = false }) {
         </span>
         <span className="text-[11px] font-semibold text-ash">/Monthly</span>
       </span>
-      {mobile && (
-        <span
-          className={`mt-[14px] grid h-[44px] w-full place-items-center rounded-[10px] text-[14px] font-semibold ${
-            active ? "bg-btn text-mint" : "border border-clyse text-ink"
-          }`}
-        >
-          Select
-        </span>
-      )}
+      <span
+        className={`grid place-items-center rounded-[10px] font-semibold ${
+          mobile
+            ? `mt-[14px] h-[44px] w-full text-[14px] ${active ? "bg-btn text-mint" : "border border-clyse text-ink"}`
+            : `mt-[20px] h-[46px] w-full text-[16px] ${active ? "bg-btn text-mint" : "border border-clyse text-ink"}`
+        }`}
+      >
+        Select
+      </span>
     </button>
   );
 }
 
+function readDraft() {
+  try {
+    const raw = sessionStorage.getItem("clyse-draft");
+    return raw ? JSON.parse(raw) : null;
+  } catch {
+    return null;
+  }
+}
+
 export default function CreatePlan() {
-  const incoming = useLocation().state || null;
+  /* Router state first, then the draft CreateGroup mirrors into sessionStorage —
+     without it a refresh or a deep link landed on "No plans available". */
+  const incoming = useLocation().state || readDraft() || null;
   const services = useCatalogue();
   const [sel, setSel] = useState(0);
 
@@ -125,6 +136,17 @@ export default function CreatePlan() {
     unit: chosen?.kobo ?? null,
   };
 
+  useEffect(() => {
+    if (!chosen) return;
+    try {
+      const base = readDraft() || {};
+      sessionStorage.setItem(
+        "clyse-draft",
+        JSON.stringify({ ...base, planId: chosen.id ?? null, unit: chosen.kobo ?? null }),
+      );
+    } catch {}
+  }, [chosen?.id, chosen?.kobo]);
+
   const cards = (mobile) => (
     <div
       className={
@@ -162,7 +184,8 @@ export default function CreatePlan() {
       <BlurBg variant="hero" />
 
       {/* Desktop */}
-      <main className="relative z-10 mx-[163px] mt-[100px] hidden xl:block">
+      <main className="relative z-10 mx-[100px] mt-[100px] hidden xl:block">
+        <div className="rounded-[20px] bg-white px-[63px] pt-[30px] pb-[50px] shadow-[0_0_20px_rgba(0,23,1,0.08)]">
         <StepHeader step={2} />
         <h2 className="mt-[50px] text-[35px] leading-[43px] font-semibold">
           Choose your {title} plan
@@ -203,6 +226,7 @@ export default function CreatePlan() {
           )}
         </div>
         <div className="pb-[150px]" />
+        </div>
       </main>
 
       {/* Mobile */}

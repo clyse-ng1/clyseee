@@ -27,8 +27,10 @@ function DesktopCard({ card, from, selected, onSelect }) {
     <button
       type="button"
       onClick={onSelect}
-      className={`h-[200px] w-[250px] rounded-[20px] border bg-white pt-[31px] text-center shadow-[0_0_20px_rgba(0,23,1,0.10)] ${
-        selected ? "border-[2px] border-clyse bg-[#F1F8F1]" : "border-clyse"
+      /* Figma 887:49199 gives the card component a 1px #999999 stroke; only the
+         card in play is stroked #048B0B. Every card used to be green. */
+      className={`h-[200px] w-[250px] rounded-[20px] border-[1px] bg-white pt-[31px] text-center shadow-[0_0_20px_rgba(0,23,1,0.10)] ${
+        selected ? "border-[#048B0B]" : "border-[#999999]"
       }`}
     >
       <span className="flex justify-center">
@@ -57,8 +59,8 @@ function MobileCard({ card, from, selected, onSelect }) {
     <button
       type="button"
       onClick={onSelect}
-      className={`h-[130px] rounded-[12.95px] border bg-white pt-[20px] text-center shadow-[0_0_13px_rgba(0,23,1,0.10)] ${
-        selected ? "border-[2px] border-clyse bg-[#F1F8F1]" : "border-clyse"
+      className={`h-[130px] rounded-[12.95px] border-[1px] bg-white pt-[20px] text-center shadow-[0_0_13px_rgba(0,23,1,0.10)] ${
+        selected ? "border-[#048B0B]" : "border-[#999999]"
       }`}
     >
       <span className="flex justify-center">

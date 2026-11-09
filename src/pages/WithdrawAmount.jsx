@@ -3,8 +3,7 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import { BlurBg } from "../components/Decor";
 import { api, nairaNum } from "../lib/api";
-import iconWallet from "../assets/wallet-box.svg";
-import iconWalletPurple from "../assets/wallet-box-purple.svg";
+import iconWalletGreen from "../assets/wallet-box-green.svg";
 
 /* Withdraw step 1/3 — Figma 889:78043 (GC23). Balance is live from
    /member/earnings; Continue carries the amount to /withdraw/select-bank.
@@ -79,23 +78,25 @@ export default function WithdrawAmount() {
               />
             </svg>
           </button>
-          <div className="mt-[28px] flex h-[139px] w-[1240px] items-center rounded-[20px] bg-white px-[63px] shadow-[0_0_20px_rgba(0,23,1,0.10)]">
-            <span className="grid h-[60px] w-[60px] flex-none place-items-center rounded-[5px] bg-[#F2F1FF]">
-              <img src={iconWalletPurple} alt="" className="h-[25px] w-[25px]" />
-            </span>
-            <span className="ml-[20px]">
-              <span className="block text-[35px] leading-[43px] font-bold text-ink">
-                Withdrawn Earning
-              </span>
-              <span className="block text-[25px] leading-[30px] font-semibold text-[#4E4E4E]">
-                Step 1/3
-              </span>
-            </span>
-          </div>
+          {/* Figma 889:78043: one card — header, rule, progress, form, buttons. */}
           <form
             onSubmit={cont}
-            className="mt-[20px] w-[1240px] rounded-[20px] bg-white px-[63px] pt-[50px] pb-[50px] shadow-[0_0_20px_rgba(0,23,1,0.10)]"
+            className="mt-[28px] w-[1240px] overflow-hidden rounded-[20px] bg-white shadow-[0_0_20px_rgba(0,23,1,0.10)]"
           >
+            <div className="flex items-center border-b border-[#BABABA] px-[63px] py-[30px]">
+              <span className="grid h-[60px] w-[60px] flex-none place-items-center rounded-[5px] bg-[#DFFFE0]">
+                <img src={iconWalletGreen} alt="" className="h-[25px] w-[25px]" />
+              </span>
+              <span className="ml-[20px]">
+                <span className="block text-[35px] leading-[43px] font-bold text-ink">
+                  Withdrawn Earning
+                </span>
+                <span className="block text-[25px] leading-[30px] font-semibold text-[#4E4E4E]">
+                  Step 1/3
+                </span>
+              </span>
+            </div>
+            <div className="px-[63px] pt-[50px] pb-[50px]">
             <div className="h-[15px] w-full overflow-hidden rounded-full bg-[#B1DBB3]">
               <div className="h-full w-1/3 rounded-full bg-clyse" />
             </div>
@@ -161,14 +162,15 @@ export default function WithdrawAmount() {
                 </span>
               </button>
             </div>
+            </div>
           </form>
         </div>
       </main>
       {/* Mobile — JOINT WAITLIST MOBILE PAGE 20 / GROUP CREATION PAGE 7 (782:28346 / 777:27694) */}
       <main className="relative bg-white pb-[60px] xl:hidden">
-        <div className="flex items-center gap-[20px] bg-white px-[30px] py-[34px]">
-          <span className="grid h-[50px] w-[50px] flex-none place-items-center rounded-[5px] bg-[#F2F1FF]">
-            <img src={iconWalletPurple} alt="" className="h-[25px] w-[25px]" />
+        <div className="flex items-center gap-[20px] border-b border-[#BABABA] bg-white px-[30px] py-[34px]">
+          <span className="grid h-[50px] w-[50px] flex-none place-items-center rounded-[5px] bg-[#DFFFE0]">
+            <img src={iconWalletGreen} alt="" className="h-[25px] w-[25px]" />
           </span>
           <span>
             <span className="block text-[28px] leading-[34px] font-bold whitespace-nowrap text-ink">
@@ -223,28 +225,29 @@ export default function WithdrawAmount() {
                 {error}
               </p>
             )}
-            <div className="mt-[30px] flex flex-col gap-[16px]">
+            {/* Figma 782:28346 mobile: Go Back left, Continue right, side by side. */}
+            <div className="mt-[30px] flex gap-[14px]">
+              <Link
+                to={from}
+                className="flex h-[50px] flex-[176] items-center justify-center rounded-[10px] border border-clyse bg-[#F1F8F1] text-[13px] font-semibold text-ink"
+              >
+                Go Back
+              </Link>
               <button
                 type="submit"
                 disabled={!can}
-                className={`flex h-[55px] w-full items-center justify-center rounded-[12px] text-[16px] font-semibold text-mint ${
+                className={`flex h-[50px] flex-[174] items-center justify-center rounded-[10px] text-[13px] font-semibold text-mint ${
                   can ? "bg-btn" : "bg-[#999999]"
                 }`}
               >
                 Continue
               </button>
-              {empty && (
-                <p className="text-center text-[13px] leading-[18px] font-semibold text-[#6B6B6B]">
-                  You have no available earnings to withdraw yet.
-                </p>
-              )}
-              <Link
-                to={from}
-                className="flex h-[55px] w-full items-center justify-center rounded-[12px] border border-clyse bg-[#F1F8F1] text-[16px] font-semibold text-ink"
-              >
-                Go Back
-              </Link>
             </div>
+            {empty && (
+              <p className="mt-[14px] text-center text-[13px] leading-[18px] font-semibold text-[#6B6B6B]">
+                You have no available earnings to withdraw yet.
+              </p>
+            )}
           </form>
         </div>
       </main>

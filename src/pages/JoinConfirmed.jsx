@@ -6,8 +6,8 @@ export default function JoinConfirmed() {
     <JoinStatus
       title="Payment Confirmed"
       body="Your payment has been successfully processed"
-      btnLabel="View Group"
-      btnLabelM="Complete"
+      btnLabel="View Subscription"
+      btnLabelM="View Subscription"
       btnVariant="dark"
       btnTo="/groups"
       marqueeMt="mt-[60px]"

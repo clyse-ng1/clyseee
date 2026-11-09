@@ -158,7 +158,9 @@ export default function CreateVerify() {
       <Navbar loggedIn />
       <BlurBg variant="hero" />
       {/* Desktop */}
-      <main className="relative z-10 mx-[163px] mt-[100px] hidden xl:block">
+      <main className="relative z-10 mx-[100px] mt-[100px] hidden xl:block">
+        {/* Figma 887:49359 puts the whole step on one white card */}
+        <div className="rounded-[20px] bg-white px-[63px] pt-[30px] pb-[50px] shadow-[0_0_20px_rgba(0,23,1,0.08)]">
         <StepHeader step={4} />
         <h2 className="mt-[50px] text-center text-[35px] leading-[43px] font-bold">
           Verify Subscription
@@ -192,7 +194,8 @@ export default function CreateVerify() {
             Continue
           </Link>
         </div>
-        <div className="pb-[150px]" />
+        <div className="pb-[100px]" />
+        </div>
       </main>
 
       {/* Mobile */}

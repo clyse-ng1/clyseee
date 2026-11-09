@@ -3,7 +3,8 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import { BlurBg } from "../components/Decor";
 import StepHeader from "../components/StepHeader";
-import { api } from "../lib/api";
+import { api, brandOf } from "../lib/api";
+import BrandTile from "../components/BrandTile";
 import { invalidateGroups } from "../lib/groupsCache";
 import { matchService, pickPlan, useCatalogue } from "../lib/useCatalogue";
 import iconMoviesWhite from "../assets/icon-movies-white.svg";
@@ -26,6 +27,15 @@ const ROWS = [
 ];
 const PROOFS = ["Subscription Invoice", "Payment Receipt"];
 
+function readDraft() {
+  try {
+    const raw = sessionStorage.getItem("clyse-draft");
+    return raw ? JSON.parse(raw) : null;
+  } catch {
+    return null;
+  }
+}
+
 export default function CreateReview() {
   const incoming = useLocation().state || null;
   const navigate = useNavigate();
@@ -38,15 +48,21 @@ export default function CreateReview() {
     ? pickPlan(matchService(services, incoming?.brand))
     : null;
   const planId = fromWaitlist || incoming?.planId || plan?.id || null;
+  /* Display fallbacks: on a refresh the router state is gone, so the draft
+     CreateGroup mirrors into sessionStorage keeps the name and the price from
+     collapsing to "₦—". It does not turn a direct visit into a real create. */
+  const draft = readDraft();
   const unit =
     incoming?.unit ??
     incoming?.custom?.priceKobo ??
+    draft?.unit ??
     plan?.unit_price_kobo ??
     plan?.total_price_kobo ??
     null;
   const slots = incoming?.slots ?? 3;
   const vis = incoming?.visibility || "public";
-  const title = incoming?.custom?.name || incoming?.title || "Netflix Premium";
+  const title =
+    incoming?.custom?.name || incoming?.title || draft?.title || "Netflix Premium";
   const unitLabel =
     unit == null ? "—" : Math.round(unit / 100).toLocaleString("en-US");
 
@@ -218,56 +234,85 @@ export default function CreateReview() {
       <Navbar loggedIn />
       <BlurBg variant="hero" />
       {/* Desktop */}
-      <main className="relative z-10 mx-[163px] mt-[100px] hidden xl:block">
+      <main className="relative z-10 mx-[100px] mt-[100px] hidden xl:block">
+        {/* Figma 887:49477: one white card, and the review split into three
+            stacked cards — subscription, details, subscription proof. */}
+        <div className="rounded-[20px] bg-white px-[63px] pt-[30px] pb-[50px] shadow-[0_0_20px_rgba(0,23,1,0.08)]">
         <StepHeader step={5} />
         <h2 className="mt-[50px] text-center text-[35px] leading-[43px] font-bold">
           Review Group
         </h2>
-        <div className="ml-[20px] mt-[85px] flex items-center gap-[30px]">
-          <span
-            className="grid h-[60px] w-[60px] flex-none place-items-center rounded-full"
-            style={{ background: LOGO_BG }}
+
+        <div className="mt-[40px] rounded-[15px] border border-clyse bg-white px-[30px] py-[24px] shadow-[0_0_12px_rgba(0,23,1,0.06)]">
+          <div className="flex items-center gap-[22px]">
+            <BrandTile brand={brandOf({ name: title })} name={title} size={60} plain />
+            <span>
+              <span className="block text-[25px] leading-[32px] font-semibold">
+                {title}
+              </span>
+              <span className="mt-[4px] flex items-baseline">
+                <span className="text-[16px] leading-[20px] font-semibold text-[#6B6B6B]">
+                  From &#8358;{unitLabel}
+                </span>
+                <span className="text-[12px] leading-[15px] font-semibold text-ash">
+                  /Monthly
+                </span>
+              </span>
+            </span>
+          </div>
+        </div>
+
+        <div className="mt-[20px] rounded-[15px] border border-clyse bg-white px-[30px] py-[24px] shadow-[0_0_12px_rgba(0,23,1,0.06)]">
+          <div className="space-y-[14px]">
+            {rows.map((r) => (
+              <p key={r} className="text-[20px] leading-[28px] font-semibold">
+                {r}
+              </p>
+            ))}
+          </div>
+        </div>
+
+        <div className="mt-[20px] rounded-[15px] border border-clyse bg-white px-[30px] py-[24px] shadow-[0_0_12px_rgba(0,23,1,0.06)]">
+          <p className="text-[20px] leading-[28px] font-semibold text-ash">
+            Subscription Proof
+          </p>
+          <div className="mt-[18px] space-y-[14px]">
+            {proofs.map((p) => (
+              <div key={p} className="flex items-center gap-[11px]">
+                <img src={iconProofCheck} alt="" className="h-[22px] w-[22px]" />
+                <span className="text-[20px] leading-[28px] font-semibold">
+                  {p}
+                </span>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div className="mx-auto mt-[50px] flex w-[990px] items-center justify-center gap-[50px]">
+          <Link
+            to="/create-group/verify"
+            className="grid h-[60px] w-[470px] place-items-center rounded-2xl border border-clyse text-[18px] font-semibold text-ink"
           >
-            {/* Glyph straight on the disc. The old white inset square hid this
-                white glyph completely — the logo rendered as a blank tile. */}
-            <img src={iconMoviesWhite} alt="" className="w-[33px]" />
-          </span>
-          <span>
-            <span className="block text-[35px] leading-[43px] font-semibold">
-              {title}
-            </span>
-            <span className="mt-[5px] flex items-baseline">
-              <span className="text-[18px] leading-[22px] font-semibold">
-                From &#8358;{unitLabel}
-              </span>
-              <span className="text-[13px] leading-[16px] font-semibold text-ash">
-                /Monthly
-              </span>
-            </span>
-          </span>
+            Go Back
+          </Link>
+          <button
+            type="button"
+            onClick={!incoming ? () => navigate("/create-group/activated") : create}
+            disabled={!!incoming && (busy || !!blocked)}
+            className={`grid h-[60px] w-[470px] place-items-center rounded-2xl bg-btn text-[18px] font-semibold text-mint ${
+              incoming && (busy || blocked) && !error ? "opacity-50" : ""
+            }`}
+          >
+            {busy ? "Creating…" : "Create Group"}
+          </button>
         </div>
-        <div className="ml-[30px] mt-[95px] space-y-[20px]">
-          {rows.map((r) => (
-            <p key={r} className="text-[25px] leading-[35px] font-semibold">
-              {r}
-            </p>
-          ))}
+        {(error || blockMsg) && (
+          <p className="mt-[20px] text-center text-[18px] leading-[22px] font-semibold text-[#E31B00]">
+            {error || blockMsg}
+          </p>
+        )}
+        <div className="pb-[60px]" />
         </div>
-        <p className="ml-[30px] mt-[90px] text-[25px] leading-[35px] font-semibold text-ash">
-          Subscription Proof
-        </p>
-        <div className="ml-[33px] mt-[25px] space-y-[30px]">
-          {proofs.map((p) => (
-            <div key={p} className="flex items-center gap-[11px]">
-              <img src={iconProofCheck} alt="" className="h-[25px] w-[25px]" />
-              <span className="text-[25px] leading-[35px] font-semibold">
-                {p}
-              </span>
-            </div>
-          ))}
-        </div>
-        {desktopCta}
-        <div className="pb-[135px]" />
       </main>
 
       {/* Mobile */}

@@ -13,6 +13,7 @@ import Notifications from "./pages/Notifications";
 import Profile from "./pages/Profile";
 import Browse from "./pages/Browse";
 import WithdrawAmount from "./pages/WithdrawAmount";
+import WithdrawDetails from "./pages/WithdrawDetails";
 import AdminDataPage from "./pages/AdminDataPage";
 import Signup from "./pages/Signup";
 import Signin from "./pages/Signin";
@@ -118,6 +119,7 @@ const TITLES = {
   "/create/activated": "Group Activated — Clyse",
   "/create/not-activated": "Group Not Activated — Clyse",
   "/withdraw/select-bank": "Select Bank Account — Clyse",
+  "/withdraw/details": "Withdrawal Details — Clyse",
   "/withdraw/amount": "Withdraw Earnings — Clyse",
   "/about": "About Us — Clyse",
   "/contact": "Contact Us — Clyse",
@@ -248,6 +250,7 @@ export default function App() {
           <Route path="/profile" element={<Profile />} />
           <Route path="/browse" element={<Browse />} />
           <Route path="/withdraw/amount" element={<WithdrawAmount />} />
+          <Route path="/withdraw/details" element={<WithdrawDetails />} />
         </Route>
         {/* Admin has its own credential entry point; successful login is followed
             by a server-side permission check before any CMS route renders. */}
