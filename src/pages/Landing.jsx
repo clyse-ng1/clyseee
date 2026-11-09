@@ -632,21 +632,6 @@ export default function Landing() {
         </div>
       </section>
 
-      {/* Disclaimer band — Figma LANDING PAGE 5:2 (dx100, 1240 wide, 25/140 #999999). */}
-      <p className="mt-[100px] hidden px-[100px] text-[25px] leading-[35px] font-semibold text-[#999999] xl:block">
-        Disclaimer: Clyse is a cost-sharing platform and intermediary only. We
-        are not affiliated with third-party services (Netflix, Disney+, Spotify,
-        etc.). Each user is responsible for verifying and complying with each
-        service&apos;s terms of use. Mentioned brands belong to their respective
-        owners.
-      </p>
-      <p className="mt-[60px] px-[30px] text-[13px] leading-[20px] font-semibold text-[#999999] xl:hidden">
-        Disclaimer: Clyse is a cost-sharing platform and intermediary only. We
-        are not affiliated with third-party services (Netflix, Disney+, Spotify,
-        etc.). Each user is responsible for verifying and complying with each
-        service&apos;s terms of use. Mentioned brands belong to their respective
-        owners.
-      </p>
       <Footer mt="mt-[40px]" />
       <MobileFooter />
     </div>

@@ -152,7 +152,7 @@ function derive(membership, access) {
     link:
       inner.invite_link ||
       (String(inner.method || group.access_method || "") === "invite_link" && code
-        ? `${typeof window !== "undefined" ? window.location.origin : ""}/join/${code}`
+        ? `${typeof window !== "undefined" ? window.location.origin : ""}/join/${encodeURIComponent(code)}`
         : "") ||
       credText ||
       inner.instructions ||

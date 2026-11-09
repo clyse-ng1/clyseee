@@ -48,7 +48,17 @@ export default function JoinSummary() {
   const location = useLocation();
   const navigate = useNavigate();
   const params = useParams();
-  const inviteToken = params.token || location.state?.invite_token || null;
+  /* Backend hands out links shaped /join/<code>?<secret> — the "?" is part of
+     the token, not a query string. If a link was generated or pasted without
+     encoding, the browser splits it: the path param keeps the code and the
+     secret lands in location.search. Glue it back so the whole token is used. */
+  const rawToken = params.token || "";
+  const search = location.search || "";
+  const gluedToken =
+    rawToken && search && !search.includes("=")
+      ? `${rawToken}?${search.slice(1)}`
+      : rawToken;
+  const inviteToken = gluedToken || location.state?.invite_token || null;
   const code = location.state?.code || null;
   const stateGroupId = location.state?.group_id || null;
   const statePreview = location.state?.preview || null;
@@ -83,9 +93,15 @@ export default function JoinSummary() {
         });
         return;
       }
-      const pv = inviteToken
+      let pv = inviteToken
         ? await api(`/member/groups/by-invite?token=${encodeURIComponent(inviteToken)}`)
         : await api(`/member/groups/by-code?code=${encodeURIComponent(code)}`);
+      /* A glued token may be more than the API wants (or less). If the full
+         string is rejected, retry with the bare path segment before failing. */
+      if (inviteToken && rawToken && inviteToken !== rawToken) {
+        const short = await api(`/member/groups/by-invite?token=${encodeURIComponent(rawToken)}`);
+        if (!short.error && short.data?.valid) pv = short;
+      }
       if (!live) return;
       if (pv.error || (inviteToken && !pv.data?.valid)) {
         navigate("/join/failed", {
