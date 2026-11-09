@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import Navbar from "../components/Navbar";
+import { MobileBack } from "../components/MemberMini";
 import Sidebar from "../components/Sidebar";
 import ExtraBlock from "../components/ExtraBlock";
 import { BlurBg } from "../components/Decor";
@@ -206,7 +207,11 @@ function WithdrawModal({ open, onClose, earn, onDone }) {
 
 function MonthPills({ small = false }) {
   return (
-    <div className="scrollbar-none flex gap-[10px] overflow-x-auto pb-[2px]">
+    <div
+      className={`scrollbar-none flex gap-[10px] pb-[2px] ${
+        small ? "flex-wrap" : "overflow-x-auto"
+      }`}
+    >
       {MONTHS.map((m) => (
         <button
           key={m.label}
@@ -314,7 +319,9 @@ export default function Earnings() {
     "bg-btn mt-[7px] grid h-[60px] place-items-center rounded-[10px] w-[748px]";
 
   return (
-    <div className="min-h-screen bg-white font-sans text-ink">
+    <div className="relative min-h-screen overflow-hidden bg-white font-sans text-ink">
+      {/* Figma BLUR BG at page level so the mobile branch gets it too. */}
+      <BlurBg variant="hero" />
       <Navbar loggedIn />
       <WithdrawModal
         key={String(wdOpen)}
@@ -325,7 +332,6 @@ export default function Earnings() {
       />
       {/* Desktop */}
       <main className="relative mx-[20px] min-[1440px]:mx-[100px] hidden pb-[100px] xl:block">
-        <BlurBg variant="hero" />
         <div className="relative flex gap-[38px] pt-[101px]">
           <Sidebar active="Earning" />
           <div className="w-[830px] flex-none">
@@ -383,10 +389,13 @@ export default function Earnings() {
                 )}
               </div>
             </div>
-            <h2 className="mt-[101px] ml-[41px] text-[25px] leading-[30px] font-bold text-black">
+            {/* Card 21: Clyse Fees was the only desktop block without the
+                white container its siblings carry — it now matches. */}
+            <div className={`mt-[50px] rounded-[20px] bg-white px-[41px] pt-[51px] pb-[51px] ${SHADOW}`}>
+            <h2 className="text-[25px] leading-[30px] font-bold text-black">
               Clyse Fees
             </h2>
-            <div className="mt-[35px] ml-[41px]">
+            <div className="mt-[35px]">
               {!lots && !failed ? (
                 <EarnMiniSk wide vdTo="/earnings/per-group" />
               ) : (
@@ -402,8 +411,9 @@ export default function Earnings() {
                 />
               )}
             </div>
-            <div className="mt-[20px] ml-[41px] w-[748px]">
+            <div className="mt-[20px] w-[748px]">
               <MonthPills />
+            </div>
             </div>
             <div className="mt-[20px] ml-[30px]">
               {!lots && !failed ? (
@@ -426,16 +436,17 @@ export default function Earnings() {
         </div>
       </main>
       {/* Mobile (M17 768:24019): 20px title, stacked full-bleed cards */}
-      <main className="relative bg-white xl:hidden">
-        <div className="relative bg-white px-[30px] pt-[46px] pb-[40px]">
-          <h1 className="text-[20px] leading-[24px] font-bold text-black">
+      <main className="relative xl:hidden">
+        <div className="relative px-[30px] pt-[46px] pb-[30px]">
+          <MobileBack />
+          <h1 className="text-[35px] leading-[43px] font-bold text-black">
             Earnings
           </h1>
-          <p className="text-[13px] leading-[20px] font-semibold text-[#6B6B6B]">
+          <p className="mt-[4px] text-[18px] leading-[22px] font-semibold text-[#6B6B6B]">
             {SUB}
           </p>
         </div>
-        <div className={`relative mt-[70px] rounded-[20px] bg-white px-[31px] pt-[51px] pb-[51px] ${SHADOW}`}>
+        <div className={`relative mt-[30px] rounded-[20px] bg-white px-[31px] pt-[51px] pb-[51px] ${SHADOW}`}>
           <div className="flex flex-col gap-[50px]">
             {!earn && !failed ? (
               <>

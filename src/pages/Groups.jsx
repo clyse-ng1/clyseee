@@ -147,11 +147,12 @@ export default function Groups() {
       : undefined;
 
   return (
-    <div className="min-h-screen bg-white font-sans text-ink">
+    <div className="relative min-h-screen overflow-hidden bg-white font-sans text-ink">
+      {/* Figma BLUR BG at page level so the mobile branch gets it too. */}
+      <BlurBg variant="hero" />
       <Navbar loggedIn />
       {/* Desktop */}
       <main className="relative mx-[20px] min-[1440px]:mx-[100px] hidden pb-[100px] xl:block">
-        <BlurBg variant="hero" />
         <div className="relative mt-[101px] flex gap-[38px]">
           <Sidebar active="My Group" />
           <div className="w-[830px] flex-none">
@@ -183,7 +184,7 @@ export default function Groups() {
         </div>
       </main>
       {/* Mobile (M9 687:11080) */}
-      <main className="relative bg-white xl:hidden">
+      <main className="relative xl:hidden">
         <div className="relative bg-white px-[30px] pt-[30px] pb-[40px]">
           <div className="mt-[0px]">
             <TitleBlock />

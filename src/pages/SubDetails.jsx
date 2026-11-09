@@ -220,8 +220,20 @@ export default function SubDetails() {
         </div>
       </main>
       {/* Mobile */}
-      <main className="relative bg-white xl:hidden">
-        <div className="relative px-[30px] pt-[46px] pb-[60px]">
+      <main className="relative xl:hidden">
+        {/* Card 6 on the board: this screen had no header at all. Figma gives
+            every member page a header band with the back affordance. */}
+        <div className="flex items-center gap-[14px] border-b border-[#BABABA] px-[30px] py-[16px]">
+          <Link
+            to="/subscriptions"
+            aria-label="Back"
+            className="grid h-[32px] w-[32px] flex-none place-items-center rounded-full border border-[#BABABA] bg-white text-[15px] text-ink"
+          >
+            ‹
+          </Link>
+          <h1 className="text-[30px] leading-[37px] font-bold text-ink">Subscription Details</h1>
+        </div>
+        <div className="relative px-[30px] pt-[30px] pb-[60px]">
           <SubDetailsMobile
             variant="details"
             membership={membership}

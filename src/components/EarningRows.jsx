@@ -168,16 +168,18 @@ export function EarnMini({ tile, glyph, label, value, sub, vdTo, onVd, wide = fa
   return (
     <div className={wide ? "w-full xl:w-[748px]" : "w-full xl:w-[349px]"}>
       <div
-        className={`rounded-[10px] border border-clyse bg-white px-[21px] pt-[21px] pb-[16px] ${
-          wide ? "xl:h-[149px]" : "xl:h-[156px]"
-        } ${SHADOW}`}
+        /* Card 21/23: the fixed 149/156px heights were shorter than the
+           content, so "View Details" rendered past the tile's bottom border
+           and overlapped the Withdraw button / the next row. Let the padding
+           drive the height instead. */
+        className={`rounded-[10px] border border-clyse bg-white px-[21px] pt-[21px] pb-[16px] ${SHADOW}`}
       >
         <div className="flex">
           <span className={`grid h-[44px] w-[44px] flex-none place-items-center rounded-[10px] ${tile}`}>
             <img src={glyph} alt="" className="h-[30px] w-[30px]" />
           </span>
           <span className="ml-[30px]">
-            <span className={`block text-[18px] leading-[22px] font-semibold whitespace-nowrap ${sub2}`}>
+            <span className={`block pr-[4px] text-[18px] leading-[22px] font-semibold ${sub2}`}>
               {label}
             </span>
             <span className={`mt-[10px] block font-bold whitespace-nowrap text-ink ${valueCls}`}>

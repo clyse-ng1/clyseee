@@ -287,7 +287,6 @@ export default function Marketplace() {
     <div className="min-h-screen bg-white">
       <Navbar />
       <main className="relative overflow-hidden">
-        <BlurBg variant="hero" />
         {/* Mobile marketplace (Figma 263:4402) */}
         <div className="relative z-[1] xl:hidden">
           <MobileBrowse />

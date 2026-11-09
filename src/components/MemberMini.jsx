@@ -1,4 +1,5 @@
 import avatarAccount from "../assets/avatar-account.webp";
+import { useNavigate } from "react-router-dom";
 import { useAuth } from "../lib/useAuth";
 import { displayName, fmtDay } from "../lib/api";
 
@@ -35,4 +36,36 @@ export function MemberMenuButton() {
      nothing to open. Removed on the owner's instruction; the navbar's
      full-screen menu is the single navigation surface on mobile. */
   return null;
+}
+
+/* Mobile back chevron for the member pages (card 4: "ensure back btn is on all
+   major pages"). Figma draws it as a white disc with a hairline border and a
+   thin chevron, sitting above the page title — see JOIN GROUP page 2 (b04).
+   Uses history where there is any, so it returns to the page you came from,
+   and falls back to `to` on a deep link. */
+export function MobileBack({ to = "/dashboard" }) {
+  const navigate = useNavigate();
+  const back = () => {
+    const idx = window.history.state?.idx;
+    if (typeof idx === "number" && idx > 0) navigate(-1);
+    else navigate(to);
+  };
+  return (
+    <button
+      type="button"
+      onClick={back}
+      aria-label="Back"
+      className="mb-[16px] grid h-[36px] w-[36px] place-items-center rounded-full border border-[#BABABA] bg-white text-ink shadow-[0_4px_10px_rgba(0,23,1,0.08)]"
+    >
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden>
+        <path
+          d="m14.5 5.5-7 6.5 7 6.5"
+          stroke="#001701"
+          strokeWidth="2.2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+      </svg>
+    </button>
+  );
 }

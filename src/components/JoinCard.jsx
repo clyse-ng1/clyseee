@@ -1,6 +1,5 @@
 import { Link } from "react-router-dom";
 import BrandTile from "./BrandTile";
-import iconFundArrow from "../assets/fund-arrow.svg";
 import iconPlusWhite from "../assets/plus-white.svg";
 
 /* Discover / Join Waitlist card. Desktop 400px, mobile 370px — identical
@@ -22,24 +21,29 @@ export default function JoinCard({ brand, chip, title, slots, price, waiting, li
       <p className="text-[15px] leading-[18px] font-semibold text-[#6B6B6B]">
         Subscription Plan · {slots} Slots Available
       </p>
-      <div className="mt-[51px] space-y-[21px]">
+      {/* Figma 889:82747 rules the header block off from the figures. */}
+      <div className="mt-[16px] border-t border-[#BABABA]" />
+      <div className="mt-[21px] space-y-[21px]">
         <p className="flex items-center justify-between text-[18px] leading-[22px] font-semibold">
           <span className="text-[#6B6B6B]">Monthly share</span>
           <span className="text-ink">{price}</span>
         </p>
         <p className="flex items-center justify-between text-[18px] leading-[22px] font-semibold">
           <span className="text-[#6B6B6B]">Waiting now</span>
-          <span className="text-ink">{waiting} people</span>
+          {/* Figma prints this figure in green, not ink. */}
+          <span className="text-clyse">{waiting} people</span>
         </p>
       </div>
       <Link
         to="/join/plan"
-        state={linkState}
+        state={{ ...linkState, fromWaitlist: true }}
         className="bg-btn relative mt-[39px] flex h-[60px] items-center justify-center rounded-[10px] text-[18px] leading-[22px] font-semibold text-[#F1F8F1]"
       >
-        <span className="absolute top-1/2 left-[30px] flex -translate-y-1/2 items-center gap-[3px]">
-          <img src={iconFundArrow} alt="" className="h-[15px] w-[15px]" />
-          <img src={iconPlusWhite} alt="" className="h-[18px] w-[18px]" />
+        {/* Card 12 (wrong icon): Figma shows a plus inside a white disc. */}
+        <span className="absolute top-1/2 left-[30px] grid h-[26px] w-[26px] -translate-y-1/2 place-items-center rounded-full bg-white">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path d="M12 5v14M5 12h14" stroke="#048B0B" strokeWidth="2.6" strokeLinecap="round" />
+          </svg>
         </span>
         Join Waitlist
       </Link>

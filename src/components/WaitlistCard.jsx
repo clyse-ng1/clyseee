@@ -44,7 +44,7 @@ export default function WaitlistCard({
   const toggle = onNotifToggle || (() => setLocalOn((v) => !v));
   return (
     <article
-      className={`w-full rounded-[20px] border border-clyse bg-white px-[20px] pt-[22px] pb-[22px] shadow-[0_0_20px_rgba(0,23,1,0.08)] xl:px-[31px] xl:pt-[31px] xl:pb-[31px] xl:w-[830px] ${
+      className={`w-full rounded-[20px] border border-[#BABABA] bg-white px-[20px] pt-[22px] pb-[22px] shadow-[0_0_20px_rgba(0,23,1,0.08)] xl:border-clyse xl:px-[31px] xl:pt-[31px] xl:pb-[31px] xl:w-[830px] ${
         createPlanId ? "" : "xl:h-[258px]"
       }`}
     >
@@ -63,15 +63,7 @@ export default function WaitlistCard({
               On Waitlist
             </span>
           </p>
-          {createPlanId && (
-            <Link
-              to="/create/group"
-              state={{ fromWaitlist: { plan_id: createPlanId } }}
-              className="mt-[8px] inline-block text-[14px] leading-[18px] font-semibold text-clyse underline"
-            >
-              or create this group yourself
-            </Link>
-          )}
+          {/* Figma 889:82683 has no "or create this group yourself" line. */}
         </div>
         <div className="ml-auto hidden gap-[2px] self-center xl:flex">
           <Slot icon={iconUsers} label={posLabel} value={posValue} />
@@ -82,13 +74,34 @@ export default function WaitlistCard({
         <Link
           to="/waitlist/leave"
           state={leaveState}
-          className="flex h-[52px] w-full items-center justify-center rounded-[10px] border border-[#047D0A] bg-white text-[16px] leading-[22px] font-semibold text-clyse xl:h-[60px] xl:w-[374px] xl:flex-none xl:text-[18px]"
+          className="flex h-[52px] w-full items-center justify-center gap-[10px] rounded-[10px] border border-[#047D0A] bg-white text-[16px] leading-[22px] font-semibold text-clyse xl:h-[60px] xl:w-[374px] xl:flex-none xl:text-[18px]"
         >
+          {/* Figma 889:82683 puts the exit-arrow glyph inside the button. */}
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden>
+            <path
+              d="M10 4H5.5A1.5 1.5 0 0 0 4 5.5v13A1.5 1.5 0 0 0 5.5 20H10"
+              stroke="#048B0B"
+              strokeWidth="2"
+              strokeLinecap="round"
+            />
+            <path
+              d="M14 8l4 4-4 4M18 12H9"
+              stroke="#048B0B"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+          </svg>
           Leave Waitlist
         </Link>
-        <div className="mt-[16px] flex items-center gap-[10px] rounded-[10px] bg-[#F1F8F1] px-[12px] py-[10px] xl:hidden">
-          <Slot icon={iconUsers} label={posLabel} value={posValue} />
-          <Slot icon={iconDate} label="Date Joined" value={date} />
+        {/* Figma: two cells separated by a 1px rule, no filled strip. */}
+        <div className="mt-[28px] flex xl:hidden">
+          <div className="flex flex-1 items-center gap-[10px] border-l border-[#BABABA] pl-[12px]">
+            <Slot icon={iconUsers} label={posLabel} value={posValue} />
+          </div>
+          <div className="flex flex-1 items-center gap-[10px] border-l border-[#BABABA] pl-[12px]">
+            <Slot icon={iconDate} label="Date Joined" value={date} />
+          </div>
         </div>
         <div className="mt-[14px] flex h-[44px] items-center xl:mt-0 xl:h-[60px]">
           <img src={iconBell} alt="" className="h-[24px] w-[24px] flex-none" />

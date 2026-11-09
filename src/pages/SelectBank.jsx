@@ -152,7 +152,11 @@ export default function SelectBank() {
       ]);
       if (!live) return;
       if (!a.error) {
-        setAccounts(a.data?.accounts || []);
+        const list0 = a.data?.accounts || [];
+        setAccounts(list0);
+        /* Figma GC26 (b13): step 2 opens straight on "Add Bank Account" — it
+           is the only useful thing to do when nothing is saved yet. */
+        if (list0.length === 0) setView("add");
         setSelected(
           a.data?.default_account_id ||
             a.data?.accounts?.[0]?.account_id ||
@@ -649,25 +653,25 @@ export default function SelectBank() {
                   {error}
                 </p>
               )}
-              <div className="mt-[30px] flex gap-[14px]">
-                <button
-                  type="button"
-                  onClick={() => setView("select")}
-                  className="flex h-[50px] flex-[176] items-center justify-center rounded-[10px] border border-clyse bg-[#F1F8F1] text-[13px] font-semibold text-ink"
-                >
-                  Go Back
-                </button>
-                <button
-                  type="button"
-                  onClick={addAccount}
-                  disabled={!addValid || busy}
-                  className={`flex h-[50px] flex-[174] items-center justify-center rounded-[10px] text-[13px] font-semibold text-mint ${
-                    addValid && !busy ? "bg-btn" : "bg-[#999999]"
-                  }`}
-                >
-                  {busy ? "Verifying…" : "Continue"}
-                </button>
-              </div>
+              {/* Card 13: Figma GC26 stacks the actions — full-width
+                  Continue (grey until the account verifies), then Go Back. */}
+              <button
+                type="button"
+                onClick={addAccount}
+                disabled={!addValid || busy}
+                className={`mt-[30px] grid h-[52px] w-full place-items-center rounded-[12px] text-[15px] font-semibold text-mint ${
+                  addValid && !busy ? "bg-btn" : "bg-[#999999]"
+                }`}
+              >
+                {busy ? "Verifying…" : "Continue"}
+              </button>
+              <button
+                type="button"
+                onClick={() => (accounts || []).length ? setView("select") : navigate(amount != null ? "/withdraw/amount" : from, { state: { from } })}
+                className="mt-[14px] grid h-[52px] w-full place-items-center rounded-[12px] border border-clyse bg-[#F1F8F1] text-[15px] font-semibold text-ink"
+              >
+                Go Back
+              </button>
               {!addValid && (
                 <p className="mt-[12px] text-center text-[13px] leading-[18px] font-semibold text-[#6B6B6B]">
                   Enter a 10-digit account number and choose a bank to continue.

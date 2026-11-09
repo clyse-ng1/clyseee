@@ -110,11 +110,12 @@ export default function GroupBrowse() {
   );
 
   return (
-    <div className="min-h-screen bg-white font-sans text-ink">
+    <div className="relative min-h-screen overflow-hidden bg-white font-sans text-ink">
+      {/* Figma BLUR BG at page level so the mobile branch gets it too. */}
+      <BlurBg variant="hero" />
       <Navbar loggedIn />
       {/* Desktop */}
       <main className="relative mx-[20px] min-[1440px]:mx-[100px] hidden pb-[100px] xl:block">
-        <BlurBg variant="hero" />
         <div className="relative flex gap-[38px] pt-[101px]">
           <Sidebar active="My Group" />
           <div className="w-[830px] flex-none">
@@ -145,7 +146,7 @@ export default function GroupBrowse() {
         </div>
       </main>
       {/* Mobile (M10 691:20651) */}
-      <main className="relative bg-white xl:hidden">
+      <main className="relative xl:hidden">
         <div className="relative bg-white px-[30px] pt-[30px] pb-[40px]">
           {/* Figma JOINT WAITLIST MOBILE PAGE 10: a back chevron sits directly
               above the title. The member header that used to sit here (avatar +

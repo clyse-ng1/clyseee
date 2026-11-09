@@ -5,6 +5,7 @@ import Sidebar from "../components/Sidebar";
 import BrandTile from "../components/BrandTile";
 import { BlurBg } from "../components/Decor";
 import { accessLabel, api, brandOf, kobo } from "../lib/api";
+import JoinSummary from "./JoinSummary";
 
 /* Step 1 of the Join Group flow — the page the PM reported as missing
    ("First page of the Join group section is missing", board card 5).
@@ -47,8 +48,20 @@ export default function JoinPreview() {
     if (incoming?.preview || incoming?.group) return;
     let on = true;
     (async () => {
-      const { data } = await api("/catalogue/groups?limit=1", { auth: false });
-      if (on && data?.groups?.length) setFetched(data.groups[0]);
+      const { data } = await api("/catalogue/groups?limit=50", { auth: false });
+      const rows = data?.groups || [];
+      if (!on || !rows.length) return;
+      /* Prefer a group on the plan the user just picked (step 1), then a group
+         on the same service, then the first open group — a details page that
+         contradicts the plan chosen one click earlier is worse than a
+         same-service stand-in. */
+      const wanted = incoming?.plan_id;
+      const svc = (incoming?.service || "").toLowerCase();
+      const byPlan = rows.find((g) => g.plan_id === wanted || g.plan?.id === wanted);
+      const byService = svc
+        ? rows.find((g) => (g.service?.name || "").toLowerCase() === svc)
+        : null;
+      setFetched(byPlan || byService || rows[0]);
     })();
     return () => {
       on = false;
@@ -96,7 +109,11 @@ export default function JoinPreview() {
 
   const next = () =>
     navigate("/join/summary", {
-      state: incoming || { group_id: code_, preview: g },
+      state: {
+        ...(incoming || {}),
+        group_id: incoming?.group_id || g?.group_id || g?.id || code_,
+        preview: incoming?.preview || incoming?.group || g,
+      },
     });
 
   const rows = [
@@ -161,11 +178,21 @@ export default function JoinPreview() {
     </div>
   );
 
+  /* Figma 889:52206 has no sidebar and no lone details card: desktop page 2 is
+     the details card (690) plus the Payment Summary (500). JoinSummary renders
+     exactly that spread, so on desktop we hand over to it instead of keeping a
+     third, invented screen in the flow. Mobile keeps its own details screen,
+     which is how Figma splits the two cards on a phone. */
+  if (typeof window !== "undefined" && window.matchMedia("(min-width: 1280px)").matches) {
+    return <JoinSummary />;
+  }
+
   return (
-    <div className="min-h-screen bg-white font-sans text-ink">
+    <div className="relative min-h-screen overflow-hidden bg-white font-sans text-ink">
+      <BlurBg variant="join" />
       <Navbar loggedIn />
 
-      {/* Desktop */}
+      {/* Desktop (unused — see the hand-over above) */}
       <main className="relative mx-[20px] hidden pb-[80px] min-[1440px]:mx-[100px] xl:block">
         <BlurBg variant="hero" />
         <div className="relative flex gap-[38px] pt-[101px]">
@@ -216,7 +243,8 @@ export default function JoinPreview() {
 
             <div className="mt-[26px] flex items-center gap-[20px]">
               <Link
-                to="/browse"
+                to="/join/plan"
+                state={incoming}
                 className="grid h-[60px] w-[240px] place-items-center rounded-[10px] border border-clyse text-[18px] font-semibold text-ink"
               >
                 Go Back
@@ -234,10 +262,11 @@ export default function JoinPreview() {
       </main>
 
       {/* Mobile */}
-      <main className="relative bg-white xl:hidden">
+      <main className="relative xl:hidden">
         <div className="flex items-center gap-[14px] border-b border-[#BABABA] px-[30px] py-[16px]">
           <Link
-            to="/browse"
+            to="/join/plan"
+            state={incoming}
             aria-label="Back"
             className="grid h-[32px] w-[32px] flex-none place-items-center rounded-full border border-[#BABABA] bg-white text-[15px] text-ink"
           >
@@ -302,7 +331,8 @@ export default function JoinPreview() {
 
           <div className="mt-[22px] flex gap-[14px]">
             <Link
-              to="/browse"
+              to="/join/plan"
+              state={incoming}
               className="grid h-[50px] flex-1 place-items-center rounded-[11.1px] border border-clyse text-[12.48px] font-semibold text-ink"
             >
               Go Back

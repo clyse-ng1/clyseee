@@ -312,11 +312,12 @@ export default function Profile() {
   );
 
   return (
-    <div className="min-h-screen bg-white font-sans text-ink">
+    <div className="relative min-h-screen overflow-hidden bg-white font-sans text-ink">
+      {/* Figma BLUR BG at page level so the mobile branch gets it too. */}
+      <BlurBg variant="hero" />
       <Navbar loggedIn />
       {/* Desktop */}
       <main className="relative mx-[20px] min-[1440px]:mx-[100px] hidden pb-[100px] xl:block">
-        <BlurBg variant="hero" />
         <div className="relative flex gap-[38px] pt-[101px]">
           <Sidebar active="Profile" />
           <div className="w-[830px] flex-none">
@@ -501,7 +502,7 @@ export default function Profile() {
         </div>
       </main>
       {/* Mobile */}
-      <main className="relative bg-white xl:hidden">
+      <main className="relative xl:hidden">
         <div className="relative bg-white px-[30px] pt-[30px] pb-[40px]">
           <div className="bg-btn -mx-[30px] flex min-h-[236px] items-center gap-[20px] px-[30px] py-[30px]">
             <img

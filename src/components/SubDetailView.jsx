@@ -146,17 +146,11 @@ function derive(membership, access) {
     groupId: code ? `Group ID: ${code}` : "Group ID unavailable",
     rawGroupId: groupId,
     canShowAccess,
-    /* Backend only hands us the invite token for invite-link groups (no full
-       URL), so the link is built here — same shape the share screen already
-       uses: /join/<token>. Credentials groups keep their credential block. */
-    link:
-      inner.invite_link ||
-      (String(inner.method || group.access_method || "") === "invite_link" && code
-        ? `${typeof window !== "undefined" ? window.location.origin : ""}/join/${encodeURIComponent(code)}`
-        : "") ||
-      credText ||
-      inner.instructions ||
-      "",
+    /* access.invite_link is the SERVICE access link (e.g. a Netflix link), not
+       a group join link, so it is printed as-is. We no longer invent
+       /join/<group code> here: per backend, group join links come from
+       GET/POST /member/groups/invites and carry a 24-char token. */
+    link: inner.invite_link || credText || inner.instructions || "",
     accessMessage: canShowAccess
       ? "The creator has not shared access details yet."
       : "Access is unavailable for this membership status.",
@@ -348,11 +342,9 @@ export function SubDetailsMobile({
   return (
     <>
       <CopiedPill show={copied} />
-      <div
-        className={`relative px-[32px] pt-[51px] ${
-          isReport ? "rounded-[20px] bg-white pb-[51px]" : ""
-        }`}
-      >
+      {/* Figma 737:22246: the whole detail block is one white card — brand,
+          plan, status and the three rows all sit inside it. */}
+      <div className="relative rounded-[20px] bg-white px-[31px] pt-[31px] pb-[31px] shadow-[0_0_20px_rgba(0,23,1,0.08)]">
         <p className="text-[18px] leading-[22px] font-semibold text-ink">
           Subscription Details
         </p>
@@ -386,7 +378,7 @@ export function SubDetailsMobile({
           {v.stats.map((s) => (
             <div
               key={s.label}
-              className={`flex h-[57px] items-center rounded-[10px] bg-white ${SHADOW}`}
+              className="flex h-[57px] items-center rounded-[10px] border border-[#999999] bg-white"
             >
               <span
                 className={`ml-[16px] grid h-[30px] w-[30px] flex-none place-items-center rounded-[3.57px] ${s.chip}`}
@@ -418,7 +410,7 @@ export function SubDetailsMobile({
           {v.info.map((r) => (
             <div
               key={r.label}
-              className={`flex h-[57px] items-center rounded-[10px] bg-white ${SHADOW}`}
+              className="flex h-[57px] items-center rounded-[10px] border border-[#999999] bg-white"
             >
               <span className="ml-[16px] text-[13px] leading-[20px] font-semibold text-[#6B6B6B]">
                 {r.label}
@@ -431,14 +423,14 @@ export function SubDetailsMobile({
         </div>
         <div className="mt-[20px] flex flex-col gap-[10px]">
           {v.axes.map((item) => (
-            <div key={item.label} className={`flex min-h-[50px] items-center rounded-[10px] bg-white px-[16px] ${SHADOW}`}>
+            <div key={item.label} className="flex min-h-[50px] items-center rounded-[10px] border border-[#999999] bg-white px-[16px]">
               <span className="text-[13px] font-semibold text-[#6B6B6B]">{item.label} status</span>
               <span className="ml-auto text-right text-[15px] font-bold capitalize text-ink">{item.value}</span>
             </div>
           ))}
         </div>
         {v.canShowAccess && v.link ? (
-          <div className={`mt-[50px] flex gap-[16px] rounded-[10px] bg-white ${SHADOW}`}>
+          <div className="mt-[50px] flex gap-[16px] rounded-[10px] border border-[#999999] bg-white">
             <div className="min-w-0 flex-1 pt-[11px] pl-[16px] pb-[11px]">
               <p className="text-[13px] leading-[20px] font-semibold text-[#6B6B6B]">Shared access details</p>
               <p className="mt-[2px] break-all text-[13px] leading-[20px] font-bold text-ink">{v.link}</p>

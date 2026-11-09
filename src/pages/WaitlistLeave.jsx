@@ -6,7 +6,8 @@ import { api } from "../lib/api";
 import iconError from "../assets/error-circle-red.svg";
 
 /* Leave confirmation over the waitlist page. Figma labels BOTH buttons
-   "Get in touch" (pasted CTA copy) — fixed to Stay / Yes, Leave. Its
+   "Get in touch" (pasted CTA copy) — fixed to Cancel / Leave Waitlist; Figma
+   889:82363 labels the pair exactly that way. Its
    backdrop is 100% opaque black; relayed out as a standard 50% dim so the
    page beneath shows through as intended. */
 function ModalCard() {
@@ -54,12 +55,12 @@ function ModalCard() {
           {error}
         </p>
       )}
-      <div className="mt-[40px] flex flex-col items-center gap-[30px] xl:flex-row xl:justify-center">
+      <div className="mt-[40px] flex items-center justify-center gap-[20px] xl:gap-[30px]">
         <MiniButton variant="gray" to="/waitlist" icons={false}>
-          Stay
+          Cancel
         </MiniButton>
         <MiniButton variant="red" onClick={leave} busy={busy} icons={false}>
-          Yes, Leave
+          Leave Waitlist
         </MiniButton>
       </div>
     </div>

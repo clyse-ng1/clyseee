@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import Navbar from "../components/Navbar";
+import { MobileBack } from "../components/MemberMini";
 import Sk from "../components/Skeleton";
 import Sidebar from "../components/Sidebar";
 import { BlurBg } from "../components/Decor";
@@ -629,12 +630,13 @@ export default function Wallet() {
   };
 
   return (
-    <div className="min-h-screen bg-white font-sans text-ink">
+    <div className="relative min-h-screen overflow-hidden bg-white font-sans text-ink">
+      {/* Figma BLUR BG at page level so the mobile branch gets it too. */}
+      <BlurBg variant="hero" />
       <Navbar loggedIn />
       <FundModal key={String(fundOpen)} open={fundOpen} onClose={() => setFundOpen(false)} onFunded={completeSimulatedFunding} />
       {/* Desktop */}
       <main className="relative mx-[20px] min-[1440px]:mx-[100px] hidden xl:block">
-        <BlurBg variant="hero" />
         <div className="relative flex gap-[38px] pt-[101px]">
           <Sidebar active="My Wallet" />
           <div className="w-[830px] flex-none">
@@ -700,8 +702,12 @@ export default function Wallet() {
                   state={{ from: "/wallet", availableKobo: balanceKobo }}
                   className="flex h-[60px] w-[223px] items-center justify-center rounded-[10px] bg-[#048B0B]"
                 >
-                  {/* Card 27: the white circled arrow read wrong — plain label. */}
-                  <span className="whitespace-nowrap text-[18px] font-semibold text-white">
+                  {/* Figma D06: the withdraw button is arrow + label, same
+                      weight as Add Fund — card 8 on the board. */}
+                  <span className="flex items-center whitespace-nowrap text-[18px] font-semibold text-white">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true" className="mr-[10px] flex-none">
+                      <path d="M17 7 7 17M7 9v8h8" stroke="#FFFFFF" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" />
+                    </svg>
                     Withdraw Fund
                   </span>
                 </Link>
@@ -819,8 +825,9 @@ export default function Wallet() {
       </div>
 
       {/* Mobile */}
-      <main className="relative bg-white xl:hidden">
+      <main className="relative xl:hidden">
         <div className="relative mx-[30px] mt-[30px]">
+          <MobileBack />
           <h1 className="text-[25px] leading-[32px] font-bold text-black">Wallet</h1>
           <p className="mt-[3px] text-[14px] leading-[20px] font-semibold text-[#6B6B6B]">
             Manage your balance, fund your wallet and track your transactions
@@ -870,7 +877,10 @@ export default function Wallet() {
               state={{ from: "/wallet", availableKobo: balanceKobo }}
               className="relative flex h-[60px] w-full items-center justify-center rounded-[6.94px] bg-[#048B0B]"
             >
-              <span className="text-[18px] font-semibold whitespace-nowrap text-white">
+              <span className="flex items-center text-[18px] font-semibold whitespace-nowrap text-white">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true" className="mr-[10px] flex-none">
+                  <path d="M17 7 7 17M7 9v8h8" stroke="#FFFFFF" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
                 Withdraw Fund
               </span>
             </Link>

@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import Sidebar from "../components/Sidebar";
 import JoinCard from "../components/JoinCard";
@@ -49,11 +50,12 @@ export default function Join() {
   const cards = live === null ? [] : live.map(mapAvail);
 
   return (
-    <div className="min-h-screen bg-white font-sans text-ink">
+    <div className="relative min-h-screen overflow-hidden bg-white font-sans text-ink">
+      {/* Figma BLUR BG at page level so the mobile branch gets it too. */}
+      <BlurBg variant="hero" />
       <Navbar loggedIn />
       {/* Desktop */}
       <main className="relative mx-[20px] min-[1440px]:mx-[100px] hidden pb-[100px] xl:block">
-        <BlurBg variant="hero" />
         <div className="relative flex gap-[38px] pt-[101px]">
           <Sidebar active="Join Waitlist" />
           <div className="w-[830px] flex-none">
@@ -78,12 +80,19 @@ export default function Join() {
       </main>
       {/* Mobile — Figma's overlapping sort/filter drafts inside the member
           block are omitted (broken layers); page = member + strip + cards. */}
-      <main className="relative bg-white xl:hidden">
-        <div className="relative bg-white px-[30px] pt-[30px] pb-[40px]">
-          <h1 className="mt-[0px] text-[30px] leading-[37px] font-bold text-black">
+      <main className="relative xl:hidden">
+        <div className="relative px-[30px] pt-[30px] pb-[40px]">
+          <Link
+            to="/dashboard"
+            aria-label="Back"
+            className="grid h-[40px] w-[40px] place-items-center rounded-full border border-[#BABABA] bg-white pb-[2px] text-[18px] leading-none text-ink shadow-[0_4px_10px_rgba(0,23,1,0.10)]"
+          >
+            ‹
+          </Link>
+          <h1 className="mt-[20px] text-[35px] leading-[43px] font-bold text-black">
             Join Waitlist
           </h1>
-          <p className="text-[13px] leading-[20px] font-semibold text-[#6B6B6B]">
+          <p className="mt-[4px] text-[18px] leading-[22px] font-semibold text-[#6B6B6B]">
             {SUB}
           </p>
           <div className="mt-[50px] flex flex-col gap-[31px]">

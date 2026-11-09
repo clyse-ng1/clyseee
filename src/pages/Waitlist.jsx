@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import Navbar from "../components/Navbar";
+import { MobileBack } from "../components/MemberMini";
 import Sidebar from "../components/Sidebar";
 import WaitlistCard, { WaitlistCardSk } from "../components/WaitlistCard";
 import ExtraBlock from "../components/ExtraBlock";
@@ -8,6 +9,12 @@ import { EmptyCard } from "./WaitlistEmpty";
 import { BlurBg } from "../components/Decor";
 import { api, brandOf, fmtDay, kobo } from "../lib/api";
 
+
+const fmtLong = (iso) => {
+  const d = new Date(iso || "");
+  if (!iso || Number.isNaN(d.getTime())) return "—";
+  return `${d.toLocaleDateString("en-US", { month: "short" })}. ${d.getDate()}, ${d.getFullYear()}`;
+};
 
 const SUB = "Browse available groups and join the waitlist for, We'll notify you when a group becomes available";
 
@@ -20,8 +27,15 @@ function mapEntry(w, priceByPlan) {
     brand: brandOf(w.service),
     title: name,
     price: total != null ? `${kobo(total)} / monthly` : null,
-    posValue: w.queue_position ? `#${w.queue_position}` : "—",
-    date: fmtDay(w.joined_at || w.created_at) || "—",
+    // API returns `position` (this user's place) and `waiting_count` (total on
+    // that plan). Figma 889:82683 labels the cell "Total User Waiting" and
+    // prints "<n> People", so we show the total, not the position.
+    posValue: (() => {
+      const n = w.waiting_count ?? w.position ?? 0;
+      return `${n} ${Number(n) === 1 ? "Person" : "People"}`;
+    })(),
+    // Figma 889:82683 renders the join date as "Sep. 28, 2026".
+    date: fmtLong(w.joined_at || w.created_at),
     leaveState: { waitlist_id: w.waitlist_id || w.id, plan_id: w.plan_id || null },
     planId: w.plan_id || null,
   };
@@ -79,7 +93,7 @@ export default function Waitlist() {
             key={c.key || c.title}
             brand={c.brand}
             title={c.title}
-            posLabel="Your Position"
+            posLabel="Total User Waiting"
             posValue={c.posValue}
             date={c.date}
             price={c.price}
@@ -91,11 +105,12 @@ export default function Waitlist() {
         ));
 
   return (
-    <div className="min-h-screen bg-white font-sans text-ink">
+    <div className="relative min-h-screen overflow-hidden bg-white font-sans text-ink">
+      {/* Figma BLUR BG at page level so the mobile branch gets it too. */}
+      <BlurBg variant="hero" />
       <Navbar loggedIn />
       {/* Desktop */}
       <main className="relative mx-[20px] min-[1440px]:mx-[100px] hidden pb-[100px] xl:block">
-        <BlurBg variant="hero" />
         <div className="relative flex gap-[38px] pt-[101px]">
           <Sidebar active="My Waitlist" />
           <div className="w-[830px] flex-none">
@@ -116,12 +131,13 @@ export default function Waitlist() {
         </div>
       </main>
       {/* Mobile */}
-      <main className="relative bg-white xl:hidden">
-        <div className="relative bg-white px-[30px] pt-[30px] pb-[40px]">
-          <h1 className="mt-[0px] text-[30px] leading-[37px] font-bold text-black">
+      <main className="relative xl:hidden">
+        <div className="relative px-[30px] pt-[30px] pb-[40px]">
+          <MobileBack />
+          <h1 className="mt-[0px] text-[35px] leading-[43px] font-bold text-black">
             Waitlist
           </h1>
-          <p className="text-[13px] leading-[20px] font-semibold text-[#6B6B6B]">
+          <p className="mt-[4px] text-[18px] leading-[22px] font-semibold text-[#6B6B6B]">
             {SUB}
           </p>
           {entries && entries.length === 0 ? (

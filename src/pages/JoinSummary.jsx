@@ -48,17 +48,10 @@ export default function JoinSummary() {
   const location = useLocation();
   const navigate = useNavigate();
   const params = useParams();
-  /* Backend hands out links shaped /join/<code>?<secret> — the "?" is part of
-     the token, not a query string. If a link was generated or pasted without
-     encoding, the browser splits it: the path param keeps the code and the
-     secret lands in location.search. Glue it back so the whole token is used. */
-  const rawToken = params.token || "";
-  const search = location.search || "";
-  const gluedToken =
-    rawToken && search && !search.includes("=")
-      ? `${rawToken}?${search.slice(1)}`
-      : rawToken;
-  const inviteToken = gluedToken || location.state?.invite_token || null;
+  /* Backend: a group invite token is exactly 24 uppercase chars from
+     [A-Z2-9] minus I/O — URL safe, one field, no secret half, no rotation
+     unless revoked. So the route param is used verbatim. */
+  const inviteToken = params.token || location.state?.invite_token || null;
   const code = location.state?.code || null;
   const stateGroupId = location.state?.group_id || null;
   const statePreview = location.state?.preview || null;
@@ -93,15 +86,9 @@ export default function JoinSummary() {
         });
         return;
       }
-      let pv = inviteToken
+      const pv = inviteToken
         ? await api(`/member/groups/by-invite?token=${encodeURIComponent(inviteToken)}`)
         : await api(`/member/groups/by-code?code=${encodeURIComponent(code)}`);
-      /* A glued token may be more than the API wants (or less). If the full
-         string is rejected, retry with the bare path segment before failing. */
-      if (inviteToken && rawToken && inviteToken !== rawToken) {
-        const short = await api(`/member/groups/by-invite?token=${encodeURIComponent(rawToken)}`);
-        if (!short.error && short.data?.valid) pv = short;
-      }
       if (!live) return;
       if (pv.error || (inviteToken && !pv.data?.valid)) {
         navigate("/join/failed", {
@@ -186,7 +173,9 @@ export default function JoinSummary() {
   const sufficient = total != null && balance != null && balance >= total;
 
   const vBrand = group ? brandOf(service) : "netflix";
-  const vEyebrow = real ? "JOIN GROUP" : "WAITLIST DETAILS";
+  /* Figma 889:52206 prints GROUP DETAILS above the service name on the join
+     flow; the waitlist flow keeps its own label. */
+  const vEyebrow = location.state?.fromWaitlist ? "WAITLIST DETAILS" : "GROUP DETAILS";
   const vTitle = group
     ? [service.name, plan.name].filter(Boolean).join(" ") || "Group"
     : "Netflix Premium";
@@ -362,14 +351,25 @@ export default function JoinSummary() {
   );
 
   return (
-    <div className="min-h-screen bg-white font-sans text-ink">
+    <div className="relative min-h-screen overflow-hidden bg-white font-sans text-ink">
+      {/* Figma 889:52209 — same join-flow BLUR BG as page 1. */}
+      <BlurBg variant="join" />
       <Navbar loggedIn />
       {/* Desktop */}
-      <main className="relative mx-[20px] min-[1440px]:mx-[100px] hidden xl:block">
-        <BlurBg variant="hero" />
-        <div className="relative mt-[102px] flex gap-[50px] bg-white">
-          <div className="w-[690px] flex-none">
-            <CreateGroupHead chip="#DFFFE0" />
+      <main className="relative mx-[20px] hidden xl:block min-[1440px]:mx-[100px]">
+        {/* Figma 889:53401: back chevron above the two cards, no sidebar. */}
+        <Link
+          to="/join/plan"
+          aria-label="Back"
+          className="mt-[27px] grid h-[45px] w-[45px] place-items-center rounded-full border border-[#BABABA] bg-white pb-[3px] text-[20px] leading-none text-ink shadow-[0_4px_10px_rgba(0,23,1,0.10)]"
+        >
+          ‹
+        </Link>
+        <div className="relative mt-[30px] flex gap-[50px]">
+          <div className="w-[690px] flex-none rounded-[20px] bg-white shadow-[0_0_20px_rgba(0,23,1,0.08)]">
+            <div className="border-b border-[#BABABA]">
+              <CreateGroupHead chip="#DFFFE0" />
+            </div>
             <div className="px-[63px] pt-[30px] pb-[30px]">
               <div className="flex items-start">
                 <BrandTile brand={vBrand} size={75} plain />
@@ -384,14 +384,9 @@ export default function JoinSummary() {
                     {vPlanLine}
                   </p>
                 </div>
-                <p className="mr-[-83px] ml-auto flex items-start">
-                  <span className="text-[35px] leading-[43px] font-bold text-ink">
-                    {vPrice}
-                  </span>
-                  <span className="mt-[11px] ml-[2px] text-[18px] leading-[22px] font-semibold text-[#6B6B6B]">
-                    /Monthly
-                  </span>
-                </p>
+                {/* Figma 889:52217 draws no price beside the title on page 2 —
+                    the split lives in the two tiles and the Payment Summary.
+                    It also ran past the card edge. */}
               </div>
               <div className="mt-[60px] flex gap-[30px]">
                 <div className="h-[153px] w-[266px] rounded-[12px] border border-clyse bg-[#DFFFE0] px-[30px] pt-[32px] shadow-[0_0_16px_rgba(0,23,1,0.08)]">
@@ -428,8 +423,8 @@ export default function JoinSummary() {
               </div>
             </div>
           </div>
-          <div className="w-[500px] flex-none">
-            <div className="px-[50px] pt-[30px] pb-[31px]">
+          <div className="w-[500px] flex-none rounded-[20px] bg-white shadow-[0_0_20px_rgba(0,23,1,0.08)]">
+            <div className="border-b border-[#BABABA] px-[50px] pt-[30px] pb-[30px]">
               <p className="text-[35px] leading-[43px] font-bold text-ink">
                 Payment Summary
               </p>
@@ -511,12 +506,12 @@ export default function JoinSummary() {
         <div className="pb-[60px]" />
       </div>
       {/* Mobile */}
-      <main className="relative bg-white xl:hidden">
-        <div className="relative bg-white">
-          <CreateGroupHead />
-        </div>
-        <div className="relative bg-white">
-          <div className="px-[30px] pt-[30px] pb-[30px]">
+      <main className="relative xl:hidden">
+        <div className="mx-[20px] mt-[20px] overflow-hidden rounded-[20px] bg-white shadow-[0_0_20px_rgba(0,23,1,0.10)]">
+          <div className="border-b border-[#BABABA]">
+            <CreateGroupHead />
+          </div>
+          <div className="px-[30px] pt-[24px] pb-[30px]">
             <div className="flex items-start">
               <BrandTile brand={vBrand} size={50} plain />
               <div className="ml-[20px]">
@@ -566,11 +561,13 @@ export default function JoinSummary() {
             </div>
           </div>
         </div>
-        <div className="relative bg-white">
-          <div className="px-[30px] pt-[30px] pb-[66px]">
-            <p className="text-[35px] leading-[43px] font-bold text-ink">
+        <div className="mx-[20px] mt-[24px] mb-[30px] overflow-hidden rounded-[20px] bg-white shadow-[0_0_20px_rgba(0,23,1,0.10)]">
+          <div className="border-b border-[#BABABA] px-[30px] pt-[24px] pb-[20px]">
+            <p className="text-[30px] leading-[37px] font-bold text-ink">
               Payment Summary
             </p>
+          </div>
+          <div className="px-[30px] pt-[24px] pb-[40px]">
             <div className="mt-[20px] divide-y divide-[#E3EDE3] rounded-[16px] border border-clyse bg-white px-[16px] shadow-[0_0_13.87px_rgba(0,23,1,0.06)]">
               <div className="flex items-center justify-between gap-[12px] py-[14px]">
                 <span className="text-[13px] leading-[18px] font-semibold text-[#4E4E4E]">

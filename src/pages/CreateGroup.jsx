@@ -298,7 +298,7 @@ export default function CreateGroup() {
           type="button"
           onClick={() => setCustom((v) => !v)}
           aria-pressed={custom}
-          className={`mx-[30px] mt-[148px] flex h-[50px] w-[calc(100%-60px)] max-w-[370px] items-center justify-center gap-[9px] rounded-[11.1px] border bg-mint transition ${
+          className={`mx-[30px] mt-[32px] flex h-[50px] w-[calc(100%-60px)] max-w-[370px] items-center justify-center gap-[9px] rounded-[11.1px] border bg-mint transition ${
             custom ? "border-[#048B0B] shadow-[0_0_12px_rgba(4,139,11,0.18)]" : "border-[#999999]"
           }`}
         >

@@ -95,7 +95,14 @@ export default function CreatePlan() {
   const [sel, setSel] = useState(0);
 
   const custom = !!incoming?.custom;
-  const entry = !custom ? matchService(services, incoming?.brand) : null;
+  /* No service in the state (deep link / refresh before step 1 finished) used
+     to render "No plans available". Fall back to the first service that
+     actually has a priced plan so the step is never empty. */
+  const entry = !custom
+    ? matchService(services, incoming?.brand) ||
+      (services || []).find((a) => (a.plans || a.catalogue_plans || []).some((p) => Number.isFinite(planTotal(p)))) ||
+      null
+    : null;
   const livePlans = entry?.plans || entry?.catalogue_plans || [];
 
   /* Only plans that carry a price are offered. `planTotal` returns Infinity

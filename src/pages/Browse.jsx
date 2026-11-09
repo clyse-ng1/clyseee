@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import Navbar from "../components/Navbar";
+import { MobileBack } from "../components/MemberMini";
 import Sidebar from "../components/Sidebar";
 import ExtraBlock from "../components/ExtraBlock";
 import BrandTile from "../components/BrandTile";
@@ -164,7 +165,7 @@ function mapGroup(g) {
     ratio: total ? `${occupied}/${total}` : `${left} open`,
     pct: total ? Math.min(100, Math.round((occupied / total) * 100)) : 0,
     access: accessLabel(g.access_method),
-    linkTo: "/join/preview",
+    linkTo: "/join/plan",
     linkState: { group_id: g.group_id || g.id, preview: g },
   };
 }
@@ -274,14 +275,15 @@ export default function Browse() {
   );
 
   return (
-    <div className="min-h-screen bg-white font-sans text-ink">
+    <div className="relative min-h-screen overflow-hidden bg-white font-sans text-ink">
+      {/* Figma BLUR BG at page level so the mobile branch gets it too. */}
+      <BlurBg variant="hero" />
       <Navbar loggedIn />
       {/* Desktop */}
       {/* Same shell as every other member page (mx-[20px] / min-[1440px]:mx-[100px])
           so the sidebar does not jump sideways when Browse Group is clicked. The
           372 + 38 + 830 children already measure 1240. */}
       <main className="relative mx-[20px] hidden pb-[100px] min-[1440px]:mx-[100px] xl:block">
-        <BlurBg variant="hero" />
         <div className="relative flex gap-[38px] pt-[101px]">
           <Sidebar active="Browse Group" />
           <div className="w-[830px] flex-none">
@@ -351,7 +353,7 @@ export default function Browse() {
                     onClick={() => setShowAllBrands((v) => !v)}
                     className="mt-[30px] flex h-[47px] w-full items-center justify-center rounded-[20px] border border-[#001701] bg-[#F1F8F2] text-[17px] font-semibold text-[#001701] transition hover:bg-white"
                   >
-                    {showAllBrands ? "Show Less" : "Load More"}
+                    {showAllBrands ? "Show Less" : "View More"}
                   </button>
                 )}
               </>
@@ -395,10 +397,15 @@ export default function Browse() {
         </div>
       </main>
       {/* Mobile */}
-      <main className="relative bg-white xl:hidden">
-        <div className="relative bg-white px-[30px] pt-[30px] pb-[10px]">
-          <div className="flex h-[56px] items-center gap-[16px] rounded-[10.4px] border-[1.4px] border-[#58A35B] bg-white px-[22px] shadow-[1.39px_1.39px_4.85px_rgba(0,23,1,0.25)]">
-            <img src={iconSearch} alt="" className="h-[24px] w-[24px] flex-none" />
+      <main className="relative xl:hidden">
+        <div className="relative px-[30px] pt-[30px]">
+          <MobileBack />
+        </div>
+        {/* Figma 263:4402: the search bar is a full-bleed 430x56 white band
+            with a hairline under it — no border, no radius, no shadow. */}
+        <div className="relative border-b border-[#BABABA] bg-white">
+          <div className="flex h-[56px] items-center gap-[12px] px-[30px]">
+            <img src={iconSearch} alt="" className="h-[31px] w-[31px] flex-none" />
             <input
               value={q}
               onChange={(e) => setQ(e.target.value)}
@@ -448,10 +455,10 @@ export default function Browse() {
                   type="button"
                   onClick={() => setPicked(picked === b.name ? null : b.name)}
                   aria-pressed={picked === b.name}
-                  className={`flex h-[200px] cursor-pointer flex-col items-center rounded-[20px] border bg-[#F1F8F2] px-[8px] pt-[34px] pb-[16px] ${
+                  className={`flex h-[200px] cursor-pointer flex-col items-center rounded-[16px] border bg-[#F7F9F7] px-[8px] pt-[34px] pb-[16px] ${
                     picked === b.name
                       ? "border-[#048B0B] ring-2 ring-[#B1DBB3]"
-                      : "border-[#001701]"
+                      : "border-[#999999]"
                   }`}
                 >
                   <BrandTile brand={b.brand} name={b.name} size={75} plain />
@@ -471,7 +478,7 @@ export default function Browse() {
               onClick={() => setShowAllBrands((v) => !v)}
               className="mt-[20px] flex h-[47px] w-full items-center justify-center rounded-[20px] border border-[#001701] bg-[#F1F8F2] text-[16px] font-semibold text-[#001701]"
             >
-              {showAllBrands ? "Show Less" : "Load More"}
+              {showAllBrands ? "Show Less" : "View More"}
             </button>
           )}
 

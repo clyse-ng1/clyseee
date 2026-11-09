@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link, Navigate, useLocation } from "react-router-dom";
 import Navbar from "../components/Navbar";
+import { MobileBack } from "../components/MemberMini";
 import { BlurBg } from "../components/Decor";
 import CreateGroupHead from "../components/CreateGroupHead";
 import { api, fmtDate, kobo, brandOf } from "../lib/api";
@@ -215,7 +216,7 @@ export default function GroupDetails() {
   );
 
   const tiles = (items, small = false) => (
-    <div className={small ? "flex flex-col gap-[15px]" : "grid grid-cols-3 gap-[20px]"}>
+    <div className={small ? "grid grid-cols-2 gap-[15px]" : "grid grid-cols-3 gap-[20px]"}>
       {items.map((r) => (
         <div
           key={r.label}
@@ -344,7 +345,9 @@ export default function GroupDetails() {
   };
 
   return (
-    <div className="min-h-screen bg-white font-sans text-ink">
+    <div className="relative min-h-screen overflow-hidden bg-white font-sans text-ink">
+      {/* Figma BLUR BG at page level so the mobile branch gets it too. */}
+      <BlurBg variant="hero" />
       <CopiedPill show={copied} />
       <Navbar loggedIn />
       {/* Desktop — Figma 889:53579: the member sidebar sits beside the 830px
@@ -352,7 +355,6 @@ export default function GroupDetails() {
           built to 908:20971 (a sidebar-less variant), which left it as the only
           desktop member page with no nav rail and no green-bordered items. */}
       <main className="relative mx-[20px] min-[1440px]:mx-[100px] hidden pb-[100px] xl:block">
-        <BlurBg variant="hero" />
         <div className="relative flex gap-[38px] pt-[101px]">
           <Sidebar active="My Group" />
           <div className="w-[830px] flex-none">
@@ -418,9 +420,10 @@ export default function GroupDetails() {
         </div>
       </main>
       {/* Mobile */}
-      <main className="relative bg-white xl:hidden">
+      <main className="relative xl:hidden">
         <div className="relative px-[30px] pt-[22px]">
-          <h1 className="text-[25px] leading-[30px] font-bold text-black">
+          <MobileBack />
+          <h1 className="text-[35px] leading-[43px] font-bold text-black">
             Group Details
           </h1>
           <p className="mt-[3px] text-[13px] leading-[18px] font-semibold text-[#6B6B6B]">
@@ -440,8 +443,10 @@ export default function GroupDetails() {
               </p>
             )}
             <div className="mt-[20px] h-[2px] w-full bg-[#048B0B]" />
-            <div className="mt-[20px]">{tiles(slots, true)}</div>
-            <div className="mt-[15px]">{tiles(dates, true)}</div>
+            {/* Figma 693:21867 packs all six cells in one flow: Shared |
+                Occupied, Remaining | Created, Start | Expired. Two separate
+                2-col grids left a hole after each odd third tile. */}
+            <div className="mt-[20px]">{tiles([...slots, ...dates], true)}</div>
             <div className="mt-[20px] h-[2px] w-full bg-[#048B0B]" />
             <div className="mt-[20px] flex flex-col gap-[16px]">
               {meta.map((m) => (

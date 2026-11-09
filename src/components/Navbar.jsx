@@ -11,7 +11,7 @@ const LINKS = ["Home", "How it Works", "Why Clyse", "About", "Contact"];
 const LOGGED_LINKS = ["Home", "Join Group", "Create Group"];
 const LOGGED_ROUTES = {
   Home: "/",
-  "Join Group": "/join",
+  "Join Group": "/join/plan",
   "Create Group": "/create-group",
 };
 const PUBLIC_ROUTES = {
@@ -39,7 +39,7 @@ const MROUTES = {
 const MLOGGED = ["Home", "Join Group", "Create Group", "My Profile"];
 const MLOGGED_ROUTES = {
   Home: "/",
-  "Join Group": "/join",
+  "Join Group": "/join/plan",
   "Create Group": "/create-group",
   "My Profile": "/profile",
 };

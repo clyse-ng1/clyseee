@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import Navbar from "../components/Navbar";
+import { MobileBack } from "../components/MemberMini";
 import SectionHead from "../components/SectionHead";
 import BrandTile from "../components/BrandTile";
 import PairButtons from "../components/PairButtons";
@@ -137,7 +138,7 @@ export default function JoinDetails() {
         <BlurBg variant="hero" />
         <div className="relative mt-[102px] border-y border-[#BABABA] bg-white">
           <div className="py-[30px] pl-[63px]">
-            <SectionHead />
+            <SectionHead title="Join Waitlist" />
           </div>
         </div>
         <div className="relative bg-white">
@@ -218,9 +219,10 @@ export default function JoinDetails() {
       </div>
       {/* Mobile */}
       <main className="relative bg-white xl:hidden">
-        <div className="relative mt-[103px] border-y border-[#BABABA] bg-white">
-          <div className="px-[30px] py-[30px]">
-            <SectionHead />
+        <div className="relative border-y border-[#BABABA] bg-white">
+          <div className="px-[30px] pt-[20px] pb-[30px]">
+            <MobileBack />
+            <SectionHead title="Join Waitlist" />
           </div>
         </div>
         <div className="relative bg-white">

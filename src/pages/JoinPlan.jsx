@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import PlanCard from "../components/PlanCard";
 import PairButtons from "../components/PairButtons";
@@ -49,6 +49,30 @@ export default function JoinPlan() {
   const incomingWaiting = incoming?.people_waiting ?? 0;
   const [sel, setSel] = useState(0);
   const [plans, setPlans] = useState(null);
+  const [openService, setOpenService] = useState(null);
+
+  useEffect(() => {
+    if (incomingService) return;
+    let on = true;
+    (async () => {
+      const { data } = await api("/member/dashboard");
+      const rows = data?.available_subscriptions || [];
+      const withSlots = rows.filter((a) => (a.open_slots ?? 0) > 0);
+      const pick = (withSlots[0] || rows[0])?.service?.name || null;
+      if (on) setOpenService(pick);
+    })();
+    return () => {
+      on = false;
+    };
+  }, [incomingService]);
+
+  /* Arriving from a group card the plan is already known — preselect it so
+     Continue does not silently swap the user onto a different plan. */
+  useEffect(() => {
+    if (!incomingPlanId || !plans?.length) return;
+    const i = plans.findIndex((p) => p.state?.plan_id === incomingPlanId);
+    if (i > 0) setSel(i);
+  }, [incomingPlanId, plans]);
 
   useEffect(() => {
     if (!incomingService) return;
@@ -89,8 +113,9 @@ export default function JoinPlan() {
   const cataloguePlans = (() => {
     if (plans) return null;
     if (!services) return null;
+    const target = incomingService || openService;
     const entry =
-      (incomingService && matchService(services, incomingService)) ||
+      (target && matchService(services, target)) ||
       services.find((a) => (a.plans || a.catalogue_plans || []).some((p) => Number.isFinite(planTotal(p))));
     if (!entry) return null;
     const svc = entry.service || entry;
@@ -119,21 +144,75 @@ export default function JoinPlan() {
   const list = plans || cataloguePlans || [];
   const heading = incoming?.service
     ? `Choose your ${incoming.service} plan`
-    : cataloguePlans?.[0]?.state?.service
-      ? `Choose your ${cataloguePlans[0].state.service} plan`
-      : "Choose your plan";
-  const nextState = list.length ? list[sel]?.state || list[0].state : incoming;
+    : openService
+      ? `Choose your ${openService} plan`
+      : cataloguePlans?.[0]?.state?.service
+        ? `Choose your ${cataloguePlans[0].state.service} plan`
+        : "Choose your plan";
+  /* Step 2 is the group-details card (889:52206), which also carries the
+     Payment Summary. When the user came in from a specific group card we keep
+     that group in the state so the details page shows the group they tapped,
+     not whichever group happens to sort first. */
+  const groupCtx =
+    incoming?.preview || incoming?.group
+      ? { preview: incoming.preview || incoming.group, group_id: incoming.group_id }
+      : {};
+  const nextState = {
+    ...(list.length ? list[sel]?.state || list[0].state : incoming || {}),
+    ...groupCtx,
+  };
   /* This page serves both flows; Figma labels it "Join Group" for the group
      flow. It said "Join Waitlist" on both. */
   const headTitle = incoming?.fromWaitlist ? "Join Waitlist" : "Join Group";
+  const backTo = incoming?.fromWaitlist ? "/join" : "/browse";
+
+  const navigate = useNavigate();
+  const [busy, setBusy] = useState(false);
+  const goNext = async () => {
+    if (busy) return;
+    if (incoming?.fromWaitlist) {
+      navigate("/join/details", { state: nextState });
+      return;
+    }
+    setBusy(true);
+    let group = incoming?.preview || incoming?.group || null;
+    if (!group) {
+      const { data } = await api("/catalogue/groups?limit=50", { auth: false });
+      const rows = data?.groups || [];
+      const svc = (nextState?.service || "").toLowerCase();
+      group =
+        rows.find((g) => g.plan_id === nextState?.plan_id || g.plan?.id === nextState?.plan_id) ||
+        (svc ? rows.find((g) => (g.service?.name || "").toLowerCase() === svc) : null) ||
+        rows[0] ||
+        null;
+    }
+    setBusy(false);
+    navigate("/join/preview", {
+      state: {
+        ...nextState,
+        group_id: group?.group_id || group?.id || nextState?.group_id,
+        preview: group,
+      },
+    });
+  };
   return (
-    <div className="min-h-screen bg-white font-sans text-ink">
+    <div className="relative min-h-screen overflow-hidden bg-white font-sans text-ink">
+      {/* Figma 889:52181 — the join-flow BLUR BG, not the landing hero blobs. */}
+      <BlurBg variant="join" />
       <Navbar loggedIn />
       {/* Desktop */}
-      <main className="relative mx-[20px] min-[1440px]:mx-[100px] hidden xl:block">
-        <BlurBg variant="hero" />
+      <main className="relative mx-[20px] hidden xl:block min-[1440px]:mx-[100px]">
+        {/* Figma 889:53386: the back chevron sits above the card, not a sidebar. */}
+        <Link
+          to={backTo}
+          state={incoming}
+          aria-label="Back"
+          className="mt-[27px] grid h-[45px] w-[45px] place-items-center rounded-full border border-[#BABABA] bg-white pb-[3px] text-[20px] leading-none text-ink shadow-[0_4px_10px_rgba(0,23,1,0.10)]"
+        >
+          ‹
+        </Link>
         {/* Figma 889:52178: one white card, header row separated by a divider. */}
-        <div className="relative mt-[102px] rounded-[20px] bg-white shadow-[0_0_20px_rgba(0,23,1,0.08)]">
+        <div className="relative mt-[30px] rounded-[20px] bg-white shadow-[0_0_20px_rgba(0,23,1,0.08)]">
           <div className="border-b border-[#BABABA] py-[30px] pl-[63px]">
             <SectionHead title={headTitle} />
           </div>
@@ -155,7 +234,13 @@ export default function JoinPlan() {
                 />
               ))}
             </div>
-            <PairButtons backTo="/join" nextTo="/join/details" nextState={nextState} className="mt-[70px]" />
+            <PairButtons
+              backTo={backTo}
+              backState={incoming}
+              onNext={goNext}
+              busy={busy}
+              className="mt-[70px]"
+            />
           </div>
         </div>
       </main>
@@ -164,8 +249,18 @@ export default function JoinPlan() {
         <div className="pb-[60px]" />
       </div>
       {/* Mobile */}
-      <main className="relative bg-white xl:hidden">
-        <div className="relative border-y border-[#BABABA] bg-white">
+      <main className="relative xl:hidden">
+        <div className="px-[30px] pt-[24px]">
+          <Link
+            to={backTo}
+            state={incoming}
+            aria-label="Back"
+            className="grid h-[40px] w-[40px] place-items-center rounded-full border border-[#BABABA] bg-white pb-[2px] text-[18px] leading-none text-ink shadow-[0_4px_10px_rgba(0,23,1,0.10)]"
+          >
+            ‹
+          </Link>
+        </div>
+        <div className="mt-[16px] relative border-y border-[#BABABA] bg-white">
           <div className="px-[30px] py-[30px]">
             <SectionHead mobile />
           </div>
@@ -189,7 +284,13 @@ export default function JoinPlan() {
                 />
               ))}
             </div>
-            <PairButtons backTo="/join" nextTo="/join/details" nextState={nextState} className="mt-[70px]" />
+            <PairButtons
+              backTo={backTo}
+              backState={incoming}
+              onNext={goNext}
+              busy={busy}
+              className="mt-[70px]"
+            />
           </div>
         </div>
       </main>

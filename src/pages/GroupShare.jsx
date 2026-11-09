@@ -7,8 +7,6 @@ import { BlurBg } from "../components/Decor";
 import { api } from "../lib/api";
 import { useGroupId } from "../lib/useGroup";
 
-const LINK = "https://clyse.be/056m_kiH?Tk!suy._ksundhiHS";
-
 function LinkGlyph({ className = "h-[60px] w-[60px]" }) {
   return (
     <svg viewBox="0 0 60 60" fill="none" className={className} aria-hidden>
@@ -97,15 +95,20 @@ export default function GroupShare() {
 
   if (resolved && !groupId) return <Navigate to="/groups/empty" replace />;
 
-  const link = token ? `${window.location.origin}/join/${token}` : LINK;
-  const wa = `https://wa.me/?text=${encodeURIComponent(`Join my group: ${link}`)}`;
-  const tg = `https://t.me/share/url?url=${encodeURIComponent(link)}&text=${encodeURIComponent("Join my group")}`;
+  /* Backend: group invite token = 24 uppercase chars, URL-safe, so no
+     encoding. A group with no active invite (still awaiting admin approval)
+     gets a message, never a stand-in link. */
+  const link = token ? `${window.location.origin}/join/${token}` : null;
+  const pendingMsg = "Your group can be shared after admin approval.";
+  const wa = link ? `https://wa.me/?text=${encodeURIComponent(`Join my group: ${link}`)}` : null;
+  const tg = link ? `https://t.me/share/url?url=${encodeURIComponent(link)}&text=${encodeURIComponent("Join my group")}` : null;
   function doCopy() {
-    if (navigator.clipboard) navigator.clipboard.writeText(link);
+    if (link && navigator.clipboard) navigator.clipboard.writeText(link);
     setCopied(true);
     setTimeout(() => setCopied(false), 1600);
   }
   function doMore() {
+    if (!link) return;
     if (navigator.share) {
       navigator.share({ title: "Join my group", text: "Join my group", url: link });
     } else {
@@ -118,11 +121,12 @@ export default function GroupShare() {
     { label: "More", glyph: <MoreGlyph />, action: doMore },
   ];
   return (
-    <div className="min-h-screen bg-white font-sans text-ink">
+    <div className="relative min-h-screen overflow-hidden bg-white font-sans text-ink">
+      {/* Figma BLUR BG at page level so the mobile branch gets it too. */}
+      <BlurBg variant="hero" />
       <Navbar loggedIn />
       {/* Desktop */}
       <main className="relative mx-[20px] min-[1440px]:mx-[100px] hidden pb-[100px] xl:block">
-        <BlurBg variant="hero" />
         <div className="relative flex gap-[38px] pt-[101px]">
           <Sidebar active="My Group" />
           <div className="w-[830px] flex-none">
@@ -137,12 +141,13 @@ export default function GroupShare() {
                 Copy the link and share it with people you want to invite
               </p>
               <div className="mt-[10px] flex h-[66px] items-center rounded-[15px] border border-[#999999] px-[16px]">
-                <span className="truncate text-[18px] leading-[22px] font-semibold text-black">
-                  {link}
+                <span className={`truncate text-[18px] leading-[22px] font-semibold ${link ? "text-black" : "text-[#6B6B6B]"}`}>
+                  {link || pendingMsg}
                 </span>
                 <button
                   onClick={doCopy}
-                  className="ml-auto grid h-[44px] w-[111px] flex-none cursor-pointer place-items-center rounded-[10px] bg-[#D9D9D9]"
+                  disabled={!link}
+                  className={`ml-auto grid h-[44px] w-[111px] flex-none place-items-center rounded-[10px] bg-[#D9D9D9] ${link ? "cursor-pointer" : "cursor-not-allowed opacity-60"}`}
                 >
                   <span className="text-[18px] leading-[22px] font-semibold text-black">
                     {copied ? "Copied" : "Copy"}
@@ -154,10 +159,12 @@ export default function GroupShare() {
                   {inviteError}
                 </p>
               )}
-              <p className="mt-[50px] text-center text-[18px] leading-[22px] font-semibold text-ink">
-                Or invite via
-              </p>
-              <div className="mt-[50px] flex justify-center gap-[10px]">
+              {link && (
+                <p className="mt-[50px] text-center text-[18px] leading-[22px] font-semibold text-ink">
+                  Or invite via
+                </p>
+              )}
+              <div className={`mt-[50px] flex justify-center gap-[10px] ${link ? "" : "hidden"}`}>
                 {tiles.map((t) =>
                   t.href ? (
                     <a
@@ -191,7 +198,7 @@ export default function GroupShare() {
         </div>
       </main>
       {/* Mobile (responsive: no mobile Figma) */}
-      <main className="relative bg-white xl:hidden">
+      <main className="relative xl:hidden">
         <div className="relative bg-white px-[30px] pt-[30px] pb-[40px]">
           <h1 className="mt-[0px] text-[30px] leading-[37px] font-bold text-black">
             Invite Member
@@ -204,12 +211,13 @@ export default function GroupShare() {
               Copy the link and share it with people you want to invite
             </p>
             <div className="mt-[20px] flex h-[66px] items-center rounded-[15px] border border-[#999999] px-[16px]">
-              <span className="truncate text-[14px] leading-[17px] font-semibold text-black">
-                {link}
+              <span className={`truncate text-[14px] leading-[17px] font-semibold ${link ? "text-black" : "text-[#6B6B6B]"}`}>
+                {link || pendingMsg}
               </span>
               <button
                 onClick={doCopy}
-                className="ml-[8px] grid h-[44px] w-[80px] flex-none cursor-pointer place-items-center rounded-[10px] bg-[#D9D9D9]"
+                disabled={!link}
+                className={`ml-[8px] grid h-[44px] w-[80px] flex-none place-items-center rounded-[10px] bg-[#D9D9D9] ${link ? "cursor-pointer" : "cursor-not-allowed opacity-60"}`}
               >
                 <span className="text-[16px] leading-[20px] font-semibold text-black">
                   {copied ? "Copied" : "Copy"}
@@ -221,10 +229,12 @@ export default function GroupShare() {
                 {inviteError}
               </p>
             )}
-            <p className="mt-[30px] text-center text-[16px] leading-[20px] font-semibold text-ink">
-              Or invite via
-            </p>
-            <div className="mt-[20px] flex justify-center gap-[10px]">
+            {link && (
+              <p className="mt-[30px] text-center text-[16px] leading-[20px] font-semibold text-ink">
+                Or invite via
+              </p>
+            )}
+            <div className={`mt-[20px] flex justify-center gap-[10px] ${link ? "" : "hidden"}`}>
               {tiles.map((t) => {
                 const inner = (
                   <>
