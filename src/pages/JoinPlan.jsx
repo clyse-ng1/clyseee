@@ -250,7 +250,7 @@ export default function JoinPlan() {
       </div>
       {/* Mobile */}
       <main className="relative xl:hidden">
-        <div className="px-[30px] pt-[24px]">
+        <div className="px-[30px] pt-[20px]">
           <Link
             to={backTo}
             state={incoming}
@@ -273,7 +273,7 @@ export default function JoinPlan() {
             <p className="mt-[15px] text-[13px] leading-[20px] font-semibold text-[#6B6B6B]">
               Pick the access level you want to buy. You can change this before joining a group
             </p>
-            <div className="mt-[90px] flex flex-col gap-[20px]">
+            <div className="mt-[34px] flex flex-col gap-[20px]">
               {list.map((p, i) => (
                 <PlanCard
                   key={i}

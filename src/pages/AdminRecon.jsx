@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import AdminShell, { BackTitle } from "../components/AdminShell";
+import AdminShell, { DCARD, DarkZone, DarkFilter } from "../components/AdminShell";
 import {
   StatCard,
   badgeGreen,
@@ -80,19 +80,19 @@ function Row({ r, i }) {
   );
 }
 
-export function CompareTable({ title = "Transaction Comparison", filters = {} }) {
+export function CompareTable({ title = "Transaction Comparison", filters = {}, dark = false }) {
   const shown = ROWS.filter(
     (r) =>
       (!filters.type || filters.type === "All" || r.type === filters.type) &&
       (!filters.status || filters.status === "All" || r.status === filters.status),
   );
   return (
-    <div className="w-fit min-w-full rounded-[20px] border border-[#999999] bg-white shadow-[0_0_20px_rgba(0,23,1,0.10)]">
+    <div className={`w-fit min-w-full overflow-hidden rounded-[20px] border bg-white ${dark ? "border-black shadow-[0_0_0_2px_#ffffff]" : "border-[#999999] shadow-[0_0_20px_rgba(0,23,1,0.10)]"}`}>
       <div className="min-w-[1929px]">
         <p className="px-[21px] pt-[18px] pb-[16px] text-[20px] leading-[24px] font-bold text-[#001701]">
           {title}
         </p>
-        <div className="flex h-[50px] items-center bg-[#DFFFE0]/80">
+        <div className={`flex h-[50px] items-center ${dark ? "bg-[#E5FFEB]" : "bg-[#DFFFE0]/80"}`}>
           {HEADERS.map((h, i) => (
             <div
               key={h || "check"}
@@ -147,37 +147,30 @@ export default function AdminRecon() {
     else if (l === "Status") setFStatus(v);
   };
   return (
-    <AdminShell active="finance" sub="recon">
-      <BackTitle title="Transaction Reconciliation" />
-      <div className="mt-[30px] flex gap-[20px]">
-        <StatCard center gap10 className="w-full lg:w-[357px] flex-none" label="Total Financial Activity" value="N124,000" badge={badgeGreen} glyph={<UsersGlyph />} />
-        <StatCard gap10 className="w-full lg:w-[357px] flex-none" label="Wallet Funding" value="124" badge={badgeMint} glyph={<CheckGlyph />} />
-        <StatCard gap10 className="flex-1" label="Subscription Payment" value="122" badge={badgeOrange} glyph={<UsersGlyph color="#FF6B02" />} />
+    <AdminShell active="finance" sub="recon" expand nav2>
+      <DarkZone>
+      <div className="mt-[22px] flex flex-wrap gap-[20px]">
+        <StatCard dark center gap10 className="w-full lg:w-[357px] flex-none" label="Total Financial Activity" value="N124,000" badge={badgeGreen} glyph={<UsersGlyph />} />
+        <StatCard dark gap10 className="w-full lg:w-[357px] flex-none" label="Wallet Funding" value="124" badge={badgeMint} glyph={<CheckGlyph />} />
+        <StatCard dark gap10 className="min-w-[220px] flex-1" label="Subscription Payment" value="122" badge={badgeOrange} glyph={<UsersGlyph color="#FF6B02" />} />
       </div>
-      <div className="mt-[20px] flex gap-[20px]">
-        <StatCard gap10 className="w-full lg:w-[258px] flex-none" label="Clyse Fee" value="122" badge={badgeOrange} glyph={<UsersGlyph color="#FF6B02" />} />
-        <StatCard gap10 className="w-full lg:w-[258px] flex-none" label="Creator Earning" value="124" badge={badgeMint} glyph={<CheckGlyph />} />
-        <StatCard gap10 className="w-full lg:w-[268px] flex-none" label="Refund" value="122" badge={badgeOrange} glyph={<UsersGlyph color="#FF6B02" />} />
-        <StatCard gap10 className="flex-1" label="Payout" value="122" badge={badgeOrange} glyph={<UsersGlyph color="#FF6B02" />} />
+      <div className="mt-[20px] flex flex-wrap gap-[20px]">
+        <StatCard dark gap10 className="w-full lg:w-[258px] flex-none" label="Clyse Fee" value="122" badge={badgeOrange} glyph={<UsersGlyph color="#FF6B02" />} />
+        <StatCard dark gap10 className="w-full lg:w-[258px] flex-none" label="Creator Earning" value="124" badge={badgeMint} glyph={<CheckGlyph />} />
+        <StatCard dark gap10 className="w-full lg:w-[268px] flex-none" label="Refund" value="122" badge={badgeOrange} glyph={<UsersGlyph color="#FF6B02" />} />
+        <StatCard dark gap10 className="min-w-[220px] flex-1" label="Payout" value="122" badge={badgeOrange} glyph={<UsersGlyph color="#FF6B02" />} />
       </div>
-      <div className="mt-[30px]">
-        <FilterBar
-          labels={["Transaction Type", "Status", "Date Range"]}
-          options={{ "Transaction Type": typeOpts, Status: statusOpts }}
-          values={{ "Transaction Type": fType, Status: fStatus }}
-          onPick={onPick}
-        />
+      <DarkFilter />
+      <div className="mt-[26px]">
+        <CompareTable dark filters={{ type: fType, status: fStatus }} />
       </div>
-      <div className="mt-[30px]">
-        <CompareTable filters={{ type: fType, status: fStatus }} />
+      <div className="mt-[26px] flex flex-wrap gap-[20px]">
+        <RecentActivities dark className="w-full max-w-full flex-1 lg:w-[473px]" />
+        <OverviewChart dark className="w-full max-w-full flex-1 lg:w-[607px]" />
       </div>
-      <div className="mt-[30px] flex gap-[30px]">
-        <RecentActivities />
-        <OverviewChart />
-      </div>
-      <div className="mt-[30px] flex gap-[30px]">
+      <div className="mt-[26px] flex flex-wrap gap-[20px]">
         {/* Reconciliation Details */}
-        <div className="w-full lg:w-[473px] flex-none rounded-[20px] border border-[#999999] bg-white px-[30px] pt-[30px] pb-[30px]">
+        <div className="w-full lg:w-[473px] flex-none rounded-[20px] border border-black bg-white px-[30px] pt-[30px] pb-[30px] shadow-[0_0_0_2px_#ffffff]">
           <p className="text-[20px] leading-[24px] font-bold text-[#001701]">
             Reconciliation Details
           </p>
@@ -199,7 +192,7 @@ export default function AdminRecon() {
           </div>
         </div>
         {/* Reconciliation Status */}
-        <div className="w-full lg:w-[607px] flex-none rounded-[10px] border border-[#999999] bg-white px-[30px] pt-[25px] pb-[30px]">
+        <div className="w-full lg:w-[607px] flex-none rounded-[10px] border border-black bg-white px-[30px] pt-[25px] pb-[30px] shadow-[0_0_0_2px_#ffffff]">
           <p className="text-[20px] leading-[24px] font-bold text-[#001701]">
             Reconciliation Status
           </p>
@@ -247,6 +240,7 @@ export default function AdminRecon() {
           </div>
         </div>
       </div>
+      </DarkZone>
     </AdminShell>
   );
 }

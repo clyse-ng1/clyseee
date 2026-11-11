@@ -202,7 +202,7 @@ export default function Messages() {
       </main>
       {/* Mobile */}
       <main className="relative xl:hidden">
-        <div className="relative bg-white px-[30px] pt-[30px] pb-[40px]">
+        <div className="relative px-[30px] pt-[30px] pb-[40px]">
           <div>
             <BackButton onClick={() => (open != null ? setOpen(null) : navigate(-1))} />
           </div>

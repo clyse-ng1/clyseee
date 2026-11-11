@@ -503,7 +503,7 @@ export default function Profile() {
       </main>
       {/* Mobile */}
       <main className="relative xl:hidden">
-        <div className="relative bg-white px-[30px] pt-[30px] pb-[40px]">
+        <div className="relative px-[30px] pt-[30px] pb-[40px]">
           <div className="bg-btn -mx-[30px] flex min-h-[236px] items-center gap-[20px] px-[30px] py-[30px]">
             <img
               src={photo || user?.avatar_url || avatarAccount}

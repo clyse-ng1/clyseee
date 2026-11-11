@@ -1,5 +1,6 @@
 import { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import useAdminRows from "../components/useAdminRows";
 import AdminShell, { PageTitle, Pill, SearchIcon, ChevDown, PencilIcon, DotsIcon, CalendarIcon } from "../components/AdminShell";
 import { GlyphClock, GlyphBadge, GlyphX, GlyphUsers } from "../components/AdminGlyphs";
 import BrandTile from "../components/BrandTile";
@@ -34,6 +35,7 @@ const STATUS_PILL = {
 };
 
 export default function AdminGroupVerification() {
+  const live = useAdminRows("verification");
   const [range, setRange] = useState("Sep. 1 2026 - Sep. 30 2026");
   const nav = useNavigate();
   const [q, setQ] = useState("");
@@ -41,7 +43,7 @@ export default function AdminGroupVerification() {
   const [checked, setChecked] = useState([]);
   const rows = useMemo(
     () =>
-      ROWS.filter(
+      (live || ROWS).filter(
         (r) =>
           (r.name.toLowerCase().includes(q.trim().toLowerCase()) || r.sub.toLowerCase().includes(q.trim().toLowerCase())) &&
           (status === "All Status" || STATUS_PILL[r.status].label === status)

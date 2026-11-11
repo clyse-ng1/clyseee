@@ -183,7 +183,9 @@ export default function WithdrawAmount() {
         </div>
         <div className="px-[30px]">
           <form onSubmit={cont}>
-            <div className="h-[12px] w-full overflow-hidden rounded-full bg-[#B1DBB3]">
+            {/* Figma 782:28346: the progress rail sits ~40px below the header
+                rule, not flush against it. */}
+            <div className="mt-[50px] h-[15px] w-full overflow-hidden rounded-full bg-[#B1DBB3]">
               <div className="h-full w-1/3 rounded-full bg-clyse" />
             </div>
             <h1 className="mt-[30px] text-[30px] leading-[37px] font-bold text-ink">

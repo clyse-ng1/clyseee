@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "../lib/useAuth";
 import avatarAccount from "../assets/avatar-account.webp";
 
 /* Shared admin/CMS shell — Figma V3 admin frames (1440, desktop only).
@@ -158,18 +159,16 @@ export function BellTop() {
 }
 
 const MENU = [
-  { key: "dashboard", label: "Dashboard", icon: <IconGrid />, to: "/admin/data/dashboard" },
+  { key: "dashboard", label: "Dashboard", icon: <IconGrid />, to: "/admin" },
   {
-    key: "subscriptions", label: "Catalogue", icon: <IconBox />, to: "/admin/data/services", chev: true,
+    key: "subscriptions", label: "Subscriptions", icon: <IconBox />, to: "/admin/subscriptions", chev: true,
     sub: [
-      { key: "services", label: "Services", to: "/admin/data/services" },
-      { key: "plans", label: "Plans", to: "/admin/data/plans" },
-      { key: "events", label: "Catalogue Activity", to: "/admin/data/catalogueEvents" },
+      { key: "services", label: "Subscription & Plans", to: "/admin/subscriptions" },
       { key: "requests", label: "Custom Requests", to: "/admin/subscriptions/requests" },
     ],
   },
   {
-    key: "verification", label: "Group Review", icon: <IconShield />, to: "/admin/data/review", chev: true,
+    key: "verification", label: "Group Verification", icon: <IconShield />, to: "/admin/data/review", chev: true,
     sub: [{ key: "review", label: "Review Queue", to: "/admin/data/review" }],
   },
   {
@@ -193,7 +192,7 @@ const MENU = [
   },
   { key: "support", label: "Support", icon: <IconHeadset />, to: "/admin/data/support" },
   {
-    key: "notifications", label: "Communications", icon: <IconBell />, to: "/admin/data/communications", chev: true,
+    key: "notifications", label: "Notifications", icon: <IconBell />, to: "/admin/data/communications", chev: true,
     sub: [
       { key: "communications", label: "Campaigns", to: "/admin/data/communications" },
       { key: "recipients", label: "Delivery Recipients", to: "/admin/data/communicationRecipients" },
@@ -212,16 +211,10 @@ const MENU = [
   },
   { key: "audit", label: "Audit Logs", icon: <IconAudit />, to: "/admin/data/audit" },
   {
-    key: "security", label: "Security", icon: <IconShield />, to: "/admin/data/securitySummary", chev: true,
+    key: "security", label: "Security", icon: <IconShield />, to: "/admin/security", chev: true,
     sub: [
-      { key: "summary", label: "Overview", to: "/admin/data/securitySummary" },
-      { key: "events", label: "Security Events", to: "/admin/data/securityEvents" },
-      { key: "incidents", label: "Security Incidents", to: "/admin/data/securityIncidents" },
-      { key: "alerts", label: "Alerts", to: "/admin/data/securityAlerts" },
-      { key: "moderation", label: "Platform Moderation", to: "/admin/data/moderation" },
-      { key: "health", label: "System Monitoring", to: "/admin/data/health" },
-      { key: "health-history", label: "Health Check History", to: "/admin/data/healthHistory" },
-      { key: "health-incidents", label: "System Incidents", to: "/admin/data/healthIncidents" },
+      { key: "moderation", label: "Platform Moderation", to: "/admin/security" },
+      { key: "health", label: "System Monitoring", to: "/admin/security/monitoring" },
     ],
   },
   {
@@ -237,6 +230,141 @@ const MENU = [
   },
 ];
 
+/* V2 nav — the later Figma admin frames (1170/1176/1187/1214/1222) rename two
+   groups ("Subscription", "User & Group"), point them at the design routes and
+   add a standalone Disputes group. Pages built from those frames pass nav2. */
+const MENU2 = [
+  { key: "dashboard", label: "Dashboard", icon: <IconGrid />, to: "/admin" },
+  {
+    key: "subscriptions", label: "Subscription", icon: <IconBox />, to: "/admin/subscriptions", chev: true,
+    sub: [
+      { key: "services", label: "Subscription & Plans", to: "/admin/subscriptions" },
+      { key: "requests", label: "Custom Requests", to: "/admin/subscriptions/requests" },
+    ],
+  },
+  {
+    key: "verification", label: "Group Verification", icon: <IconShield />, to: "/admin/data/review", chev: true,
+    sub: [{ key: "review", label: "Review Queue", to: "/admin/data/review" }],
+  },
+  {
+    key: "users", label: "User & Group", icon: <IconUsers />, to: "/admin/users", chev: true,
+    sub: [
+      { key: "um", label: "User Management", to: "/admin/users" },
+      { key: "gm", label: "Group Management", to: "/admin/groups" },
+    ],
+  },
+  {
+    key: "finance", label: "Finance", icon: <IconWallet />, to: "/admin/finance", chev: true,
+    sub: [
+      { key: "transactions", label: "Transactions", to: "/admin/finance" },
+      { key: "recon", label: "Reconciliation", to: "/admin/finance/reconciliation" },
+    ],
+  },
+  {
+    key: "disputes", label: "Disputes", icon: <IconShield />, to: "/admin/finance/disputes", chev: true,
+    sub: [
+      { key: "dlist", label: "Dispute List", to: "/admin/finance/disputes" },
+      { key: "dinv", label: "Dispute Investigation", to: "/admin/finance/disputes" },
+    ],
+  },
+  { key: "support", label: "Support", icon: <IconHeadset />, to: "/admin/data/support" },
+  {
+    key: "notifications", label: "Notifications", icon: <IconBell />, to: "/admin/data/communications", chev: true,
+    sub: [
+      { key: "communications", label: "Campaigns", to: "/admin/data/communications" },
+      { key: "recipients", label: "Delivery Recipients", to: "/admin/data/communicationRecipients" },
+      { key: "channels", label: "Delivery Channels", to: "/admin/data/communicationChannels" },
+      { key: "templates", label: "Message Templates", to: "/admin/data/templates" },
+      { key: "versions", label: "Template Versions", to: "/admin/data/templateVersions" },
+      { key: "placeholders", label: "Placeholders", to: "/admin/data/templatePlaceholders" },
+    ],
+  },
+  {
+    key: "reports", label: "Reports", icon: <IconClip />, to: "/admin/data/reportSubscriptions", chev: true,
+    sub: [
+      { key: "subscriptions-report", label: "Subscriptions", to: "/admin/data/reportSubscriptions" },
+      { key: "groups-report", label: "Groups", to: "/admin/data/reportGroups" },
+    ],
+  },
+  { key: "audit", label: "Audit Logs", icon: <IconAudit />, to: "/admin/data/audit" },
+  {
+    key: "security", label: "Security", icon: <IconShield />, to: "/admin/security", chev: true,
+    sub: [
+      { key: "moderation", label: "Platform Moderation", to: "/admin/security" },
+      { key: "health", label: "System Monitoring", to: "/admin/security/monitoring" },
+    ],
+  },
+  {
+    key: "settings", label: "Settings", icon: <IconGear />, to: "/admin/data/admins", chev: true,
+    sub: [
+      { key: "admin-roles", label: "Admin Roles", to: "/admin/data/admins" },
+      { key: "roles", label: "Roles & Permissions", to: "/admin/data/roles" },
+      { key: "create-role", label: "Create Role", to: "/admin/data/roleCreate" },
+      { key: "role-history", label: "Role History", to: "/admin/data/roleHistory" },
+      { key: "system-configuration", label: "System Configuration", to: "/admin/data/config" },
+      { key: "config-history", label: "Configuration History", to: "/admin/data/configHistory" },
+    ],
+  },
+];
+
+/* Dark-canvas primitives — the V2 frames sit every list screen on a black
+   canvas: moon toggle top-left, white cards with a black stroke and a white
+   outer ring, mint controls with the same ring. */
+export const DCARD = "rounded-[12px] border border-black bg-white shadow-[0_0_0_2px_#ffffff]";
+
+export function MoonToggle() {
+  return (
+    <button
+      type="button"
+      aria-label="Toggle theme"
+      className="grid h-[34px] w-[34px] place-items-center rounded-full border border-black bg-white shadow-[0_0_0_2px_#ffffff]"
+    >
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden>
+        <path d="M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5Z" fill="#000" />
+      </svg>
+    </button>
+  );
+}
+
+export function DarkZone({ band = false, width, children }) {
+  return (
+    <div
+      style={band && width ? { width } : undefined}
+      className={`bg-black px-[24px] pb-[30px] pt-[16px] ${band ? "" : "min-h-[calc(100vh-70px)]"}`}
+    >
+      <MoonToggle />
+      {children}
+    </div>
+  );
+}
+
+export function DarkFilter({ count = 3, value, onChange }) {
+  return (
+    <div className="mt-[26px] flex flex-wrap items-center gap-x-[26px] gap-y-[12px]">
+      <label className="flex h-[40px] w-[380px] max-w-full items-center gap-[10px] rounded-full border border-black bg-white px-[18px] shadow-[0_0_0_2px_#ffffff]">
+        <SearchIcon />
+        <input
+          placeholder="Search...."
+          value={value}
+          onChange={onChange}
+          aria-label="Search"
+          className="w-full bg-transparent text-[14px] font-semibold text-[#001701] placeholder-[#4E4E4E] focus:outline-none"
+        />
+      </label>
+      {Array.from({ length: count }).map((_, i) => (
+        <button
+          key={i}
+          type="button"
+          className="flex h-[40px] w-[215px] min-w-[160px] flex-1 items-center justify-between rounded-[8px] border border-black bg-[#DEFFE1] px-[14px] shadow-[0_0_0_2px_#ffffff]"
+        >
+          <span className="text-[15px] font-semibold text-[#001701]">All</span>
+          <ChevDown color="#001701" />
+        </button>
+      ))}
+    </div>
+  );
+}
+
 /* Status pill. tones: green red orange gray blue lightred */
 const TONES = {
   green: "bg-[#DFFFE1] text-[#048B0B]",
@@ -248,7 +376,7 @@ const TONES = {
 };
 export function Pill({ tone = "green", children, className = "", dot = false }) {
   return (
-    <span className={`inline-flex items-center justify-center gap-2 rounded-[10px] text-[14px] font-semibold ${TONES[tone] || TONES.green} ${className}`}>
+    <span className={`inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-[10px] text-[14px] font-semibold ${TONES[tone] || TONES.green} ${className}`}>
       {dot && <span className="h-[10px] w-[10px] rounded-full bg-current" />}
       {children}
     </span>
@@ -294,16 +422,19 @@ export function DarkButton({ children, className = "", ...rest }) {
   );
 }
 
-export default function AdminShell({ active = null, sub = null, children }) {
+export default function AdminShell({ active = null, sub = null, expand = false, dark = false, nav2 = false, children }) {
   const nav = useNavigate();
-  const [open, setOpen] = useState(active);
+  const menu = (nav2 ? MENU2 : MENU).filter((m) => m.key !== "disputes" || active === "disputes");
+  const [open, setOpen] = useState(expand ? active : null);
   const [drawer, setDrawer] = useState(false);
+  const { user } = useAuth();
+  const adminName = user?.full_name || user?.name || (user?.email ? String(user.email).split("@")[0] : "Carter George");
   const go = (to) => {
     setDrawer(false);
     nav(to);
   };
   return (
-    <div className="flex min-h-screen bg-[#F4FBF5] font-sans">
+    <div className="flex min-h-screen bg-white font-sans">
       {/* Sidebar */}
       <>
       {drawer && (
@@ -319,7 +450,7 @@ export default function AdminShell({ active = null, sub = null, children }) {
         }`}
       >
         <div className="relative flex h-[70px] shrink-0 items-center justify-center border-b border-[#77BAE7]">
-          <span className="text-[28px] font-extrabold tracking-wide text-white">CLYSE</span>
+          <span className="text-[28px] font-extrabold tracking-wide text-white">CL<span className="text-[#46C04C]">X</span>SE</span>
           <button
             onClick={() => setDrawer(false)}
             aria-label="Close menu"
@@ -329,7 +460,7 @@ export default function AdminShell({ active = null, sub = null, children }) {
           </button>
         </div>
         <nav className="flex flex-col pt-[30px]">
-          {MENU.map((m) => {
+          {menu.map((m) => {
             const isActive = active === m.key;
             const expanded = open === m.key;
             return (
@@ -339,11 +470,11 @@ export default function AdminShell({ active = null, sub = null, children }) {
                     if (m.sub) setOpen(expanded ? null : m.key);
                     if (m.to) go(m.to);
                   }}
-                  className={`flex h-[60px] w-full items-center gap-[10px] px-[20px] text-left text-[18px] font-semibold ${
+                  className={`flex h-[60px] w-full items-center gap-[12px] px-[20px] text-left text-[16px] font-semibold ${
                     isActive ? "bg-[#F1F8F2] text-[#001701]" : "text-white"
                   }`}
                 >
-                  <span className="flex h-[30px] w-[30px] shrink-0 items-center justify-center">{m.icon}</span>
+                  <span className="flex h-[24px] w-[24px] shrink-0 items-center justify-center">{m.icon}</span>
                   <span className="flex-1 whitespace-nowrap leading-tight">{m.label}</span>
                   {m.chev && (
                     <span className="shrink-0">
@@ -377,7 +508,7 @@ export default function AdminShell({ active = null, sub = null, children }) {
             );
           })}
           {/* CMS card */}
-          <div className="mx-[40px] mb-[40px] flex h-[249px] w-[190px] shrink-0 flex-col items-center rounded-[10px] bg-black/30 px-[20px] pb-[20px] pt-[25px]">
+          <div className="mx-[40px] mb-[40px] flex h-[249px] w-[190px] shrink-0 flex-col items-center rounded-[10px] bg-[#073019] px-[20px] pb-[20px] pt-[25px]">
             <span className="text-[16px] font-extrabold tracking-wide text-white">CLYSE</span>
             <p className="mt-[25px] text-center text-[18px] font-semibold leading-snug text-white">CLYSE CMS v1.0</p>
             <p className="mt-[5px] text-center text-[14px] font-normal leading-snug text-white/85">
@@ -396,7 +527,7 @@ export default function AdminShell({ active = null, sub = null, children }) {
 
       {/* Right column */}
       <div className="flex min-h-screen min-w-0 flex-1 flex-col lg:ml-[270px]">
-        <header className="sticky top-0 z-20 flex h-[70px] shrink-0 items-center justify-between gap-[12px] border-b border-[#77BAE7] bg-[#DFFFE1] px-[16px] lg:px-[30px]">
+        <header className="sticky top-0 z-20 flex h-[70px] shrink-0 items-center justify-between gap-[12px] border-b border-[#77BAE7] bg-[#E5FFE7] px-[16px] lg:px-[30px]">
           <button
             onClick={() => setDrawer(true)}
             aria-label="Open menu"
@@ -406,23 +537,27 @@ export default function AdminShell({ active = null, sub = null, children }) {
               <path d="M1 1.5h18M1 8h18M1 14.5h18" stroke="#001701" strokeWidth="2" strokeLinecap="round" />
             </svg>
           </button>
-          <label className="hidden h-[40px] w-[374px] max-w-full flex-1 items-center gap-2 rounded-full bg-white px-[20px] sm:flex lg:flex-none">
+          <label className="hidden h-[34px] w-[520px] max-w-full flex-1 items-center gap-2 rounded-full bg-white px-[20px] sm:flex lg:flex-none">
             <SearchIcon />
             <input
-              placeholder="Search"
+              placeholder="Search...."
               className="w-full bg-transparent text-[16px] font-semibold text-[#001701] placeholder-[#4E4E4E] focus:outline-none"
             />
           </label>
           <div className="flex shrink-0 items-center gap-[14px] lg:gap-[25px]">
             <button aria-label="Notifications" className="relative">
               <BellTop />
-              <span className="absolute right-[3px] top-[2px] h-[10px] w-[10px] rounded-full bg-[#048B0B]" />
+              <span className="absolute right-[3px] top-[2px] h-[10px] w-[10px] rounded-full bg-[#E80000]" />
             </button>
-            <img src={avatarAccount} alt="Admin" className="h-[36px] w-[36px] rounded-full object-cover lg:h-[50px] lg:w-[50px]" />
+            <span className="hidden text-[16px] font-semibold text-[#001701] lg:block">{adminName}</span>
+            <img src={avatarAccount} alt="Admin" className="h-[30px] w-[30px] rounded-full object-cover" />
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden>
+              <path d="m6 9 6 6 6-6" stroke="#001701" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
           </div>
         </header>
-        <main className="admin-main flex-1 overflow-x-auto">
-          <div className="w-full px-[16px] pb-[40px] pt-[20px] lg:min-w-[1110px] lg:px-[30px] lg:pb-[60px] lg:pt-[30px]">{children}</div>
+        <main className={`admin-main flex-1 overflow-x-auto ${dark ? "bg-black" : ""}`}>
+          <div className={nav2 ? "w-full" : "w-full px-[16px] pb-[40px] pt-[20px] lg:min-w-[1110px] lg:px-[30px] lg:pb-[60px] lg:pt-[30px]"}>{children}</div>
         </main>
       </div>
     </div>

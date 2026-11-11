@@ -14,7 +14,7 @@ const BTN = {
 };
 
 /* P5 "already" is outline on desktop but dark on mobile — hence the override. */
-export default function JoinStatus({ title, body, btnLabel, btnVariant, btnVariantMobile, btnTo, marqueeMt, iconD, iconM, iconTopD = "mt-[251px]", titleMtD = "mt-[80px]", iconTopM = "pt-[122px]", titleMtM = "mt-[73px]", hideBack, btnLabelM }) {
+export default function JoinStatus({ title, body, btnLabel, btnVariant, btnVariantMobile, btnTo, marqueeMt, iconD, iconM, iconTopD = "mt-[251px]", titleMtD = "mt-[80px]", iconTopM = "pt-[122px]", titleMtM = "mt-[73px]", hideBack, btnLabelM, onBtn = null }) {
   const mobileBtn = btnVariantMobile || btnVariant;
   return (
     <div className="min-h-screen bg-white font-sans text-ink">
@@ -30,12 +30,22 @@ export default function JoinStatus({ title, body, btnLabel, btnVariant, btnVaria
           <p className="mt-[10px] text-center text-[18px] leading-[22px] font-semibold whitespace-pre-line text-[#4E4E4E]">
             {body}
           </p>
-          <Link
-            to={btnTo}
-            className={`mx-auto mt-[50px] flex h-[60px] w-[470px] items-center justify-center rounded-[16px] text-[18px] leading-[22px] font-semibold ${BTN[btnVariant]}`}
-          >
-            {btnLabel}
-          </Link>
+          {onBtn ? (
+            <button
+              type="button"
+              onClick={onBtn}
+              className={`mx-auto mt-[50px] flex h-[60px] w-[470px] items-center justify-center rounded-[16px] text-[18px] leading-[22px] font-semibold ${BTN[btnVariant]}`}
+            >
+              {btnLabel}
+            </button>
+          ) : (
+            <Link
+              to={btnTo}
+              className={`mx-auto mt-[50px] flex h-[60px] w-[470px] items-center justify-center rounded-[16px] text-[18px] leading-[22px] font-semibold ${BTN[btnVariant]}`}
+            >
+              {btnLabel}
+            </Link>
+          )}
           {!hideBack && (
             <Link
               to="/join"
@@ -61,12 +71,22 @@ export default function JoinStatus({ title, body, btnLabel, btnVariant, btnVaria
           <p className="mt-[10px] text-center text-[13px] leading-[20px] font-semibold whitespace-pre-line text-[#4E4E4E]">
             {body}
           </p>
-          <Link
-            to={btnTo}
-            className={`mt-[50px] flex h-[60px] w-full items-center justify-center rounded-[16px] text-[18px] leading-[22px] font-semibold ${BTN[mobileBtn]}`}
-          >
-            {btnLabelM || btnLabel}
-          </Link>
+          {onBtn ? (
+            <button
+              type="button"
+              onClick={onBtn}
+              className={`mt-[50px] flex h-[60px] w-full items-center justify-center rounded-[16px] text-[18px] leading-[22px] font-semibold ${BTN[mobileBtn]}`}
+            >
+              {btnLabelM || btnLabel}
+            </button>
+          ) : (
+            <Link
+              to={btnTo}
+              className={`mt-[50px] flex h-[60px] w-full items-center justify-center rounded-[16px] text-[18px] leading-[22px] font-semibold ${BTN[mobileBtn]}`}
+            >
+              {btnLabelM || btnLabel}
+            </Link>
+          )}
           {!hideBack && (
             <Link
               to="/join"

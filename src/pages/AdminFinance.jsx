@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import AdminShell, { BackTitle, DotsIcon } from "../components/AdminShell";
+import useAdminRows from "../components/useAdminRows";
+import AdminShell, { DotsIcon, DCARD, DarkZone, DarkFilter } from "../components/AdminShell";
 import BrandTile from "../components/BrandTile";
 import {
   StatCard,
@@ -94,32 +95,24 @@ function Row({ r, i }) {
 }
 
 export default function AdminFinance() {
+  const live = useAdminRows("transactions");
   const [fType, setFType] = useState("All");
-  const typeOpts = ["All", ...new Set(ROWS.map((r) => r.type))];
-  const shown = ROWS.filter((r) => fType === "All" || r.type === fType);
+  const typeOpts = ["All", ...new Set((live || ROWS).map((r) => r.type))];
+  const shown = (live || ROWS).filter((r) => fType === "All" || r.type === fType);
   const headers = ["", "Date and Time", "Type", "User", "Group / Subscription", "Amount", "Clyse Fee", "Status", "Reference", "Action"];
   return (
-    <AdminShell active="finance" sub="transactions">
-      <BackTitle title="Transaction" />
-      <div className="mt-[47px] flex gap-[30px]">
-        <StatCard className="w-full lg:w-[278px] flex-none" label="Total Revenue" value="124,000" badge={badgeGreen} glyph={<UsersGlyph />} />
-        <StatCard className="w-full lg:w-[278px] flex-none" label="Clyse Fee" value="124,000" badge={badgeMint} glyph={<CheckGlyph />} />
-        <StatCard className="w-full lg:w-[231px] flex-none" label="Total Payout" value="122" badge={badgeOrange} glyph={<UsersGlyph color="#FF6B02" />} />
-        <StatCard className="flex-1" label="Pending Payout" value="122" badge={badgeOrange} glyph={<UsersGlyph color="#FF6B02" />} />
+    <AdminShell active="finance" sub="transactions" expand nav2>
+      <DarkZone>
+      <div className="mt-[22px] flex flex-wrap gap-[20px]">
+        <StatCard dark className="min-w-[220px] flex-1" label="Total Revenue" value="124,000" badge={badgeGreen} glyph={<UsersGlyph />} />
+        <StatCard dark className="min-w-[220px] flex-1" label="Clyse Fee" value="124,000" badge={badgeMint} glyph={<CheckGlyph />} />
+        <StatCard dark className="min-w-[220px] flex-1" label="Total Payout" value="122" badge={badgeOrange} glyph={<UsersGlyph color="#FF6B02" />} />
+        <StatCard dark className="min-w-[220px] flex-1" label="Pending Payout" value="122" badge={badgeOrange} glyph={<UsersGlyph color="#FF6B02" />} />
       </div>
-      <div className="mt-[30px]">
-        <FilterBar
-          labels={["Transaction Type", "Status", "Date Range"]}
-          options={{ "Transaction Type": typeOpts }}
-          values={{ "Transaction Type": fType }}
-          onPick={(l, v) => {
-            if (l === "Transaction Type") setFType(v);
-          }}
-        />
-      </div>
-      <div className="mt-[30px] w-fit min-w-full rounded-[20px] border border-[#999999] bg-white shadow-[0_0_20px_rgba(0,23,1,0.10)]">
+      <DarkFilter />
+      <div className={`mt-[26px] w-fit min-w-full overflow-hidden ${DCARD}`}>
         <div className="min-w-[1929px]">
-          <div className="flex h-[50px] items-center rounded-t-[19px] bg-[#DFFFE0]/80">
+          <div className="flex h-[50px] items-center rounded-t-[11px] bg-[#E5FFEB]">
             {headers.map((h, i) => (
               <div
                 key={h || "check"}
@@ -140,13 +133,13 @@ export default function AdminFinance() {
               </p>
             )}
           </div>
-          <Pagination />
         </div>
       </div>
-      <div className="mt-[30px] flex gap-[30px]">
-        <RecentActivities />
-        <OverviewChart />
+      <div className="mt-[26px] flex flex-wrap gap-[20px]">
+        <RecentActivities dark className="w-full max-w-full flex-1 lg:w-[473px]" />
+        <OverviewChart dark className="w-full max-w-full flex-1 lg:w-[607px]" />
       </div>
+      </DarkZone>
     </AdminShell>
   );
 }

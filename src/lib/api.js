@@ -213,9 +213,16 @@ export function idOf(value) {
 
 /** "movies & series" -> "Movies & Series" — chip labels come back lowercase
     from /catalogue and read as a bug next to Figma's capitalised chips. */
+const CATEGORY_LABEL = { movies_series: "Movies & Series", movies_and_series: "Movies & Series" };
+
 export function titleCase(value) {
-  return String(value || "")
-    .trim()
+  const raw = String(value || "").trim();
+  /* Backend categories arrive snake_cased ("movies_series"); Figma prints
+     "Movies & Series". Normalise the separators before title-casing. */
+  const known = CATEGORY_LABEL[raw.toLowerCase()];
+  if (known) return known;
+  return raw
+    .replace(/[_-]+/g, " ")
     .replace(/\s+/g, " ")
     .replace(/\b[a-z]/g, (c) => c.toUpperCase());
 }

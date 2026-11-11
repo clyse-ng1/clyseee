@@ -507,7 +507,7 @@ export default function SelectBank() {
         <div className="px-[30px] pt-[50px]">
           {view === "select" ? (
             <div>
-              <div className="h-[12px] w-full overflow-hidden rounded-full bg-[#B1DBB3]">
+              <div className="h-[15px] w-full overflow-hidden rounded-full bg-[#B1DBB3]">
                 <div className="h-full w-2/3 rounded-full bg-clyse" />
               </div>
               <h1 className="mt-[30px] text-[30px] leading-[37px] font-bold text-ink">
@@ -584,7 +584,7 @@ export default function SelectBank() {
             </div>
           ) : (
             <div>
-              <div className="h-[12px] w-full overflow-hidden rounded-full bg-[#B1DBB3]">
+              <div className="h-[15px] w-full overflow-hidden rounded-full bg-[#B1DBB3]">
                 <div className="h-full w-2/3 rounded-full bg-clyse" />
               </div>
               <h1 className="mt-[30px] text-[30px] leading-[37px] font-bold text-ink">

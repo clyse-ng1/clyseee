@@ -14,6 +14,27 @@ import Profile from "./pages/Profile";
 import Browse from "./pages/Browse";
 import WithdrawAmount from "./pages/WithdrawAmount";
 import WithdrawDetails from "./pages/WithdrawDetails";
+import Admin from "./pages/Admin";
+import AdminCustomRequests from "./pages/AdminCustomRequests";
+import AdminRequestDetails from "./pages/AdminRequestDetails";
+import AdminGroupVerification from "./pages/AdminGroupVerification";
+import AdminGroupReview from "./pages/AdminGroupReview";
+import AdminUsers from "./pages/AdminUsers";
+import AdminUserDetails from "./pages/AdminUserDetails";
+import AdminGroups from "./pages/AdminGroups";
+import AdminGroupDetails from "./pages/AdminGroupDetails";
+import AdminFinance from "./pages/AdminFinance";
+import AdminFinanceDetails from "./pages/AdminFinanceDetails";
+import AdminRecon from "./pages/AdminRecon";
+import AdminReconHistory from "./pages/AdminReconHistory";
+import AdminExceptions from "./pages/AdminExceptions";
+import AdminDisputes from "./pages/AdminDisputes";
+import AdminSupport from "./pages/AdminSupport";
+import AdminSecurity from "./pages/AdminSecurity";
+import AdminHealth from "./pages/AdminHealth";
+import AdminSubscriptions from "./pages/AdminSubscriptions";
+import AdminSubAdd from "./pages/AdminSubAdd";
+import AdminSubDetails from "./pages/AdminSubDetails";
 import AdminDataPage from "./pages/AdminDataPage";
 import Signup from "./pages/Signup";
 import Signin from "./pages/Signin";
@@ -255,26 +276,29 @@ export default function App() {
         {/* Admin has its own credential entry point; successful login is followed
             by a server-side permission check before any CMS route renders. */}
         <Route element={<RequireAdmin />}>
-          <Route path="/admin" element={<AdminDataPage page="dashboard" />} />
-          <Route path="/admin/dashboard" element={<AdminDataPage page="dashboard" />} />
+          <Route path="/admin" element={<Admin />}></Route>
+          <Route path="/admin/dashboard" element={<Admin />}></Route>
           <Route path="/admin/data/:page" element={<AdminDataRoute />} />
-          <Route path="/admin/subscriptions" element={<AdminDataPage page="services" />} />
-          <Route path="/admin/subscriptions/add" element={<AdminDataPage page="services" />} />
-          <Route path="/admin/subscriptions/details" element={<AdminDataPage page="services" />} />
-          <Route path="/admin/subscriptions/requests" element={<AdminDataPage page="requests" />} />
-          <Route path="/admin/subscriptions/requests/details" element={<AdminDataPage page="requests" />} />
-          <Route path="/admin/group-verification" element={<AdminDataPage page="review" />} />
-          <Route path="/admin/group-verification/review" element={<AdminDataPage page="review" />} />
-          <Route path="/admin/users" element={<AdminDataPage page="users" />} />
-          <Route path="/admin/users/details" element={<AdminDataPage page="users" />} />
-          <Route path="/admin/groups" element={<AdminDataPage page="groups" />} />
-          <Route path="/admin/groups/details" element={<AdminDataPage page="groups" />} />
-          <Route path="/admin/finance" element={<AdminDataPage page="transactions" />} />
-          <Route path="/admin/finance/transactions/details" element={<AdminDataPage page="transactions" />} />
-          <Route path="/admin/finance/reconciliation" element={<AdminDataPage page="reconciliation" />} />
-          <Route path="/admin/finance/disputes" element={<AdminDataPage page="disputes" />} />
-          <Route path="/admin/finance/reconciliation/history" element={<AdminDataPage page="reconciliation" />} />
-          <Route path="/admin/finance/exceptions" element={<AdminDataPage page="exceptions" />} />
+          <Route path="/admin/subscriptions" element={<AdminSubscriptions />}></Route>
+          <Route path="/admin/subscriptions/add" element={<AdminSubAdd />}></Route>
+          <Route path="/admin/subscriptions/details" element={<AdminSubDetails />}></Route>
+          <Route path="/admin/subscriptions/requests" element={<AdminCustomRequests />}></Route>
+          <Route path="/admin/subscriptions/requests/details" element={<AdminRequestDetails />}></Route>
+          <Route path="/admin/group-verification" element={<AdminGroupVerification />}></Route>
+          <Route path="/admin/group-verification/review" element={<AdminGroupReview />}></Route>
+          <Route path="/admin/users" element={<AdminUsers />}></Route>
+          <Route path="/admin/users/details" element={<AdminUserDetails />}></Route>
+          <Route path="/admin/groups" element={<AdminGroups />}></Route>
+          <Route path="/admin/groups/details" element={<AdminGroupDetails />}></Route>
+          <Route path="/admin/finance" element={<AdminFinance />}></Route>
+          <Route path="/admin/finance/transactions/details" element={<AdminFinanceDetails />}></Route>
+          <Route path="/admin/finance/reconciliation" element={<AdminRecon />}></Route>
+          <Route path="/admin/finance/disputes" element={<AdminDisputes />}></Route>
+          <Route path="/admin/finance/reconciliation/history" element={<AdminReconHistory />}></Route>
+          <Route path="/admin/finance/exceptions" element={<AdminExceptions />}></Route>
+          <Route path="/admin/support" element={<AdminSupport />}></Route>
+          <Route path="/admin/security" element={<AdminSecurity />}></Route>
+          <Route path="/admin/security/monitoring" element={<AdminHealth />}></Route>
         </Route>
         <Route path="*" element={<Landing />} />
       </Routes>

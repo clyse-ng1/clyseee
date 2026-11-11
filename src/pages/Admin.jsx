@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { api } from "../lib/api";
 import AdminShell from "../components/AdminShell";
 import DropSelect from "../components/DropSelect";
 
@@ -149,15 +150,15 @@ const ACTIVITIES = [
 
 function LightCard({ c }) {
   return (
-    <div className="flex flex-col items-center rounded-[16px] border border-[#E5E5E5] bg-white px-[16px] py-[24px] text-center">
-      <span className={`grid h-[60px] w-[60px] place-items-center rounded-full ${c.bg}`}>
+    <div className="flex flex-col items-center rounded-[10px] border border-[#CCCCCC] bg-white px-[16px] pt-[27px] pb-[22px] text-center">
+      <span className={`grid h-[56px] w-[56px] place-items-center rounded-full ${c.bg}`}>
         <StatGlyph d={c.glyph} />
       </span>
-      <p className="mt-[12px] min-h-[40px] text-[16px] leading-[20px] font-semibold text-[#6B6B6B]">
+      <p className="mt-[8px] text-[15px] leading-[18px] font-semibold text-[#6B6B6B]">
         {c.label}
       </p>
-      <p className="text-[35px] leading-[43px] font-bold text-ink">{c.value}</p>
-      <p className="mt-[6px] text-[16px] leading-[20px] font-semibold text-[#6B6B6B]">
+      <p className="mt-[4px] text-[32px] leading-[38px] font-bold text-ink">{c.value}</p>
+      <p className="mt-[2px] text-[13px] leading-[16px] font-semibold text-[#6B6B6B]">
         From Last Month
       </p>
     </div>
@@ -166,15 +167,15 @@ function LightCard({ c }) {
 
 function DarkCard({ c }) {
   return (
-    <div className="bg-btn flex flex-col items-center rounded-[16px] px-[16px] py-[24px] text-center">
-      <span className="grid h-[60px] w-[60px] place-items-center rounded-full bg-white">
+    <div className="bg-btn flex flex-col items-center rounded-[10px] px-[16px] pt-[24px] pb-[24px] text-center">
+      <span className="grid h-[56px] w-[56px] place-items-center rounded-full bg-white">
         {c.glyph}
       </span>
-      <p className="mt-[12px] min-h-[40px] text-[16px] leading-[20px] font-semibold text-mint">
+      <p className="mt-[12px] text-[15px] leading-[18px] font-semibold text-mint">
         {c.label}
       </p>
-      <p className="text-[35px] leading-[43px] font-bold text-mint">{c.value}</p>
-      <p className="mt-[6px] text-[16px] leading-[20px] font-semibold text-mint">
+      <p className="mt-[4px] text-[30px] leading-[37px] font-bold text-mint">{c.value}</p>
+      <p className="mt-[6px] text-[13px] leading-[16px] font-semibold text-mint">
         From Last Month
       </p>
     </div>
@@ -194,6 +195,7 @@ function Chart() {
         <p className="ml-[16px] flex items-center gap-[6px] text-[14px] font-semibold text-white">
           <span className="h-[10px] w-[10px] rounded-full bg-clyse" /> Payout
         </p>
+        <span className="ml-auto" />
         <DropSelect
           value={month}
           options={["Month", ...months]}
@@ -210,7 +212,7 @@ function Chart() {
           <g key={i}>
             <line x1="36" y1={20 + i * 40} x2="520" y2={20 + i * 40} stroke="#FFFFFF" strokeOpacity="0.15" />
             <text x="0" y={24 + i * 40} fill="#FFFFFF" fontSize="11" fontWeight="700">
-              {`${(5 - i) * 2}M`}
+              {i === 5 ? "0" : `${(5 - i) * 2}M`}
             </text>
           </g>
         ))}
@@ -234,6 +236,12 @@ function Chart() {
           strokeWidth="2.5"
         />
         <path
+          d="M52 170 C 90 170, 110 120, 150 120 S 210 90, 260 100 S 330 60, 370 90 S 430 60, 470 90 S 500 60, 515 40 L 515 240 L 52 240 Z"
+          fill="#46C04C"
+          fillOpacity="0.18"
+          stroke="none"
+        />
+        <path
           d="M52 170 C 90 170, 110 120, 150 120 S 210 90, 260 100 S 330 60, 370 90 S 430 60, 470 90 S 500 60, 515 40"
           fill="none"
           stroke="#46C04C"
@@ -252,16 +260,49 @@ function Chart() {
   );
 }
 
+/* Live numbers: GET /admin/dashboard when the backend offers them; the
+   Figma dummy values stay as fallback so the screen never renders empty. */
+const LIVE_KEYS = {
+  "Total User": ["total_users", "users_total", "user_count"],
+  "Active User": ["active_users", "users_active"],
+  "Total subscription Groups": ["total_groups", "groups_total", "group_count"],
+  "Active Group": ["active_groups", "groups_active"],
+  Dispute: ["open_disputes", "disputes_open", "dispute_count"],
+  "Active Subscription / membership": ["active_memberships", "active_subscriptions"],
+  "Waitlist Activity": ["waitlist_entries", "waitlist_count"],
+  "Pending Admin Actions": ["pending_admin_actions", "pending_actions"],
+};
+function fmtNum(v) {
+  const n = Number(v);
+  return Number.isFinite(n) ? n.toLocaleString("en-US") : null;
+}
+
 export default function Admin() {
   const [range, setRange] = useState("Sep. 1 2026 - Sep. 30 2026");
+  const [live, setLive] = useState(null);
+  useEffect(() => {
+    let alive = true;
+    api("/admin/dashboard").then((res) => {
+      if (alive && !res.error && res.data) setLive(res.data);
+    });
+    return () => { alive = false; };
+  }, []);
+  const liveFor = (label) => {
+    if (!live) return null;
+    for (const k of LIVE_KEYS[label] || []) {
+      const hit = fmtNum(live[k]);
+      if (hit) return hit;
+    }
+    return null;
+  };
   return (
     <AdminShell active="dashboard">
             <div className="flex flex-wrap items-center gap-[16px]">
-              <div>
+              <div className="mr-auto">
                 <h1 className="text-[35px] leading-[43px] font-bold text-black">
                   Dashboard
                 </h1>
-                <p className="text-[18px] leading-[22px] font-semibold text-black">
+                <p className="text-[18px] leading-[22px] font-semibold text-[#6B6B6B]">
                   Welcome to Admin Dashboard
                 </p>
               </div>
@@ -282,7 +323,7 @@ export default function Admin() {
                   </svg>
                 }
                 align="right"
-                buttonClass="ml-auto flex h-[54px] items-center gap-[12px] rounded-[10px] bg-[#DFFFE0] px-[20px] text-[18px] font-semibold text-ink"
+                buttonClass="ml-auto flex h-[54px] items-center gap-[12px] rounded-[10px] bg-[#E5FFE7] px-[20px] text-[18px] font-semibold text-ink"
                 labelClass="whitespace-nowrap text-[18px] font-semibold text-ink"
                 panelClass="min-w-[320px]"
                 chevron={<ChevDown color="#001701" />}
@@ -290,12 +331,12 @@ export default function Admin() {
             </div>
             <div className="mt-[30px] grid grid-cols-1 sm:grid-cols-2 gap-[20px] xl:grid-cols-4">
               {ROW1.map((c) => (
-                <LightCard key={c.label} c={c} />
+                <LightCard key={c.label} c={{ ...c, value: liveFor(c.label) || c.value }} />
               ))}
             </div>
             <div className="mt-[20px] grid grid-cols-1 sm:grid-cols-2 gap-[20px] xl:grid-cols-4">
               {ROW2.map((c) => (
-                <LightCard key={c.label} c={c} />
+                <LightCard key={c.label} c={{ ...c, value: liveFor(c.label) || c.value }} />
               ))}
             </div>
             <div className="mt-[20px] grid grid-cols-1 sm:grid-cols-2 gap-[20px] xl:grid-cols-4">
@@ -304,12 +345,12 @@ export default function Admin() {
               ))}
             </div>
             <div className="mt-[20px] flex flex-col gap-[20px] xl:flex-row">
-              <div className="xl:w-full lg:w-[266px] xl:flex-none">
+              <div className="w-full xl:w-[266px] xl:flex-none">
                 <DarkCard
                   c={{ glyph: <ClockGlyph color="#6A5ACD" />, label: "Pending Payout", value: "124,000" }}
                 />
               </div>
-              <div className="relative flex-1 rounded-[10px] bg-[#DFFFE0] px-[21px] py-[28px]">
+              <div className="relative flex-1 rounded-[10px] bg-[#E5FFE7] px-[21px] py-[28px]">
                 <span className="absolute top-[28px] right-[21px] grid h-[28px] w-[28px] place-items-center rounded-full bg-[#E31B00] text-[14px] font-bold text-white">
                   4
                 </span>
@@ -327,10 +368,10 @@ export default function Admin() {
                           <ClockGlyph color="#E31B00" />
                         </span>
                         <span>
-                          <span className="block text-[18px] leading-[22px] font-bold text-black">
+                          <span className="block text-[16px] leading-[20px] font-bold text-black">
                             {t}
                           </span>
-                          <span className="mt-[4px] block text-[16px] leading-[20px] text-[#6B6B6B]">
+                          <span className="mt-[4px] block text-[14px] leading-[18px] text-[#6B6B6B]">
                             {s}
                           </span>
                         </span>
@@ -347,10 +388,10 @@ export default function Admin() {
                           <ClockGlyph color="#E31B00" />
                         </span>
                         <span>
-                          <span className="block text-[18px] leading-[22px] font-bold text-black">
+                          <span className="block text-[16px] leading-[20px] font-bold text-black">
                             {t}
                           </span>
-                          <span className="mt-[4px] block text-[16px] leading-[20px] text-[#6B6B6B]">
+                          <span className="mt-[4px] block text-[14px] leading-[18px] text-[#6B6B6B]">
                             {s}
                           </span>
                         </span>
@@ -361,7 +402,7 @@ export default function Admin() {
               </div>
             </div>
             <div className="mt-[20px] flex flex-col gap-[20px] xl:flex-row">
-              <div className="rounded-[20px] bg-[#DFFFE0] px-[30px] py-[30px] xl:w-full lg:w-[471px] xl:flex-none">
+              <div className="w-full rounded-[20px] bg-[#E5FFE7] px-[30px] py-[30px] xl:w-[473px] xl:flex-none">
                 <div className="flex items-center">
                   <p className="text-[18px] leading-[22px] font-bold text-black">
                     Recent Activities
@@ -370,24 +411,21 @@ export default function Admin() {
                     View all
                   </button>
                 </div>
-                <div className="mt-[20px] flex flex-col gap-[18px]">
+                <div className="mt-[20px] flex flex-col gap-[14px]">
                   {ACTIVITIES.map((a, i) => (
                     <div key={`${a.title}-${i}`} className="flex items-center gap-[12px]">
-                      <span className="grid h-[38px] w-[38px] flex-none place-items-center rounded-[10px] bg-[#D6E9FF] text-[15px] font-bold text-[#0087FF]">
+                      <span className="grid h-[38px] w-[38px] flex-none place-items-center rounded-full bg-[#D6E9FF] text-[15px] font-bold text-[#0087FF]">
                         R
                       </span>
                       <span className="min-w-0 flex-1">
-                        <span className="block truncate text-[16px] leading-[20px] font-semibold text-black">
+                        <span className="block truncate text-[15px] leading-[18px] font-semibold text-black">
                           {a.title}
                         </span>
-                        <span className="block truncate text-[14px] leading-[20px] text-[#6B6B6B]">
+                        <span className="block truncate text-[13px] leading-[16px] text-[#6B6B6B]">
                           {a.sub}
                         </span>
                       </span>
-                      <span className="flex-none text-right">
-                        <span className="block text-[14px] text-[#6B6B6B]">{a.time}</span>
-                        <span className="block text-[11px] font-bold text-[#0087FF]">New</span>
-                      </span>
+                      <span className="flex-none text-right text-[14px] text-[#6B6B6B]">{a.time}</span>
                     </div>
                   ))}
                 </div>

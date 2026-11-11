@@ -372,7 +372,7 @@ export default function Notifications() {
       </main>
       {/* Mobile */}
       <main className="relative xl:hidden">
-        <div className="relative bg-white px-[30px] pt-[30px] pb-[40px]">
+        <div className="relative px-[30px] pt-[30px] pb-[40px]">
           <div className="flex items-end justify-between gap-[12px]">
             <div>
               <h1 className="text-[20px] leading-[25px] font-bold text-black">

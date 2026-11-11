@@ -1,36 +1,35 @@
 import { Link } from "react-router-dom";
-import iconArrowLeft from "../assets/extra-arrow-left.svg";
+import iconArrowBadge from "../assets/extra-arrow-badge.svg";
 import iconCirclePlus from "../assets/extra-circle-plus.svg";
 
-/* Sidebar "extra" rows under the main menu (desktop + mobile). Centred
-   [label + 20px + trailing icon] unit, 1px green border + shadow. The
-   leading glyphs in Figma are leftover variant strays (a red error icon
-   and an overflowing black check) — omitted. Arrow points left in Figma. */
+/* Sidebar / tail-band "extra" rows (desktop + mobile). Figma 768:24019:
+   white pill 310x58 r10, centred [label 16/19 semibold + 24px + dark round
+   badge] unit; arrow badge 24 (filled circle, RIGHT arrow), plus badge 28. */
 const ROWS = [
   {
     label: "View Available Group",
-    trail: iconArrowLeft,
-    trailCls: "h-[30px] w-[30px] xl:h-[25px] xl:w-[25px]",
+    trail: iconArrowBadge,
+    trailCls: "h-[24px] w-[24px] xl:h-[25px] xl:w-[25px]",
     to: "/browse",
   },
   {
     label: "Create Group",
     trail: iconCirclePlus,
-    trailCls: "h-[30px] w-[30px] xl:h-[28px] xl:w-[28px]",
+    trailCls: "h-[28px] w-[28px]",
     to: "/create-group",
   },
 ];
 
-export default function JoinExtra({ width = "w-[312px]" }) {
+export default function JoinExtra({ width = "w-[310px]" }) {
   return (
     <>
       {ROWS.map((r) => (
         <Link
           key={r.label}
           to={r.to}
-          className={`flex h-[60px] ${width} items-center justify-center gap-[20px] rounded-[9.75px] border border-clyse bg-white shadow-[0_0_7px_rgba(0,23,1,0.25)]`}
+          className={`flex h-[58px] ${width} items-center justify-center gap-[24px] rounded-[10px] border border-clyse bg-white shadow-[0_0_7px_rgba(0,23,1,0.25)]`}
         >
-          <span className="text-[18px] leading-[22px] font-semibold text-ink">
+          <span className="text-[16px] leading-[19px] font-semibold text-ink">
             {r.label}
           </span>
           <img src={r.trail} alt="" className={r.trailCls} />

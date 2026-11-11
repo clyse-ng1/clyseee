@@ -879,22 +879,9 @@ export default function Dashboard() {
 
       {/* Mobile */}
       <main className="relative bg-white xl:hidden">
-        <div className="relative bg-white px-[30px] pt-[30px] pb-[21px]">
-          <div className="flex items-center gap-[6px]">
-            <img
-              src={user?.avatar_url || avatarAccount}
-              alt={name}
-              className="h-[50px] w-[50px] rounded-full object-cover"
-            />
-            <div>
-              <p className="text-[24.77px] leading-[28px] font-bold text-ink">
-                {name}
-              </p>
-              <p className="text-[12.88px] leading-[20px] font-semibold text-[#6B6B6B]">
-                Member on Clyse Since {since}
-              </p>
-            </div>
-          </div>
+        <div className="relative bg-white px-[30px] pb-[21px] pt-[21px]">
+          {/* Card "remove this": the avatar / name / "Member on Clyse Since"
+              block is gone from the dashboard; the side menu is the way in. */}
           <MemberMenuButton active="Dashboard" />
         </div>
 
@@ -999,8 +986,8 @@ export default function Dashboard() {
               <EmptyRow
                 mobile
                 text="You have not joined or created a group yet."
-                to="/browse"
-                cta="Find a group"
+                to="/create-group"
+                cta="Create a group"
               />
             )}
           </div>

@@ -389,32 +389,7 @@ export default function Earnings() {
                 )}
               </div>
             </div>
-            {/* Card 21: Clyse Fees was the only desktop block without the
-                white container its siblings carry — it now matches. */}
-            <div className={`mt-[50px] rounded-[20px] bg-white px-[41px] pt-[51px] pb-[51px] ${SHADOW}`}>
-            <h2 className="text-[25px] leading-[30px] font-bold text-black">
-              Clyse Fees
-            </h2>
-            <div className="mt-[35px]">
-              {!lots && !failed ? (
-                <EarnMiniSk wide vdTo="/earnings/per-group" />
-              ) : (
-                <EarnMini
-                  tile="bg-[#DFFFE0]"
-                  glyph={iconNaira}
-                  label="Total Clyse Fees"
-                  value={fees}
-                  sub="For the selected period"
-                  vdTo="/earnings/per-group"
-                  wide
-                  dark
-                />
-              )}
-            </div>
-            <div className="mt-[20px] w-[748px]">
-              <MonthPills />
-            </div>
-            </div>
+            {/* Card: "remove clyse fees section" — the block is gone. */}
             <div className="mt-[20px] ml-[30px]">
               {!lots && !failed ? (
                 [0, 1, 2, 3].map((i) => <EarningTxRowSk key={i} />)
@@ -491,40 +466,7 @@ export default function Earnings() {
             )}
           </div>
         </div>
-        <div className={`relative mt-[24px] rounded-[20px] border border-clyse bg-white px-[20px] pt-[24px] pb-[24px] ${SHADOW}`}>
-          <h2 className="text-[22px] leading-[28px] font-bold text-black">
-            Clyse Fees
-          </h2>
-          <div className="mt-[30px]">
-            {!lots && !failed ? (
-              <EarnMiniSk wide />
-            ) : (
-              <EarnMini
-                tile="bg-[#DFFFE0]"
-                glyph={iconNaira}
-                label="Total Clyse Fees"
-                value={fees}
-                sub="For the selected period"
-                vdTo="/earnings/per-group"
-                wide
-                dark
-                noVd
-              />
-            )}
-          </div>
-          <div className="mt-[18px]">
-            <MonthPills small />
-          </div>
-          {/* Figma M17 Clyse Fees card ends at the month pills — no link. */}
-          <div className="mt-[10px] hidden justify-end xl:flex">
-            <Link
-              to="/earnings/per-group"
-              className="text-[14px] leading-[18px] font-semibold text-clyse"
-            >
-              View Details
-            </Link>
-          </div>
-        </div>
+        {/* Card: "remove clyse fees section" — the block is gone. */}
         <div className={`relative mt-[24px] rounded-[20px] border border-clyse bg-white pt-[24px] pb-[24px] ${SHADOW}`}>
           <div className="flex items-center px-[30px]">
             <h2 className="text-[18px] leading-[22px] font-bold text-ink">

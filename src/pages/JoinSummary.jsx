@@ -5,6 +5,7 @@ import BrandTile from "../components/BrandTile";
 import LogoMarquee from "../components/LogoMarquee";
 import CreateGroupHead from "../components/CreateGroupHead";
 import { BlurBg } from "../components/Decor";
+import FundWalletModal from "../components/FundWalletModal";
 import { api, accessLabel, brandOf, kobo } from "../lib/api";
 import iconCheck from "../assets/check-green-circle.svg";
 import iconBanknote from "../assets/banknote-white.svg";
@@ -61,6 +62,7 @@ export default function JoinSummary() {
   const [balance, setBalance] = useState(null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
+  const [fundOpen, setFundOpen] = useState(false);
 
   useEffect(() => {
     if (!real) return;
@@ -250,6 +252,9 @@ export default function JoinSummary() {
             btnVariant: "dark",
             btnTo: "/wallet",
             hideBack: true,
+            fund: true,
+            fundAmount: Math.ceil((total - (balance || 0)) / 100),
+            returnTo: location.pathname,
           },
         });
         return;
@@ -340,12 +345,13 @@ export default function JoinSummary() {
           : `You need ${kobo(shortfall)} more to join this group.`}
       </p>
       {real && !sufficient && (
-        <Link
-          to="/wallet"
+        <button
+          type="button"
+          onClick={() => setFundOpen(true)}
           className="mt-[12px] flex h-[44px] w-full items-center justify-center rounded-[10px] bg-btn text-[15px] font-semibold text-mint"
         >
           Fund Wallet
-        </Link>
+        </button>
       )}
     </div>
   );
@@ -638,6 +644,17 @@ export default function JoinSummary() {
           </div>
         </div>
       </main>
+      <FundWalletModal
+        open={fundOpen}
+        onClose={() => setFundOpen(false)}
+        initialAmount={shortfall ? Math.ceil(shortfall / 100) : ""}
+        callbackPath={location.pathname}
+        onFunded={async () => {
+          setFundOpen(false);
+          const w = await api("/member/wallet");
+          if (w.data) setBalance(w.data.wallet?.balance_kobo ?? w.data.balance_kobo ?? 0);
+        }}
+      />
     </div>
   );
 }

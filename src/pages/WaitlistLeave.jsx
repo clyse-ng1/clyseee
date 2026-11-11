@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import Waitlist from "./Waitlist";
+import Navbar from "../components/Navbar";
+import { BlurBg } from "../components/Decor";
 import MiniButton from "../components/MiniButton";
 import { api } from "../lib/api";
 import iconError from "../assets/error-circle-red.svg";
@@ -40,7 +41,7 @@ function ModalCard() {
   };
 
   return (
-    <div className="w-full rounded-[20px] border border-clyse bg-white px-[30px] pt-[30px] pb-[30px] shadow-[0_0_30px_rgba(0,23,1,0.20)] xl:w-[700px] xl:px-[40px] xl:pt-[40px] xl:pb-[40px]">
+    <div className="w-full max-w-[700px] min-w-0 rounded-[20px] border border-clyse bg-white px-[24px] pt-[30px] pb-[30px] shadow-[0_0_30px_rgba(0,23,1,0.20)] xl:px-[40px] xl:pt-[40px] xl:pb-[40px]">
       <img src={iconError} alt="" className="mx-auto h-[70px] w-[70px]" />
       <h2 className="mt-[12px] text-center text-[25px] leading-[35px] font-bold text-ink">
         Leave Waitlist
@@ -55,7 +56,7 @@ function ModalCard() {
           {error}
         </p>
       )}
-      <div className="mt-[40px] flex items-center justify-center gap-[20px] xl:gap-[30px]">
+      <div className="mt-[40px] flex flex-wrap items-center justify-center gap-[16px] xl:gap-[30px]">
         <MiniButton variant="gray" to="/waitlist" icons={false}>
           Cancel
         </MiniButton>
@@ -68,12 +69,16 @@ function ModalCard() {
 }
 
 export default function WaitlistLeave() {
+  /* Card "make card static": this was a modal over a dimmed waitlist page.
+     The PM wants it as a plain card on its own screen — no backdrop, no
+     overlay — so it now sits on the same wash as every other member page. */
   return (
-    <div className="relative">
-      <Waitlist />
-      <div className="fixed inset-0 z-[60] grid place-items-center overflow-y-auto bg-black/50 p-[20px] xl:p-0">
+    <div className="relative min-h-screen overflow-hidden bg-white font-sans text-ink">
+      <BlurBg variant="hero" />
+      <Navbar loggedIn />
+      <main className="relative z-10 grid place-items-center px-[20px] pt-[40px] pb-[60px] xl:pt-[120px] xl:pb-[120px]">
         <ModalCard />
-      </div>
+      </main>
     </div>
   );
 }

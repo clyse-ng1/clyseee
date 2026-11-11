@@ -32,10 +32,10 @@ export function FinAvatar({ i = 0, size = 50 }) {
 /* Stat card: h121, 42px badge + label/value/sub. 1187 uses a 30px
    badge gap; 1214/1222 use 10px (their long labels bleed into the card
    gap exactly like Figma, so no truncation). */
-export function StatCard({ label, value, sub = "Last 30 Days", badge, glyph, className = "", gap10 = false, center = false }) {
+export function StatCard({ label, value, sub = "Last 30 Days", badge, glyph, className = "", gap10 = false, center = false, dark = false }) {
   return (
     <div
-      className={`flex h-[121px] rounded-[10px] border border-[#999999] bg-white px-[21px] pt-[16px] ${SHADOW} ${center ? "justify-center" : ""} ${className}`}
+      className={`flex h-[121px] rounded-[10px] border bg-white px-[21px] pt-[16px] ${dark ? "border-black shadow-[0_0_0_2px_#ffffff]" : `border-[#999999] ${SHADOW}`} ${center ? "justify-center" : ""} ${className}`}
     >
       <span className={`grid h-[42px] w-[42px] flex-none place-items-center rounded-[5px] ${badge}`}>
         {glyph}
@@ -217,9 +217,9 @@ const ACTIVITIES = [
   { name: "Payment from Sarah Press", amount: "N3,000", up: true },
 ];
 
-export function RecentActivities() {
+export function RecentActivities({ dark = false, className = "" }) {
   return (
-    <div className="w-[473px] flex-none rounded-[20px] border border-[#999999] bg-white px-[10px] pt-[30px] pb-[12px]">
+    <div className={`w-[473px] flex-none rounded-[20px] border bg-white px-[10px] pt-[30px] pb-[12px] ${dark ? "border-black shadow-[0_0_0_2px_#ffffff]" : "border-[#999999]"} ${className}`}>
       <div className="flex items-center px-[20px]">
         <p className="text-[18px] leading-[22px] font-bold text-black">Recent Activities</p>
         <Link
@@ -281,7 +281,7 @@ function smoothPath(vals, x0, dx, yTop, yBottom) {
 
 const CHART_MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
-export function OverviewChart() {
+export function OverviewChart({ dark = false, className = "" }) {
   const [month, setMonth] = useState("Month");
   const W = 527;
   const H = 230;
@@ -297,7 +297,7 @@ export function OverviewChart() {
   const sep = green.pts[8];
   const ser = black.pts[8];
   return (
-    <div className="w-[607px] flex-none rounded-[10px] border border-[#999999] bg-white px-[30px] pt-[35px] pb-[20px]">
+    <div className={`w-[607px] flex-none rounded-[10px] border bg-white px-[30px] pt-[35px] pb-[20px] ${dark ? "border-black shadow-[0_0_0_2px_#ffffff]" : "border-[#999999]"} ${className}`}>
       <div className="flex items-center">
         <p className="text-[18px] leading-[22px] font-bold text-[#001701]">Overview</p>
         <span className="ml-[120px] flex items-center gap-[6px] text-[14px] leading-[20px] font-semibold text-[#001701]">

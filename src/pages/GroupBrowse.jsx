@@ -147,7 +147,7 @@ export default function GroupBrowse() {
       </main>
       {/* Mobile (M10 691:20651) */}
       <main className="relative xl:hidden">
-        <div className="relative bg-white px-[30px] pt-[30px] pb-[40px]">
+        <div className="relative px-[30px] pt-[30px] pb-[40px]">
           {/* Figma JOINT WAITLIST MOBILE PAGE 10: a back chevron sits directly
               above the title. The member header that used to sit here (avatar +
               name + "Member on Clyse Since") pushed the heading down and, on

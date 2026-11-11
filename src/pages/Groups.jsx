@@ -185,7 +185,7 @@ export default function Groups() {
       </main>
       {/* Mobile (M9 687:11080) */}
       <main className="relative xl:hidden">
-        <div className="relative bg-white px-[30px] pt-[30px] pb-[40px]">
+        <div className="relative px-[30px] pt-[30px] pb-[40px]">
           <div className="mt-[0px]">
             <TitleBlock />
           </div>

@@ -6,7 +6,7 @@ export default function ExtraBlock({ mobile = false, className = "" }) {
   if (mobile) {
     return (
       <div className={`relative bg-btn ${className}`}>
-        <div className="mx-auto flex max-w-[430px] flex-col items-center gap-[30px] px-[30px] py-[50px]">
+        <div className="mx-auto flex max-w-[430px] flex-col items-center gap-[32px] px-[30px] py-[51px]">
           <JoinExtra />
         </div>
       </div>

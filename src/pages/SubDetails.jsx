@@ -10,6 +10,7 @@ import {
 import { useMembershipId, useSubscription } from "../lib/useSubscription";
 import { api } from "../lib/api";
 import iconDone from "../assets/done-white.svg";
+import iconError from "../assets/error-ink.svg";
 
 /* Standalone subscription details — Figma 912:19224 (no sidebar): header
    card with stats + Renew, info card with access link + Confirm Access,
@@ -184,16 +185,36 @@ export default function SubDetails() {
     !!access && membershipLifecycle === "active" && membership?.access_status !== "unavailable";
   const alreadyConfirmed =
     access?.membership?.access_confirmed && !access?.membership?.needs_reconfirmation;
-  const confirmSlot =
-    confirmed || alreadyConfirmed ? (
-      <ConfirmedState />
-    ) : accessAvailable ? (
-      <ConfirmButton groupId={groupId} done={() => setConfirmed(true)} />
-    ) : (
-      <p className="text-center text-[14px] font-semibold text-[#6B6B6B]">
-        Access confirmation is available when your membership has active access.
-      </p>
-    );
+  /* Figma 737:22246: the details screen carries BOTH buttons — green Confirm
+     Access and a white Report Issue. We only shipped Confirm, which is the
+     "missing btn" card. Report Issue deep-links into the report form with the
+     membership id so the textarea is already bound to this subscription. */
+  const reportButton = (
+    <Link
+      to="/subscriptions/report"
+      state={{ membership_id: membershipId }}
+      className="mt-[10px] flex h-[60px] w-full items-center justify-center gap-[20px] rounded-[9.75px] border border-clyse bg-white shadow-[0_0_7px_rgba(0,23,1,0.25)]"
+    >
+      <img src={iconError} alt="" className="h-[30px] w-[30px]" />
+      <span className="text-[18px] leading-[22px] font-semibold text-ink">
+        Report Issue
+      </span>
+    </Link>
+  );
+  const confirmSlot = (
+    <>
+      {confirmed || alreadyConfirmed ? (
+        <ConfirmedState />
+      ) : accessAvailable ? (
+        <ConfirmButton groupId={groupId} done={() => setConfirmed(true)} />
+      ) : (
+        <p className="text-center text-[14px] font-semibold text-[#6B6B6B]">
+          Access confirmation is available when your membership has active access.
+        </p>
+      )}
+      {reportButton}
+    </>
+  );
 
   return (
     <div className="min-h-screen bg-white font-sans text-ink">

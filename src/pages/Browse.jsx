@@ -62,73 +62,76 @@ function KeyIcon() {
    in any Figma frame. */
 function JoinCard({ g, fluid = false }) {
   return (
-    <article
-      className={`bg-btn flex w-full flex-col rounded-[20px] px-[14px] pt-[14px] pb-[14px] xl:px-[23px] xl:pt-[20px] xl:pb-[20px] ${
-        fluid ? "" : ""
-      }`}
-    >
-      <div className="flex flex-col items-center text-center">
-        <img
-          src={g.avatar || avatarAccount}
-          alt=""
-          className="h-[56px] w-[56px] rounded-full border-[2.5px] border-[#F1F8F2] object-cover xl:h-[74px] xl:w-[74px]"
-        />
-        <p className="mt-[8px] w-full truncate text-[16px] leading-[20px] font-bold text-white xl:text-[22px] xl:leading-[26px]">
-          {g.name}
-        </p>
-        <p className="mt-[2px] w-full truncate text-[10px] leading-[14px] font-semibold text-white xl:text-[11px] xl:leading-[16px]">
-          Share <span className="text-[11px] font-bold xl:text-[13px]">{g.service}</span>
-        </p>
-      </div>
+    <article className="relative w-full">
+      {/* Mobile metrics are the "Small Subcription Offer" component on Figma
+          263:4402: card 177.1 x 240.3, 67px avatar overhanging the card top by
+          6px, 16px side padding (144.8 content), name 15/16, service 8/12.6,
+          rule at +106, contribution box 144.8 x 39 at +118, slot block 32.4 at
+          +162, Join 144.8 x 22.3 at +206. Desktop keeps the 251x341 tile. */}
+      <div className="bg-btn rounded-[20px] px-[16px] pt-[39px] pb-[12px] xl:px-[23px] xl:pt-[20px] xl:pb-[20px]">
+        <div className="flex flex-col items-center text-center">
+          <img
+            src={g.avatar || avatarAccount}
+            alt=""
+            className="-mt-[45px] h-[67px] w-[67px] rounded-full border-[2.5px] border-[#F1F8F2] object-cover xl:mt-0 xl:h-[74px] xl:w-[74px]"
+          />
+          <p className="mt-[6px] w-full truncate text-[15px] leading-[16px] font-bold text-white xl:mt-[8px] xl:text-[22px] xl:leading-[26px]">
+            {g.name}
+          </p>
+          <p className="w-full truncate text-[8px] leading-[12.6px] font-semibold text-white xl:mt-[2px] xl:text-[11px] xl:leading-[16px]">
+            Share <span className="text-[8px] font-bold xl:text-[13px]">{g.service}</span>
+          </p>
+        </div>
 
-      <div className="mx-auto mt-[12px] h-px w-full bg-[#B1DBB3]/40" />
+        <div className="mt-[10px] h-px w-full bg-[#B1DBB3]/40 xl:mt-[12px]" />
 
-      <div className="mt-[12px] rounded-[8px] bg-[#02580B] px-[10px] py-[8px] text-center">
-        <p className="text-[9px] leading-[12px] font-semibold text-white">
-          Your Contribution
-        </p>
-        <p className="mt-[1px] flex items-baseline justify-center gap-[2px]">
-          <span className="text-[16px] leading-[20px] font-semibold text-white xl:text-[21px] xl:leading-[25px]">
-            {g.price}
+        <div className="mt-[12px] flex h-[39px] flex-col justify-center rounded-[8px] bg-[#02580B] px-[10px] text-center xl:h-auto xl:py-[8px]">
+          <p className="text-[6px] leading-[10px] font-semibold text-white xl:text-[9px] xl:leading-[12px]">
+            Your Contribution
+          </p>
+          <p className="flex items-baseline justify-center gap-[2px]">
+            <span className="text-[15px] leading-[18px] font-semibold text-white xl:text-[21px] xl:leading-[25px]">
+              {g.price}
+            </span>
+            <span className="text-[8px] leading-[12px] font-semibold text-[#B1DBB3] xl:text-[10px] xl:leading-[16px]">
+              /Monthly
+            </span>
+          </p>
+        </div>
+
+        <div className="mt-[7px] h-[4px] w-full overflow-hidden rounded-full bg-[#B1DBB3]/30 xl:mt-[10px] xl:h-[6px]">
+          <span
+            className="block h-full rounded-full bg-[#048B0B]"
+            style={{ width: `${g.pct}%` }}
+          />
+        </div>
+
+        <div className="mt-[4px] flex items-center justify-between gap-[6px] text-[8px] leading-[12px] font-semibold text-[#F1F8F2] xl:mt-[8px] xl:text-[13px] xl:leading-[17px]">
+          <span className="flex min-w-0 items-center gap-[3px]">
+            <SlotIcon />
+            <span className="truncate">{g.left}</span>
           </span>
-          <span className="text-[10px] leading-[16px] font-semibold text-[#B1DBB3]">
-            /Monthly
+          <span className="flex-none">{g.ratio}</span>
+        </div>
+
+        <div className="mt-[2px] flex items-center gap-[3px] text-white xl:mt-[6px] xl:gap-[6px]">
+          <KeyIcon />
+          <span className="flex-none text-[8px] leading-[12px] font-semibold whitespace-nowrap opacity-90 xl:text-[10px] xl:leading-[15px]">
+            Access Method:
           </span>
-        </p>
-      </div>
+          <span className="truncate text-[8px] leading-[12px] font-semibold xl:text-[11px] xl:leading-[15px]">
+            {g.access || "Login Credential"}
+          </span>
+        </div>
 
-      <div className="mt-[10px] h-[6px] w-full overflow-hidden rounded-full bg-[#B1DBB3]/30 xl:mt-[14px]">
-        <span
-          className="block h-full rounded-full bg-[#048B0B]"
-          style={{ width: `${g.pct}%` }}
-        />
+        <Link
+          to={g.linkTo || "/join"}
+          state={g.linkState}
+          className="mt-[12px] flex h-[22px] w-full items-center justify-center rounded-[8px] bg-[#F1F8F2] text-[11px] font-semibold text-[#001701] transition hover:bg-white xl:mt-[14px] xl:h-[38px] xl:text-[16px]"
+        >
+          Join
+        </Link>
       </div>
-
-      <div className="mt-[8px] flex items-center justify-between gap-[8px] text-[11px] leading-[15px] font-semibold text-[#F1F8F2] xl:text-[13px] xl:leading-[17px]">
-        <span className="flex min-w-0 items-center gap-[5px]">
-          <SlotIcon />
-          <span className="truncate">{g.left}</span>
-        </span>
-        <span className="flex-none">{g.ratio}</span>
-      </div>
-
-      <div className="mt-[6px] flex items-center gap-[6px] text-white">
-        <KeyIcon />
-        <span className="flex-none text-[9px] leading-[13px] font-semibold whitespace-nowrap opacity-90 xl:text-[10px] xl:leading-[15px]">
-          Access Method:
-        </span>
-        <span className="truncate text-[10px] leading-[13px] font-semibold xl:text-[11px] xl:leading-[15px]">
-          {g.access || "Login Credential"}
-        </span>
-      </div>
-
-      <Link
-        to={g.linkTo || "/join"}
-        state={g.linkState}
-        className="mt-[12px] flex h-[34px] w-full items-center justify-center rounded-[8px] bg-[#F1F8F2] text-[14px] font-semibold text-[#001701] transition hover:bg-white xl:mt-[14px] xl:h-[38px] xl:text-[16px]"
-      >
-        Join
-      </Link>
     </article>
   );
 }
@@ -443,7 +446,7 @@ export default function Browse() {
               </Link>
             </div>
           ) : (
-                        <div className="mt-[24px] grid grid-cols-2 gap-[18px]">
+                        <div className="mt-[24px] grid grid-cols-2 gap-x-[19px] gap-y-[52px]">
               <h2 className="col-span-2 text-[25px] leading-[30px] font-bold text-ink">
                 Available Subscription
               </h2>
@@ -455,17 +458,17 @@ export default function Browse() {
                   type="button"
                   onClick={() => setPicked(picked === b.name ? null : b.name)}
                   aria-pressed={picked === b.name}
-                  className={`flex h-[200px] cursor-pointer flex-col items-center rounded-[16px] border bg-[#F7F9F7] px-[8px] pt-[34px] pb-[16px] ${
+                  className={`flex h-[165px] cursor-pointer flex-col items-center rounded-[16px] border bg-[#F1F8F2] px-[8px] pt-[18px] pb-[19px] ${
                     picked === b.name
                       ? "border-[#048B0B] ring-2 ring-[#B1DBB3]"
-                      : "border-[#999999]"
+                      : "border-[#001701]"
                   }`}
                 >
-                  <BrandTile brand={b.brand} name={b.name} size={75} plain />
-                  <span className="mt-[10px] line-clamp-2 w-full flex-none text-[19px] leading-[21px] font-bold text-[#001701]">
+                  <BrandTile brand={b.brand} name={b.name} size={50} plain />
+                  <span className="mt-[10px] line-clamp-2 w-full flex-none text-[16px] leading-[19px] font-bold text-[#001701]">
                     {b.name}
                   </span>
-                  <span className="mt-auto inline-flex h-[19px] w-[96px] flex-none items-center justify-center rounded-[3.58px] bg-[#048B0B] text-[10px] leading-[15px] font-semibold text-white">
+                  <span className="mt-auto inline-flex h-[18px] w-[95px] flex-none items-center justify-center rounded-[3.58px] bg-[#048B0B] text-[10px] leading-[15px] font-semibold text-white">
                     {b.chip || b.cat || "Entertainment"}
                   </span>
                 </button>
@@ -498,7 +501,7 @@ export default function Browse() {
               </button>
             )}
           </div>
-          <div className="mt-[20px] grid grid-cols-2 gap-x-[16px] gap-y-[16px]">
+          <div className="mt-[20px] grid grid-cols-2 gap-x-[18px] gap-y-[17px]">
             {loadingGroups
               ? Array.from({ length: 4 }, (_, i) => (
                   <Sk key={`group-loading-m-${i}`} className="h-[250px] w-full !rounded-[16px]" />

@@ -1,198 +1,145 @@
 import { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import AdminShell, { PageTitle, Pill, SearchIcon, ChevDown, PencilIcon, DotsIcon } from "../components/AdminShell";
-import { GlyphUsers, GlyphUserCheck, GlyphBadge, GlyphX } from "../components/AdminGlyphs";
-import avatarAshlynn from "../assets/avatar-ashlynn.webp";
-import avatarAspen from "../assets/avatar-aspen.webp";
-import avatarKianna from "../assets/avatar-kianna.webp";
-import avatar1 from "../assets/avatar-1.webp";
-import avatar2 from "../assets/avatar-2.webp";
-import avatar3 from "../assets/avatar-3.webp";
+import useAdminRows from "../components/useAdminRows";
+import AdminShell, { Pill, DotsIcon, DCARD, DarkZone, DarkFilter } from "../components/AdminShell";
+import { StatCard, badgeMint, UsersGlyph, CheckGlyph, FinAvatar } from "../components/FinanceShared";
 
-/* User List — Figma 1170:23344 (1440, desktop only). Static: search +
-   filters work client-side. Copy fix: "Susspended User" -> "Suspended User". */
-
-const STATS = [
-  { glyph: <GlyphUsers />, label: "Total User", value: "124,000" },
-  { glyph: <GlyphUserCheck />, label: "Active User", value: "124,000" },
-  { glyph: <GlyphBadge />, label: "Verified User", value: "124,000" },
-  { glyph: <GlyphX />, label: "Suspended User", value: "124,000" },
-];
+/* User Management — Figma 1170:23344 (1440, desktop only). Dark canvas:
+   black body, moon toggle, white cards with black stroke + white ring, no
+   page title. Live admin rows merge over the design dummies when the API
+   answers (useAdminRows), same column shape. */
 
 const ROWS = [
-  { name: "Ann Kenter", img: avatarAshlynn, email: "ann@gmail.com", phone: "+234 801 234 5678", acct: "active", ver: "verified", date: "Sep. 20, 2026", grp: "5/10" },
-  { name: "Paityn Kenter", img: avatarAspen, email: "paityn@gmail.com", phone: "+234 802 234 5678", acct: "active", ver: "verified", date: "Sep. 20, 2026", grp: "5/10" },
-  { name: "James Lipshutz", img: avatarKianna, email: "james@gmail.com", phone: "+234 803 234 5678", acct: "active", ver: "verified", date: "Sep. 20, 2026", grp: "5/10" },
-  { name: "Dulce Press", img: avatar1, email: "dulce@gmail.com", phone: "+234 804 234 5678", acct: "suspended", ver: "verified", date: "Sep. 20, 2026", grp: "5/10" },
-  { name: "Jakob Lubin", img: avatar2, email: "jakob@gmail.com", phone: "+234 805 234 5678", acct: "active", ver: "unverified", date: "Sep. 20, 2026", grp: "5/10" },
-  { name: "Kaylynn Dokidis", img: avatar3, email: "kaylynn@gmail.com", phone: "+234 806 234 5678", acct: "pending", ver: "pending", date: "Sep. 20, 2026", grp: "5/10" },
+  { name: "Ann Kenter", acct: "activated", ver: "verified", slots: "5/10" },
+  { name: "Paityn Kenter", acct: "activated", ver: "pending", slots: "5/5" },
+  { name: "James Lipshutz", acct: "suspended", ver: "verified", slots: "2/2" },
+  { name: "Dulce Press", acct: "pending", ver: "notverified", slots: "5/10" },
+  { name: "Jakob Lubin", acct: "activated", ver: "pending", slots: "5/15" },
+  { name: "Kaylynn Dokidis", acct: "activated", ver: "verified", slots: "15/10" },
+  { name: "Emerson Dokidis", acct: "activated", ver: "verified", slots: "5/14" },
 ];
 
 const ACCT = {
-  active: { tone: "green", label: "Activated" },
+  activated: { tone: "green", label: "Activated" },
   suspended: { tone: "red", label: "Suspended" },
   pending: { tone: "orange", label: "Pending" },
+  active: { tone: "green", label: "Activated" },
 };
 const VER = {
   verified: { tone: "green", label: "Verified" },
-  unverified: { tone: "gray", label: "Unverified" },
   pending: { tone: "orange", label: "Pending" },
+  notverified: { tone: "red", label: "Not Verified" },
+  unverified: { tone: "red", label: "Not Verified" },
 };
 
-function Filter({ label, value, onChange, options }) {
-  return (
-    <label className="flex flex-col gap-[10px]">
-      <span className="text-[16px] font-semibold leading-[20px] text-[#000000]">{label}</span>
-      <span className="relative flex h-[46px] w-full lg:w-[221px] items-center rounded-[10px] border border-[#999999] bg-[#DFFFE1] px-[15px]">
-        <select
-          value={value}
-          onChange={(e) => onChange(e.target.value)}
-          className="w-full appearance-none bg-transparent pr-6 text-[16px] font-semibold text-[#001701] focus:outline-none"
-        >
-          {options.map((o) => (
-            <option key={o}>{o}</option>
-          ))}
-        </select>
-        <span className="pointer-events-none absolute right-[15px]">
-          <ChevDown color="#001701" />
-        </span>
-      </span>
-    </label>
-  );
-}
+const HEAD = ["User", "Email/Phone Number", "Account Status", "Verification Status", "Registration Date", "Active Sub /Group", "Action"];
+const COLW = ["w-[220px]", "w-[240px]", "w-[150px]", "w-[160px]", "w-[150px]", "w-[90px]", "w-[110px]"];
 
 export default function AdminUsers() {
+  const live = useAdminRows("users");
   const nav = useNavigate();
   const [q, setQ] = useState("");
-  const [acct, setAcct] = useState("All");
-  const [ver, setVer] = useState("All");
   const [checked, setChecked] = useState([]);
   const rows = useMemo(
-    () =>
-      ROWS.filter(
-        (r) =>
-          r.name.toLowerCase().includes(q.trim().toLowerCase()) &&
-          (acct === "All" || ACCT[r.acct].label === acct) &&
-          (ver === "All" || VER[r.ver].label === ver)
-      ),
-    [q, acct, ver]
+    () => (live || ROWS).filter((r) => r.name.toLowerCase().includes(q.trim().toLowerCase())),
+    [q, live]
   );
   const all = rows.length > 0 && rows.every((r) => checked.includes(r.name));
   const toggle = (name) => setChecked((c) => (c.includes(name) ? c.filter((x) => x !== name) : [...c, name]));
 
   return (
-    <AdminShell active="users" sub="um">
-      <PageTitle title="User List" />
-
-      <div className="mt-[30px] flex gap-[20px]">
-        {STATS.map((s, i) => (
-          <div
-            key={s.label}
-            className={`flex h-[121px] ${i === 3 ? "w-full lg:w-[276px]" : "w-full lg:w-[258px]"} items-center gap-[15px] rounded-[10px] border border-[#999999] bg-white px-[20px]`}
-          >
-            <span className="flex h-[42px] w-[42px] shrink-0 items-center justify-center rounded-[5px] bg-[#DFFFE1]">
-              {s.glyph}
-            </span>
-            <span>
-              <span className="block text-[18px] font-semibold leading-[22px] text-[#4E4E4E]">{s.label}</span>
-              <span className="block text-[25px] font-bold leading-[31px] text-[#001701]">{s.value}</span>
-              <span className="block text-[18px] font-semibold leading-[22px] text-[#6B6B6B]">Last 30 Days</span>
-            </span>
-          </div>
-        ))}
-      </div>
-
-      <div className="mt-[30px] flex items-end gap-[24px]">
-        <label className="mb-[3px] flex h-[40px] w-full lg:w-[374px] items-center gap-2 rounded-full bg-white px-[20px]">
-          <SearchIcon />
-          <input
-            value={q}
-            onChange={(e) => setQ(e.target.value)}
-            placeholder="Search...."
-            className="w-full bg-transparent text-[14px] font-semibold text-[#001701] placeholder-[#4E4E4E] focus:outline-none"
-          />
-        </label>
-        <Filter label="Account Status" value={acct} onChange={setAcct} options={["All", "Activated", "Suspended", "Pending"]} />
-        <Filter label="Verification Status" value={ver} onChange={setVer} options={["All", "Verified", "Unverified", "Pending"]} />
-        <Filter label="Registered Date" value="All" onChange={() => {}} options={["All", "Last 30 Days", "Last 90 Days"]} />
-      </div>
-
-      <div className="mt-[30px] overflow-x-auto rounded-[20px] border border-[#999999] bg-white">
-        <div className="min-w-[1391px]">
-          <div className="mt-[46px] flex h-[60px] items-center bg-[#DFFFE1] text-[16px] font-semibold text-[#4E4E4E]">
-            <span className="flex w-[81px] shrink-0 justify-center">
-              <button
-                aria-label="Select all"
-                onClick={() => setChecked(all ? [] : rows.map((r) => r.name))}
-                className={`flex h-[30px] w-[30px] items-center justify-center rounded-[5px] border border-[#048B0B] bg-white ${all ? "bg-[#048B0B]" : ""}`}
-              >
-                {all && (
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-                    <path d="m5 12.5 4.5 4.5L19 7.5" stroke="#fff" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
-                  </svg>
-                )}
-              </button>
-            </span>
-            <span className="w-full lg:w-[245px] shrink-0">User</span>
-            <span className="w-full lg:w-[226px] shrink-0">Email/Phone Number</span>
-            <span className="w-[136px] shrink-0">Account Status</span>
-            <span className="w-[151px] shrink-0">Verification Status</span>
-            <span className="w-[145px] shrink-0">Registration Date</span>
-            <span className="w-[165px] shrink-0">Active Subscription/Group</span>
-            <span className="w-[132px] shrink-0">Action</span>
-          </div>
-          <div className="divide-y divide-[#999999] pb-[20px]">
-            {rows.map((r) => (
-              <div key={r.name} className="flex h-[111px] items-center">
-                <span className="flex w-[81px] shrink-0 justify-center">
-                  <button
-                    aria-label={`Select ${r.name}`}
-                    onClick={() => toggle(r.name)}
-                    className="flex h-[20px] w-[20px] items-center justify-center rounded-[5px] border border-[#999999] bg-white"
-                  >
-                    {checked.includes(r.name) && (
-                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none">
-                        <path d="m5 12.5 4.5 4.5L19 7.5" stroke="#048B0B" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round" />
-                      </svg>
-                    )}
-                  </button>
-                </span>
-                <span className="flex w-full lg:w-[245px] shrink-0 items-center gap-[10px]">
-                  <img src={r.img} alt={r.name} className="h-[50px] w-[50px] rounded-full object-cover" />
-                  <span className="text-[18px] font-bold text-[#001701]">{r.name}</span>
-                </span>
-                <span className="w-full lg:w-[226px] shrink-0">
-                  <span className="block text-[16px] font-semibold text-[#001701]">{r.email}</span>
-                  <span className="block text-[14px] font-semibold text-[#6B6B6B]">{r.phone}</span>
-                </span>
-                <span className="flex w-[136px] shrink-0">
-                  <Pill tone={ACCT[r.acct].tone} className="h-[37px] w-[127px]">
-                    {ACCT[r.acct].label}
-                  </Pill>
-                </span>
-                <span className="flex w-[151px] shrink-0">
-                  <Pill tone={VER[r.ver].tone} className="h-[37px] w-[127px]">
-                    {VER[r.ver].label}
-                  </Pill>
-                </span>
-                <span className="w-[145px] shrink-0 text-[16px] font-semibold text-[#001701]">{r.date}</span>
-                <span className="w-[165px] shrink-0 text-[16px] font-semibold text-[#001701]">{r.grp}</span>
-                <span className="flex w-[132px] shrink-0 items-center gap-[18px]">
-                  <button aria-label={`View ${r.name}`} onClick={() => nav("/admin/users/details")}>
-                    <PencilIcon />
-                  </button>
-                  <button aria-label="More actions">
-                    <DotsIcon />
-                  </button>
-                </span>
-              </div>
-            ))}
-            {rows.length === 0 && (
-              <p className="px-[40px] py-[40px] text-[16px] font-semibold text-[#6B6B6B]">No users match your filters.</p>
-            )}
-          </div>
+    <AdminShell active="users" sub="um" expand nav2>
+      <DarkZone>
+        <div className="mt-[22px] flex flex-wrap gap-[20px]">
+          <StatCard dark className="min-w-[220px] flex-1" label="Total User" value="124,000" badge={badgeMint} glyph={<UsersGlyph />} />
+          <StatCard dark className="min-w-[220px] flex-1" label="Active User" value="124,000" badge={badgeMint} glyph={<CheckGlyph />} />
+          <StatCard dark className="min-w-[220px] flex-1" label="Verified User" value="124,000" badge={badgeMint} glyph={<CheckGlyph />} />
+          <StatCard dark className="min-w-[220px] flex-1" label="Susspended User" value="122" badge={badgeMint} glyph={<UsersGlyph color="#FF6B02" />} />
         </div>
-      </div>
+        <DarkFilter value={q} onChange={(e) => setQ(e.target.value)} />
+        <div className={`mt-[26px] overflow-hidden ${DCARD}`}>
+          <table className="w-full border-separate border-spacing-0 text-left">
+            <thead>
+              <tr>
+                <th className="h-[64px] w-[52px] bg-[#E5FFEB] px-[16px] align-middle">
+                  <input
+                    type="checkbox"
+                    aria-label="Select all"
+                    checked={all}
+                    onChange={() => setChecked(all ? [] : rows.map((r) => r.name))}
+                    className="h-[18px] w-[18px] accent-[#048B0B]"
+                  />
+                </th>
+                {HEAD.map((h, i) => (
+                  <th key={h} className={`h-[64px] bg-[#E5FFEB] px-[10px] align-middle text-[15px] font-semibold text-[#4E4E4E] ${COLW[i]}`}>
+                    {h}
+                  </th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {rows.map((r, i) => (
+                <tr key={r.name}>
+                  <td className="border-t border-[#E4E4E4] px-[16px] py-[28px]">
+                    <input
+                      type="checkbox"
+                      aria-label={`Select ${r.name}`}
+                      checked={checked.includes(r.name)}
+                      onChange={() => toggle(r.name)}
+                      className="h-[18px] w-[18px] accent-[#048B0B]"
+                    />
+                  </td>
+                  <td className="border-t border-[#E4E4E4] px-[10px] py-[28px]">
+                    <span className="flex items-center gap-[14px]">
+                      {r.img ? (
+                        <img src={r.img} alt="" className="h-[44px] w-[44px] rounded-full object-cover" />
+                      ) : (
+                        <FinAvatar i={i} size={44} />
+                      )}
+                      <span className="whitespace-nowrap text-[17px] font-bold text-[#001701]">{r.name}</span>
+                    </span>
+                  </td>
+                  <td className="border-t border-[#E4E4E4] px-[10px] py-[28px]">
+                    <span className="block text-[15px] font-semibold text-[#4E4E4E]">{r.email || "clysewebapp@gmail.com"}</span>
+                    <span className="mt-[4px] block text-[15px] font-semibold text-[#4E4E4E]">{r.phone || "+234 702 122 457"}</span>
+                  </td>
+                  <td className="border-t border-[#E4E4E4] px-[10px] py-[28px]">
+                    <Pill dot tone={ACCT[r.acct]?.tone || "green"} className="h-[37px] px-[16px]">
+                      {ACCT[r.acct]?.label || "Activated"}
+                    </Pill>
+                  </td>
+                  <td className="border-t border-[#E4E4E4] px-[10px] py-[28px]">
+                    <Pill dot tone={VER[r.ver]?.tone || "green"} className="h-[37px] px-[16px]">
+                      {VER[r.ver]?.label || "Verified"}
+                    </Pill>
+                  </td>
+                  <td className="border-t border-[#E4E4E4] px-[10px] py-[28px] text-[15px] font-bold text-[#001701]">
+                    {r.date || "Sep. 20, 2026"}
+                  </td>
+                  <td className="border-t border-[#E4E4E4] px-[10px] py-[28px] text-[15px] font-bold text-[#001701]">
+                    {r.slots || (r.grp && r.grp !== "—" ? `${r.grp}/10` : "5/10")}
+                  </td>
+                  <td className="border-t border-[#E4E4E4] px-[10px] py-[28px]">
+                    <span className="flex items-center gap-[10px]">
+                      <button
+                        type="button"
+                        onClick={() => nav("/admin/users/details")}
+                        className="h-[35px] rounded-[8px] border border-[#999999] bg-white px-[14px] text-[14px] font-semibold text-[#001701]"
+                      >
+                        View
+                      </button>
+                      <button type="button" aria-label="More actions">
+                        <DotsIcon />
+                      </button>
+                    </span>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+          <div className="h-[70px]" />
+        </div>
+      </DarkZone>
     </AdminShell>
   );
 }

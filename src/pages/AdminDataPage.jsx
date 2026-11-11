@@ -6,7 +6,7 @@ import { API_BASE, api, fmtDate, getSession, kobo } from "../lib/api";
 /* Live admin workspace. The API reference documents ADMIN-001–018; this
    component renders real response data and never substitutes mock records. */
 const PAGE = {
-  dashboard: { title: "Admin Dashboard", active: "dashboard", url: () => "/admin/dashboard", dashboard: true },
+  dashboard: { title: "Admin Dashboard", active: "dashboard", url: () => "/admin/data/dashboard", dashboard: true },
   requests: { title: "Custom Subscription Requests", active: "subscriptions", sub: "requests", unsupported: true, unsupportedMessage: "The current API reference documents subscription requests for members, but does not expose an admin request-queue endpoint. No sample records are shown here; connect this screen when the admin endpoint is available." },
   roleCreate: { title: "Create Admin Role", active: "settings", sub: "create-role", unsupported: true, unsupportedMessage: "The Figma frame shows role creation, but the current API reference does not expose a create-role endpoint. Role permissions and admin assignments are available in their respective screens." },
   services: { title: "Subscription Catalogue", active: "subscriptions", sub: "services", collection: "services", url: (q) => `/admin/catalogue/services${q}`, detail: "/admin/catalogue/services/detail", idKey: "service_id", filters: ["status", "q"], actions: ["Change service status", "Edit service"], create: "service" },
