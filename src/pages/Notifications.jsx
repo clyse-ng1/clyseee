@@ -317,7 +317,7 @@ export default function Notifications() {
         ))
       )}
       {items && items.length === 0 && (
-        <p className="rounded-[14px] border border-clyse bg-[#F1F8F1] px-[18px] py-[24px] text-center text-[16px] leading-[22px] font-semibold text-[#4E4E4E]">
+        <p className="px-[18px] py-[26px] text-center text-[15px] leading-[22px] font-semibold text-[#9AA39E]">
           You&apos;re all caught up — no notifications yet.
         </p>
       )}
@@ -365,7 +365,6 @@ export default function Notifications() {
                   {loadingMore ? "Loading…" : "Show older notifications"}
                 </button>
               )}
-              <Prefs prefs={prefs} onToggle={togglePref} />
             </div>
           </div>
         </div>
@@ -392,7 +391,8 @@ export default function Notifications() {
               </button>
             )}
           </div>
-          <div className="mt-[30px] flex flex-col gap-[10px]">
+          <div className="mt-[30px] rounded-[20px] bg-white px-[16px] py-[20px] shadow-[0_0_20px_rgba(0,23,1,0.10)]">
+          <div className="flex flex-col gap-[10px]">
             {rows.map((r, i) => (
               <Row
                 key={r.id || `${r.title}-${i}`}
@@ -401,7 +401,7 @@ export default function Notifications() {
               />
             ))}
             {items && items.length === 0 && (
-              <p className="rounded-[14px] border border-clyse bg-[#F1F8F1] px-[16px] py-[24px] text-center text-[14px] leading-[20px] font-semibold text-[#4E4E4E]">
+              <p className="px-[16px] py-[26px] text-center text-[14px] leading-[20px] font-semibold text-[#9AA39E]">
                 You&apos;re all caught up — no notifications yet.
               </p>
             )}
@@ -416,7 +416,7 @@ export default function Notifications() {
               {loadingMore ? "Loading…" : "Show older notifications"}
             </button>
           )}
-          <Prefs prefs={prefs} onToggle={togglePref} />
+          </div>
         </div>
         <ExtraBlock mobile className="mt-[40px]" />
         <div className="bg-white pb-[60px]" />

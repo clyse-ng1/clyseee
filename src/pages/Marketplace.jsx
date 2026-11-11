@@ -13,6 +13,7 @@ import iconSearch from "../assets/icon-search.svg";
 import iconChevron from "../assets/icon-chevron.svg";
 import iconUser from "../assets/icon-user.svg";
 import avatarAccount from "../assets/avatar-account.webp";
+import GroupOfferCard from "../components/GroupOfferCard";
 import ctaOwner from "../assets/cta-owner.webp";
 import { api, brandOf, kobo, titleCase, totalPriceKobo } from "../lib/api";
 import { useCatalogue } from "../lib/useCatalogue";
@@ -52,50 +53,6 @@ function ServiceCard({ title, brand, category, chip, price }) {
   );
 }
 
-function OfferCard({ name, avatar, service, price, left, ratio, pct, linkTo, linkState }) {
-  return (
-    <div className="w-[308px]">
-      <img
-        src={avatar || avatarAccount}
-        alt={name}
-        className="relative z-[1] mx-auto h-[116px] w-[116px] rounded-full object-cover"
-      />
-      <div className="bg-deep -mt-[58px] rounded-[20px] px-[30px] pt-[70px] pb-[30px] text-center">
-        <p className="text-[25px] font-bold leading-[28px] text-white">{name}</p>
-        <p className="text-[13px] leading-[20px] text-white">
-          <span className="font-semibold">Share </span>
-          <span className="font-bold">{service || "Subscription"}</span>
-        </p>
-        <div className="mt-[20px] h-[1px] bg-[#B1DBB3]" />
-        <div className="bg-contrib mt-[20px] h-[70px] rounded-[10px] pt-[11px]">
-          <p className="text-[10px] font-semibold leading-[20px] text-white">Your Contribution</p>
-          <p className="mt-[-2px] flex items-baseline justify-center gap-[4px]">
-            <span className="text-[25px] font-semibold leading-[35px] text-white">{price || "—"}</span>
-            <span className="text-[10px] font-semibold text-[#B1DBB3]">/Monthly</span>
-          </p>
-        </div>
-        <div className="mt-[9px] h-[7px] rounded-full bg-[#023F05]">
-          <div className="h-[7px] rounded-full bg-clyse" style={{ width: pct != null ? `${pct}%` : "0%" }} />
-        </div>
-        <div className="mt-[4px] flex items-center justify-between">
-          <span className="flex items-center gap-[2px] text-[13px] font-semibold text-mint">
-            <img src={iconUser} alt="" className="h-[11px] w-[11px]" />
-            {left || "1 Slot left"}
-          </span>
-          <span className="text-[13px] font-semibold text-mint">{ratio || "3/4"}</span>
-        </div>
-        <Link
-          to={linkTo || "/join"}
-          state={linkState}
-          className="bg-mintband mt-[20px] flex h-[40px] w-full items-center justify-center rounded-[10px] text-[18px] font-semibold text-ink transition hover:opacity-90"
-        >
-          Join
-        </Link>
-      </div>
-    </div>
-  );
-}
-
 function mapService(a) {
   const service = a.service || a;
   const plans = a.plans || a.catalogue_plans || [];
@@ -124,7 +81,15 @@ function mapOffer(g) {
     service: [g.service?.name, g.plan?.name].filter(Boolean).join(" ") || "Subscription",
     price: total != null ? kobo(total) : null,
     left: left === 1 ? "1 Slot left" : `${left} Slots left`,
-    ratio: `${left} open`,
+    ratio: (() => {
+      const offered =
+        g.slots_offered ?? g.capacity ?? g.plan?.member_slot_capacity ?? null;
+      if (!offered) return `${left} open`;
+      const free = g.available_slots ?? g.open_slots ?? null;
+      const occupied =
+        g.occupied_slots ?? (free == null ? null : Math.max(0, offered - free));
+      return occupied == null ? `${left} open` : `${occupied}/${offered}`;
+    })(),
     /* The bar used to be pinned at 71% for every card because this was null
        and the component fell back to a hard-coded width. Fill it from the
        group's own slot numbers. */
@@ -248,11 +213,19 @@ function MarketplaceDesktop() {
       ) : (
         <>
           <div className="mt-[30px] flex justify-center gap-[40px]">
-            {offers.slice(0, 3).map((o, i) => <OfferCard key={`${o.name}-${i}`} {...o} />)}
+            {offers.slice(0, 3).map((o, i) => (
+              <div key={`${o.name}-${i}`} className="w-[308px]">
+                <GroupOfferCard g={o} />
+              </div>
+            ))}
           </div>
           {offers.length > 3 && (
             <div className="mt-[30px] flex justify-center gap-[40px]">
-              {offers.slice(3, 6).map((o, i) => <OfferCard key={`${o.name}-more-${i}`} {...o} />)}
+              {offers.slice(3, 6).map((o, i) => (
+                <div key={`${o.name}-more-${i}`} className="w-[308px]">
+                  <GroupOfferCard g={o} />
+                </div>
+              ))}
             </div>
           )}
         </>

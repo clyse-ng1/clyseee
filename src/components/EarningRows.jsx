@@ -35,8 +35,8 @@ export function EarningTxRow({ brand, name, sub, mSub, earning, count, date, sta
   const pill = PILL[status] || PILL.Successful;
   return (
     <>
-      <div className={`rounded-[12px] bg-white px-[21px] pt-[17px] pb-[17px] xl:hidden ${SHADOW}`}>
-        <div className="flex">
+      <div className="rounded-[12px] border border-[#EFEFEF] bg-white px-[16px] pt-[14px] pb-[14px] xl:hidden">
+        <div className="flex items-start">
           {brand === "capcut" ? (
             <span className="h-[40px] w-[40px] flex-none rounded-full bg-[#E6E6E6]" />
           ) : (
@@ -46,21 +46,21 @@ export function EarningTxRow({ brand, name, sub, mSub, earning, count, date, sta
             <span className="block truncate text-[16px] leading-[20px] font-semibold text-black">
               {name}
             </span>
-            <span className="block truncate text-[13px] leading-[20px] font-semibold text-[#66726C]">
-              {mSub || "Group Subscription"}
+            <span className="block truncate text-[12px] leading-[18px] font-semibold text-[#66726C]">
+              {mSub || `${count || 0} Member`}
+            </span>
+            <span className="mt-[6px] block truncate text-[12px] leading-[18px] font-semibold text-[#66726C]">
+              {date}
             </span>
           </span>
-          <span className="mt-[13px] ml-auto flex-none text-[16px] leading-[20px] font-semibold whitespace-nowrap text-[#6B6B6B]">
-            {earning}
-          </span>
-        </div>
-        <div className="mt-[12px] flex items-center justify-between gap-[12px]">
-          <span className="truncate text-[13px] leading-[20px] font-semibold text-[#66726C]">
-            {date}
-          </span>
-          <span className={`flex h-[28px] w-[101px] flex-none items-center justify-center rounded-[14px] ${pill.bg}`}>
-            <span className={`text-[13px] leading-[16px] font-semibold whitespace-nowrap ${pill.text}`}>
-              {status}
+          <span className="ml-auto flex flex-none flex-col items-end gap-[8px]">
+            <span className="text-[15px] leading-[20px] font-semibold whitespace-nowrap text-[#26302A]">
+              {earning}
+            </span>
+            <span className={`flex h-[26px] w-[92px] flex-none items-center justify-center rounded-[13px] ${pill.bg}`}>
+              <span className={`text-[12px] leading-[16px] font-semibold whitespace-nowrap ${pill.text}`}>
+                {status}
+              </span>
             </span>
           </span>
         </div>

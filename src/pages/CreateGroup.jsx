@@ -151,7 +151,7 @@ export default function CreateGroup() {
   }, [selected, custom, customName, customPlan, customPriceKobo]);
 
   return (
-    <div className="relative min-h-screen bg-[linear-gradient(180deg,#E4F6E5_0%,#EFFAF0_240px,#FBFEFB_420px)] font-sans text-ink">
+    <div className="relative min-h-screen bg-white font-sans text-ink">
       <Navbar loggedIn />
       <BlurBg variant="hero" />
       {/* Desktop */}

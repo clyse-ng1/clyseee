@@ -126,7 +126,7 @@ export default function AdminUsers() {
                     <span className="flex items-center gap-[10px]">
                       <button
                         type="button"
-                        onClick={() => nav("/admin/users/details")}
+                        onClick={() => nav(`/admin/users/details?id=${r.id || ""}`)}
                         className="h-[35px] rounded-[8px] border border-[#999999] bg-white px-[14px] text-[14px] font-semibold text-[#001701]"
                       >
                         View

@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import Sidebar from "../components/Sidebar";
 import BrandTile from "../components/BrandTile";
+import GroupOfferCard from "../components/GroupOfferCard";
 import { BlurBg } from "../components/Decor";
 import {
   api,
@@ -92,7 +93,6 @@ function mapAvail(a) {
     name: serviceName(a),
     cat: titleCase(a.service?.category) || "Entertainment",
     price: total != null ? `From ${kobo(total)}/` : null,
-    status: a.status || a.service?.status || "active",
   };
 }
 
@@ -262,14 +262,15 @@ function MobileMemberRow({ row, button, onLeave, busy }) {
   );
 }
 
-function SubCard({ brand, name, price, cat = "Entertainment", status }) {
-  const inactive = status === "inactive";
+function SubCard({ brand, name, price, cat = "Entertainment", selected, onSelect }) {
   return (
-    <Link
-      to="/marketplace"
-      aria-label={`${name} — view in marketplace`}
-      className={`block h-[200px] w-[250px] cursor-pointer rounded-[20px] border bg-white pt-[31px] text-center shadow-[0_0_20px_rgba(0,23,1,0.10)] transition hover:shadow-[0_0_26px_rgba(0,23,1,0.16)] ${
-        inactive ? "border-[#E0A9A9]" : "border-clyse"
+    <button
+      type="button"
+      onClick={onSelect}
+      aria-pressed={selected}
+      title={selected ? `Filtering groups by ${name} — click to clear` : `Show ${name} groups`}
+      className={`h-[200px] w-[250px] cursor-pointer rounded-[20px] border bg-white pt-[31px] text-center shadow-[0_0_20px_rgba(0,23,1,0.10)] transition ${
+        selected ? "border-[#048B0B] ring-2 ring-[#B1DBB3]" : "border-clyse hover:shadow-[0_0_26px_rgba(0,23,1,0.16)]"
       }`}
     >
       <span className="flex justify-center">
@@ -278,12 +279,8 @@ function SubCard({ brand, name, price, cat = "Entertainment", status }) {
       <p className="mt-[10px] text-[18px] leading-[22px] font-bold text-ink">
         {name}
       </p>
-      <span
-        className={`mt-[6px] inline-flex h-[19px] w-[96px] items-center justify-center rounded-[3.58px] text-[10px] leading-[15px] font-semibold ${
-          inactive ? "bg-[#EDEDED] text-[#6B6B6B]" : "bg-[#B1DBB3] text-clyse"
-        }`}
-      >
-        {inactive ? "Inactive" : cat}
+      <span className="mt-[6px] inline-flex h-[19px] w-[96px] items-center justify-center rounded-[3.58px] bg-[#B1DBB3] text-[10px] leading-[15px] font-semibold text-clyse">
+        {cat}
       </span>
       <p className="mt-[6px] flex items-baseline justify-center">
         <span className="text-[18px] leading-[22px] font-semibold text-ink">
@@ -293,18 +290,19 @@ function SubCard({ brand, name, price, cat = "Entertainment", status }) {
           Monthly
         </span>
       </p>
-    </Link>
+    </button>
   );
 }
 
-function MobileSubCard({ brand, name, price, cat = "Entertainment", status }) {
-  const inactive = status === "inactive";
+function MobileSubCard({ brand, name, price, cat = "Entertainment", selected, onSelect }) {
   return (
-    <Link
-      to="/marketplace"
-      aria-label={`${name} — view in marketplace`}
-      className={`block min-h-[137px] cursor-pointer rounded-[13.74px] border bg-white pt-[22px] pb-[10px] text-center shadow-[0_0_13px_rgba(0,23,1,0.10)] transition hover:shadow-[0_0_18px_rgba(0,23,1,0.16)] ${
-        inactive ? "border-[#E0A9A9]" : "border-clyse"
+    <button
+      type="button"
+      onClick={onSelect}
+      aria-pressed={selected}
+      title={selected ? `Filtering groups by ${name} — click to clear` : `Show ${name} groups`}
+      className={`min-h-[137px] cursor-pointer rounded-[13.74px] border bg-white pt-[22px] pb-[10px] text-center shadow-[0_0_13px_rgba(0,23,1,0.10)] transition ${
+        selected ? "border-[#048B0B] ring-2 ring-[#B1DBB3]" : "border-clyse hover:shadow-[0_0_18px_rgba(0,23,1,0.16)]"
       }`}
     >
       <span className="flex justify-center">
@@ -313,12 +311,8 @@ function MobileSubCard({ brand, name, price, cat = "Entertainment", status }) {
       <p className="mt-[7px] text-[12.37px] leading-[15px] font-bold text-ink">
         {name}
       </p>
-      <span
-        className={`mt-[4px] inline-flex h-[15px] w-[76px] items-center justify-center rounded-[2.86px] text-[8.93px] leading-[12px] font-semibold ${
-          inactive ? "bg-[#EDEDED] text-[#6B6B6B]" : "bg-[#B1DBB3] text-clyse"
-        }`}
-      >
-        {inactive ? "Inactive" : cat}
+      <span className="mt-[4px] inline-flex h-[15px] w-[76px] items-center justify-center rounded-[2.86px] bg-[#B1DBB3] text-[8.93px] leading-[12px] font-semibold text-clyse">
+        {cat}
       </span>
       <p className="mt-[4px] flex items-baseline justify-center">
         <span className="text-[12.37px] leading-[15px] font-semibold text-ink">
@@ -328,157 +322,25 @@ function MobileSubCard({ brand, name, price, cat = "Entertainment", status }) {
           Monthly
         </span>
       </p>
-    </Link>
+    </button>
   );
 }
 
-function GroupCard({ group }) {
-  const g = group;
-  return (
-    <div className="w-[253px]">
-      <img
-        src={avatarAccount}
-        alt={g.creator}
-        className="relative z-[1] mx-auto h-[95px] w-[95px] rounded-full object-cover"
-      />
-      <div className="bg-btn -mt-[51px] rounded-[16.23px] px-[24px] pt-[57px] pb-[24px]">
-        <p className="text-[25px] leading-[23px] font-bold text-white">
-          {g.creator}
-        </p>
-        <p className="flex items-start justify-center gap-[4px]">
-          <span className="text-[10.6px] leading-[17px] font-semibold text-white">
-            Share
-          </span>
-          <span className="text-[13px] leading-[17px] font-bold text-white">
-            {g.service}
-          </span>
-        </p>
-        <div className="mt-[17px] ml-[2px] h-[1px] w-[201px] bg-[#B1DBB3]" />
-        <div className="bg-mintband mt-[17px] h-[57px] rounded-[8.12px] pt-[8px] text-center">
-          <p className="text-[8.1px] leading-[16px] font-semibold text-ink">
-            Your Contribution
-          </p>
-          <p className="flex items-baseline justify-center">
-            <span className="text-[25px] leading-[24px] font-semibold text-ink">
-              {g.price}
-            </span>
-            <span className="text-[10px] leading-[17px] font-semibold text-[#B1DBB3]">
-              /Monthly
-            </span>
-          </p>
-        </div>
-        <div className="mt-[7px] ml-[1px] h-[6px] w-[201px] rounded-full bg-[#B1DBB3]/30">
-          <div
-            className="h-[6px] w-[143px] rounded-full bg-clyse"
-            style={
-              g.pct == null
-                ? undefined
-                : { width: `${Math.round(g.pct * 201)}px` }
-            }
-          />
-        </div>
-        <div className="mt-[3px] flex items-center justify-between text-[13px] leading-[16px] font-semibold text-mint">
-          <span className="flex items-center">
-            <img src={iconUser} alt="" className="h-[9px] w-[9px]" />
-            <span className="ml-[8px]">{g.left}</span>
-          </span>
-          <span>{g.frac}</span>
-        </div>
-        <p className="mt-[4px] flex items-center">
-          <img src={iconAccess} alt="" className="h-[9px] w-[8px]" />
-          <span className="ml-[9px] text-[10px] leading-[17px] font-semibold text-white">
-            Access Method:
-          </span>
-          <span className="ml-[12px] text-[11px] leading-[17px] font-semibold text-white">
-            {g.access}
-          </span>
-        </p>
-        <Link
-          to={g.id && g.raw ? "/join/summary" : "/subscription-group"}
-          state={g.id && g.raw ? { group_id: g.id, preview: g.raw } : undefined}
-          className="bg-mintband mt-[16px] flex h-[32px] items-center justify-center rounded-[8.12px] text-[18px] font-semibold text-ink"
-        >
-          Join
-        </Link>
-      </div>
-    </div>
-  );
+function toOffer(g) {
+  return {
+    avatar: null,
+    name: g.creator,
+    service: g.service,
+    price: g.price,
+    pct: g.pct == null ? 0 : Math.round(g.pct * 100),
+    left: g.left,
+    ratio: g.frac,
+    access: g.access,
+    linkTo: g.id && g.raw ? "/join/summary" : "/subscription-group",
+    linkState: g.id && g.raw ? { group_id: g.id, preview: g.raw } : undefined,
+  };
 }
 
-function MobileGroupCard({ group }) {
-  const g = group;
-  return (
-    <div>
-      <img
-        src={avatarAccount}
-        alt={g.creator}
-        className="relative z-[1] mx-auto h-[66px] w-[66px] rounded-full object-cover"
-      />
-      <div className="bg-btn -mt-[33px] rounded-[11.16px] px-[17px] pt-[46px] pb-[17px]">
-        <p className="text-[17.18px] leading-[16px] font-bold text-white">
-          {g.creator}
-        </p>
-        <p className="flex items-start justify-center gap-[3px]">
-          <span className="text-[7.25px] leading-[12px] font-semibold text-white">
-            Share
-          </span>
-          <span className="text-[8.93px] leading-[12px] font-bold text-white">
-            {g.service}
-          </span>
-        </p>
-        <div className="mt-[12px] ml-[3px] h-[1px] w-[138px] bg-[#B1DBB3]" />
-        <div className="bg-mintband mt-[11px] h-[39px] rounded-[5.58px] pt-[6px] text-center">
-          <p className="text-[5.58px] leading-[10px] font-semibold text-ink">
-            Your Contribution
-          </p>
-          <p className="flex items-baseline justify-center">
-            <span className="text-[17.18px] leading-[16px] font-semibold text-ink">
-              {g.price}
-            </span>
-            <span className="text-[6.87px] leading-[12px] font-semibold text-[#B1DBB3]">
-              /Monthly
-            </span>
-          </p>
-        </div>
-        <div className="mt-[5px] h-[4px] w-[138px] rounded-full bg-[#B1DBB3]/30">
-          <div
-            className="h-[4px] w-0 rounded-full bg-clyse"
-            style={
-              g.pct == null
-                ? undefined
-                : { width: `${Math.round(g.pct * 138)}px` }
-            }
-          />
-        </div>
-        <div className="mt-[2px] flex items-center justify-between text-[8.93px] leading-[12px] font-semibold text-mint">
-          <span className="flex items-center">
-            <img src={iconUser} alt="" className="h-[6px] w-[6px]" />
-            <span className="ml-[5px]">{g.left}</span>
-          </span>
-          <span>{g.frac}</span>
-        </div>
-        <p className="mt-[3px] flex items-center">
-          <img src={iconAccess} alt="" className="h-[6px] w-[6px]" />
-          <span className="ml-[5px] whitespace-nowrap text-[6.87px] leading-[12px] font-semibold text-white">
-            Access:
-          </span>
-          <span className="ml-[6px] whitespace-nowrap text-[7.56px] leading-[12px] font-semibold text-white">
-            {g.access}
-          </span>
-        </p>
-        <Link
-          to={g.id && g.raw ? "/join/summary" : "/subscription-group"}
-          state={g.id && g.raw ? { group_id: g.id, preview: g.raw } : undefined}
-          className="bg-mintband mt-[11px] flex h-[22px] items-center justify-center rounded-[5.58px] text-[12.37px] font-semibold text-ink"
-        >
-          Join
-        </Link>
-      </div>
-    </div>
-  );
-}
-
-/* Loading stand-ins (shimmer, never mock content). */
 function MemberRowSk() {
   return (
     <div className="flex h-[57px] items-center">
@@ -526,6 +388,7 @@ function MobileSubCardSk() {
     </div>
   );
 }
+
 
 function GroupCardSk() {
   return (
@@ -679,6 +542,13 @@ export default function Dashboard() {
   const groups = (dash?.available_groups || []).map((g) =>
     mapGroup(g, slotMeta[g.group_id || g.id]),
   );
+  /* Selecting an Available Subscription card filters the Available Group
+     (join group) list below it — click again to clear. */
+  const [pickedSub, setPickedSub] = useState(null);
+  const shownGroups = pickedSub
+    ? groups.filter((g) => g.service.toLowerCase() === pickedSub.toLowerCase())
+    : groups;
+  const pick = (name) => setPickedSub((p) => (p === name ? null : name));
 
   return (
     <div className="min-h-screen bg-white font-sans text-ink">
@@ -823,7 +693,8 @@ export default function Dashboard() {
                       name={s.name}
                       price={s.price}
                       cat={s.cat}
-                      status={s.status}
+                      selected={pickedSub === s.name}
+                      onSelect={() => pick(s.name)}
                     />
                   ))}
             </div>
@@ -844,13 +715,33 @@ export default function Dashboard() {
             <h2 className="mt-[104px] text-[35px] leading-[43px] font-bold">
               Available Group
             </h2>
+            {pickedSub && (
+              <p className="mt-[8px] text-[16px] leading-[20px] font-semibold text-[#048B0B]">
+                Showing groups for {pickedSub} ·{" "}
+                <button type="button" onClick={() => setPickedSub(null)} className="underline">
+                  Clear
+                </button>
+              </p>
+            )}
             <div className="mt-[22px] grid grid-cols-3 gap-x-[32px] gap-y-[3px]">
               {!dash
                 ? [0, 1, 2, 3, 4, 5].map((i) => <GroupCardSk key={i} />)
-                : groups
+                : shownGroups
                     .slice(0, 6)
-                    .map((g, i) => <GroupCard key={g.id || i} group={g} />)}
+                    .map((g, i) => (
+                      <div key={g.id || i} className="w-[253px]">
+                        <GroupOfferCard g={toOffer(g)} />
+                      </div>
+                    ))}
             </div>
+            {dash && pickedSub && shownGroups.length === 0 && (
+              <p className="mt-[16px] text-[18px] leading-[22px] font-semibold text-[#6B6B6B]">
+                No open groups for {pickedSub} right now.{" "}
+                <button type="button" onClick={() => setPickedSub(null)} className="text-clyse underline">
+                  Clear filter
+                </button>
+              </p>
+            )}
             {dash && groups.length === 0 && (
               <EmptyRow
                 text="No groups available right now."
@@ -1076,7 +967,8 @@ export default function Dashboard() {
                     name={s.name}
                     price={s.price}
                     cat={s.cat}
-                    status={s.status}
+                    selected={pickedSub === s.name}
+                    onSelect={() => pick(s.name)}
                   />
                 ))}
           </div>
@@ -1096,13 +988,29 @@ export default function Dashboard() {
           <h2 className="mt-[58px] ml-[30px] text-[22px] leading-[27px] font-bold">
             Available Group
           </h2>
+          {pickedSub && (
+            <p className="mt-[6px] ml-[30px] text-[12px] leading-[15px] font-semibold text-[#048B0B]">
+              Showing groups for {pickedSub} ·{" "}
+              <button type="button" onClick={() => setPickedSub(null)} className="underline">
+                Clear
+              </button>
+            </p>
+          )}
           <div className="mt-[15px] grid grid-cols-2 gap-x-[18px] gap-y-[5px] px-[30px]">
             {!dash
               ? [0, 1, 2, 3].map((i) => <MobileGroupCardSk key={i} />)
-              : groups
+              : shownGroups
                   .slice(0, 4)
-                  .map((g, i) => <MobileGroupCard key={g.id || i} group={g} />)}
+                  .map((g, i) => <GroupOfferCard key={g.id || i} g={toOffer(g)} />)}
           </div>
+          {dash && pickedSub && shownGroups.length === 0 && (
+            <p className="px-[30px] pt-[12px] text-[13px] leading-[16px] font-semibold text-[#6B6B6B]">
+              No open groups for {pickedSub} right now.{" "}
+              <button type="button" onClick={() => setPickedSub(null)} className="text-clyse underline">
+                Clear filter
+              </button>
+            </p>
+          )}
           {dash && groups.length === 0 && (
             <div className="px-[30px] pt-[10px]">
               <EmptyRow

@@ -31,6 +31,7 @@ const slots = (g) => {
 
 const MAPPERS = {
   users: (u, i) => ({
+    id: u.id || u.user_id,
     name: u.full_name || u.name || String(u.email || "user").split("@")[0],
     img: av(i),
     email: u.email || "—",

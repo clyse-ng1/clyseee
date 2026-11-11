@@ -15,7 +15,7 @@ function Row({ hidden, size = 81, gap = 78, boxed = false }) {
           className={`grid flex-none place-items-center ${
             boxed ? "rounded-[14px] border border-[#ECECEC] bg-white shadow-[0_6px_18px_rgba(0,23,1,0.06)]" : ""
           }`}
-          style={{ width: boxed ? size * 1.62 : size * 1.36, height: boxed ? size * 1.62 : undefined }}
+          style={{ width: boxed ? size * 1.54 : size * 1.36, height: boxed ? size * 1.54 : undefined }}
         >
           <BrandTile brand={b} size={size} plain />
         </span>
@@ -37,8 +37,8 @@ export default function LogoMarquee({ className = "", boxed = false }) {
   }, []);
   // PM: the marquee is marketing furniture — never show it to a signed-in member.
   if (user) return null;
-  const size = small ? 50 : 81;
-  const gap = small ? 38 : 78;
+  const size = small ? 50 : boxed ? 56 : 81;
+  const gap = small ? 38 : boxed ? 36 : 78;
   return (
     <div className={`overflow-hidden bg-white ${className}`}>
       <div className={small ? "pt-[14px]" : "h-[168px] pt-[29px]"}>

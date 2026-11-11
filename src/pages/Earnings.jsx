@@ -448,7 +448,7 @@ export default function Earnings() {
             </span>
           </Link>
         </div>
-        <div className={`relative mt-[30px] rounded-[20px] border border-clyse bg-white px-[20px] pt-[24px] pb-[24px] ${SHADOW}`}>
+        <div className={`relative mt-[30px] rounded-[20px] bg-white px-[20px] pt-[24px] pb-[24px] ${SHADOW}`}>
           <h2 className="text-[22px] leading-[28px] font-bold text-black">
             Earnings Summary
           </h2>
@@ -467,7 +467,7 @@ export default function Earnings() {
           </div>
         </div>
         {/* Card: "remove clyse fees section" — the block is gone. */}
-        <div className={`relative mt-[24px] rounded-[20px] border border-clyse bg-white pt-[24px] pb-[24px] ${SHADOW}`}>
+        <div className={`relative mt-[24px] rounded-[20px] bg-white pt-[24px] pb-[24px] ${SHADOW}`}>
           <div className="flex items-center px-[30px]">
             <h2 className="text-[18px] leading-[22px] font-bold text-ink">
               Payout History

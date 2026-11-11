@@ -13,6 +13,7 @@ import { useCatalogue } from "../lib/useCatalogue";
 import iconSearch from "../assets/side-search.svg";
 import iconDocSearch from "../assets/icon-doc-search-green.svg";
 import avatarAccount from "../assets/avatar-account.webp";
+import JoinCard from "../components/GroupOfferCard";
 
 /* Logged-in browse — desktop Figma 806:31476 (results) + 807:34801
    (no-result), mobile Figma 807:37875 (EVM9) + 807:38349 (EVM10).
@@ -38,104 +39,12 @@ const FIGMA_CATS = [
   "Other",
 ];
 
-function SlotIcon() {
-  return (
-    <svg width="9" height="9" viewBox="0 0 9 9" fill="none" aria-hidden="true">
-      <circle cx="4.5" cy="2.6" r="2" fill="currentColor" />
-      <path d="M1 8.2c0-1.9 1.6-3.1 3.5-3.1S8 6.3 8 8.2H1Z" fill="currentColor" />
-    </svg>
-  );
-}
-function KeyIcon() {
-  return (
-    <svg width="9" height="9" viewBox="0 0 9 9" fill="none" aria-hidden="true">
-      <circle cx="3" cy="3" r="2.1" stroke="currentColor" strokeWidth="1.1" />
-      <path d="M4.4 4.4 8 8M6.2 6.2l1-1M7.2 7.2l1-1" stroke="currentColor" strokeWidth="1.1" strokeLinecap="round" />
-    </svg>
-  );
-}
 
 /* Join Group card — Figma 806:31476 "Join Group" tiles: 251x341, r20, dark
    green; 95px avatar, 25/700 name, "Your Contribution" box r8, a 6px progress
    bar (fill = occupied/capacity), then a slot line and the access method. The
    three little "Cut / N Slots / Coverage" boxes that used to sit here are not
    in any Figma frame. */
-function JoinCard({ g, fluid = false }) {
-  return (
-    <article className="relative w-full">
-      {/* Mobile metrics are the "Small Subcription Offer" component on Figma
-          263:4402: card 177.1 x 240.3, 67px avatar overhanging the card top by
-          6px, 16px side padding (144.8 content), name 15/16, service 8/12.6,
-          rule at +106, contribution box 144.8 x 39 at +118, slot block 32.4 at
-          +162, Join 144.8 x 22.3 at +206. Desktop keeps the 251x341 tile. */}
-      <div className="rounded-[20px] bg-[linear-gradient(48deg,#001B01_0%,#003A03_30%,#007A07_62%,#00BB0C_88%,#00D50D_100%)] px-[16px] pt-[39px] pb-[12px] xl:px-[23px] xl:pt-[20px] xl:pb-[20px]">
-        <div className="flex flex-col items-center text-center">
-          <img
-            src={g.avatar || avatarAccount}
-            alt=""
-            className="-mt-[45px] h-[67px] w-[67px] rounded-full border-[2.5px] border-[#F1F8F2] object-cover xl:mt-0 xl:h-[74px] xl:w-[74px]"
-          />
-          <p className="mt-[6px] w-full truncate text-[15px] leading-[16px] font-bold text-white xl:mt-[8px] xl:text-[22px] xl:leading-[26px]">
-            {g.name}
-          </p>
-          <p className="w-full truncate text-[8px] leading-[12.6px] font-semibold text-white xl:mt-[2px] xl:text-[11px] xl:leading-[16px]">
-            Share <span className="text-[8px] font-bold xl:text-[13px]">{g.service}</span>
-          </p>
-        </div>
-
-        <div className="mt-[10px] h-px w-full bg-[#B1DBB3]/40 xl:mt-[12px]" />
-
-        <div className="mt-[12px] flex h-[39px] flex-col justify-center rounded-[8px] bg-white/15 px-[10px] text-center xl:h-auto xl:py-[8px]">
-          <p className="text-[6px] leading-[10px] font-semibold text-white xl:text-[9px] xl:leading-[12px]">
-            Your Contribution
-          </p>
-          <p className="flex items-baseline justify-center gap-[2px]">
-            <span className="text-[15px] leading-[18px] font-semibold text-white xl:text-[21px] xl:leading-[25px]">
-              {g.price}
-            </span>
-            <span className="text-[8px] leading-[12px] font-semibold text-[#B1DBB3] xl:text-[10px] xl:leading-[16px]">
-              /Monthly
-            </span>
-          </p>
-        </div>
-
-        <div className="mt-[7px] h-[4px] w-full overflow-hidden rounded-full bg-white/25 xl:mt-[10px] xl:h-[6px]">
-          <span
-            className="block h-full rounded-full bg-[#35E03A]"
-            style={{ width: `${g.pct}%` }}
-          />
-        </div>
-
-        <div className="mt-[4px] flex items-center justify-between gap-[6px] text-[8px] leading-[12px] font-semibold text-[#F1F8F2] xl:mt-[8px] xl:text-[13px] xl:leading-[17px]">
-          <span className="flex min-w-0 items-center gap-[3px]">
-            <SlotIcon />
-            <span className="truncate">{g.left}</span>
-          </span>
-          <span className="flex-none">{g.ratio}</span>
-        </div>
-
-        <div className="mt-[2px] flex items-center gap-[3px] text-white xl:mt-[6px] xl:gap-[6px]">
-          <KeyIcon />
-          <span className="flex-none text-[8px] leading-[12px] font-semibold whitespace-nowrap opacity-90 xl:text-[10px] xl:leading-[15px]">
-            Access Method:
-          </span>
-          <span className="truncate text-[8px] leading-[12px] font-semibold xl:text-[11px] xl:leading-[15px]">
-            {g.access || "Login Credential"}
-          </span>
-        </div>
-
-        <Link
-          to={g.linkTo || "/join"}
-          state={g.linkState}
-          className="mt-[12px] flex h-[22px] w-full items-center justify-center rounded-[8px] bg-[#F1F8F2] text-[11px] font-semibold text-[#001701] transition hover:bg-white xl:mt-[14px] xl:h-[38px] xl:text-[16px]"
-        >
-          Join
-        </Link>
-      </div>
-    </article>
-  );
-}
-
 function mapService(a) {
   const service = a.service || a;
   const plans = a.plans || a.catalogue_plans || [];
@@ -418,7 +327,7 @@ export default function Browse() {
             />
           </div>
         </div>
-        <div className="relative bg-[linear-gradient(180deg,#E4F6E5_0%,#EFFAF0_72%,#FBFEFB_100%)] px-[30px] pt-[16px] pb-[28px]">
+        <div className="relative mx-[10px] mt-[4px] rounded-[20px] bg-[linear-gradient(180deg,#E4F6E5_0%,#EDF8EE_100%)] px-[20px] pt-[16px] pb-[20px]">
           <p className="text-[17px] leading-[25px] font-semibold text-ink">
             Categories
           </p>
@@ -446,7 +355,7 @@ export default function Browse() {
               </Link>
             </div>
           ) : (
-                        <div className="mt-[24px] grid grid-cols-2 gap-x-[19px] gap-y-[52px]">
+                        <div className="mt-[16px] grid grid-cols-2 gap-x-[10px] gap-y-[10px]">
               <h2 className="col-span-2 text-[25px] leading-[30px] font-bold text-ink">
                 Available Subscription
               </h2>
@@ -479,7 +388,7 @@ export default function Browse() {
             <button
               type="button"
               onClick={() => setShowAllBrands((v) => !v)}
-              className="mt-[20px] flex h-[47px] w-full items-center justify-center rounded-[20px] border border-[#001701] bg-[#F1F8F2] text-[16px] font-semibold text-[#001701]"
+              className="mt-[16px] flex h-[40px] w-full items-center justify-center rounded-[20px] border border-[#B1DBB3] bg-[#DFFFE0] text-[14px] font-semibold text-[#001701]"
             >
               {showAllBrands ? "Show Less" : "View More"}
             </button>

@@ -172,7 +172,7 @@ export default function EarningsPerGroup() {
       </main>
       {/* Mobile (M18 777:26094): 20px title, mint filters, no Extra */}
       <main className="relative bg-white pb-[26px] xl:hidden">
-        <div className="relative bg-white px-[30px] pt-[30px] pb-[24px]">
+        <div className="relative bg-[linear-gradient(180deg,#E4F6E5_0%,#EDF8EE_100%)] px-[30px] pt-[30px] pb-[24px]">
           <h1 className="text-[20px] leading-[24px] font-bold text-black">
             Earnings Per Group
           </h1>
@@ -183,9 +183,8 @@ export default function EarningsPerGroup() {
             <FilterSelect label="All Groups" options={groupOpts} value={groupF} onChange={setGroupF} className="min-w-0 flex-1 shadow-[0_0_12px_rgba(0,23,1,0.10)]" />
             <FilterSelect label="Last Month" options={monthOpts} value={monthF} onChange={setMonthF} className="min-w-0 flex-1 shadow-[0_0_12px_rgba(0,23,1,0.10)]" />
           </div>
-          <Summary small />
         </div>
-        <div className={`relative mx-[30px] mt-[18px] rounded-[20px] border border-clyse bg-white pt-[22px] pb-[22px] ${SHADOW}`}>
+        <div className="relative mx-[30px] mt-[18px] bg-white pt-[12px] pb-[12px]">
           <div className="flex items-center px-[20px]">
             <h2 className="text-[18px] leading-[22px] font-bold text-ink">
               Transaction History

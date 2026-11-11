@@ -118,16 +118,6 @@ export default function AdminUserDetails() {
         <Pill className="h-[37px] w-[116px]">{statusLabel}</Pill>
       </div>
 
-      {/* Live wallet & activity figures */}
-      <div className="mt-[20px] grid gap-[16px] sm:grid-cols-2 xl:grid-cols-4">
-        {tiles.map((t) => (
-          <div key={t.label} className="rounded-[14px] border border-[#999999] bg-white px-[20px] py-[16px]">
-            <span className="block text-[14px] font-semibold uppercase tracking-[0.06em] text-[#6B6B6B]">{t.label}</span>
-            <span className="mt-[6px] block text-[22px] font-bold text-[#000000]">{t.value}</span>
-          </div>
-        ))}
-      </div>
-
       <TabsBar tabs={TABS} active={tab} onChange={setTab} />
 
       {tab === "Overview" && (
@@ -146,23 +136,6 @@ export default function AdminUserDetails() {
               {user ? fmtDate(user.created_at) : "—"}
             </InfoCard>
           </div>
-          <div className="mt-[15px] flex flex-wrap gap-[30px]">
-            <InfoCard label="Email Verification" className="w-full lg:w-[350px]">
-              {user ? (user.email_verified ? "Verified" : "Not verified") : "—"}
-            </InfoCard>
-            <InfoCard label="Phone Verification" className="w-full lg:w-[350px]">
-              {user ? (user.phone_verified ? "Verified" : "Not verified") : "—"}
-            </InfoCard>
-            <InfoCard label="Last Updated" className="w-full lg:w-[350px]">
-              {user ? fmtDate(user.updated_at) : "—"}
-            </InfoCard>
-          </div>
-          {user?.suspended_reason || user?.restricted_reason ? (
-            <div className="mt-[15px] rounded-[10px] border border-[#E31B00] bg-[#FFF3F2] px-[20px] py-[14px] text-[16px] font-semibold text-[#B31500]">
-              {user.suspended_reason || user.restricted_reason}
-              {user.restricted_until ? ` · until ${fmtDate(user.restricted_until)}` : ""}
-            </div>
-          ) : null}
           <LiveSubsAndGroups user={user} />
         </>
       )}

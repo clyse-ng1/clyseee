@@ -49,7 +49,9 @@ const CREATOR_FLOW = [
 
 function WalletGlyph({ color }) {
   return (
-    <svg width="40" height="40" viewBox="0 0 24 24" fill="none">
+    <svg width="34" height="34" viewBox="0 0 24 24" fill="none">
+      <rect x="3" y="6" width="18" height="13" rx="3" fill={color} />
+      <rect x="13.5" y="10.5" width="5" height="3.2" rx="1" fill="#FFFFFF" />
       <rect
         x="3"
         y="6.5"
@@ -71,7 +73,9 @@ function WalletGlyph({ color }) {
 
 function DollarGlyph({ color }) {
   return (
-    <svg width="40" height="40" viewBox="0 0 24 24" fill="none">
+    <svg width="34" height="34" viewBox="0 0 24 24" fill="none">
+      <circle cx="12" cy="12" r="9" fill={color} />
+      <path d="M12 6.8v10.4M14.7 9.2c-.5-.9-1.5-1.4-2.7-1.4-1.5 0-2.7.9-2.7 2.1 0 2.8 5.5 1.7 5.5 4.5 0 1.3-1.2 2.1-2.8 2.1-1.4 0-2.5-.6-3-1.6" stroke="#FFFFFF" strokeWidth="1.7" strokeLinecap="round" />
       <circle cx="12" cy="12" r="8.5" stroke={color} strokeWidth="1.8" />
       <path
         d="M12 7.5v9M14.5 9.5c-.6-1-1.5-1.3-2.5-1.3-1.4 0-2.5.9-2.5 2.1 0 2.9 5 1.4 5 4.3 0 1.2-1.1 2.1-2.5 2.1-1 0-1.9-.4-2.5-1.3"
@@ -85,7 +89,9 @@ function DollarGlyph({ color }) {
 
 function ShieldGlyph({ color }) {
   return (
-    <svg width="40" height="40" viewBox="0 0 24 24" fill="none">
+    <svg width="34" height="34" viewBox="0 0 24 24" fill="none">
+      <path d="M12 3l7 2.8v5.6c0 4.4-2.9 7.7-7 9.1-4.1-1.4-7-4.7-7-9.1V5.8L12 3z" fill={color} />
+      <path d="M9 11.8l2.2 2.2 4.3-4.5" stroke="#FFFFFF" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
       <path
         d="M12 2.5 4.5 5.5v6c0 4.6 3.2 8 7.5 10 4.3-2 7.5-5.4 7.5-10v-6L12 2.5Z"
         stroke={color}
@@ -105,12 +111,12 @@ function ShieldGlyph({ color }) {
 
 function CheckGlyph({ color }) {
   return (
-    <svg width="40" height="40" viewBox="0 0 24 24" fill="none">
-      <circle cx="12" cy="12" r="8.5" stroke={color} strokeWidth="1.8" />
+    <svg width="34" height="34" viewBox="0 0 24 24" fill="none">
+      <rect x="3.5" y="3.5" width="17" height="17" rx="5" fill={color} />
       <path
         d="m8.5 12.2 2.5 2.5 4.8-5.4"
-        stroke={color}
-        strokeWidth="1.8"
+        stroke="#FFFFFF"
+        strokeWidth="2"
         strokeLinecap="round"
         strokeLinejoin="round"
       />
@@ -120,50 +126,20 @@ function CheckGlyph({ color }) {
 
 function GridGlyph({ color }) {
   return (
-    <svg width="40" height="40" viewBox="0 0 24 24" fill="none">
-      <rect
-        x="4"
-        y="4"
-        width="7"
-        height="7"
-        rx="1.5"
-        stroke={color}
-        strokeWidth="1.8"
-      />
-      <rect
-        x="13"
-        y="4"
-        width="7"
-        height="7"
-        rx="1.5"
-        stroke={color}
-        strokeWidth="1.8"
-      />
-      <rect
-        x="4"
-        y="13"
-        width="7"
-        height="7"
-        rx="1.5"
-        stroke={color}
-        strokeWidth="1.8"
-      />
-      <rect
-        x="13"
-        y="13"
-        width="7"
-        height="7"
-        rx="1.5"
-        stroke={color}
-        strokeWidth="1.8"
-      />
+    <svg width="34" height="34" viewBox="0 0 24 24" fill="none">
+      <rect x="4" y="4" width="7" height="7" rx="2" fill={color} />
+      <rect x="13" y="4" width="7" height="7" rx="2" fill={color} />
+      <rect x="4" y="13" width="7" height="7" rx="2" fill={color} />
+      <rect x="13" y="13" width="7" height="7" rx="2" fill={color} />
     </svg>
   );
 }
 
 function HeadsetGlyph({ color }) {
   return (
-    <svg width="40" height="40" viewBox="0 0 24 24" fill="none">
+    <svg width="34" height="34" viewBox="0 0 24 24" fill="none">
+      <rect x="3.5" y="5.5" width="17" height="13" rx="3" fill={color} />
+      <path d="M7 10h6M7 13.5h10" stroke="#FFFFFF" strokeWidth="1.7" strokeLinecap="round" />
       <path
         d="M4.5 13.5v-2a7.5 7.5 0 0 1 15 0v2"
         stroke={color}
@@ -375,7 +351,7 @@ function Faq({ items, mobile = false }) {
             </button>
             {isOpen && (
               <div
-                className={`border border-t-0 border-clyse bg-white font-semibold text-ink ${
+                className={`border border-t-0 border-clyse bg-white shadow-[0_16px_30px_rgba(0,23,1,0.12)] font-semibold text-ink ${
                   mobile
                     ? "px-[20px] py-[16px] text-[14px] leading-[22px]"
                     : "px-[28px] py-[24px] text-[20px] leading-[30px]"
@@ -537,17 +513,17 @@ export default function Landing() {
             {WHY.slice(0, 3).map((w) => (
               <div
                 key={w.title}
-                className="flex h-[364px] flex-col items-center px-[40px] pt-[64px]"
+                className="flex h-[364px] flex-col items-center px-[22px] pt-[56px]"
               >
                 <span
-                  className={`grid h-[79px] w-[80px] place-items-center rounded-[11px] ${w.bg} opacity-80`}
+                  className={`grid h-[76px] w-[76px] place-items-center rounded-[14px] ${w.bg}`}
                 >
                   {w.glyph}
                 </span>
-                <h3 className="mt-[32px] text-center text-[35px] leading-[43px] font-bold text-ink">
+                <h3 className="mt-[26px] text-center text-[26px] leading-[32px] font-bold whitespace-nowrap text-ink">
                   {w.title}
                 </h3>
-                <p className="mt-[20px] text-center text-[18px] leading-[25px] font-semibold text-ink">
+                <p className="mt-[14px] text-center text-[15px] leading-[21px] font-semibold text-ink">
                   {w.body}
                 </p>
               </div>
@@ -557,17 +533,17 @@ export default function Landing() {
             {WHY.slice(3).map((w) => (
               <div
                 key={w.title}
-                className="flex h-[364px] flex-col items-center px-[40px] pt-[64px]"
+                className="flex h-[364px] flex-col items-center px-[22px] pt-[56px]"
               >
                 <span
-                  className={`grid h-[79px] w-[80px] place-items-center rounded-[11px] ${w.bg} opacity-80`}
+                  className={`grid h-[76px] w-[76px] place-items-center rounded-[14px] ${w.bg}`}
                 >
                   {w.glyph}
                 </span>
-                <h3 className="mt-[32px] text-center text-[35px] leading-[43px] font-bold text-ink">
+                <h3 className="mt-[26px] text-center text-[26px] leading-[32px] font-bold whitespace-nowrap text-ink">
                   {w.title}
                 </h3>
-                <p className="mt-[20px] text-center text-[18px] leading-[25px] font-semibold text-ink">
+                <p className="mt-[14px] text-center text-[15px] leading-[21px] font-semibold text-ink">
                   {w.body}
                 </p>
               </div>

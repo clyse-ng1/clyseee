@@ -197,15 +197,15 @@ const MENU = [
     ],
   },
   {
-    key: "finance", label: "Finance", icon: <IconWallet />, to: "/admin/data/transactions", chev: true,
+    key: "finance", label: "Finance", icon: <IconWallet />, to: "/admin/finance", chev: true,
     sub: [
-      { key: "transactions", label: "Transactions", to: "/admin/data/transactions" },
+      { key: "transactions", label: "Transactions", to: "/admin/finance" },
       { key: "fundings", label: "Wallet Fundings", to: "/admin/data/walletFundings" },
       { key: "earnings", label: "Creator Earnings", to: "/admin/data/creatorEarnings" },
       { key: "payouts", label: "Payouts", to: "/admin/data/payouts" },
       { key: "recon", label: "Reconciliation", to: "/admin/data/reconciliation" },
       { key: "exceptions", label: "Exceptions", to: "/admin/data/exceptions" },
-      { key: "disputes", label: "Disputes", to: "/admin/data/disputes" },
+      { key: "disputes", label: "Disputes", to: "/admin/finance/disputes" },
     ],
   },
   { key: "support", label: "Support", icon: <IconHeadset />, to: "/admin/data/support" },
@@ -463,7 +463,7 @@ export default function AdminShell({ active = null, sub = null, expand = false, 
         />
       )}
       <aside
-        className={`bg-deep fixed inset-y-0 left-0 z-50 flex w-[270px] shrink-0 flex-col overflow-y-auto transition-transform duration-300 lg:z-30 lg:translate-x-0 ${
+        className={`bg-deep fixed inset-y-0 left-0 z-50 flex w-[270px] shrink-0 flex-col overflow-y-auto transition-transform duration-300 lg:static lg:inset-auto lg:z-30 lg:translate-x-0 lg:overflow-visible ${
           drawer ? "translate-x-0" : "-translate-x-full"
         }`}
       >
@@ -477,7 +477,7 @@ export default function AdminShell({ active = null, sub = null, expand = false, 
             ×
           </button>
         </div>
-        <nav className="flex flex-col pt-[30px]">
+        <nav className="flex flex-1 flex-col pt-[30px]">
           {menu.map((m) => {
             const isActive = active === m.key;
             const expanded = open === m.key;
@@ -526,7 +526,7 @@ export default function AdminShell({ active = null, sub = null, expand = false, 
             );
           })}
           {/* CMS card */}
-          <div className="mx-[40px] mb-[40px] flex h-[249px] w-[190px] shrink-0 flex-col items-center rounded-[10px] bg-[#073019] px-[20px] pb-[20px] pt-[25px]">
+          <div className="mx-[40px] mb-[40px] mt-auto flex h-[249px] w-[190px] shrink-0 flex-col items-center rounded-[10px] bg-[#073019] px-[20px] pb-[20px] pt-[25px]">
             <span className="text-[16px] font-extrabold tracking-wide text-white">CLYSE</span>
             <p className="mt-[25px] text-center text-[18px] font-semibold leading-snug text-white">CLYSE CMS v1.0</p>
             <p className="mt-[5px] text-center text-[14px] font-normal leading-snug text-white/85">
@@ -544,7 +544,7 @@ export default function AdminShell({ active = null, sub = null, expand = false, 
       </>
 
       {/* Right column */}
-      <div className="flex min-h-screen min-w-0 flex-1 flex-col lg:ml-[270px]">
+      <div className="flex min-h-screen min-w-0 flex-1 flex-col">
         <header className="sticky top-0 z-20 flex h-[70px] shrink-0 items-center justify-between gap-[12px] border-b border-[#77BAE7] bg-[#E5FFE7] px-[16px] lg:px-[30px]">
           <button
             onClick={() => setDrawer(true)}

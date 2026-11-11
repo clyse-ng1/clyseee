@@ -5,6 +5,7 @@ import MobileCats from "./MobileCats";
 import MobileCta from "./MobileCta";
 import Sk from "./Skeleton";
 import BrandTile from "./BrandTile";
+import GroupOfferCard from "./GroupOfferCard";
 import { brandOf, titleCase } from "../lib/api";
 import iconUser from "../assets/icon-user.svg";
 import avatarAccount from "../assets/avatar-account.webp";
@@ -14,56 +15,6 @@ import { useCatalogue } from "../lib/useCatalogue";
 /* Mobile marketplace — Figma 263:4402 "Home Page Mobile" (430px): search /
    categories / 8 available-subscription cards / View More / 6 Latest Slots /
    Become an Owner CTA (footer rendered by the page's MobileFooter). */
-
-function OfferCard({ avatar, name, service, price, left, linkTo, linkState }) {
-  return (
-    <div>
-      <img
-        src={avatar || avatarAccount}
-        alt=""
-        className="relative z-10 mx-auto h-[72px] w-[72px] rounded-full border-2 border-mint object-cover shadow-[0_2.47px_2.47px_rgba(0,23,1,0.30)]"
-      />
-      <div className="bg-deep -mt-[36px] rounded-[12.36px] px-[19px] pt-[42px] pb-[17px]">
-        <h3 className="text-center text-[15.45px] leading-[17.3px] font-bold text-white">
-          {name}&rsquo;s Offer
-        </h3>
-        <p className="mt-[3px] text-center text-[8.03px] leading-[12.36px] text-white">
-          <span className="font-semibold">Share a</span>{" "}
-          <span className="font-bold">{service || "Subscription"}</span>
-        </p>
-        <div className="mx-auto mt-[12px] h-px w-[153px] bg-[#B1DBB3]" />
-        <div className="bg-contrib mt-[13px] h-[43px] rounded-[6.18px] pt-[6px]">
-          <p className="text-center text-[6.18px] leading-[12.36px] font-semibold text-white">
-            Your Contribution
-          </p>
-          <p className="flex items-baseline justify-center text-[15.45px] leading-[21.62px] font-semibold text-white">
-            {price || "—"}
-            <span className="text-[6.18px] leading-[12.36px] font-semibold text-[#B1DBB3]">
-              /Monthly
-            </span>
-          </p>
-        </div>
-        <div className="mt-[6px] h-[4px] overflow-hidden rounded-full bg-[#023F05]">
-          <div className="h-full w-[71%] rounded-full bg-clyse" />
-        </div>
-        <div className="mt-[3px] flex items-center justify-between text-[8.03px] leading-[12.36px] font-semibold text-[#F1F8F2]">
-          <span className="flex items-center gap-[3px]">
-            <img src={iconUser} alt="" className="h-[7px] w-[7px]" />
-            {left || "1 Slot left"}
-          </span>
-          <span>3/4</span>
-        </div>
-        <Link
-          to={linkTo || "/join"}
-          state={linkState}
-          className="mt-[12px] flex h-[25px] w-full items-center justify-center rounded-[6.18px] bg-mintband text-[11.12px] leading-[13.56px] font-semibold text-ink transition hover:opacity-90"
-        >
-          Join Group
-        </Link>
-      </div>
-    </div>
-  );
-}
 
 export default function MobileBrowse() {
   const services = useCatalogue();
@@ -79,6 +30,8 @@ export default function MobileBrowse() {
             const left = g.open_slots ?? g.available_slots ?? 0;
             const total = totalPriceKobo(g);
             const first = g.creator?.first_name || "Creator";
+            const offered = g.slots_offered ?? g.capacity ?? g.plan?.member_slot_capacity ?? 0;
+            const occupied = g.occupied_slots ?? (offered ? Math.max(0, offered - left) : 0);
             return {
               avatar: null,
               name: first,
@@ -87,6 +40,9 @@ export default function MobileBrowse() {
                 "Subscription",
               price: total != null ? kobo(total) : null,
               left: left === 1 ? "1 Slot left" : `${left} Slots left`,
+              ratio: offered ? `${occupied}/${offered}` : `${left} open`,
+              pct: offered ? Math.min(100, Math.round((occupied / offered) * 100)) : 0,
+              access: (g.access_method || "").replaceAll("_", " ") || undefined,
               linkTo: "/join/plan",
               linkState: { group_id: g.group_id || g.id, preview: g },
             };
@@ -185,7 +141,7 @@ export default function MobileBrowse() {
       ) : (
         <div className="mt-[19px] grid grid-cols-2 gap-x-[20px] gap-y-[12px] px-[13px]">
           {liveOffers.map((o, i) => (
-            <OfferCard key={`${o.name}-${i}`} {...o} />
+            <GroupOfferCard key={`${o.name}-${i}`} g={{ ...o, name: `${o.name}\u2019s Offer` }} />
           ))}
         </div>
       )}

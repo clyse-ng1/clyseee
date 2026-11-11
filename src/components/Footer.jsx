@@ -7,7 +7,7 @@ import footerLogo from "../assets/footer-logo.webp";
 const COLS = [
   {
     title: "Contact",
-    links: ["Who we are", "sayhi@clyse.com", "Ibadan, Nigeria", "+234 706 569 1676"],
+    links: ["Who we are", "contact@clyseit.com", "Ibadan, Nigeria", "+234 706 569 1676"],
   },
   { title: "Social Media", links: ["Tiktok", "Instagram", "LinkedIn", "Facebook"] },
   {
