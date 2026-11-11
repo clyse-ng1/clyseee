@@ -1,7 +1,7 @@
 import { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import useAdminRows from "../components/useAdminRows";
-import AdminShell, { Pill, DotsIcon, DCARD, DarkZone, DarkFilter } from "../components/AdminShell";
+import AdminShell, { Pill, DotsIcon, DCARD, DarkZone, DarkFilter, AdminEmpty} from "../components/AdminShell";
 import { StatCard, badgeMint, UsersGlyph, CheckGlyph, Pagination } from "../components/FinanceShared";
 import BrandTile from "../components/BrandTile";
 
@@ -32,7 +32,7 @@ const STATUS = {
 const HEAD = ["Creator", "Subscription & Plan", "Member", "Shared Slot", "Start Date", "Status", "Action"];
 
 export default function AdminGroups() {
-  const live = useAdminRows("groups");
+  const { rows: live, status } = useAdminRows("groups");
   const nav = useNavigate();
   const [q, setQ] = useState("");
   const [checked, setChecked] = useState([]);
@@ -53,15 +53,18 @@ export default function AdminGroups() {
     <AdminShell active="users" sub="gm" expand nav2>
       <DarkZone band width="75%">
         <div className="mt-[22px] flex flex-wrap gap-[20px]">
-          <StatCard dark className="min-w-[220px] flex-1" label="Total User" value="124,000" badge={badgeMint} glyph={<UsersGlyph />} />
-          <StatCard dark className="min-w-[220px] flex-1" label="Active Group" value="124,000" badge={badgeMint} glyph={<CheckGlyph />} />
-          <StatCard dark className="min-w-[220px] flex-1" label="Suspended User" value="122" badge={badgeMint} glyph={<UsersGlyph color="#FF6B02" />} />
-          <StatCard dark className="min-w-[220px] flex-1" label="Close Group" value="122" badge={badgeMint} glyph={<UsersGlyph color="#FF6B02" />} />
+          <StatCard dark className="min-w-[220px] flex-1" label="Total Group" value={status === "live" || status === "empty" ? String((live || []).length) : "124,000"} badge={badgeMint} glyph={<UsersGlyph />} />
+          <StatCard dark className="min-w-[220px] flex-1" label="Active Group" value={status === "live" || status === "empty" ? String((live || []).filter((r) => r.status === "open").length) : "124,000"} badge={badgeMint} glyph={<CheckGlyph />} />
+          <StatCard dark className="min-w-[220px] flex-1" label="Suspended Group" value={status === "live" || status === "empty" ? String((live || []).filter((r) => r.status === "suspended").length) : "122"} badge={badgeMint} glyph={<UsersGlyph color="#FF6B02" />} />
+          <StatCard dark className="min-w-[220px] flex-1" label="Close Group" value={status === "live" || status === "empty" ? String((live || []).filter((r) => r.status === "closed" || r.status === "full").length) : "122"} badge={badgeMint} glyph={<UsersGlyph color="#FF6B02" />} />
         </div>
         <DarkFilter value={q} onChange={(e) => setQ(e.target.value)} />
       </DarkZone>
       <div className="bg-[#E5FFEB] px-[24px] pb-[40px] pt-[26px]">
-        <div className={`overflow-hidden ${DCARD}`}>
+        {status === "empty" && (
+          <AdminEmpty title="No groups yet" hint="Groups created by members will appear here with their owner, subscription, plan, slots and status." />
+        )}
+        <div className={`overflow-hidden ${status === "empty" ? "hidden" : ""} ${DCARD}`}>
           <table className="w-full border-separate border-spacing-0 text-left">
             <thead>
               <tr>

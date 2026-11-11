@@ -6,14 +6,16 @@ import { useAuth } from "../lib/useAuth";
    Figma parks it half-hidden behind the panel — relayed out below it. */
 const BRANDS = ["netflix", "spotify", "adobe", "amazon", "canva", "capcut", "prime"];
 
-function Row({ hidden, size = 81, gap = 78 }) {
+function Row({ hidden, size = 81, gap = 78, boxed = false }) {
   return (
     <div aria-hidden={hidden} className="flex" style={{ gap, paddingRight: gap }}>
       {BRANDS.map((b) => (
         <span
           key={b}
-          className="grid flex-none place-items-center"
-          style={{ width: size * 1.36 }}
+          className={`grid flex-none place-items-center ${
+            boxed ? "rounded-[14px] border border-[#ECECEC] bg-white shadow-[0_6px_18px_rgba(0,23,1,0.06)]" : ""
+          }`}
+          style={{ width: boxed ? size * 1.62 : size * 1.36, height: boxed ? size * 1.62 : undefined }}
         >
           <BrandTile brand={b} size={size} plain />
         </span>
@@ -22,7 +24,7 @@ function Row({ hidden, size = 81, gap = 78 }) {
   );
 }
 
-export default function LogoMarquee({ className = "" }) {
+export default function LogoMarquee({ className = "", boxed = false }) {
   const { user } = useAuth();
   // Phones get a smaller strip: 50px tiles instead of 81.
   const [small, setSmall] = useState(false);
@@ -41,8 +43,8 @@ export default function LogoMarquee({ className = "" }) {
     <div className={`overflow-hidden bg-white ${className}`}>
       <div className={small ? "pt-[14px]" : "h-[168px] pt-[29px]"}>
         <div className="animate-marquee flex w-max">
-          <Row hidden={false} size={size} gap={gap} />
-          <Row hidden size={size} gap={gap} />
+          <Row hidden={false} size={size} gap={gap} boxed={boxed} />
+          <Row hidden size={size} gap={gap} boxed={boxed} />
         </div>
       </div>
     </div>

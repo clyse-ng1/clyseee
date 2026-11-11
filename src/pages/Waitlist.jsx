@@ -132,7 +132,7 @@ export default function Waitlist() {
       </main>
       {/* Mobile */}
       <main className="relative xl:hidden">
-        <div className="relative px-[30px] pt-[30px] pb-[40px]">
+        <div className="relative bg-[linear-gradient(180deg,#E4F6E5_0%,#EFFAF0_55%,#FBFEFB_100%)] px-[30px] pt-[30px] pb-[40px]">
           <MobileBack />
           <h1 className="mt-[0px] text-[35px] leading-[43px] font-bold text-black">
             Waitlist

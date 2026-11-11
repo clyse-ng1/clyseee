@@ -16,6 +16,24 @@ function G({ children, s = 24 }) {
   );
 }
 const stroke = "#46C04C";
+export function AdminEmpty({ title, hint, dark }) {
+  return (
+    <div
+      className={`mt-[26px] rounded-[14px] border border-dashed px-[30px] py-[56px] text-center ${
+        dark ? "border-[#3A5C3C] bg-[#0B2A0D]" : "border-[#C8D2C8] bg-white"
+      }`}
+    >
+      <svg width="46" height="46" viewBox="0 0 24 24" fill="none" className="mx-auto" aria-hidden="true">
+        <path d="M3 13h4l2 3h6l2-3h4" stroke={dark ? "#7FB783" : "#048B0B"} strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
+        <path d="M5 13V7a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v6" stroke={dark ? "#7FB783" : "#048B0B"} strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
+        <path d="M3 13v4a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-4" stroke={dark ? "#7FB783" : "#048B0B"} strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
+      </svg>
+      <div className={`mt-[14px] text-[20px] leading-[24px] font-bold ${dark ? "text-white" : "text-[#001701]"}`}>{title}</div>
+      <p className={`mx-auto mt-[8px] max-w-[460px] text-[15px] leading-[21px] font-semibold ${dark ? "text-[#9DB49E]" : "text-[#657165]"}`}>{hint}</p>
+    </div>
+  );
+}
+
 export function IconGrid() {
   return (
     <G>

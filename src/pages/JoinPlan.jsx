@@ -187,7 +187,7 @@ export default function JoinPlan() {
         null;
     }
     setBusy(false);
-    navigate("/join/preview", {
+    navigate("/join/summary", {
       state: {
         ...nextState,
         group_id: group?.group_id || group?.id || nextState?.group_id,
@@ -196,7 +196,7 @@ export default function JoinPlan() {
     });
   };
   return (
-    <div className="relative min-h-screen overflow-hidden bg-white font-sans text-ink">
+    <div className="relative min-h-screen overflow-hidden bg-[linear-gradient(180deg,#E4F6E5_0%,#EFFAF0_240px,#FBFEFB_420px)] font-sans text-ink">
       {/* Figma 889:52181 — the join-flow BLUR BG, not the landing hero blobs. */}
       <BlurBg variant="join" />
       <Navbar loggedIn />

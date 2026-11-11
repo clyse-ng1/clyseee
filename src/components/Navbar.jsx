@@ -22,19 +22,19 @@ const PUBLIC_ROUTES = {
 };
 /* Landing links per redesigned landing (875:34275): How/Why anchor to sections. */
 /* Figma LANDING PAGE (5:2) labels exactly: How it Works / Why Clyse / About / Contact. */
-const LANDING_LINKS = ["How it Works", "Why Clyse", "About", "Contact"];
+const LANDING_LINKS = ["How It Works", "Why Clyse", "About Us", "Contact Us"];
 const LANDING_ROUTES = {
-  "How it Works": "/#how-it-works",
+  "How It Works": "/#how-it-works",
   "Why Clyse": "/#why-clyse",
-  About: "/about",
-  Contact: "/contact",
+  "About Us": "/about",
+  "Contact Us": "/contact",
 };
-const MLINKS = ["How it Works", "Why Clyse", "About", "Contact"];
+const MLINKS = ["How It Works", "Why Clyse", "About Us", "Contact Us"];
 const MROUTES = {
-  "How it Works": "/#how-it-works",
+  "How It Works": "/#how-it-works",
   "Why Clyse": "/#why-clyse",
-  About: "/about",
-  Contact: "/contact",
+  "About Us": "/about",
+  "Contact Us": "/contact",
 };
 const MLOGGED = ["Home", "Join Group", "Create Group", "My Profile"];
 const MLOGGED_ROUTES = {
@@ -144,7 +144,7 @@ export default function Navbar({ loggedIn = false, landing = false }) {
                 />
               </button>
               {accountOpen && (
-                <div className="absolute top-full right-0 mt-[8px] w-[200px] rounded-[10px] border border-line bg-white py-[8px] shadow-[0_0_20px_rgba(0,23,1,0.15)]">
+                <div className="absolute top-full right-0 mt-[8px] w-[200px] rounded-[10px] border border-line bg-white py-[8px] shadow-[0_16px_40px_rgba(0,23,1,0.18)]">
                   <Link
                     to="/profile"
                     onClick={() => setAccountOpen(false)}

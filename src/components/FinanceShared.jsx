@@ -217,7 +217,7 @@ const ACTIVITIES = [
   { name: "Payment from Sarah Press", amount: "N3,000", up: true },
 ];
 
-export function RecentActivities({ dark = false, className = "" }) {
+export function RecentActivities({ dark = false, className = "", items = null }) {
   return (
     <div className={`w-[473px] flex-none rounded-[20px] border bg-white px-[10px] pt-[30px] pb-[12px] ${dark ? "border-black shadow-[0_0_0_2px_#ffffff]" : "border-[#999999]"} ${className}`}>
       <div className="flex items-center px-[20px]">
@@ -230,7 +230,10 @@ export function RecentActivities({ dark = false, className = "" }) {
         </Link>
       </div>
       <div className="mt-[22px]">
-        {ACTIVITIES.map((a, i) => (
+        {items && !items.length && (
+          <p className="px-[20px] pb-[18px] text-[15px] font-semibold text-[#6B6B6B]">No activity yet — transactions will appear here as they post.</p>
+        )}
+        {(items || ACTIVITIES).map((a, i) => (
           <div key={`${a.name}-${i}`} className="flex h-[64px] items-center">
             <span
               className={`grid h-[34px] w-[34px] flex-none place-items-center rounded-[5px] ${a.up ? "bg-[#DFFFE0]/80" : "bg-[#FFEFDF]/80"}`}
@@ -242,7 +245,7 @@ export function RecentActivities({ dark = false, className = "" }) {
                 {a.name}
               </span>
               <span className="block text-[16px] leading-[20px] font-semibold text-[#6B6B6B]">
-                Sep. 20, 2026
+                {a.date || "Sep. 20, 2026"}
               </span>
             </span>
             <span className="ml-auto text-right">
@@ -251,8 +254,8 @@ export function RecentActivities({ dark = false, className = "" }) {
               >
                 {a.amount}
               </span>
-              <span className="block text-[10px] leading-[20px] font-semibold text-[#048B0B]">
-                Completed
+              <span className={`block text-[10px] leading-[20px] font-semibold ${/fail|revers/.test(a.status || "") ? "text-[#E31B00]" : "text-[#048B0B]"}`}>
+                {a.status ? String(a.status).charAt(0).toUpperCase() + String(a.status).slice(1) : "Completed"}
               </span>
             </span>
           </div>

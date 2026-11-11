@@ -1,7 +1,7 @@
 import { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import useAdminRows from "../components/useAdminRows";
-import AdminShell, { PageTitle, Pill, SearchIcon, ChevDown, PencilIcon, DotsIcon, CalendarIcon } from "../components/AdminShell";
+import AdminShell, { AdminEmpty, PageTitle, Pill, SearchIcon, ChevDown, PencilIcon, DotsIcon, CalendarIcon } from "../components/AdminShell";
 import { GlyphClock, GlyphBadge, GlyphX, GlyphUsers } from "../components/AdminGlyphs";
 import BrandTile from "../components/BrandTile";
 import DropSelect from "../components/DropSelect";
@@ -35,7 +35,7 @@ const STATUS_PILL = {
 };
 
 export default function AdminGroupVerification() {
-  const live = useAdminRows("verification");
+  const { rows: live, status: loadStatus } = useAdminRows("verification");
   const [range, setRange] = useState("Sep. 1 2026 - Sep. 30 2026");
   const nav = useNavigate();
   const [q, setQ] = useState("");
@@ -50,6 +50,15 @@ export default function AdminGroupVerification() {
       ),
     [q, status]
   );
+  const liveish = loadStatus === "live" || loadStatus === "empty";
+  const stats = liveish
+    ? [
+        { glyph: <GlyphClock />, label: "Pending", value: String((live || []).filter((r) => r.status === "pending").length), color: "text-[#FF6C03]" },
+        { glyph: <GlyphBadge />, label: "Approved", value: String((live || []).filter((r) => r.status === "verified").length), color: "text-[#048B0B]" },
+        { glyph: <GlyphX />, label: "Reject", value: String((live || []).filter((r) => r.status === "rejected").length), color: "text-[#FF0000]" },
+        { glyph: <GlyphUsers color="#6B6B6B" />, label: "Suspended", value: String((live || []).filter((r) => r.status === "suspended").length), color: "text-[#6B6B6B]" },
+      ]
+    : STATS;
   const all = rows.length > 0 && rows.every((r) => checked.includes(r.name));
   const toggle = (name) => setChecked((c) => (c.includes(name) ? c.filter((x) => x !== name) : [...c, name]));
 
@@ -58,7 +67,7 @@ export default function AdminGroupVerification() {
       <PageTitle title="Group Verification" />
 
       <div className="mt-[30px] flex gap-[20px]">
-        {STATS.map((s) => (
+        {stats.map((s) => (
           <div key={s.label} className="flex h-[94px] w-full lg:w-[262px] items-center gap-[15px] rounded-[10px] border border-[#999999] bg-white px-[20px]">
             <span className="flex h-[42px] w-[42px] shrink-0 items-center justify-center rounded-[5px] bg-[#DFFFE1]">
               {s.glyph}
@@ -121,7 +130,10 @@ export default function AdminGroupVerification() {
         />
       </div>
 
-      <div className="mt-[30px] overflow-x-auto rounded-[20px] border border-[#999999] bg-white">
+      {loadStatus === "empty" && (
+        <AdminEmpty title="No groups waiting for verification" hint="When a creator submits proof of an active subscription, the group queues here for review." />
+      )}
+      <div className={`mt-[30px] overflow-x-auto rounded-[20px] border border-[#999999] bg-white ${loadStatus === "empty" ? "hidden" : ""}`}>
         <div className="min-w-[1387px]">
           <div className="mt-[36px] flex h-[60px] items-center bg-[#DFFFE1] text-[16px] font-semibold text-[#4E4E4E]">
             <span className="flex w-[81px] shrink-0 justify-center">

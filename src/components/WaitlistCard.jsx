@@ -44,7 +44,7 @@ export default function WaitlistCard({
   const toggle = onNotifToggle || (() => setLocalOn((v) => !v));
   return (
     <article
-      className={`w-full rounded-[20px] border border-[#BABABA] bg-white px-[20px] pt-[22px] pb-[22px] shadow-[0_0_20px_rgba(0,23,1,0.08)] xl:border-clyse xl:px-[31px] xl:pt-[31px] xl:pb-[31px] xl:w-[830px] ${
+      className={`w-full rounded-[20px] border border-[#DDE9DD] bg-white px-[20px] pt-[22px] pb-[22px] shadow-[0_0_20px_rgba(0,23,1,0.08)] xl:px-[31px] xl:pt-[31px] xl:pb-[31px] xl:w-[830px] ${
         createPlanId ? "" : "xl:h-[258px]"
       }`}
     >

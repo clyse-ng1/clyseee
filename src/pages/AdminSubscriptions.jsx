@@ -117,7 +117,7 @@ export default function AdminSubscriptions() {
 
   useEffect(() => {
     let alive = true;
-    api("/admin/services").then((res) => {
+    api("/admin/catalogue/services").then((res) => {
       if (!alive || res.error || !Array.isArray(res.data?.items ?? res.data)) return;
       const items = res.data?.items ?? res.data;
       setLive(

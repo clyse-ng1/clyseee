@@ -357,7 +357,7 @@ export default function JoinSummary() {
   );
 
   return (
-    <div className="relative min-h-screen overflow-hidden bg-white font-sans text-ink">
+    <div className="relative min-h-screen overflow-hidden bg-[linear-gradient(180deg,#E4F6E5_0%,#EFFAF0_240px,#FBFEFB_420px)] font-sans text-ink">
       {/* Figma 889:52209 — same join-flow BLUR BG as page 1. */}
       <BlurBg variant="join" />
       <Navbar loggedIn />

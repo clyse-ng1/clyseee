@@ -376,7 +376,7 @@ export default function Contact() {
               {INFO_DESC}
             </p>
             <div className="mt-[50px] flex flex-col gap-[50px]">
-              <InfoRow icon={<MailIcon />} title="Email" value="companyemail@email.com" />
+              <InfoRow icon={<MailIcon />} title="Email" value="contact@clyseit.com" />
               <InfoRow icon={<PhoneIcon />} title="Phone Number" value="+234 345 7689 365" />
             </div>
             <div className="mt-[50px] h-[5px] rounded-full bg-clyse" />
@@ -563,7 +563,7 @@ export default function Contact() {
                   Email
                 </span>
                 <span className="mt-[4px] block text-[14px] font-semibold text-[#0E0E0E]">
-                  companyemail@email.com
+                  contact@clyseit.com
                 </span>
               </span>
             </div>

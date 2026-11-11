@@ -68,7 +68,7 @@ function JoinCard({ g, fluid = false }) {
           6px, 16px side padding (144.8 content), name 15/16, service 8/12.6,
           rule at +106, contribution box 144.8 x 39 at +118, slot block 32.4 at
           +162, Join 144.8 x 22.3 at +206. Desktop keeps the 251x341 tile. */}
-      <div className="bg-btn rounded-[20px] px-[16px] pt-[39px] pb-[12px] xl:px-[23px] xl:pt-[20px] xl:pb-[20px]">
+      <div className="rounded-[20px] bg-[linear-gradient(48deg,#001B01_0%,#003A03_30%,#007A07_62%,#00BB0C_88%,#00D50D_100%)] px-[16px] pt-[39px] pb-[12px] xl:px-[23px] xl:pt-[20px] xl:pb-[20px]">
         <div className="flex flex-col items-center text-center">
           <img
             src={g.avatar || avatarAccount}
@@ -85,7 +85,7 @@ function JoinCard({ g, fluid = false }) {
 
         <div className="mt-[10px] h-px w-full bg-[#B1DBB3]/40 xl:mt-[12px]" />
 
-        <div className="mt-[12px] flex h-[39px] flex-col justify-center rounded-[8px] bg-[#02580B] px-[10px] text-center xl:h-auto xl:py-[8px]">
+        <div className="mt-[12px] flex h-[39px] flex-col justify-center rounded-[8px] bg-white/15 px-[10px] text-center xl:h-auto xl:py-[8px]">
           <p className="text-[6px] leading-[10px] font-semibold text-white xl:text-[9px] xl:leading-[12px]">
             Your Contribution
           </p>
@@ -99,9 +99,9 @@ function JoinCard({ g, fluid = false }) {
           </p>
         </div>
 
-        <div className="mt-[7px] h-[4px] w-full overflow-hidden rounded-full bg-[#B1DBB3]/30 xl:mt-[10px] xl:h-[6px]">
+        <div className="mt-[7px] h-[4px] w-full overflow-hidden rounded-full bg-white/25 xl:mt-[10px] xl:h-[6px]">
           <span
-            className="block h-full rounded-full bg-[#048B0B]"
+            className="block h-full rounded-full bg-[#35E03A]"
             style={{ width: `${g.pct}%` }}
           />
         </div>
@@ -418,7 +418,7 @@ export default function Browse() {
             />
           </div>
         </div>
-        <div className="relative px-[30px] pt-[16px]">
+        <div className="relative bg-[linear-gradient(180deg,#E4F6E5_0%,#EFFAF0_72%,#FBFEFB_100%)] px-[30px] pt-[16px] pb-[28px]">
           <p className="text-[17px] leading-[25px] font-semibold text-ink">
             Categories
           </p>
@@ -458,10 +458,10 @@ export default function Browse() {
                   type="button"
                   onClick={() => setPicked(picked === b.name ? null : b.name)}
                   aria-pressed={picked === b.name}
-                  className={`flex h-[165px] cursor-pointer flex-col items-center rounded-[16px] border bg-[#F1F8F2] px-[8px] pt-[18px] pb-[19px] ${
+                  className={`flex h-[165px] cursor-pointer flex-col items-center rounded-[16px] border bg-[#F6FCF6] px-[8px] pt-[18px] pb-[19px] ${
                     picked === b.name
                       ? "border-[#048B0B] ring-2 ring-[#B1DBB3]"
-                      : "border-[#001701]"
+                      : "border-[#048B0B55]"
                   }`}
                 >
                   <BrandTile brand={b.brand} name={b.name} size={50} plain />

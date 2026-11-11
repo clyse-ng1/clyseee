@@ -75,6 +75,13 @@ import EarningsPerGroup from "./pages/EarningsPerGroup";
 import EarningsPerMember from "./pages/EarningsPerMember";
 import JoinDetails from "./pages/JoinDetails";
 import JoinPreview from "./pages/JoinPreview";
+
+/* The preview step duplicated the payment summary in the mobile join flow.
+   Old links/backs land here and are forwarded straight to the summary. */
+function PreviewForward() {
+  const loc = useLocation();
+  return <Navigate to="/join/summary" replace state={loc.state} />;
+}
 import JoinSuccess from "./pages/JoinSuccess";
 import JoinAlready from "./pages/JoinAlready";
 import JoinFailed from "./pages/JoinFailed";
@@ -221,7 +228,7 @@ export default function App() {
           <Route path="/wallet/error" element={<WalletError />} />
           <Route path="/join" element={<Join />} />
           <Route path="/join/:token" element={<JoinSummary />} />
-          <Route path="/join/preview" element={<JoinPreview />} />
+          <Route path="/join/preview" element={<PreviewForward />} />
         <Route path="/join/plan" element={<JoinPlan />} />
           <Route path="/join/group" element={<Navigate to="/marketplace" replace />} />
           <Route path="/join/summary" element={<JoinSummary />} />

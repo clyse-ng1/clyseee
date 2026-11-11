@@ -472,7 +472,7 @@ export default function Landing() {
         </div>
       </section>
 
-      <LogoMarquee />
+      <LogoMarquee boxed />
 
       {/* Desktop How It Works */}
       <section

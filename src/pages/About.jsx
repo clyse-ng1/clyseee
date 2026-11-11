@@ -73,7 +73,7 @@ export default function About() {
             <h2 className="mt-[33px] text-[35px] leading-[43px] font-bold text-black">
               Making Access Easier for Everyone
             </h2>
-            <p className="mt-[76px] text-justify text-[25px] leading-[35px] font-semibold text-black">
+            <p className="mt-[24px] text-justify text-[25px] leading-[35px] font-semibold text-black">
               {MISSION_BODY}
             </p>
           </div>
@@ -98,7 +98,7 @@ export default function About() {
             <h2 className="mt-[33px] text-[35px] leading-[43px] font-bold text-white">
               A Smarter Way to Share Subscriptions
             </h2>
-            <p className="mt-[76px] text-[25px] leading-[35px] font-semibold text-white">
+            <p className="mt-[24px] text-[25px] leading-[35px] font-semibold text-white">
               {VISION_BODY}
             </p>
           </div>
@@ -113,7 +113,7 @@ export default function About() {
             <h2 className="mt-[33px] text-[35px] leading-[43px] font-bold text-black">
               Making Subscription Sharing Easier for Everyone
             </h2>
-            <p className="mt-[76px] text-justify text-[25px] leading-[35px] font-semibold text-black">
+            <p className="mt-[24px] text-justify text-[25px] leading-[35px] font-semibold text-black">
               {WHY_BODY}
             </p>
           </div>

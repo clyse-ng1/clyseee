@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import useAdminRows from "../components/useAdminRows";
-import AdminShell, { DotsIcon, DCARD, DarkZone, DarkFilter } from "../components/AdminShell";
+import AdminShell, { DotsIcon, DCARD, DarkZone, DarkFilter, AdminEmpty} from "../components/AdminShell";
 import BrandTile from "../components/BrandTile";
 import {
   StatCard,
@@ -42,7 +42,7 @@ function Row({ r, i }) {
         <CheckBox label={`Select ${r.item}`} />
       </div>
       <div className="flex-none text-[16px] leading-[20px] font-semibold text-[#001701]" style={{ width: COLS[1] }}>
-        Sep. 20, 2026
+        {r.when || "Sep. 20, 2026"}
       </div>
       <div className="flex-none" style={{ width: COLS[2] }}>
         <FinPill tone={r.tone}>{r.type}</FinPill>
@@ -54,7 +54,7 @@ function Row({ r, i }) {
             {r.name}
           </span>
           <span className="block text-[16px] leading-[20px] font-semibold text-[#6B6B6B]">
-            clysewebapp@gmail.com
+            {r.email || "clysewebapp@gmail.com"}
           </span>
         </span>
       </div>
@@ -73,13 +73,15 @@ function Row({ r, i }) {
         {r.amount}
       </div>
       <div className="flex-none text-[16px] leading-[20px] font-semibold text-[#001701]" style={{ width: COLS[6] }}>
-        N200
+        {r.fee || "N200"}
       </div>
       <div className="flex-none" style={{ width: COLS[7] }}>
-        <FinPill tone="green">Completed</FinPill>
+        <FinPill tone={/fail|revers/.test(r.status || "") ? "red" : /pend|process/.test(r.status || "") ? "orange" : "green"}>
+          {r.status ? r.status.charAt(0).toUpperCase() + r.status.slice(1) : "Completed"}
+        </FinPill>
       </div>
       <div className="flex-none text-[16px] leading-[20px] font-semibold text-[#001701]" style={{ width: COLS[8] }}>
-        TRN-0004455
+        {r.ref || "TRN-0004455"}
       </div>
       <div className="flex-none" style={{ width: COLS[9] }}>
         <Link
@@ -95,7 +97,8 @@ function Row({ r, i }) {
 }
 
 export default function AdminFinance() {
-  const live = useAdminRows("transactions");
+  const { rows: live, status } = useAdminRows("transactions");
+  const pay = useAdminRows("payouts");
   const [fType, setFType] = useState("All");
   const typeOpts = ["All", ...new Set((live || ROWS).map((r) => r.type))];
   const shown = (live || ROWS).filter((r) => fType === "All" || r.type === fType);
@@ -104,13 +107,16 @@ export default function AdminFinance() {
     <AdminShell active="finance" sub="transactions" expand nav2>
       <DarkZone>
       <div className="mt-[22px] flex flex-wrap gap-[20px]">
-        <StatCard dark className="min-w-[220px] flex-1" label="Total Revenue" value="124,000" badge={badgeGreen} glyph={<UsersGlyph />} />
-        <StatCard dark className="min-w-[220px] flex-1" label="Clyse Fee" value="124,000" badge={badgeMint} glyph={<CheckGlyph />} />
-        <StatCard dark className="min-w-[220px] flex-1" label="Total Payout" value="122" badge={badgeOrange} glyph={<UsersGlyph color="#FF6B02" />} />
-        <StatCard dark className="min-w-[220px] flex-1" label="Pending Payout" value="122" badge={badgeOrange} glyph={<UsersGlyph color="#FF6B02" />} />
+        <StatCard dark className="min-w-[220px] flex-1" label="Total Revenue" value={status === "live" || status === "empty" ? `N${Math.round((live || []).reduce((a, r) => a + (r.tone === "green" ? r.amountKobo : 0), 0) / 100).toLocaleString("en-US")}` : "124,000"} badge={badgeGreen} glyph={<UsersGlyph />} />
+        <StatCard dark className="min-w-[220px] flex-1" label="Clyse Fee" value={status === "live" || status === "empty" ? `N${Math.round((live || []).reduce((a, r) => a + (r.feeKobo || 0), 0) / 100).toLocaleString("en-US")}` : "124,000"} badge={badgeMint} glyph={<CheckGlyph />} />
+        <StatCard dark className="min-w-[220px] flex-1" label="Total Payout" value={pay.status === "live" || pay.status === "empty" ? `N${Math.round((pay.rows || []).filter((p) => p.status === "paid" || p.status === "successful").reduce((a, p) => a + (p.netKobo || 0), 0) / 100).toLocaleString("en-US")}` : "122"} badge={badgeOrange} glyph={<UsersGlyph color="#FF6B02" />} />
+        <StatCard dark className="min-w-[220px] flex-1" label="Pending Payout" value={pay.status === "live" || pay.status === "empty" ? String((pay.rows || []).filter((p) => p.status === "pending" || p.status === "processing").length) : "122"} badge={badgeOrange} glyph={<UsersGlyph color="#FF6B02" />} />
       </div>
       <DarkFilter />
-      <div className={`mt-[26px] w-fit min-w-full overflow-hidden ${DCARD}`}>
+      {status === "empty" && (
+        <AdminEmpty dark title="No transactions yet" hint="Wallet fundings, subscription payments, Clyse fees, refunds and payouts will appear here as soon as they post." />
+      )}
+      <div className={`mt-[26px] w-fit min-w-full overflow-hidden ${status === "empty" ? "hidden" : ""} ${DCARD}`}>
         <div className="min-w-[1929px]">
           <div className="flex h-[50px] items-center rounded-t-[11px] bg-[#E5FFEB]">
             {headers.map((h, i) => (
@@ -136,7 +142,7 @@ export default function AdminFinance() {
         </div>
       </div>
       <div className="mt-[26px] flex flex-wrap gap-[20px]">
-        <RecentActivities dark className="w-full max-w-full flex-1 lg:w-[473px]" />
+        <RecentActivities dark className="w-full max-w-full flex-1 lg:w-[473px]" items={status === "live" || status === "empty" ? (live || []).slice(0, 4).map((r) => ({ name: `${r.type} — ${r.name}`, date: r.when, amount: r.amount, up: r.tone === "green", status: r.status })) : null} />
         <OverviewChart dark className="w-full max-w-full flex-1 lg:w-[607px]" />
       </div>
       </DarkZone>

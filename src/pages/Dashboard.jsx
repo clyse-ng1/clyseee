@@ -92,6 +92,7 @@ function mapAvail(a) {
     name: serviceName(a),
     cat: titleCase(a.service?.category) || "Entertainment",
     price: total != null ? `From ${kobo(total)}/` : null,
+    status: a.status || a.service?.status || "active",
   };
 }
 
@@ -261,17 +262,28 @@ function MobileMemberRow({ row, button, onLeave, busy }) {
   );
 }
 
-function SubCard({ brand, name, price, cat = "Entertainment" }) {
+function SubCard({ brand, name, price, cat = "Entertainment", status }) {
+  const inactive = status === "inactive";
   return (
-    <div className="h-[200px] w-[250px] rounded-[20px] border border-clyse bg-white pt-[31px] text-center shadow-[0_0_20px_rgba(0,23,1,0.10)]">
+    <Link
+      to="/marketplace"
+      aria-label={`${name} — view in marketplace`}
+      className={`block h-[200px] w-[250px] cursor-pointer rounded-[20px] border bg-white pt-[31px] text-center shadow-[0_0_20px_rgba(0,23,1,0.10)] transition hover:shadow-[0_0_26px_rgba(0,23,1,0.16)] ${
+        inactive ? "border-[#E0A9A9]" : "border-clyse"
+      }`}
+    >
       <span className="flex justify-center">
         <BrandTile brand={brand} name={name} />
       </span>
       <p className="mt-[10px] text-[18px] leading-[22px] font-bold text-ink">
         {name}
       </p>
-      <span className="mt-[6px] inline-flex h-[19px] w-[96px] items-center justify-center rounded-[3.58px] bg-[#B1DBB3] text-[10px] leading-[15px] font-semibold text-clyse">
-        {cat}
+      <span
+        className={`mt-[6px] inline-flex h-[19px] w-[96px] items-center justify-center rounded-[3.58px] text-[10px] leading-[15px] font-semibold ${
+          inactive ? "bg-[#EDEDED] text-[#6B6B6B]" : "bg-[#B1DBB3] text-clyse"
+        }`}
+      >
+        {inactive ? "Inactive" : cat}
       </span>
       <p className="mt-[6px] flex items-baseline justify-center">
         <span className="text-[18px] leading-[22px] font-semibold text-ink">
@@ -281,21 +293,32 @@ function SubCard({ brand, name, price, cat = "Entertainment" }) {
           Monthly
         </span>
       </p>
-    </div>
+    </Link>
   );
 }
 
-function MobileSubCard({ brand, name, price, cat = "Entertainment" }) {
+function MobileSubCard({ brand, name, price, cat = "Entertainment", status }) {
+  const inactive = status === "inactive";
   return (
-    <div className="min-h-[137px] rounded-[13.74px] border border-clyse bg-white pt-[22px] pb-[10px] text-center shadow-[0_0_13px_rgba(0,23,1,0.10)]">
+    <Link
+      to="/marketplace"
+      aria-label={`${name} — view in marketplace`}
+      className={`block min-h-[137px] cursor-pointer rounded-[13.74px] border bg-white pt-[22px] pb-[10px] text-center shadow-[0_0_13px_rgba(0,23,1,0.10)] transition hover:shadow-[0_0_18px_rgba(0,23,1,0.16)] ${
+        inactive ? "border-[#E0A9A9]" : "border-clyse"
+      }`}
+    >
       <span className="flex justify-center">
         <BrandTile brand={brand} name={name} size={34} />
       </span>
       <p className="mt-[7px] text-[12.37px] leading-[15px] font-bold text-ink">
         {name}
       </p>
-      <span className="mt-[4px] inline-flex h-[15px] w-[76px] items-center justify-center rounded-[2.86px] bg-[#B1DBB3] text-[8.93px] leading-[12px] font-semibold text-clyse">
-        {cat}
+      <span
+        className={`mt-[4px] inline-flex h-[15px] w-[76px] items-center justify-center rounded-[2.86px] text-[8.93px] leading-[12px] font-semibold ${
+          inactive ? "bg-[#EDEDED] text-[#6B6B6B]" : "bg-[#B1DBB3] text-clyse"
+        }`}
+      >
+        {inactive ? "Inactive" : cat}
       </span>
       <p className="mt-[4px] flex items-baseline justify-center">
         <span className="text-[12.37px] leading-[15px] font-semibold text-ink">
@@ -305,7 +328,7 @@ function MobileSubCard({ brand, name, price, cat = "Entertainment" }) {
           Monthly
         </span>
       </p>
-    </div>
+    </Link>
   );
 }
 
@@ -800,6 +823,7 @@ export default function Dashboard() {
                       name={s.name}
                       price={s.price}
                       cat={s.cat}
+                      status={s.status}
                     />
                   ))}
             </div>
@@ -1052,6 +1076,7 @@ export default function Dashboard() {
                     name={s.name}
                     price={s.price}
                     cat={s.cat}
+                    status={s.status}
                   />
                 ))}
           </div>

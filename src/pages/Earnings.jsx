@@ -215,12 +215,12 @@ function MonthPills({ small = false }) {
       {MONTHS.map((m) => (
         <button
           key={m.label}
-          className={`flex-none rounded-[10px] whitespace-nowrap ${
+          className={`flex-none rounded-[10px] whitespace-nowrap outline-none focus:outline-none ${
             small ? "h-[34px] px-[14px]" : "h-[44px] px-[20px]"
           } ${
             m.active
               ? "border border-clyse bg-[#B1DBB3]"
-              : "border border-[#BABABA] bg-white"
+              : "border border-[#D9D9D9] bg-white"
           }`}
         >
           <span

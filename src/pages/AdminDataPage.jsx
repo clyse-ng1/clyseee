@@ -113,9 +113,29 @@ function OverviewTiles({ data }) {
   return <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">{metrics.map((item, i) => <section key={`${item.label}-${i}`} className="rounded-[14px] border border-[#D8E2D9] bg-white p-5 shadow-sm"><h2 className="text-xs font-bold uppercase tracking-wide text-[#647164]">{item.label}</h2>{item.list ? <><div className="mt-2 text-3xl font-bold text-[#001701]">{item.count}</div><div className="mt-3 space-y-2">{item.list.map((row, j) => <div key={j} className="flex items-center justify-between gap-3 border-t border-[#EDF1ED] pt-2 text-sm"><span className="truncate font-semibold text-[#203020]">{row?.name || row?.service || row?.event || row?.key || `Item ${j + 1}`}</span><span className="shrink-0 text-[#5B6B5C]">{valueText(row?.status || row?.severity || row?.state || row?.result || "", "status")}</span></div>)}</div></> : <div className="mt-2 text-3xl font-bold text-[#001701]">{valueText(item.value, item.key)}</div>}</section>)}</div>;
 }
 
+function NestedValue({ value }) {
+  if (Array.isArray(value)) {
+    if (!value.length) return <div className="mt-1 text-sm font-semibold text-[#657165]">None</div>;
+    const names = value.map((v) => (v && typeof v === "object" ? v.name || v.full_name || v.title || v.key || v.id || "Item" : String(v)));
+    return <div className="mt-1 break-words text-sm font-semibold text-[#001701]">{names.join(", ")}</div>;
+  }
+  const entries = Object.entries(value).filter(([, v]) => v != null && v !== "");
+  if (!entries.length) return <div className="mt-1 text-sm font-semibold text-[#657165]">None</div>;
+  return (
+    <div className="mt-2 space-y-1">
+      {entries.map(([k, v]) => (
+        <div key={k} className="text-sm">
+          <span className="font-semibold text-[#657165]">{LABEL(k)}: </span>
+          <span className="font-semibold break-words text-[#001701]">{v && typeof v === "object" ? (Array.isArray(v) ? (v.length ? v.map((x) => (x && typeof x === "object" ? x.name || x.id : String(x))).join(", ") : "None") : valueText(v.name || v.full_name || v.id || v, k)) : valueText(v, k)}</span>
+        </div>
+      ))}
+    </div>
+  );
+}
+
 function DetailView({ data, onClose }) {
   if (!data) return null;
-  return <section className="mt-5 rounded-[14px] border border-[#B9D8BB] bg-white p-5 shadow-sm"><div className="mb-4 flex items-center justify-between"><h2 className="text-xl font-bold text-[#001701]">Record details</h2><button className="rounded-lg border px-3 py-2 text-sm font-semibold" onClick={onClose}>Close</button></div><div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">{Object.entries(data).map(([key, value]) => <div key={key} className="min-w-0 rounded-lg bg-[#F7FAF7] p-3"><div className="text-xs font-bold uppercase tracking-wide text-[#687568]">{LABEL(key)}</div>{value && typeof value === "object" ? <pre className="mt-2 max-h-56 overflow-auto whitespace-pre-wrap break-words text-xs text-[#263526]">{JSON.stringify(value, null, 2)}</pre> : <div className="mt-1 break-words text-sm font-semibold text-[#001701]">{valueText(value, key)}</div>}</div>)}</div></section>;
+  return <section className="mt-5 rounded-[14px] border border-[#B9D8BB] bg-white p-5 shadow-sm"><div className="mb-4 flex items-center justify-between"><h2 className="text-xl font-bold text-[#001701]">Record details</h2><button className="rounded-lg border px-3 py-2 text-sm font-semibold" onClick={onClose}>Close</button></div><div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">{Object.entries(data).map(([key, value]) => <div key={key} className="min-w-0 rounded-lg bg-[#F7FAF7] p-3"><div className="text-xs font-bold uppercase tracking-wide text-[#687568]">{LABEL(key)}</div>{value && typeof value === "object" ? <NestedValue value={value} /> : <div className="mt-1 break-words text-sm font-semibold text-[#001701]">{valueText(value, key)}</div>}</div>)}</div></section>;
 }
 
 function ConfigEditor({ settings, onSave }) {

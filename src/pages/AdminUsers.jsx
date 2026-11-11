@@ -36,7 +36,7 @@ const HEAD = ["User", "Email/Phone Number", "Account Status", "Verification Stat
 const COLW = ["w-[220px]", "w-[240px]", "w-[150px]", "w-[160px]", "w-[150px]", "w-[90px]", "w-[110px]"];
 
 export default function AdminUsers() {
-  const live = useAdminRows("users");
+  const { rows: live, status, total } = useAdminRows("users");
   const nav = useNavigate();
   const [q, setQ] = useState("");
   const [checked, setChecked] = useState([]);
@@ -51,13 +51,16 @@ export default function AdminUsers() {
     <AdminShell active="users" sub="um" expand nav2>
       <DarkZone>
         <div className="mt-[22px] flex flex-wrap gap-[20px]">
-          <StatCard dark className="min-w-[220px] flex-1" label="Total User" value="124,000" badge={badgeMint} glyph={<UsersGlyph />} />
-          <StatCard dark className="min-w-[220px] flex-1" label="Active User" value="124,000" badge={badgeMint} glyph={<CheckGlyph />} />
-          <StatCard dark className="min-w-[220px] flex-1" label="Verified User" value="124,000" badge={badgeMint} glyph={<CheckGlyph />} />
-          <StatCard dark className="min-w-[220px] flex-1" label="Susspended User" value="122" badge={badgeMint} glyph={<UsersGlyph color="#FF6B02" />} />
+          <StatCard dark className="min-w-[220px] flex-1" label="Total User" value={status === "live" || status === "empty" ? String(total) : "124,000"} badge={badgeMint} glyph={<UsersGlyph />} />
+          <StatCard dark className="min-w-[220px] flex-1" label="Active User" value={status === "live" || status === "empty" ? String((live || []).filter((r) => r.acct === "active").length) : "124,000"} badge={badgeMint} glyph={<CheckGlyph />} />
+          <StatCard dark className="min-w-[220px] flex-1" label="Verified User" value={status === "live" || status === "empty" ? String((live || []).filter((r) => r.ver === "verified").length) : "124,000"} badge={badgeMint} glyph={<CheckGlyph />} />
+          <StatCard dark className="min-w-[220px] flex-1" label="Susspended User" value={status === "live" || status === "empty" ? String((live || []).filter((r) => r.acct === "suspended").length) : "122"} badge={badgeMint} glyph={<UsersGlyph color="#FF6B02" />} />
         </div>
         <DarkFilter value={q} onChange={(e) => setQ(e.target.value)} />
-        <div className={`mt-[26px] overflow-hidden ${DCARD}`}>
+        {status === "empty" && (
+          <AdminEmpty dark title="No users yet" hint="Members who register on Clyse will appear here with their contact details, account status, verification and group counts." />
+        )}
+        <div className={`mt-[26px] overflow-hidden ${status === "empty" ? "hidden" : ""} ${DCARD}`}>
           <table className="w-full border-separate border-spacing-0 text-left">
             <thead>
               <tr>
@@ -117,7 +120,7 @@ export default function AdminUsers() {
                     {r.date || "Sep. 20, 2026"}
                   </td>
                   <td className="border-t border-[#E4E4E4] px-[10px] py-[28px] text-[15px] font-bold text-[#001701]">
-                    {r.slots || (r.grp && r.grp !== "—" ? `${r.grp}/10` : "5/10")}
+                    {r.slots || (r.grp && r.grp !== "—" ? `${r.mem ?? 0}/${r.grp}` : "5/10")}
                   </td>
                   <td className="border-t border-[#E4E4E4] px-[10px] py-[28px]">
                     <span className="flex items-center gap-[10px]">
