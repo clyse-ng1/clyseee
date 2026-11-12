@@ -48,6 +48,7 @@ import CreateReview from "./pages/CreateReview";
 import CreateResult from "./pages/CreateResult";
 import Dashboard from "./pages/Dashboard";
 import Wallet from "./pages/Wallet";
+import TransactionHistory from "./pages/TransactionHistory";
 import WalletEmpty from "./pages/WalletEmpty";
 import WalletError from "./pages/WalletError";
 import Join from "./pages/Join";
@@ -136,6 +137,7 @@ const TITLES = {
   "/earnings": "Earnings — Clyse",
   "/earnings/per-group": "Earnings Per Group — Clyse",
   "/earnings/per-member": "Earnings Per Member — Clyse",
+  "/wallet/transactions": "Transaction History — Clyse",
   "/waitlist": "My Waitlist — Clyse",
   "/waitlist/leave": "Leave Waitlist — Clyse",
   "/waitlist/error": "Waitlist Error — Clyse",
@@ -226,6 +228,7 @@ export default function App() {
           <Route path="/wallet" element={<Wallet />} />
           <Route path="/wallet/empty" element={<WalletEmpty />} />
           <Route path="/wallet/error" element={<WalletError />} />
+          <Route path="/wallet/transactions" element={<TransactionHistory />} />
           <Route path="/join" element={<Join />} />
           <Route path="/join/:token" element={<JoinSummary />} />
           <Route path="/join/preview" element={<PreviewForward />} />

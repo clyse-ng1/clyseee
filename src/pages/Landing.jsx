@@ -49,7 +49,7 @@ const CREATOR_FLOW = [
 
 function WalletGlyph({ color }) {
   return (
-    <svg width="34" height="34" viewBox="0 0 24 24" fill="none">
+    <svg width="40" height="40" viewBox="0 0 24 24" fill="none">
       <rect x="3" y="6" width="18" height="13" rx="3" fill={color} />
       <rect x="13.5" y="10.5" width="5" height="3.2" rx="1" fill="#FFFFFF" />
       <rect
@@ -73,7 +73,7 @@ function WalletGlyph({ color }) {
 
 function DollarGlyph({ color }) {
   return (
-    <svg width="34" height="34" viewBox="0 0 24 24" fill="none">
+    <svg width="40" height="40" viewBox="0 0 24 24" fill="none">
       <circle cx="12" cy="12" r="9" fill={color} />
       <path d="M12 6.8v10.4M14.7 9.2c-.5-.9-1.5-1.4-2.7-1.4-1.5 0-2.7.9-2.7 2.1 0 2.8 5.5 1.7 5.5 4.5 0 1.3-1.2 2.1-2.8 2.1-1.4 0-2.5-.6-3-1.6" stroke="#FFFFFF" strokeWidth="1.7" strokeLinecap="round" />
       <circle cx="12" cy="12" r="8.5" stroke={color} strokeWidth="1.8" />
@@ -89,7 +89,7 @@ function DollarGlyph({ color }) {
 
 function ShieldGlyph({ color }) {
   return (
-    <svg width="34" height="34" viewBox="0 0 24 24" fill="none">
+    <svg width="40" height="40" viewBox="0 0 24 24" fill="none">
       <path d="M12 3l7 2.8v5.6c0 4.4-2.9 7.7-7 9.1-4.1-1.4-7-4.7-7-9.1V5.8L12 3z" fill={color} />
       <path d="M9 11.8l2.2 2.2 4.3-4.5" stroke="#FFFFFF" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
       <path
@@ -111,7 +111,7 @@ function ShieldGlyph({ color }) {
 
 function CheckGlyph({ color }) {
   return (
-    <svg width="34" height="34" viewBox="0 0 24 24" fill="none">
+    <svg width="40" height="40" viewBox="0 0 24 24" fill="none">
       <rect x="3.5" y="3.5" width="17" height="17" rx="5" fill={color} />
       <path
         d="m8.5 12.2 2.5 2.5 4.8-5.4"
@@ -126,7 +126,7 @@ function CheckGlyph({ color }) {
 
 function GridGlyph({ color }) {
   return (
-    <svg width="34" height="34" viewBox="0 0 24 24" fill="none">
+    <svg width="40" height="40" viewBox="0 0 24 24" fill="none">
       <rect x="4" y="4" width="7" height="7" rx="2" fill={color} />
       <rect x="13" y="4" width="7" height="7" rx="2" fill={color} />
       <rect x="4" y="13" width="7" height="7" rx="2" fill={color} />
@@ -137,7 +137,7 @@ function GridGlyph({ color }) {
 
 function HeadsetGlyph({ color }) {
   return (
-    <svg width="34" height="34" viewBox="0 0 24 24" fill="none">
+    <svg width="40" height="40" viewBox="0 0 24 24" fill="none">
       <rect x="3.5" y="5.5" width="17" height="13" rx="3" fill={color} />
       <path d="M7 10h6M7 13.5h10" stroke="#FFFFFF" strokeWidth="1.7" strokeLinecap="round" />
       <path
@@ -179,6 +179,7 @@ const WHY = [
     bg: "bg-[#EEDFFF]",
     glyph: <DollarGlyph color="#6A5ACD" />,
     title: "Earn From Unused Slots",
+    lines: ["Earn From", "Unused Slots"],
     body: "Share available slots in your active subscriptions and earn when Members join your group.",
   },
   {
@@ -197,12 +198,14 @@ const WHY = [
     bg: "bg-[#E9DFFF]",
     glyph: <GridGlyph color="#6A5ACD" />,
     title: "Simple Management",
+    lines: ["Simple", "Management"],
     body: "Manage your groups, access details, payments, and subscription activity from one place.",
   },
   {
     bg: "bg-[#FFDFEB]",
     glyph: <HeadsetGlyph color="#E31B00" />,
     title: "Support When You Need It",
+    lines: ["Support When", "You Need It"],
     body: "Report access problems and raise disputes through CLYSE when something goes wrong.",
   },
 ];
@@ -458,7 +461,7 @@ export default function Landing() {
         <h2 className="mt-[100px] text-center text-[35px] leading-[43px] font-bold text-ink">
           How It Works
         </h2>
-        <p className="mx-auto mt-[10px] max-w-[1040px] text-center text-[25px] leading-[35px] font-semibold text-ink text-justify">
+        <p className="mx-auto mt-[10px] max-w-[1040px] text-center text-[25px] leading-[35px] font-semibold text-ink">
           Getting access to your favorite subscriptions is simple. Choose a
           service, join an available group, and pay securely through CLYSE to
           enjoy your subscription.
@@ -481,7 +484,7 @@ export default function Landing() {
         <h2 className="mt-[60px] text-center text-[30px] leading-[37px] font-bold text-ink">
           How It Works
         </h2>
-        <p className="mx-auto mt-[10px] max-w-[370px] text-center text-[16px] leading-[22px] font-semibold text-ink text-justify">
+        <p className="mx-auto mt-[10px] max-w-[370px] text-center text-[16px] leading-[22px] font-semibold text-ink">
           Getting access to your favorite subscriptions is simple. Choose a
           service, join an available group, and pay securely through CLYSE to
           enjoy your subscription.
@@ -513,17 +516,24 @@ export default function Landing() {
             {WHY.slice(0, 3).map((w) => (
               <div
                 key={w.title}
-                className="flex h-[364px] flex-col items-center px-[22px] pt-[56px]"
+                className="flex h-[364px] flex-col items-center px-[36px] pt-[64px]"
               >
                 <span
-                  className={`grid h-[76px] w-[76px] place-items-center rounded-[14px] ${w.bg}`}
+                  className={`grid h-[79px] w-[80px] place-items-center rounded-[11px] ${w.bg} opacity-80`}
                 >
                   {w.glyph}
                 </span>
-                <h3 className="mt-[26px] text-center text-[26px] leading-[32px] font-bold whitespace-nowrap text-ink">
-                  {w.title}
+                <h3 className="mt-[32px] text-center text-[35px] leading-[43px] font-bold text-ink">
+                  {w.lines
+                    ? w.lines.map((t, i) => (
+                        <span key={i}>
+                          {i > 0 && <br />}
+                          {t}
+                        </span>
+                      ))
+                    : w.title}
                 </h3>
-                <p className="mt-[14px] text-center text-[15px] leading-[21px] font-semibold text-ink">
+                <p className="mt-[20px] text-center text-[18px] leading-[25px] font-semibold text-ink">
                   {w.body}
                 </p>
               </div>
@@ -533,17 +543,24 @@ export default function Landing() {
             {WHY.slice(3).map((w) => (
               <div
                 key={w.title}
-                className="flex h-[364px] flex-col items-center px-[22px] pt-[56px]"
+                className="flex h-[364px] flex-col items-center px-[36px] pt-[64px]"
               >
                 <span
-                  className={`grid h-[76px] w-[76px] place-items-center rounded-[14px] ${w.bg}`}
+                  className={`grid h-[79px] w-[80px] place-items-center rounded-[11px] ${w.bg} opacity-80`}
                 >
                   {w.glyph}
                 </span>
-                <h3 className="mt-[26px] text-center text-[26px] leading-[32px] font-bold whitespace-nowrap text-ink">
-                  {w.title}
+                <h3 className="mt-[32px] text-center text-[35px] leading-[43px] font-bold text-ink">
+                  {w.lines
+                    ? w.lines.map((t, i) => (
+                        <span key={i}>
+                          {i > 0 && <br />}
+                          {t}
+                        </span>
+                      ))
+                    : w.title}
                 </h3>
-                <p className="mt-[14px] text-center text-[15px] leading-[21px] font-semibold text-ink">
+                <p className="mt-[20px] text-center text-[18px] leading-[25px] font-semibold text-ink">
                   {w.body}
                 </p>
               </div>

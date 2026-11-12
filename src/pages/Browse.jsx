@@ -3,7 +3,6 @@ import { Link } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import { MobileBack } from "../components/MemberMini";
 import Sidebar from "../components/Sidebar";
-import ExtraBlock from "../components/ExtraBlock";
 import BrandTile from "../components/BrandTile";
 import Sk from "../components/Skeleton";
 import { BlurBg } from "../components/Decor";
@@ -16,7 +15,7 @@ import avatarAccount from "../assets/avatar-account.webp";
 import JoinCard from "../components/GroupOfferCard";
 
 /* Logged-in browse — desktop Figma 806:31476 (results) + 807:34801
-   (no-result), mobile Figma 807:37875 (EVM9) + 807:38349 (EVM10).
+   (no-result), mobile Figma 263:4402 "BROWSE SUBSCRIPTION MOBILE PAGE".
    Brand cards come from GET /catalogue and the Available Groups tab from
    GET /catalogue/groups (public); search + category chips filter them
    client-side, and an empty filter renders the "No Result" state. Copy fix: "Sbcription" ->
@@ -155,7 +154,9 @@ export default function Browse() {
     <div
       className={
         mobile
-          ? "scrollbar-none -mx-[30px] flex gap-[10px] overflow-x-auto px-[30px] pb-[4px]"
+          ? /* Figma 263:4402 "Categories" frame: 13.87px between chips, ends
+               flush at the 30px page margin, first chip aligns to the label. */
+            "scrollbar-none -mx-[30px] flex gap-[13.87px] overflow-x-auto px-[30px] pb-[4px]"
           : "scrollbar-none flex gap-[12px] overflow-x-auto pb-[4px]"
       }
     >
@@ -171,12 +172,16 @@ export default function Browse() {
             }}
             className={`flex-none font-semibold whitespace-nowrap transition ${
               mobile
-                ? "h-[42px] rounded-[8px] px-[14px] text-[12.5px]"
+                ? "h-[41.6px] rounded-[6.76px] border-[0.45px] px-[17.34px] text-[12.48px] leading-[15.22px]"
                 : "h-[48px] rounded-[6px] px-[20px] text-[15px]"
             } ${
-              active
-                ? "bg-[#021E02] text-white"
-                : "border border-[#001701] bg-white text-[#001701] hover:bg-[#F1F8F2]"
+              mobile
+                ? active
+                  ? "bg-deep text-white"
+                  : "border-[0.45px] border-[#048B0B] bg-white text-[#001701]"
+                : active
+                  ? "bg-[#021E02] text-white"
+                  : "border border-[#001701] bg-white text-[#001701] hover:bg-[#F1F8F2]"
             }`}
           >
             {c}
@@ -310,13 +315,18 @@ export default function Browse() {
       </main>
       {/* Mobile */}
       <main className="relative xl:hidden">
+        {/* Back button is a deliberate addition — Figma 263:4402 has none, but
+            the client asked for it on major member pages. */}
         <div className="relative px-[30px] pt-[30px]">
           <MobileBack />
         </div>
-        {/* Figma 263:4402: the search bar is a full-bleed 430x56 white band
-            with a hairline under it — no border, no radius, no shadow. */}
-        <div className="relative border-b border-[#BABABA] bg-white">
-          <div className="flex h-[56px] items-center gap-[12px] px-[30px]">
+        {/* Figma 263:4402 "Search Bar" frame: full-bleed white band, 56 tall.
+            Icon and copy both start at x30, icon is 31 wide, 27px gap before the
+            17.34/24.27 semibold #999999 placeholder. There is no drawn border —
+            the frame's stroke paints as a soft shadow ramp under the band
+            (sampled 212→233 over ~8px), hence the shadow instead of a hairline. */}
+        <div className="relative bg-white shadow-[0_4px_10px_rgba(0,45,8,0.10)]">
+          <div className="flex h-[56px] items-center gap-[27px] px-[30px]">
             <img src={iconSearch} alt="" className="h-[31px] w-[31px] flex-none" />
             <input
               value={q}
@@ -327,7 +337,11 @@ export default function Browse() {
             />
           </div>
         </div>
-        <div className="relative mx-[10px] mt-[4px] rounded-[20px] bg-[linear-gradient(180deg,#E4F6E5_0%,#EDF8EE_100%)] px-[20px] pt-[16px] pb-[20px]">
+        {/* Figma 263:4402 paints no panel: the page's own blur background runs
+            edge to edge and fades to white, and content sits on it with a flat
+            30px margin. Horizontal padding only — vertical breathing room comes
+            from each block's own margins. */}
+        <div className="relative px-[30px] pt-[29px]">
           <p className="text-[17px] leading-[25px] font-semibold text-ink">
             Categories
           </p>
@@ -355,47 +369,53 @@ export default function Browse() {
               </Link>
             </div>
           ) : (
-                        <div className="mt-[16px] grid grid-cols-2 gap-x-[10px] gap-y-[10px]">
-              <h2 className="col-span-2 text-[25px] leading-[30px] font-bold text-ink">
+                        <div className="mt-[48px] grid grid-cols-2 gap-x-[16.3px] gap-y-[14.83px]">
+              <h2 className="col-span-2 mb-[19px] text-[22.56px] leading-[27.51px] font-bold text-ink">
                 Available Subscription
               </h2>
               {loadingBrands
                 ? Array.from({ length: 4 }, (_, i) => <Sk key={`brand-loading-mobile-${i}`} className="h-[130px] w-full !rounded-[16px]" />)
-                : (showAllBrands ? brands : brands.slice(0, 8)).map((b) => (
+                : /* Figma 263:4402 shows 6 brand cards (3 rows) above the
+                     View More pill, not 8. */
+                  (showAllBrands ? brands : brands.slice(0, 6)).map((b) => (
                 <button
                   key={b.brand}
                   type="button"
                   onClick={() => setPicked(picked === b.name ? null : b.name)}
                   aria-pressed={picked === b.name}
-                  className={`flex h-[165px] cursor-pointer flex-col items-center rounded-[16px] border bg-[#F6FCF6] px-[8px] pt-[18px] pb-[19px] ${
+                  /* Figma 263:4402 card (node "Companies Card (Join Group)"):
+                     177x200, r20, pad 20, icon 75, gap 10, name 135 wide,
+                     gap 5, pill 96x19 r3.58. Top-aligned — a 3-line name like
+                     "Adobe Creative Cloud" just leaves less bottom slack. */
+                  className={`flex h-[200px] cursor-pointer flex-col items-center rounded-[20px] border bg-[#F1F8F2] px-[20px] pt-[20px] pb-[20px] ${
                     picked === b.name
                       ? "border-[#048B0B] ring-2 ring-[#B1DBB3]"
-                      : "border-[#048B0B55]"
+                      : "border-[#001701]"
                   }`}
                 >
-                  <BrandTile brand={b.brand} name={b.name} size={50} plain />
-                  <span className="mt-[10px] line-clamp-2 w-full flex-none text-[16px] leading-[19px] font-bold text-[#001701]">
+                  <BrandTile brand={b.brand} name={b.name} size={75} plain />
+                  <span className="mt-[10px] line-clamp-3 w-[135px] flex-none text-center text-[20px] leading-[22px] font-bold text-[#001701]">
                     {b.name}
                   </span>
-                  <span className="mt-auto inline-flex h-[18px] w-[95px] flex-none items-center justify-center rounded-[3.58px] bg-[#048B0B] text-[10px] leading-[15px] font-semibold text-white">
+                  <span className="mt-[5px] inline-flex h-[19px] w-[96px] flex-none items-center justify-center rounded-[3.58px] bg-[#048B0B] text-[10px] leading-[15px] font-semibold text-white">
                     {b.chip || b.cat || "Entertainment"}
                   </span>
                 </button>
               ))}
             </div>
           )}
-          {!noResult && brands.length > 8 && (
+          {!noResult && brands.length > 6 && (
             <button
               type="button"
               onClick={() => setShowAllBrands((v) => !v)}
-              className="mt-[16px] flex h-[40px] w-full items-center justify-center rounded-[20px] border border-[#B1DBB3] bg-[#DFFFE0] text-[14px] font-semibold text-[#001701]"
+              className="mt-[19.34px] flex h-[32px] w-full items-center justify-center rounded-[10.31px] border-[0.64px] border-[#048B0B] bg-[#DFFFE1]/80 text-[11.6px] leading-[14.15px] font-semibold text-[#001701]"
             >
               {showAllBrands ? "Show Less" : "View More"}
             </button>
           )}
 
-          <div className="mt-[40px] flex items-center justify-between gap-[10px]">
-            <h2 className="flex-none text-[25px] leading-[30px] font-bold text-ink">
+          <div className="mt-[30px] flex items-start justify-between gap-[10px]">
+            <h2 className="flex-none text-[22px] leading-[26.82px] font-bold text-ink">
               Available Group
             </h2>
             {picked && (
@@ -410,7 +430,7 @@ export default function Browse() {
               </button>
             )}
           </div>
-          <div className="mt-[20px] grid grid-cols-2 gap-x-[18px] gap-y-[17px]">
+          <div className="mt-[20.6px] grid grid-cols-2 gap-x-[17.2px] gap-y-[16.5px]">
             {loadingGroups
               ? Array.from({ length: 4 }, (_, i) => (
                   <Sk key={`group-loading-m-${i}`} className="h-[250px] w-full !rounded-[16px]" />
@@ -423,8 +443,9 @@ export default function Browse() {
             </p>
           )}
         </div>
-        <ExtraBlock mobile className="mt-[40px]" />
-        <div className="bg-white pb-[60px]" />
+        {/* Figma 263:4402 ends on the Available Group grid — no View/Create
+            block, no trailing band. */}
+        <div className="pb-[60px]" />
       </main>
     </div>
   );

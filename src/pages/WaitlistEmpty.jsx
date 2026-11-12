@@ -2,7 +2,8 @@ import Navbar from "../components/Navbar";
 import Sidebar from "../components/Sidebar";
 import MiniButton from "../components/MiniButton";
 import ExtraBlock from "../components/ExtraBlock";
-import { BlurBg } from "../components/Decor";
+import { MobileBack } from "../components/MemberMini";
+import { BlurBg, MobileTopWash } from "../components/Decor";
 import iconDocSearch from "../assets/icon-doc-search-green.svg";
 
 /* "You haven't any" -> "don't have any", "Exlore" -> "Explore", literal
@@ -32,11 +33,12 @@ export function EmptyCard() {
 
 export default function WaitlistEmpty() {
   return (
-    <div className="min-h-screen bg-white font-sans text-ink">
+    <div className="relative min-h-screen overflow-hidden bg-white font-sans text-ink">
+      <BlurBg variant="hero" />
+      <MobileTopWash />
       <Navbar loggedIn />
       {/* Desktop */}
       <main className="relative mx-[20px] min-[1440px]:mx-[100px] hidden pb-[100px] xl:block">
-        <BlurBg variant="hero" />
         <div className="relative mt-[101px] flex gap-[38px]">
           <Sidebar active="My Waitlist" />
           <div className="w-[830px] flex-none">
@@ -53,8 +55,9 @@ export default function WaitlistEmpty() {
         </div>
       </main>
       {/* Mobile */}
-      <main className="relative bg-white xl:hidden">
-        <div className="relative bg-white px-[30px] pt-[30px] pb-[40px]">
+      <main className="relative xl:hidden">
+        <div className="relative px-[30px] pt-[30px] pb-[40px]">
+          <MobileBack />
           <h1 className="mt-[0px] text-[30px] leading-[37px] font-bold text-black">
             Waitlist
           </h1>

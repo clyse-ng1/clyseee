@@ -131,7 +131,7 @@ export default function MobileBrowse() {
         Latest Slots
       </h2>
       {loadingOffers ? (
-        <div className="mt-[19px] grid grid-cols-2 gap-x-[20px] gap-y-[12px] px-[13px]" role="status" aria-label="Loading open slots">
+        <div className="mt-[19px] grid grid-cols-2 gap-x-[17.2px] gap-y-[16.5px] px-[13px]" role="status" aria-label="Loading open slots">
           {Array.from({ length: 4 }, (_, i) => <Sk key={i} className="h-[210px] w-full !rounded-[12px]" />)}
         </div>
       ) : !liveOffers ? (
@@ -139,7 +139,7 @@ export default function MobileBrowse() {
           No open slots right now — check back soon.
         </p>
       ) : (
-        <div className="mt-[19px] grid grid-cols-2 gap-x-[20px] gap-y-[12px] px-[13px]">
+        <div className="mt-[19px] grid grid-cols-2 gap-x-[17.2px] gap-y-[16.5px] px-[13px]">
           {liveOffers.map((o, i) => (
             <GroupOfferCard key={`${o.name}-${i}`} g={{ ...o, name: `${o.name}\u2019s Offer` }} />
           ))}

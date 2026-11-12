@@ -4,7 +4,7 @@ import Navbar from "../components/Navbar";
 import BrandTile from "../components/BrandTile";
 import LogoMarquee from "../components/LogoMarquee";
 import CreateGroupHead from "../components/CreateGroupHead";
-import { BlurBg } from "../components/Decor";
+import { BlurBg, MobileTopWash } from "../components/Decor";
 import FundWalletModal from "../components/FundWalletModal";
 import { api, accessLabel, brandOf, kobo } from "../lib/api";
 import iconCheck from "../assets/check-green-circle.svg";
@@ -357,9 +357,13 @@ export default function JoinSummary() {
   );
 
   return (
-    <div className="relative min-h-screen overflow-hidden bg-[linear-gradient(180deg,#E4F6E5_0%,#EFFAF0_240px,#FBFEFB_420px)] font-sans text-ink">
+    /* Figma paints the BACKGROUND BLUR circles straight onto white — no flat
+       wash. The old #E4F6E5 linear gradient sat on top of them and killed the
+       gradient's depth, which is why the top read as one flat green. */
+    <div className="relative min-h-screen overflow-hidden bg-white font-sans text-ink">
       {/* Figma 889:52209 — same join-flow BLUR BG as page 1. */}
       <BlurBg variant="join" />
+      <MobileTopWash />
       <Navbar loggedIn />
       {/* Desktop */}
       <main className="relative mx-[20px] hidden xl:block min-[1440px]:mx-[100px]">
@@ -513,7 +517,20 @@ export default function JoinSummary() {
       </div>
       {/* Mobile */}
       <main className="relative xl:hidden">
-        <div className="mx-[20px] mt-[20px] overflow-hidden rounded-[20px] bg-white shadow-[0_0_20px_rgba(0,23,1,0.10)]">
+        {/* Figma draws no chevron on the mobile group-details screen, but the
+            client asked for a back button on the major member pages — same disc
+            as the desktop one and as MobileBack elsewhere. */}
+        <div className="px-[20px] pt-[20px]">
+          <Link
+            to="/join/plan"
+            state={location.state}
+            aria-label="Back"
+            className="grid h-[40px] w-[40px] place-items-center rounded-full border border-[#BABABA] bg-white pb-[3px] text-[18px] leading-none text-ink shadow-[0_4px_10px_rgba(0,23,1,0.10)]"
+          >
+            ‹
+          </Link>
+        </div>
+        <div className="mx-[20px] mt-[16px] overflow-hidden rounded-[20px] bg-white shadow-[0_0_20px_rgba(0,23,1,0.10)]">
           <div className="border-b border-[#BABABA]">
             <CreateGroupHead />
           </div>

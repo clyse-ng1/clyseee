@@ -5,7 +5,7 @@ import PlanCard from "../components/PlanCard";
 import PairButtons from "../components/PairButtons";
 import LogoMarquee from "../components/LogoMarquee";
 import SectionHead from "../components/SectionHead";
-import { BlurBg } from "../components/Decor";
+import { BlurBg, MobileTopWash } from "../components/Decor";
 import { api, kobo } from "../lib/api";
 import { matchService, planTotal, useCatalogue } from "../lib/useCatalogue";
 
@@ -196,9 +196,13 @@ export default function JoinPlan() {
     });
   };
   return (
-    <div className="relative min-h-screen overflow-hidden bg-[linear-gradient(180deg,#E4F6E5_0%,#EFFAF0_240px,#FBFEFB_420px)] font-sans text-ink">
+    /* Figma paints the BACKGROUND BLUR circles straight onto white — no flat
+       wash. The old #E4F6E5 linear gradient sat on top of them and killed the
+       gradient's depth, which is why the top read as one flat green. */
+    <div className="relative min-h-screen overflow-hidden bg-white font-sans text-ink">
       {/* Figma 889:52181 — the join-flow BLUR BG, not the landing hero blobs. */}
       <BlurBg variant="join" />
+      <MobileTopWash />
       <Navbar loggedIn />
       {/* Desktop */}
       <main className="relative mx-[20px] hidden xl:block min-[1440px]:mx-[100px]">
@@ -262,7 +266,9 @@ export default function JoinPlan() {
         </div>
         <div className="mt-[16px] relative border-y border-[#BABABA] bg-white">
           <div className="px-[30px] py-[30px]">
-            <SectionHead mobile />
+            {/* Was <SectionHead mobile /> with no title, so the waitlist flow
+                fell back to SectionHead's "Join Group" default. */}
+            <SectionHead mobile title={headTitle} />
           </div>
         </div>
         <div className="relative bg-white">

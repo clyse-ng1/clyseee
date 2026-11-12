@@ -1,16 +1,17 @@
 import { Link } from "react-router-dom";
 import avatarAccount from "../assets/avatar-account.webp";
 
-/* The group offer card exactly as Figma draws it (attachment f177 / browse
-   frames): near-black green base with a bright radial glow in the top-right
-   corner, avatar overhanging the top, ghost-mint contribution box, dark-green
-   slot bar with a bright fill, and a pale-mint Join button. One component is
-   shared by Browse, Dashboard and any future list so the card never drifts
-   between pages again. g = { avatar, name, service, price, pct (0-100),
-   left, ratio, access, linkTo, linkState }. */
+/* The group offer card exactly as Figma draws it (dashboard frame 481:10033,
+   pixel-sampled): deep uniform green body with a subtle left-to-right lift
+   (#011A02 -> #013203), avatar overhanging the top, DARK green contribution
+   box (#19391A) with white text, brand-green slot-bar fill (#048B0B) on a #023303
+   track, and a pale-mint Join button. One component is shared by Browse,
+   Dashboard and any future list so the card never drifts between pages
+   again. g = { avatar, name, service, price, pct (0-100), left, ratio,
+   access, linkTo, linkState }. */
 
 const CARD_BG =
-  "radial-gradient(circle at 100% 0%, #00D60D 0%, #007907 35%, #003303 58%, #001901 72%, #002001 100%) #002001";
+  "linear-gradient(90deg, #011A02 0%, #012403 45%, #013203 100%) #012403";
 
 function SlotIcon() {
   return (
@@ -51,9 +52,9 @@ export default function GroupOfferCard({ g, className = "" }) {
           </p>
         </div>
 
-        <div className="mt-[10px] h-px w-full bg-[#B1DBB3]/40 xl:mt-[12px]" />
+        <div className="mt-[10px] h-px w-full bg-[#7F8C80]/70 xl:mt-[12px]" />
 
-        <div className="mt-[12px] flex h-[39px] flex-col justify-center rounded-[8px] bg-[#EFFFF0] px-[10px] text-center xl:h-auto xl:py-[8px]">
+        <div className="mt-[12px] flex h-[39px] flex-col justify-center rounded-[8px] bg-[#19391A] px-[10px] text-center xl:h-auto xl:py-[8px]">
           <p className="text-[6px] leading-[10px] font-semibold text-white xl:text-[9px] xl:leading-[12px]">
             Your Contribution
           </p>
@@ -67,9 +68,9 @@ export default function GroupOfferCard({ g, className = "" }) {
           </p>
         </div>
 
-        <div className="mt-[7px] h-[4px] w-full overflow-hidden rounded-full bg-[#004C04] xl:mt-[10px] xl:h-[6px]">
+        <div className="mt-[7px] h-[4px] w-full overflow-hidden rounded-full bg-[#023303] xl:mt-[10px] xl:h-[6px]">
           <span
-            className="block h-full rounded-full bg-[#00C40C]"
+            className="block h-full rounded-full bg-[#048B0B]"
             style={{ width: `${pct}%` }}
           />
         </div>
@@ -95,7 +96,7 @@ export default function GroupOfferCard({ g, className = "" }) {
         <Link
           to={g.linkTo || "/join"}
           state={g.linkState}
-          className="mt-[12px] flex h-[22px] w-full items-center justify-center rounded-[8px] bg-[#EAFBEA] text-[11px] font-semibold text-[#001701] transition hover:bg-white xl:mt-[14px] xl:h-[38px] xl:text-[16px]"
+          className="mt-[12px] flex h-[22px] w-full items-center justify-center rounded-[8px] bg-[#EFFFF0] text-[11px] font-semibold text-[#001701] transition hover:bg-white xl:mt-[14px] xl:h-[38px] xl:text-[16px]"
         >
           Join
         </Link>

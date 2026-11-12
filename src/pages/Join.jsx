@@ -5,7 +5,7 @@ import Sidebar from "../components/Sidebar";
 import JoinCard from "../components/JoinCard";
 import Sk from "../components/Skeleton";
 import ExtraBlock from "../components/ExtraBlock";
-import { BlurBg } from "../components/Decor";
+import { BlurBg, MobileTopWash } from "../components/Decor";
 import { api, brandOf, kobo } from "../lib/api";
 
 const SUB = "Browse available groups and join the waitlist for, We'll notify you when a group becomes available";
@@ -53,6 +53,7 @@ export default function Join() {
     <div className="relative min-h-screen overflow-hidden bg-white font-sans text-ink">
       {/* Figma BLUR BG at page level so the mobile branch gets it too. */}
       <BlurBg variant="hero" />
+      <MobileTopWash />
       <Navbar loggedIn />
       {/* Desktop */}
       <main className="relative mx-[20px] min-[1440px]:mx-[100px] hidden pb-[100px] xl:block">

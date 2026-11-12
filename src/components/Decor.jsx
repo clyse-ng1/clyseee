@@ -120,6 +120,26 @@ function JoinBlobs() {
   );
 }
 
+/* The prominent green wash at the top of the mobile member screens. Figma
+   paints it as a band behind the page heading (mobile waitlist 524:14945:
+   ~#E6FBE7 at the heading, back to white by ~340px), but the blurred circles
+   alone are far too faint to read on a phone — the old pages tried to fake it
+   with a flat #E4F6E5 wash, which killed the gradient's depth instead. This is
+   one shared element so every screen in the flow reads identically. */
+export function MobileTopWash({ height = 520 }) {
+  return (
+    <div
+      aria-hidden
+      className="pointer-events-none absolute inset-x-0 top-0 xl:hidden"
+      style={{
+        height,
+        background:
+          "linear-gradient(180deg, rgba(230,251,231,0.95) 0%, rgba(226,250,228,0.85) 34%, rgba(240,252,240,0.45) 66%, rgba(255,255,255,0) 100%)",
+      }}
+    />
+  );
+}
+
 /* Soft ambient background blobs (Figma "BLUR BG") */
 export function BlurBg({ variant = "page" }) {
   return variant === "hero" ? <HeroBlobs /> : variant === "join" ? <JoinBlobs /> : <PageBlobs />;

@@ -237,8 +237,11 @@ export default function CreatePlan() {
       </main>
 
       {/* Mobile */}
-      <main className="relative bg-white xl:hidden">
-        <div className="relative px-[30px] pt-[40px]">
+      {/* Step 2 used to add its own 40px top padding plus a solid bg-white
+          wrapper, while steps 1/3/4 sit flush on the shared shell — that made
+          the top of this step read differently from the rest of the flow. */}
+      <main className="relative z-10 xl:hidden">
+        <div className="relative">
           <StepHeader step={2} />
           <h2 className="mt-[34px] text-[22px] leading-[27px] font-semibold">
             Choose your {title} plan

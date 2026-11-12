@@ -73,7 +73,7 @@ export default function About() {
             <h2 className="mt-[33px] text-[35px] leading-[43px] font-bold text-black">
               Making Access Easier for Everyone
             </h2>
-            <p className="mt-[24px] text-justify text-[25px] leading-[35px] font-semibold text-black">
+            <p className="mt-[24px] text-[25px] leading-[35px] font-semibold text-black">
               {MISSION_BODY}
             </p>
           </div>
@@ -113,7 +113,7 @@ export default function About() {
             <h2 className="mt-[33px] text-[35px] leading-[43px] font-bold text-black">
               Making Subscription Sharing Easier for Everyone
             </h2>
-            <p className="mt-[24px] text-justify text-[25px] leading-[35px] font-semibold text-black">
+            <p className="mt-[24px] text-[25px] leading-[35px] font-semibold text-black">
               {WHY_BODY}
             </p>
           </div>
@@ -134,7 +134,7 @@ export default function About() {
           <h2 className="mt-[20px] text-[30px] leading-[37px] font-bold text-black">
             Making Access Easier for Everyone
           </h2>
-          <p className="mt-[20px] text-justify text-[16px] leading-[24px] font-semibold text-black">
+          <p className="mt-[20px] text-[16px] leading-[24px] font-semibold text-black">
             {MISSION_BODY}
           </p>
           <img
@@ -166,7 +166,7 @@ export default function About() {
           <h2 className="mt-[20px] text-[30px] leading-[37px] font-bold text-black">
             Making Subscription Sharing Easier for Everyone
           </h2>
-          <p className="mt-[20px] text-justify text-[16px] leading-[24px] font-semibold text-black">
+          <p className="mt-[20px] text-[16px] leading-[24px] font-semibold text-black">
             {WHY_BODY}
           </p>
           <img

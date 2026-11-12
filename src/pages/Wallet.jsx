@@ -45,9 +45,9 @@ import chevronRight from "../assets/angle-right.svg";
    component internals with no token-free path source. */
 const QA = [
   { icon: "plus", label: "Fund Wallet", key: "fund" },
-  { icon: "sliders", label: "View Limits" },
-  { icon: "clock", label: "Transaction History" },
-  { icon: "support", label: "Help & Support" },
+  { icon: "sliders", label: "View Limits", key: "limits" },
+  { icon: "clock", label: "Transaction History", key: "history" },
+  { icon: "support", label: "Help & Support", key: "support" },
 ];
 const QA_MOBILE = [QA[0], QA[2], QA[1], QA[3]];
 const QA_ICONS = {
@@ -56,7 +56,7 @@ const QA_ICONS = {
   clock: iconQaClock,
   support: iconQaSupport,
 };
-const PILL = {
+export const PILL = {
   Successful: "bg-[#DFFFE0] text-[#048B0B]",
   Pending: "bg-[#FFEACC] text-[#FF9400]",
   Fail: "bg-[#FDE9E9] text-[#FF0000]",
@@ -67,7 +67,7 @@ const DOT = {
   Fail: "bg-[#FF0000]",
 };
 
-const MONEY_ICONS = new Set(["funding", "subscription", "withdraw"]);
+export const MONEY_ICONS = new Set(["funding", "subscription", "withdraw"]);
 
 const TX_ICONS = new Set([
   "netflix", "spotify", "youtube", "canva", "amazon", "prime", "adobe", "capcut", "apple",
@@ -103,7 +103,9 @@ function serviceFromTx(t, groupById) {
   return null;
 }
 
-function mapTx(t, groupById) {
+/* Exported so the dedicated Transaction History page renders rows through the
+   exact same mapping (figma wording, icons, signed amounts) as the wallet card. */
+export function mapTx(t, groupById) {
   const kind = (t.kind || "").toLowerCase();
   const funding = kind === "wallet_funding";
   const withdrawal = /withdraw|payout/.test(kind);
@@ -165,7 +167,7 @@ function Notice({ notice }) {
   );
 }
 
-function RowIcon({ icon, size = 30 }) {
+export function RowIcon({ icon, size = 30 }) {
   const px = size === 40 ? "h-[40px] w-[40px]" : "h-[30px] w-[30px]";
   /* Figma 481:11028 paints funding as a solid #048B0B disc with a white
      down-arrow — the same shape family as the withdraw arrow, mirrored. */
@@ -293,6 +295,18 @@ function QACard({ item, onFund }) {
       >
         {inner}
       </button>
+    );
+  }
+  /* "Transaction History" opens the full ledger page (client request). The
+     other tiles have no destination in Figma, so they stay as static cards. */
+  if (item.key === "history") {
+    return (
+      <Link
+        to="/wallet/transactions"
+        className="flex h-[100px] w-full items-start justify-center rounded-[10px] bg-white pt-[21px] shadow-[0_0_20px_rgba(0,23,1,0.10)]"
+      >
+        {inner}
+      </Link>
     );
   }
   return (
@@ -568,13 +582,12 @@ export default function Wallet() {
                 <h2 className="mt-[40px] ml-[90px] text-[35px] leading-[43px] font-bold">
                   Transaction History
                 </h2>
-                <button
-                  type="button"
-                  onClick={() => setLimit(50)}
+                <Link
+                  to="/wallet/transactions"
                   className="mt-[44px] mr-[30px] ml-auto text-[25px] leading-[35px] font-semibold text-[#048B0B]"
                 >
                   View all
-                </button>
+                </Link>
               </div>
               {/* Figma 889:80439 table header: Group (20/700 black) first, then
                   16/600 grey Date & Time / Amount / Status at x 380 / 514 / 689. */}
@@ -744,13 +757,12 @@ export default function Wallet() {
             <h2 className="ml-[30px] text-[23px] leading-[32px] font-semibold whitespace-nowrap">
               Transaction History
             </h2>
-            <button
-              type="button"
-              onClick={() => setLimit(50)}
+            <Link
+              to="/wallet/transactions"
               className="mt-[6px] mr-[30px] ml-auto text-[18px] leading-[22px] font-semibold text-[#048B0B]"
             >
               View all
-            </button>
+            </Link>
           </div>
           <div className="mt-[30px] space-y-[15px]">
             {!rows && !txError ? (

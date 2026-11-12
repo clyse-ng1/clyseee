@@ -6,7 +6,7 @@ import Sidebar from "../components/Sidebar";
 import WaitlistCard, { WaitlistCardSk } from "../components/WaitlistCard";
 import ExtraBlock from "../components/ExtraBlock";
 import { EmptyCard } from "./WaitlistEmpty";
-import { BlurBg } from "../components/Decor";
+import { BlurBg, MobileTopWash } from "../components/Decor";
 import { api, brandOf, fmtDay, kobo } from "../lib/api";
 
 
@@ -108,6 +108,7 @@ export default function Waitlist() {
     <div className="relative min-h-screen overflow-hidden bg-white font-sans text-ink">
       {/* Figma BLUR BG at page level so the mobile branch gets it too. */}
       <BlurBg variant="hero" />
+      <MobileTopWash />
       <Navbar loggedIn />
       {/* Desktop */}
       <main className="relative mx-[20px] min-[1440px]:mx-[100px] hidden pb-[100px] xl:block">
@@ -132,7 +133,8 @@ export default function Waitlist() {
       </main>
       {/* Mobile */}
       <main className="relative xl:hidden">
-        <div className="relative bg-[linear-gradient(180deg,#E4F6E5_0%,#EFFAF0_55%,#FBFEFB_100%)] px-[30px] pt-[30px] pb-[40px]">
+        {/* Same as the join pages: the flat wash buried the Figma blobs. */}
+        <div className="relative px-[30px] pt-[30px] pb-[40px]">
           <MobileBack />
           <h1 className="mt-[0px] text-[35px] leading-[43px] font-bold text-black">
             Waitlist
