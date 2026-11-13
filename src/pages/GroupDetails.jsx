@@ -416,6 +416,25 @@ export default function GroupDetails() {
               Invite Member
             </Link>
           </div>
+          {/* Activity + invite management come from the newly documented
+              invite/verification/access trails; kept below the Figma row so the
+              card's own layout is unchanged. */}
+          <div className="mt-[16px] flex flex-wrap gap-[16px]">
+            <Link
+              to="/groups/activity"
+              state={{ group_id: groupId }}
+              className="text-[16px] font-semibold text-[#048B0B] hover:underline"
+            >
+              Group activity
+            </Link>
+            <Link
+              to="/groups/invites"
+              state={{ group_id: groupId }}
+              className="text-[16px] font-semibold text-[#048B0B] hover:underline"
+            >
+              Invite links
+            </Link>
+          </div>
           </div>
         </div>
       </main>

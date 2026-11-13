@@ -49,6 +49,9 @@ import CreateResult from "./pages/CreateResult";
 import Dashboard from "./pages/Dashboard";
 import Wallet from "./pages/Wallet";
 import TransactionHistory from "./pages/TransactionHistory";
+import { SupportInbox, SupportThread, SupportNew } from "./pages/Support";
+import { WaitlistHistory } from "./pages/WaitlistHistory";
+import { GroupActivity, InviteManager } from "./pages/GroupActivity";
 import WalletEmpty from "./pages/WalletEmpty";
 import WalletError from "./pages/WalletError";
 import Join from "./pages/Join";
@@ -156,6 +159,12 @@ const TITLES = {
   "/messages": "Messages — Clyse",
   "/notifications": "Notifications — Clyse",
   "/profile": "Profile — Clyse",
+  "/support": "Support — Clyse",
+  "/support/new": "New Support Ticket — Clyse",
+  "/support/:issueId": "Support Ticket — Clyse",
+  "/waitlist/activity": "Waitlist Activity — Clyse",
+  "/groups/activity": "Group Activity — Clyse",
+  "/groups/invites": "Invite Links — Clyse",
   "/create-group": "Create Group — Clyse",
   "/create-group/plan": "Create Group — Clyse",
   "/browse": "Browse Groups — Clyse",
@@ -190,7 +199,8 @@ function ScrollToTop() {
         return;
       }
     }
-    window.scrollTo(0, 0);
+    /* Explicit "instant" so this can never inherit a smooth scroll-behavior. */
+    window.scrollTo({ top: 0, left: 0, behavior: "instant" });
     document.title = TITLES[pathname] || TITLES["/"];
   }, [pathname, hash]);
   return null;
@@ -279,6 +289,12 @@ export default function App() {
           <Route path="/messages" element={<Messages />} />
           <Route path="/notifications" element={<Notifications />} />
           <Route path="/profile" element={<Profile />} />
+          <Route path="/support" element={<SupportInbox />} />
+          <Route path="/support/new" element={<SupportNew />} />
+          <Route path="/support/:issueId" element={<SupportThread />} />
+          <Route path="/waitlist/activity" element={<WaitlistHistory />} />
+          <Route path="/groups/activity" element={<GroupActivity />} />
+          <Route path="/groups/invites" element={<InviteManager />} />
           <Route path="/browse" element={<Browse />} />
           <Route path="/withdraw/amount" element={<WithdrawAmount />} />
           <Route path="/withdraw/details" element={<WithdrawDetails />} />

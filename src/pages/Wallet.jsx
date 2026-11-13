@@ -297,8 +297,19 @@ function QACard({ item, onFund }) {
       </button>
     );
   }
-  /* "Transaction History" opens the full ledger page (client request). The
-     other tiles have no destination in Figma, so they stay as static cards. */
+  /* "Transaction History" opens the full ledger page (client request).
+     "Help & Support" opens the support centre (ticket endpoints).
+     "View Limits" has no destination in Figma, so it stays a static card. */
+  if (item.key === "support") {
+    return (
+      <Link
+        to="/support"
+        className="block h-[100px] w-full rounded-[10px] bg-white pt-[21px] shadow-[0_0_20px_rgba(0,23,1,0.10)] transition hover:shadow-[0_0_22px_rgba(0,23,1,0.18)]"
+      >
+        {inner}
+      </Link>
+    );
+  }
   if (item.key === "history") {
     return (
       <Link
@@ -384,6 +395,11 @@ export default function Wallet() {
     ? wallet.wallet?.balance_kobo ?? wallet.balance_kobo ?? 0
     : null;
   const balance = wallet ? kobo2(wallet.wallet?.balance_kobo ?? wallet.balance_kobo) : "\u2014";
+  /* NOTE: summary.pending_funding_kobo is NOT displayed. It sums every
+     unfinished funding attempt forever (this account: 14 abandoned checkouts
+     back to 2026-11-07, one for N500,000 -> N794,988 "pending"), which is
+     history, not money in flight. Showing it would read as "you topped up
+     N794,988". Flagged to the backend instead. */
   const rows = txns ? txns.map((t) => mapTx(t, groupById)) : null;
 
   useEffect(() => {

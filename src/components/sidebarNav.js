@@ -49,6 +49,7 @@ export const SECTIONS = [
       { label: "Notification", icon: iconNotification, to: "/notifications" },
       { label: "Message", icon: iconMessage, to: "/messages" },
       { label: "Profile", icon: iconUser, to: "/profile" },
+      { label: "Support", icon: iconMessage, to: "/support" },
     ],
   },
 ];

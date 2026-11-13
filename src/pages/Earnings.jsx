@@ -248,6 +248,34 @@ export default function Earnings() {
   const [payout, setPayout] = useState(null);
   const [payoutLoading, setPayoutLoading] = useState(false);
   const [payoutError, setPayoutError] = useState("");
+  /* While the temporary simulator is on, a withdrawal stays `pending` until the
+     owner confirms it: POST /member/payments/payout/simulate { payout_id }.
+     Nothing in the app called that endpoint, so a simulated payout could never
+     reach `successful`. */
+  const [simBusy, setSimBusy] = useState(false);
+  const [simMsg, setSimMsg] = useState("");
+
+  const confirmSimPayout = async () => {
+    const id = payout?.payout?.id || lastPayout?.id;
+    if (!id || simBusy) return;
+    setSimBusy(true);
+    setSimMsg("");
+    const { data, error } = await api("/member/payments/payout/simulate", {
+      method: "POST",
+      body: { payout_id: id },
+    });
+    setSimBusy(false);
+    if (error) {
+      setSimMsg(
+        error.code === "simulation_disabled"
+          ? "Simulation is off — real payouts settle by webhook."
+          : error.message || "Could not confirm this payout.",
+      );
+      return;
+    }
+    setSimMsg(data?.message || "Simulated payout confirmed.");
+    openPayout();
+  };
 
   const openPayout = async () => {
     const id = lastPayout?.id || lastPayout?.payout_id;
@@ -531,6 +559,19 @@ export default function Earnings() {
               />
               {payout.payout.failure_reason && (
                 <DetailRow label="Note" value={payout.payout.failure_reason} />
+              )}
+              {`${payout.payout.status || ""}`.toLowerCase() === "pending" && (
+                <button
+                  type="button"
+                  onClick={confirmSimPayout}
+                  disabled={simBusy}
+                  className="mt-[16px] flex h-[46px] w-full items-center justify-center rounded-[10px] bg-btn text-[15px] font-semibold text-white disabled:opacity-50"
+                >
+                  {simBusy ? "Confirming…" : "Confirm simulated payout"}
+                </button>
+              )}
+              {simMsg && (
+                <p className="mt-[8px] text-[13px] font-semibold text-[#6B6B6B]">{simMsg}</p>
               )}
               {(payout.events || []).length > 0 && (
                 <>

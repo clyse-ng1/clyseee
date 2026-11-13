@@ -109,6 +109,61 @@ export default function Profile() {
   const [sessions, setSessions] = useState(null);
   const [sessBusy, setSessBusy] = useState(false);
   const [sessMsg, setSessMsg] = useState("");
+  /* Contact verification (docs addition): POST /member/security/contact/verify
+     sends a code to an unverified email/phone, .../verify/confirm redeems it.
+     This is the only way a member can prove a contact change; before it, the
+     Profile screen could do nothing with those two rows but show them. */
+  const [verifyChannel, setVerifyChannel] = useState(null);
+  const [verifyCode, setVerifyCode] = useState("");
+  const [verifyBusy, setVerifyBusy] = useState(false);
+  const [verifyMsg, setVerifyMsg] = useState("");
+  const [verifyErr, setVerifyErr] = useState("");
+
+  const sendContactCode = async (channel) => {
+    if (verifyBusy) return;
+    setVerifyBusy(true);
+    setVerifyErr("");
+    setVerifyMsg("");
+    const { data, error } = await api("/member/security/contact/verify", {
+      method: "POST",
+      body: { channel },
+    });
+    setVerifyBusy(false);
+    if (error) {
+      setVerifyErr(
+        error.code === "already_verified"
+          ? "That contact is already verified."
+          : error.message || "Could not send a code.",
+      );
+      return;
+    }
+    setVerifyChannel(channel);
+    setVerifyCode("");
+    setVerifyMsg(`Code sent to ${data?.destination || "your " + channel}.`);
+  };
+
+  const confirmContactCode = async () => {
+    if (verifyBusy || !verifyChannel) return;
+    setVerifyBusy(true);
+    setVerifyErr("");
+    const { error } = await api("/member/security/contact/verify/confirm", {
+      method: "POST",
+      body: { channel: verifyChannel, code: verifyCode.trim() },
+    });
+    setVerifyBusy(false);
+    if (error) {
+      setVerifyErr(
+        error.code === "invalid_code"
+          ? "That code is not correct."
+          : error.message || "Could not verify that code.",
+      );
+      return;
+    }
+    setVerifyMsg(`${verifyChannel === "email" ? "Email" : "Phone"} verified.`);
+    setVerifyChannel(null);
+    setVerifyCode("");
+    refreshUser();
+  };
 
   useEffect(() => {
     let live = true;
@@ -251,6 +306,35 @@ export default function Profile() {
     { key: "location", label: "Location", value: val("location") },
   ];
 
+  /* Is this contact row already verified? /auth/me returns *_verified_at. */
+  const verifiedAt = (k) =>
+    user?.[k === "email" ? "email_verified_at" : "phone_verified_at"] || null;
+
+  const contactControl = (r) => {
+    if (r.key !== "email" && r.key !== "phone") return null;
+    const ok = verifiedAt(r.key);
+    if (ok) {
+      return (
+        <span className="mt-[6px] inline-flex items-center gap-[6px] text-[13px] font-semibold text-clyse">
+          <CheckIcon /> Verified
+        </span>
+      );
+    }
+    return (
+      <span className="mt-[6px] flex flex-wrap items-center gap-[8px]">
+        <span className="text-[13px] font-semibold text-[#B26A00]">Not verified</span>
+        <button
+          type="button"
+          onClick={() => sendContactCode(r.key)}
+          disabled={verifyBusy}
+          className="rounded-[14px] border border-clyse px-[12px] py-[3px] text-[13px] font-semibold text-ink disabled:opacity-40"
+        >
+          {verifyBusy ? "Sending…" : "Verify"}
+        </button>
+      </span>
+    );
+  };
+
   const renderPersonalRow = (r) => (
     <div
       key={r.key}
@@ -298,6 +382,7 @@ export default function Profile() {
             <p className="mt-[6px] truncate text-[20px] leading-[24px] font-bold text-ink">
               {r.value || "—"}
             </p>
+            {contactControl(r)}
           </div>
           <button
             type="button"
@@ -436,6 +521,50 @@ export default function Profile() {
                   {sessBusy ? "Working…" : "Sign out others"}
                 </button>
               </div>
+              {verifyChannel && (
+                <div className="min-h-[65px] border-b border-[#999999] py-[16px]">
+                  <p className="text-[18px] leading-[24px] font-semibold text-ink">
+                    Enter the {verifyChannel === "email" ? "email" : "phone"} code
+                  </p>
+                  {verifyMsg && (
+                    <p className="mt-[4px] text-[14px] font-semibold text-[#6B6B6B]">{verifyMsg}</p>
+                  )}
+                  <div className="mt-[10px] flex items-center gap-[10px]">
+                    <input
+                      value={verifyCode}
+                      onChange={(e) => setVerifyCode(e.target.value)}
+                      inputMode="numeric"
+                      maxLength={8}
+                      placeholder="123456"
+                      aria-label="Verification code"
+                      className="h-[46px] w-[150px] rounded-[10px] border border-[#999999] px-[14px] text-[16px] font-semibold tracking-[3px] text-ink outline-none focus:border-clyse"
+                    />
+                    <button
+                      type="button"
+                      onClick={confirmContactCode}
+                      disabled={verifyBusy || verifyCode.trim().length < 4}
+                      className="h-[46px] rounded-[10px] bg-clyse px-[18px] text-[15px] font-semibold text-white disabled:opacity-50"
+                    >
+                      {verifyBusy ? "Checking…" : "Confirm"}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setVerifyChannel(null);
+                        setVerifyCode("");
+                        setVerifyMsg("");
+                        setVerifyErr("");
+                      }}
+                      className="h-[46px] rounded-[10px] border border-[#999999] px-[18px] text-[15px] font-semibold text-[#6B6B6B]"
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                  {verifyErr && (
+                    <p className="mt-[8px] text-[14px] font-semibold text-clyse-red">{verifyErr}</p>
+                  )}
+                </div>
+              )}
               <button
                 type="button"
                 onClick={signOut}

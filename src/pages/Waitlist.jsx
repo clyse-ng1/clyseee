@@ -121,6 +121,12 @@ export default function Waitlist() {
             <p className="text-[18px] leading-[22px] font-semibold text-[#6B6B6B]">
               {SUB}
             </p>
+            <Link
+              to="/waitlist/activity"
+              className="mt-[10px] inline-block text-[16px] leading-[22px] font-semibold text-[#048B0B] hover:underline"
+            >
+              View waitlist activity
+            </Link>
             {entries && entries.length === 0 ? (
               <div className="mt-[50px] rounded-[20px] shadow-[0_0_20px_rgba(0,23,1,0.10)]">
                 <EmptyCard />
@@ -142,6 +148,12 @@ export default function Waitlist() {
           <p className="mt-[4px] text-[18px] leading-[22px] font-semibold text-[#6B6B6B]">
             {SUB}
           </p>
+          <Link
+            to="/waitlist/activity"
+            className="mt-[8px] inline-block text-[15px] leading-[21px] font-semibold text-[#048B0B] hover:underline"
+          >
+            View waitlist activity
+          </Link>
           {entries && entries.length === 0 ? (
             <div className="mt-[30px]">
               <EmptyCard />

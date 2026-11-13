@@ -20,7 +20,11 @@
 }
 
 html {
-  scroll-behavior: smooth;
+  /* NOT smooth globally: ScrollToTop resets the page on every route change,
+     and with smooth scrolling that reset ANIMATES — tapping "Report Issue"
+     (or any link) from halfway down a long page visibly scrolled the old page
+     up to the top before the new one appeared. Route changes now jump; the
+     anchor jumps that genuinely want easing ask for it explicitly. */
   /* Keep document scrolling, but hide the browser scrollbar chrome as requested. */
   scrollbar-width: none;
   -ms-overflow-style: none;

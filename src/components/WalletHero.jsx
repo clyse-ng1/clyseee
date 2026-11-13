@@ -11,12 +11,13 @@ import iconQaPlus from "../assets/qa-plus.svg";
 import iconQaSliders from "../assets/qa-sliders.svg";
 import iconQaClock from "../assets/qa-clock.svg";
 import iconQaSupport from "../assets/qa-support.svg";
+import { Link } from "react-router-dom";
 
 const QA = [
   { icon: "plus", label: "Fund Wallet", key: "fund" },
   { icon: "sliders", label: "View Limits" },
   { icon: "clock", label: "Transaction History" },
-  { icon: "support", label: "Help & Support" },
+  { icon: "support", label: "Help & Support", key: "support" },
 ];
 const QA_ICONS = {
   plus: iconQaPlus,
@@ -43,6 +44,18 @@ function QACard({ item, onFund }) {
       >
         {inner}
       </button>
+    );
+  }
+  /* "Help & Support" now opens the support centre built on the documented
+     ticket endpoints; it used to be a dead card. */
+  if (item.key === "support") {
+    return (
+      <Link
+        to="/support"
+        className="block h-[100px] w-full rounded-[10px] bg-white pt-[21px] shadow-[0_0_20px_rgba(0,23,1,0.10)] transition hover:shadow-[0_0_22px_rgba(0,23,1,0.18)]"
+      >
+        {inner}
+      </Link>
     );
   }
   return (

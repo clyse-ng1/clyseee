@@ -38,6 +38,9 @@ function readDraft() {
 
 export default function CreateReview() {
   const incoming = useLocation().state || null;
+  /* A group created earlier in this flow (create-group/activated passes it
+     back), so the review screen can show/withdraw its verification. */
+  const groupIdForVerify = incoming?.group_id || incoming?.groupId || null;
   const navigate = useNavigate();
   const services = useCatalogue();
   const [busy, setBusy] = useState(false);
@@ -375,6 +378,9 @@ export default function CreateReview() {
             ))}
           </div>
         </div>
+        {groupIdForVerify && (
+          <VerificationStatus groupId={groupIdForVerify} className="mx-[30px] mt-[20px]" />
+        )}
         {mobileCta}
         <div className="pb-[103px]" />
       </main>

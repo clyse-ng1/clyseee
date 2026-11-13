@@ -55,6 +55,35 @@ function RenewButton({ renewal }) {
     });
   };
 
+  /* Declining is the other half of a pending renewal: the docs added
+     POST /member/renewals/decline, which leaves the wallet untouched and lets
+     the subscription run out at the end of the paid period. */
+  const decline = async () => {
+    if (busy) return;
+    if (!renewal) {
+      setNotice({ ok: true, text: "No renewal due yet." });
+      return;
+    }
+    setBusy(true);
+    setNotice(null);
+    const { error: apiError } = await api("/member/renewals/decline", {
+      method: "POST",
+      body: { renewal_id: renewal.renewal_id || renewal.id },
+    });
+    setBusy(false);
+    if (apiError) {
+      setNotice({
+        ok: false,
+        text:
+          apiError.code === "renewal_not_available"
+            ? "This renewal was already decided."
+            : apiError.message || "Could not decline this renewal.",
+      });
+      return;
+    }
+    setNotice({ ok: true, text: "Renewal declined — access runs to the end of the period." });
+  };
+
   return (
     <>
       <button
@@ -65,6 +94,16 @@ function RenewButton({ renewal }) {
       >
         {busy ? "Renewing…" : "Renew Subscription"}
       </button>
+      {renewal && (
+        <button
+          type="button"
+          onClick={decline}
+          disabled={busy}
+          className="mt-[10px] flex h-[52px] w-full items-center justify-center rounded-[9.75px] border border-clyse text-[16px] leading-[22px] font-semibold text-ink disabled:opacity-60"
+        >
+          {busy ? "Working…" : "Decline Renewal"}
+        </button>
+      )}
       {notice && (
         <p
           className={`mt-[10px] text-center text-[14px] font-semibold ${notice.ok ? "text-clyse" : "text-clyse-red"}`}

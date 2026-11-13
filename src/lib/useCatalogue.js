@@ -64,3 +64,28 @@ export function minPrice(services, brand) {
   const min = plans.reduce((m, p) => Math.min(m, planTotal(p)), Infinity);
   return min === Infinity ? null : min;
 }
+
+/* GET /catalogue/categories (docs addition): the categories that actually have
+   services, e.g. [{ category: "movies_series", services: 2 }]. Shared cache so
+   every screen that renders the chip row makes one request per session. */
+let catCache = null;
+
+export function useCatalogueCategories() {
+  const [cats, setCats] = useState(catCache);
+
+  useEffect(() => {
+    if (catCache) return;
+    let live = true;
+    (async () => {
+      const { data, error } = await api("/catalogue/categories", { auth: false });
+      if (!live) return;
+      catCache = error ? [] : data?.categories || [];
+      setCats(catCache);
+    })();
+    return () => {
+      live = false;
+    };
+  }, []);
+
+  return cats;
+}

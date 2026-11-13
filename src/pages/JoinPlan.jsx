@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import PlanCard from "../components/PlanCard";
+import WaitPosition from "../components/WaitPosition";
 import PairButtons from "../components/PairButtons";
 import LogoMarquee from "../components/LogoMarquee";
 import SectionHead from "../components/SectionHead";
@@ -229,13 +230,15 @@ export default function JoinPlan() {
             </p>
             <div className="mt-[70px] flex gap-[20px]">
               {list.map((p, i) => (
-                <PlanCard
-                  key={i}
-                  {...p}
-                  status={sel === i ? "Selected" : null}
-                  selected={sel === i}
-                  onSelect={() => setSel(i)}
-                />
+                <div key={i} className="flex-1">
+                  <PlanCard
+                    {...p}
+                    status={sel === i ? "Selected" : null}
+                    selected={sel === i}
+                    onSelect={() => setSel(i)}
+                  />
+                  {incoming?.fromWaitlist && <WaitPosition planId={p.state?.plan_id} />}
+                </div>
               ))}
             </div>
             <PairButtons
@@ -281,13 +284,15 @@ export default function JoinPlan() {
             </p>
             <div className="mt-[34px] flex flex-col gap-[20px]">
               {list.map((p, i) => (
-                <PlanCard
-                  key={i}
-                  {...p}
-                  status={sel === i ? "Selected" : null}
-                  selected={sel === i}
-                  onSelect={() => setSel(i)}
-                />
+                <div key={i}>
+                  <PlanCard
+                    {...p}
+                    status={sel === i ? "Selected" : null}
+                    selected={sel === i}
+                    onSelect={() => setSel(i)}
+                  />
+                  {incoming?.fromWaitlist && <WaitPosition planId={p.state?.plan_id} />}
+                </div>
               ))}
             </div>
             <PairButtons

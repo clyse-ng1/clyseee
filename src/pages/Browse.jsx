@@ -8,7 +8,7 @@ import Sk from "../components/Skeleton";
 import { BlurBg } from "../components/Decor";
 import DropSelect from "../components/DropSelect";
 import { accessLabel, api, brandOf, kobo, titleCase, totalPriceKobo } from "../lib/api";
-import { useCatalogue } from "../lib/useCatalogue";
+import { useCatalogue, useCatalogueCategories } from "../lib/useCatalogue";
 import iconSearch from "../assets/side-search.svg";
 import iconDocSearch from "../assets/icon-doc-search-green.svg";
 import avatarAccount from "../assets/avatar-account.webp";
@@ -145,10 +145,31 @@ export default function Browse() {
   const brandList = showAllBrands ? brands : brands.slice(0, 6);
   const groupList = showAllGroups ? groups : groups.slice(0, 6);
 
-  const cats = ["All", ...FIGMA_CATS.filter((c) => hasCat(c)),
-    ...Object.keys(presentCats).filter(
-      (c) => !FIGMA_CATS.some((f) => f.toLowerCase() === c.toLowerCase()),
-    ).map(titleCase)];
+  /* Chip order comes from GET /catalogue/categories now (the live taxonomy
+     already includes movies_series and security_vpn, which the old hardcoded
+     list did not). Figma's order is kept for the categories it shares, and any
+     new one the API reports is appended, so the row can never silently drop a
+     category that has services. */
+  const apiCats = (useCatalogueCategories() || [])
+    .map((c) => titleCase(c.category))
+    .filter(Boolean);
+  const catsRaw = [
+    "All",
+    ...FIGMA_CATS.filter((c) => hasCat(c)),
+    ...apiCats.filter(
+      (c) =>
+        presentCats[c.trim().toLowerCase()] &&
+        !FIGMA_CATS.some((f) => f.toLowerCase() === c.toLowerCase()),
+    ),
+    ...Object.keys(presentCats)
+      .filter(
+        (c) =>
+          !FIGMA_CATS.some((f) => f.toLowerCase() === c.toLowerCase()) &&
+          !apiCats.some((a) => a.toLowerCase() === c.toLowerCase()),
+      )
+      .map(titleCase),
+  ];
+  const cats = catsRaw.filter((c, i) => catsRaw.indexOf(c) === i);
 
   const chips = (mobile = false) => (
     <div

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { api, kobo2 } from "../lib/api";
 
 /* Shared Paystack wallet-funding checkout (extracted from the Wallet page so
@@ -9,9 +9,25 @@ import { api, kobo2 } from "../lib/api";
 export default function FundWalletModal({ open, onClose, onFunded, initialAmount = "", callbackPath = "/wallet" }) {
   const [amount, setAmount] = useState(initialAmount ? String(initialAmount) : "");
   const [busy, setBusy] = useState(false);
+  /* GET /member/payments/mode says whether a real gateway is connected
+     (provider: "paystack", simulation: false) or the temporary simulator is on.
+     Reading it lets the card state the truth instead of guessing. */
+  const [mode, setMode] = useState(null);
   const [simulationBusy, setSimulationBusy] = useState(false);
   const [simulation, setSimulation] = useState(null);
   const [error, setError] = useState("");
+  useEffect(() => {
+    if (!open) return;
+    let live = true;
+    (async () => {
+      const { data } = await api("/member/payments/mode");
+      if (live && data) setMode(data);
+    })();
+    return () => {
+      live = false;
+    };
+  }, [open]);
+
   if (!open) return null;
 
   const naira = Number(amount) || 0;
@@ -94,6 +110,11 @@ export default function FundWalletModal({ open, onClose, onFunded, initialAmount
         <p className="mt-[8px] text-[15px] leading-[20px] font-semibold text-[#6B6B6B]">
           Top up your Clyse wallet.
         </p>
+        {mode?.simulation === true && (
+          <p className="mt-[6px] inline-flex rounded-[10px] bg-[#FFF3D6] px-[10px] py-[4px] text-[12px] font-semibold text-[#8A5A00]">
+            Test mode — no real money is charged
+          </p>
+        )}
         {simulation ? (
           <>
             <div className="mt-[20px] rounded-[12px] bg-[#F1F8F2] p-[16px]">
