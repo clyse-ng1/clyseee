@@ -53,15 +53,31 @@ export default function AdminUserDetails() {
   const [params] = useSearchParams();
   const [user, setUser] = useState(null);
   const [loaded, setLoaded] = useState(false);
+  const [loadError, setLoadError] = useState("");
   const [records, setRecords] = useState(null);
 
   useEffect(() => {
     let alive = true;
-    api("/admin/users").then((res) => {
+    const wanted = params.get("id") || params.get("user_id");
+    // oxlint-disable-next-line react/set-state-in-effect -- reset loading while the requested record changes.
+    setLoaded(false);
+    setLoadError("");
+    if (!wanted) {
+      setUser(null);
+      setLoadError("A user ID is required to open this record.");
+      setLoaded(true);
+      return () => { alive = false; };
+    }
+    api(`/admin/users/detail?user_id=${encodeURIComponent(wanted)}`).then((res) => {
       if (!alive) return;
-      const items = Array.isArray(res.data) ? res.data : res.data?.users || res.data?.items || [];
-      const wanted = params.get("id") || params.get("user_id");
-      setUser(items.find((u) => u.id === wanted || u.user_id === wanted) || items[0] || null);
+      const found = res.data?.user || res.data;
+      setUser(found && typeof found === "object" && (found.id || found.user_id) ? found : null);
+      if (res.error || !found) setLoadError(res.error?.message || "This user could not be found.");
+      setLoaded(true);
+    }).catch(() => {
+      if (!alive) return;
+      setUser(null);
+      setLoadError("This user could not be loaded.");
       setLoaded(true);
     });
     return () => { alive = false; };
@@ -97,6 +113,7 @@ export default function AdminUserDetails() {
   return (
     <AdminShell active="users" sub="um">
       <BackTitle title="User Details & Moderation" />
+      {loaded && !user && <p role="alert" className="mt-5 rounded-xl border border-red-200 bg-white p-4 font-semibold text-red-800">{loadError || "User not found."}</p>}
 
       {/* Profile card */}
       <div className="mt-[30px] flex min-h-[175px] items-center justify-between rounded-[20px] border border-[#999999] bg-white px-[31px] py-[20px]">

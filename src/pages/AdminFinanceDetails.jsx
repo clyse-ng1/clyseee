@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
-import { api } from "../lib/api";
+import { api, brandOf } from "../lib/api";
 import AdminShell, { BackTitle } from "../components/AdminShell";
 import BrandTile from "../components/BrandTile";
 import { GlyphCheck } from "../components/AdminGlyphs";
@@ -58,13 +58,25 @@ export default function AdminFinanceDetails() {
   const [tx, setTx] = useState(null);
   const [loadState, setLoadState] = useState("loading"); // loading | live | error
   useEffect(() => {
-    if (!txId) return setLoadState("error");
     let alive = true;
+    setTx(null);
+    if (!txId) {
+      setLoadState("error");
+      return () => { alive = false; };
+    }
+    setLoadState("loading");
     api(`/admin/finance/transactions/detail?transaction_id=${encodeURIComponent(txId)}`).then((res) => {
       if (!alive) return;
-      if (res.error || !res.data) return setLoadState("error");
-      setTx(res.data);
+      const record = res.data?.transaction || res.data?.data?.transaction || res.data;
+      if (res.error || !record || typeof record !== "object") {
+        setLoadState("error");
+        return;
+      }
+      const entries = record.entries || record.ledger_entries || res.data?.entries || [];
+      setTx({ ...record, entries: Array.isArray(entries) ? entries.filter(Boolean) : [] });
       setLoadState("live");
+    }).catch(() => {
+      if (alive) setLoadState("error");
     });
     return () => { alive = false; };
   }, [txId]);
@@ -73,19 +85,24 @@ export default function AdminFinanceDetails() {
   const when = tx?.created_at
     ? new Date(tx.created_at).toLocaleString("en-US", { month: "short", day: "numeric", year: "numeric", hour: "numeric", minute: "2-digit" })
     : "—";
-  const entries = Array.isArray(tx?.entries) ? tx.entries : [];
-  const feeKobo = entries.filter((e) => /fee/i.test(e.account_type || "")).reduce((a, e) => a + (e.amount_kobo || 0), 0);
+  const entries = Array.isArray(tx?.entries) ? tx.entries.filter(Boolean) : [];
+  const feeKobo = entries.filter((e) => /fee/i.test(e.account_type || "")).reduce((a, e) => a + (Number(e.amount_kobo) || 0), 0);
+  const accountUser = tx?.user || tx?.account_user || {};
+  const service = tx?.service || tx?.group?.service || tx?.plan?.service || {};
+  const serviceTitle = service.name || tx?.service_name || tx?.description || "—";
+  const txStatus = String(tx?.status || "—").replaceAll("_", " ");
   return (
     <AdminShell active="finance" sub="transactions">
       <BackTitle title="Transaction Details" />
       {loadState === "error" && (
-        <p className="mt-[20px] mt-[20px] rounded-[10px] border border-[#FFC48A] bg-[#FFEEE2] px-[20px] py-[16px] text-[16px] font-semibold text-[#8A3B00]">
+        <p role="alert" className="mt-[20px] rounded-[10px] border border-[#FFC48A] bg-[#FFEEE2] px-[20px] py-[16px] text-[16px] font-semibold text-[#8A3B00]">
           {txId
-            ? "Could not load this transaction — it may have been removed."
+            ? "Could not load this transaction — it may have been removed or the detail endpoint returned an unsupported response. Return to Transactions and try again."
             : "No transaction selected. Open this screen from the Transactions list."}
         </p>
       )}
-      <div className="mt-[30px] flex gap-[30px]">
+      {loadState === "loading" && <p role="status" className="mt-5 rounded-[10px] bg-white p-4 font-semibold text-[#4E4E4E]">Loading transaction details…</p>}
+      <div className="mt-[30px] flex flex-col gap-[30px] lg:flex-row">
         <div className="w-full lg:w-[458px] flex-none rounded-[20px] border border-[#999999] bg-white px-[31px] pt-[46px] pb-[30px] shadow-[0_0_20px_rgba(0,23,1,0.10)]">
           <div className="space-y-[14px]">
             <Field label="Transaction Reference">
@@ -98,7 +115,7 @@ export default function AdminFinanceDetails() {
               <Value>{tx?.kind ? String(tx.kind).replace(/_/g, " ") : "—"}</Value>
             </Field>
             <Field label="Status">
-              <FinPill tone="green">Completed</FinPill>
+              <FinPill tone={/fail|revers|refund/.test(txStatus.toLowerCase()) ? "red" : /pend|process|review/.test(txStatus.toLowerCase()) ? "orange" : "green"}>{txStatus}</FinPill>
             </Field>
           </div>
           <p className="mt-[18px] text-[20px] leading-[24px] font-bold text-[#001701]">
@@ -106,16 +123,16 @@ export default function AdminFinanceDetails() {
           </p>
           <div className="mt-[14px] space-y-[14px]">
             <Field label="Payment Method">
-              <Value>Wallet</Value>
+              <Value>{tx?.payment_method || tx?.channel || tx?.payment?.method || "—"}</Value>
             </Field>
             <Field label="Wallet Reference">
-              <Value>WAL - 0012345</Value>
+              <Value>{tx?.wallet_reference || tx?.reference || "—"}</Value>
             </Field>
             <Field label="Billing Cycle">
-              <Value>Monthly</Value>
+              <Value>{tx?.billing_interval_months ? `${tx.billing_interval_months} month${tx.billing_interval_months === 1 ? "" : "s"}` : tx?.billing_cycle || "—"}</Value>
             </Field>
             <Field label="Next Renewal" last>
-              <Value>Sep. 20, 2026</Value>
+              <Value>{tx?.next_renewal_at ? new Date(tx.next_renewal_at).toLocaleDateString("en-NG", { dateStyle: "medium" }) : "—"}</Value>
             </Field>
           </div>
         </div>
@@ -129,10 +146,10 @@ export default function AdminFinanceDetails() {
               <FinAvatar i={3} />
               <span className="ml-[15px]">
                 <span className="block text-[25px] leading-[30px] font-semibold text-[#001701]">
-                  Lindsey Lubin
+                  {accountUser.full_name || tx?.user_name || tx?.creator_name || "—"}
                 </span>
                 <span className="block text-[16px] leading-[20px] font-semibold text-[#4E4E4E]">
-                  clysewebapp@gmail.com
+                  {accountUser.email || tx?.user_email || "—"}
                 </span>
               </span>
             </div>
@@ -140,13 +157,13 @@ export default function AdminFinanceDetails() {
               Subscription / Group
             </p>
             <div className="mt-[14px] flex items-center border-b border-[#E5E5E5] pb-[12px]">
-              <BrandTile brand="youtube" size={50} />
+              <BrandTile brand={brandOf(service)} name={serviceTitle} size={50} />
               <span className="ml-[15px]">
                 <span className="block text-[18px] leading-[22px] font-semibold text-[#001701]">
-                  YouTube Premium
+                  {serviceTitle}
                 </span>
                 <span className="block text-[18px] leading-[22px] font-semibold text-[#4E4E4E]">
-                  (Subscription)
+                  ({tx?.group_id ? "Group" : tx?.membership_id ? "Subscription" : "Transaction"})
                 </span>
               </span>
             </div>

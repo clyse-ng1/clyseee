@@ -62,7 +62,9 @@ export default function AdminSubAdd() {
       if (!Number.isFinite(fee) || fee < 0) return setErr(`Enter a valid non-negative Clyse fee for Plan ${index + 1}.`);
     }
     setBusy(true);
-
+    let serviceId = null;
+    const createdPlanIds = [];
+    try {
     const svc = await api("/admin/catalogue/services", {
       method: "POST",
       body: { name: form.name.trim(), slug: slugify(form.name), category: (form.category || "other").toLowerCase().trim(), logo_path: null },
@@ -71,7 +73,7 @@ export default function AdminSubAdd() {
       setBusy(false);
       return setErr(svc.error?.message || "Could not create the subscription service.");
     }
-    const serviceId = svc.data.service.id;
+    serviceId = svc.data.service.id;
 
     /* Services and plans begin inactive. Create and activate every plan first;
        the API rejects activating a service without an active plan. */
@@ -90,22 +92,30 @@ export default function AdminSubAdd() {
       });
       if (plan.error || !plan.data?.plan?.id) {
         setBusy(false);
-        return setErr(plan.error?.message || `Service created, but Plan ${index + 1} could not be added. Complete it from the catalogue before activating the service.`);
+        return setErr(`Service ${serviceId} was created, but Plan ${index + 1} could not be added${plan.error?.message ? `: ${plan.error.message}` : ". Complete it from the catalogue before activating the service."}`);
       }
-      const planOn = await api("/admin/catalogue/plans/status", { method: "POST", body: { plan_id: plan.data.plan.id, is_active: true } });
+      const planId = plan.data.plan.id;
+      createdPlanIds.push(planId);
+      const planOn = await api("/admin/catalogue/plans/status", { method: "POST", body: { plan_id: planId, is_active: true } });
       if (planOn.error) {
         setBusy(false);
-        return setErr(planOn.error.message || `Plan ${index + 1} was created but could not be activated; the service remains inactive.`);
+        return setErr(`Plan ${planId} was created but could not be activated${planOn.error.message ? `: ${planOn.error.message}` : "; the service remains inactive."}`);
       }
     }
 
     const svcOn = await api("/admin/catalogue/services/status", { method: "POST", body: { service_id: serviceId, is_active: true } });
     if (svcOn.error) {
       setBusy(false);
-      return setErr(svcOn.error.message || "Plans were created, but the service could not be activated.");
+      return setErr(`Plans ${createdPlanIds.join(", ")} were created, but service ${serviceId} could not be activated${svcOn.error.message ? `: ${svcOn.error.message}` : "."}`);
     }
     setBusy(false);
     setDone(true);
+    } catch (error) {
+      const partial = serviceId ? `Some records may already exist (service ${serviceId}${createdPlanIds.length ? `; plans ${createdPlanIds.join(", ")}` : ""}).` : "No service was confirmed as created.";
+      setErr(`${partial} ${error?.message || "The request did not complete; check the catalogue before retrying."}`);
+    } finally {
+      setBusy(false);
+    }
   };
 
   function periodMonths(v) {

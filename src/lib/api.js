@@ -6,6 +6,29 @@ export const API_BASE =
   import.meta.env.VITE_API_URL ||
   "https://axjugqtzmnvjnhswejij.supabase.co/functions/v1";
 
+// Canonical public origin for shareable links. Set VITE_PUBLIC_SITE_URL only
+// when deploying a non-production preview; the production default is clyseit.com.
+export const PUBLIC_SITE_URL = (import.meta.env.VITE_PUBLIC_SITE_URL || "https://clyseit.com").trim().replace(/\/+$/, "");
+
+export function publicInviteUrl(value) {
+  const raw = String(value || "").trim();
+  if (!raw) return "";
+  if (!/^https?:\/\//i.test(raw)) {
+    const path = raw.startsWith("/") ? raw : raw.includes("/") ? `/${raw}` : `/join/${raw}`;
+    return `${PUBLIC_SITE_URL}${path}`;
+  }
+  try {
+    const url = new URL(raw);
+    if (url.hostname === "clyseee.netlify.app" || url.hostname.endsWith("--clyseee.netlify.app") || ["clyseit.com", "www.clyseit.com"].includes(url.hostname)) {
+      url.protocol = "https:";
+      url.host = "clyseit.com";
+    }
+    return url.toString();
+  } catch {
+    return raw;
+  }
+}
+
 const SESSION_KEY = "clyse.session";
 
 /* ---------- session storage ---------- */

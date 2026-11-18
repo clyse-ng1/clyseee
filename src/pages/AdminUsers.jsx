@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import useAdminRows from "../components/useAdminRows";
+import { api } from "../lib/api";
 import AdminShell, { Pill, DotsIcon, DCARD, DarkZone, AdminEmpty } from "../components/AdminShell";
 import { StatCard, badgeMint, UsersGlyph, CheckGlyph, FinAvatar } from "../components/FinanceShared";
 
@@ -36,6 +37,11 @@ export default function AdminUsers() {
   const [roleFilter, setRoleFilter] = useState("All");
   const [verifyFilter, setVerifyFilter] = useState("All");
   const [checked, setChecked] = useState([]);
+  const [editingUser, setEditingUser] = useState(null);
+  const [statusDraft, setStatusDraft] = useState("suspended");
+  const [statusReason, setStatusReason] = useState("");
+  const [statusSaving, setStatusSaving] = useState(false);
+  const [statusError, setStatusError] = useState("");
   const [page, setPage] = useState(1);
   const pageSize = 7;
   const rows = useMemo(() => (live || []).filter((r) => {
@@ -49,6 +55,24 @@ export default function AdminUsers() {
   const visibleTo = Math.min(page * pageSize, rows.length);
   const all = rows.length > 0 && rows.every((r) => checked.includes(r.name));
   const toggle = (name) => setChecked((c) => (c.includes(name) ? c.filter((x) => x !== name) : [...c, name]));
+  const openStatusForm = (row) => {
+    setEditingUser(row);
+    setStatusDraft(["active", "suspended", "deactivated"].includes(String(row.acct).toLowerCase()) ? String(row.acct).toLowerCase() : "suspended");
+    setStatusReason("");
+    setStatusError("");
+  };
+  const saveUserStatus = async (event) => {
+    event.preventDefault();
+    if (!editingUser?.id || !statusReason.trim()) { setStatusError("A reason is required for the status change."); return; }
+    setStatusSaving(true); setStatusError("");
+    try {
+      const res = await api("/admin/users/status", { method: "POST", body: { user_id: editingUser.id, status: statusDraft, reason: statusReason.trim() } });
+      if (res.error) setStatusError(res.error.message || "Could not update the user status.");
+      else { setEditingUser(null); reload(); }
+    } catch {
+      setStatusError("Could not reach the server. Retry the status change.");
+    } finally { setStatusSaving(false); }
+  };
 
   return (
     <AdminShell active="users" sub="um" expand nav2 dark>
@@ -150,7 +174,7 @@ export default function AdminUsers() {
                       >
                         View
                       </button>
-                      <button type="button" aria-label="More actions">
+                      <button type="button" onClick={() => openStatusForm(r)} aria-label={`Change status for ${r.name}`} className="grid h-9 w-9 place-items-center rounded-lg hover:bg-[#F1F8F2]">
                         <DotsIcon />
                       </button>
                     </span>
@@ -173,6 +197,18 @@ export default function AdminUsers() {
           </div>
           {hasMore && <div className="border-t border-[#E4E4E4] px-6 py-4 text-right"><button type="button" onClick={loadMore} disabled={moreLoading} className="rounded-lg bg-[#001701] px-5 py-3 text-sm font-semibold text-white disabled:opacity-50">{moreLoading ? "Loading more…" : "Load more users"}</button>{moreError && <p role="alert" className="mt-2 text-sm font-semibold text-red-700">{moreError}</p>}</div>}
         </div>
+        {editingUser && <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 p-4">
+          <section role="dialog" aria-modal="true" aria-labelledby="user-status-title" className="w-full max-w-[480px] rounded-2xl bg-white p-6 shadow-2xl">
+            <h2 id="user-status-title" className="text-xl font-bold text-[#001701]">Change user status</h2>
+            <p className="mt-1 text-sm text-[#657165]">Update status for {editingUser.name}.</p>
+            <form className="mt-5 space-y-4" onSubmit={saveUserStatus}>
+              <label className="block text-sm font-semibold text-[#243724]">Status<select value={statusDraft} onChange={(event) => setStatusDraft(event.target.value)} className="mt-1 w-full rounded-lg border border-[#BFC9BF] bg-white px-3 py-2.5"><option value="active">Active</option><option value="suspended">Suspended</option><option value="deactivated">Deactivated</option></select></label>
+              <label className="block text-sm font-semibold text-[#243724]">Reason<textarea required rows={3} value={statusReason} onChange={(event) => setStatusReason(event.target.value)} className="mt-1 w-full rounded-lg border border-[#BFC9BF] px-3 py-2.5" placeholder="Explain why this status is changing" /></label>
+              {statusError && <p role="alert" className="text-sm font-semibold text-red-700">{statusError}</p>}
+              <div className="flex justify-end gap-3"><button type="button" onClick={() => setEditingUser(null)} disabled={statusSaving} className="rounded-lg border border-[#BFC9BF] px-4 py-2.5 font-semibold">Cancel</button><button type="submit" disabled={statusSaving} className="rounded-lg bg-[#001701] px-5 py-2.5 font-semibold text-white disabled:opacity-50">{statusSaving ? "Saving…" : "Save status"}</button></div>
+            </form>
+          </section>
+        </div>}
       </DarkZone>
     </AdminShell>
   );

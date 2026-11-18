@@ -1,7 +1,7 @@
 import { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import useAdminRows from "../components/useAdminRows";
-import AdminShell, { DotsIcon, DCARD, DarkZone, DarkFilter } from "../components/AdminShell";
+import AdminShell, { DotsIcon, DCARD, DarkZone } from "../components/AdminShell";
 import BrandTile from "../components/BrandTile";
 import {
   StatCard,
@@ -24,6 +24,8 @@ import { monthlyAmounts } from "../lib/adminMetrics";
 
 
 const COLS = [71, 244, 299, 322, 299, 156, 129, 178, 157, 74];
+const FINANCE_FILTER_NOW = Date.now();
+const EMPTY_ROWS = [];
 
 function Row({ r, i }) {
   return (
@@ -86,14 +88,43 @@ function Row({ r, i }) {
   );
 }
 
+function FilterSelect({ label, value, options, onChange }) {
+  return (
+    <label className="relative flex h-[40px] w-[215px] min-w-[160px] flex-1 items-center rounded-[8px] border border-black bg-[#DEFFE1] px-[14px] shadow-[0_0_0_2px_#ffffff]">
+      <span className="sr-only">{label}</span>
+      <select value={value} onChange={onChange} className="w-full appearance-none bg-transparent pr-7 text-[15px] font-semibold text-[#001701] outline-none">
+        {options.map((option) => <option key={option}>{option}</option>)}
+      </select>
+      <span className="pointer-events-none absolute right-[12px]"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden><path d="m6 9 6 6 6-6" stroke="#001701" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" /></svg></span>
+    </label>
+  );
+}
+
 export default function AdminFinance() {
-  const { rows: live, status, total } = useAdminRows("transactions");
+  const { rows: live, status, total, hasMore, loadMore, moreLoading } = useAdminRows("transactions");
   const pay = useAdminRows("payouts");
   const [page, setPage] = useState(1);
-  const shown = live || [];
+  const [query, setQuery] = useState("");
+  const [typeFilter, setTypeFilter] = useState("All");
+  const [statusFilter, setStatusFilter] = useState("All");
+  const [dateFilter, setDateFilter] = useState("All time");
+  const allRows = live ?? EMPTY_ROWS;
+  const typeOptions = [...new Set(allRows.map((row) => row.type).filter(Boolean))].sort();
+  const statusOptions = [...new Set(allRows.map((row) => row.status).filter(Boolean))].sort();
+  const shown = useMemo(() => {
+    const needle = query.trim().toLowerCase();
+    const days = ({ "Last 7 days": 7, "Last 30 days": 30, "Last 90 days": 90 })[dateFilter];
+    const cutoff = days ? FINANCE_FILTER_NOW - days * 86400000 : null;
+    return allRows.filter((row) => {
+      const matchesQuery = !needle || [row.name, row.email, row.item, row.kind, row.ref, row.type, row.status].some((value) => String(value || "").toLowerCase().includes(needle));
+      const matchesDate = !cutoff || (row.createdAt && new Date(row.createdAt).getTime() >= cutoff);
+      return matchesQuery && (typeFilter === "All" || row.type === typeFilter) && (statusFilter === "All" || row.status === statusFilter) && matchesDate;
+    });
+  }, [allRows, query, typeFilter, statusFilter, dateFilter]);
   const pageSize = 7;
   const pageCount = Math.max(1, Math.ceil(shown.length / pageSize));
-  const pageRows = shown.slice((page - 1) * pageSize, page * pageSize);
+  const currentPage = Math.min(page, pageCount);
+  const pageRows = shown.slice((currentPage - 1) * pageSize, currentPage * pageSize);
   const revenueSeries = useMemo(() => monthlyAmounts(live, { predicate: (row) => /posted|successful|completed|paid/i.test(row.status || "") && !/refund|reversal/i.test(row.type || "") }), [live]);
   const payoutSeries = useMemo(() => monthlyAmounts(pay.rows, { amount: "netKobo", predicate: (row) => /paid|successful|completed/i.test(row.status || "") }), [pay.rows]);
   const headers = ["", "Date and Time", "Type", "User", "Group / Subscription", "Amount", "Clyse Fee", "Status", "Reference", "Action"];
@@ -106,7 +137,15 @@ export default function AdminFinance() {
         <StatCard dark className="min-w-[220px] flex-1" label="Total Payout" value={pay.status === "live" || pay.status === "empty" ? `N${Math.round((pay.rows || []).filter((p) => p.status === "paid" || p.status === "successful").reduce((a, p) => a + (p.netKobo || 0), 0) / 100).toLocaleString("en-US")}` : "…"} badge={badgeOrange} glyph={<UsersGlyph color="#FF6B02" />} />
         <StatCard dark className="min-w-[220px] flex-1" label="Pending Payout" value={pay.status === "live" || pay.status === "empty" ? String((pay.rows || []).filter((p) => p.status === "pending" || p.status === "processing").length) : "…"} badge={badgeOrange} glyph={<UsersGlyph color="#FF6B02" />} />
       </div>
-      <DarkFilter />
+      <div className="mt-[26px] flex flex-wrap items-center gap-x-[26px] gap-y-[12px]">
+        <label className="flex h-[40px] w-[380px] max-w-full items-center gap-[10px] rounded-full border border-black bg-white px-[18px] shadow-[0_0_0_2px_#ffffff]">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden><circle cx="10.8" cy="10.8" r="6.8" stroke="#4E4E4E" strokeWidth="1.8"/><path d="m16 16 4.5 4.5" stroke="#4E4E4E" strokeWidth="1.8" strokeLinecap="round"/></svg>
+          <input placeholder="Search transactions" value={query} onChange={(event) => { setPage(1); setQuery(event.target.value); }} aria-label="Search transactions" className="w-full bg-transparent text-[14px] font-semibold text-[#001701] placeholder-[#4E4E4E] focus:outline-none" />
+        </label>
+        <FilterSelect label="Type" value={typeFilter} options={["All", ...typeOptions]} onChange={(event) => { setPage(1); setTypeFilter(event.target.value); }} />
+        <FilterSelect label="Status" value={statusFilter} options={["All", ...statusOptions]} onChange={(event) => { setPage(1); setStatusFilter(event.target.value); }} />
+        <FilterSelect label="Date range" value={dateFilter} options={["All time", "Last 7 days", "Last 30 days", "Last 90 days"]} onChange={(event) => { setPage(1); setDateFilter(event.target.value); }} />
+      </div>
       <div className={`mt-[26px] w-fit min-w-full overflow-hidden ${DCARD}`}>
         <div className="min-w-[1929px]">
           <div className="flex h-[50px] items-center rounded-t-[11px] bg-[#E5FFEB]">
@@ -131,16 +170,19 @@ export default function AdminFinance() {
                 <p className="max-w-[520px] text-[16px] leading-[24px] font-semibold text-[#4E4E4E]">{status === "error" ? "Transactions could not be loaded. Try again in a moment." : "No transactions match these filters."}</p>
               </div>
             )}
-            {pageRows.map((r, i) => <Row key={`${r.item}-${(page - 1) * pageSize + i}`} r={r} i={(page - 1) * pageSize + i} />)}
+            {pageRows.map((r, i) => <Row key={`${r.id || r.item}-${(currentPage - 1) * pageSize + i}`} r={r} i={(currentPage - 1) * pageSize + i} />)}
           </div>
           {shown.length > 0 && (
             <div className="flex min-h-[58px] items-center justify-between px-[24px] text-[13px] font-semibold text-[#4E4E4E]">
-              <span>Showing {(page - 1) * pageSize + 1}–{Math.min(page * pageSize, shown.length)} of {total || shown.length} transactions</span>
-              {pageCount > 1 && <div className="flex items-center gap-[4px]">
-                <button type="button" aria-label="Previous page" onClick={() => setPage((current) => Math.max(1, current - 1))} disabled={page === 1} className="grid h-[28px] w-[28px] place-items-center rounded-[5px] border border-[#E9E9E9] bg-white text-[16px] disabled:opacity-40">‹</button>
-                {Array.from({ length: pageCount }, (_, i) => i + 1).map((number) => <button key={number} type="button" aria-label={`Page ${number}`} aria-current={page === number ? "page" : undefined} onClick={() => setPage(number)} className={`grid h-[28px] min-w-[28px] place-items-center rounded-[5px] border px-1 text-[14px] font-semibold ${page === number ? "border-[#048B0B] bg-[#048B0B] text-white" : "border-[#E9E9E9] bg-white text-[#4E4E4E]"}`}>{number}</button>)}
-                <button type="button" aria-label="Next page" onClick={() => setPage((current) => Math.min(pageCount, current + 1))} disabled={page === pageCount} className="grid h-[28px] w-[28px] place-items-center rounded-[5px] border border-[#E9E9E9] bg-white text-[16px] disabled:opacity-40">›</button>
-              </div>}
+              <span>Showing {(currentPage - 1) * pageSize + 1}–{Math.min(currentPage * pageSize, shown.length)} of {shown.length} loaded transactions{!query && typeFilter === "All" && statusFilter === "All" && dateFilter === "All time" && total > shown.length ? ` (${total} total)` : ""}</span>
+              <div className="flex items-center gap-[10px]">
+                {hasMore && <button type="button" onClick={loadMore} disabled={moreLoading} className="rounded-[6px] border border-[#048B0B] px-3 py-1 text-[13px] font-semibold text-[#048B0B] disabled:opacity-50">{moreLoading ? "Loading…" : "Load more"}</button>}
+                {pageCount > 1 && <div className="flex items-center gap-[4px]">
+                  <button type="button" aria-label="Previous page" onClick={() => setPage(Math.max(1, currentPage - 1))} disabled={currentPage === 1} className="grid h-[28px] w-[28px] place-items-center rounded-[5px] border border-[#E9E9E9] bg-white text-[16px] disabled:opacity-40">‹</button>
+                  {Array.from({ length: pageCount }, (_, i) => i + 1).map((number) => <button key={number} type="button" aria-label={`Page ${number}`} aria-current={currentPage === number ? "page" : undefined} onClick={() => setPage(number)} className={`grid h-[28px] min-w-[28px] place-items-center rounded-[5px] border px-1 text-[14px] font-semibold ${currentPage === number ? "border-[#048B0B] bg-[#048B0B] text-white" : "border-[#E9E9E9] bg-white text-[#4E4E4E]"}`}>{number}</button>)}
+                  <button type="button" aria-label="Next page" onClick={() => setPage(Math.min(pageCount, currentPage + 1))} disabled={currentPage === pageCount} className="grid h-[28px] w-[28px] place-items-center rounded-[5px] border border-[#E9E9E9] bg-white text-[16px] disabled:opacity-40">›</button>
+                </div>}
+              </div>
             </div>
           )}
         </div>

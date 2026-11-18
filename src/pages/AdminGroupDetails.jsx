@@ -20,15 +20,33 @@ export default function AdminGroupDetails() {
   const [params] = useSearchParams();
   const [group, setGroup] = useState(null);
   const [loaded, setLoaded] = useState(false);
+  const [loadError, setLoadError] = useState("");
   const [records, setRecords] = useState(null);
 
   useEffect(() => {
+    const wanted = params.get("id") || params.get("group_id");
     let alive = true;
-    api("/admin/groups").then((res) => {
+    // oxlint-disable-next-line react/set-state-in-effect -- reset loading while the requested record changes.
+    setLoaded(false);
+    setLoadError("");
+    if (!wanted) {
+      setGroup(null);
+      setLoadError("A group ID is required to open this record.");
+      setLoaded(true);
+      return () => { alive = false; };
+    }
+    api(`/admin/groups/detail?group_id=${encodeURIComponent(wanted)}`).then((res) => {
       if (!alive) return;
-      const items = Array.isArray(res.data) ? res.data : res.data?.groups || res.data?.items || [];
-      const wanted = params.get("id") || params.get("group_id");
-      setGroup(items.find((g) => (g.group_id || g.id) === wanted) || items[0] || null);
+      const record = res.data?.group || res.data;
+      if (res.error || !record || typeof record !== "object" || !(record.id || record.group_id)) {
+        setGroup(null);
+        setLoadError(res.error?.message || "This group could not be found.");
+      } else setGroup(record);
+      setLoaded(true);
+    }).catch(() => {
+      if (!alive) return;
+      setGroup(null);
+      setLoadError("This group could not be loaded.");
       setLoaded(true);
     });
     return () => { alive = false; };
@@ -54,7 +72,7 @@ export default function AdminGroupDetails() {
   const occupied = group?.occupied_slots ?? group?.member_count ?? 0;
   const offered = group?.slots_offered ?? group?.capacity ?? 0;
   const price = group?.price?.total_kobo ?? group?.price_kobo ?? null;
-  const statusLabel = group ? String(group.status || "active").replaceAll("_", " ") : "—";
+  const statusLabel = group?.status ? String(group.status).replaceAll("_", " ") : "—";
 
   const roster = (
     <div className="mt-[15px] rounded-[10px] border border-[#999999] bg-white px-[20px] py-[18px]">
@@ -72,6 +90,7 @@ export default function AdminGroupDetails() {
   return (
     <AdminShell active="users" sub="gm">
       <BackTitle title="Group Details & Moderation" />
+      {loaded && !group && <p role="alert" className="mt-5 rounded-xl border border-red-200 bg-white p-4 font-semibold text-red-800">{loadError || "Group not found."}</p>}
 
       {/* Profile card */}
       <div className="mt-[30px] flex min-h-[175px] flex-wrap items-center justify-between gap-[20px] rounded-[20px] border border-[#999999] bg-white px-[31px] py-[20px]">

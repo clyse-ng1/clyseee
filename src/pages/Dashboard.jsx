@@ -39,8 +39,9 @@ import chevronRight from "../assets/angle-right.svg";
    (2) Desktop omits a duplicated third subscription row (a second copy of
    the CapCut/Adobe/Amazon row pasted over "View More" and the group title);
    the measured 44/104/22px margins prove the layout ignores it, and mobile
-   shows 6 cards with no dupes. (3) "View More" links to /marketplace and
-   "Join" links to the group page. (4) The two small mobile header chevrons
+   shows 6 cards with no dupes. (3) Subscription "View More" links to
+   /marketplace; group "View More" expands the same public live feed as Browse.
+   "Join" links to the selected group. (4) The two small mobile header chevrons
    are redrawn (Figma component internals); everything else is measured. */
 
 function serviceName(s) {
@@ -426,6 +427,8 @@ export default function Dashboard() {
   const [leavingId, setLeavingId] = useState(null);
   const [myGroups, setMyGroups] = useState(null);
   const [slotMeta, setSlotMeta] = useState({});
+  const [liveGroups, setLiveGroups] = useState(null);
+  const [showAllGroups, setShowAllGroups] = useState(false);
 
   useEffect(() => {
     let live = true;
@@ -443,10 +446,13 @@ export default function Dashboard() {
   useEffect(() => {
     let live = true;
     (async () => {
-      const { data } = await api("/catalogue/groups?limit=50", { auth: false });
+      const { data, error } = await api("/catalogue/groups?limit=50", { auth: false });
       if (!live) return;
+      if (error || !Array.isArray(data?.groups)) return;
+      const rows = data.groups;
+      setLiveGroups(rows);
       const map = {};
-      for (const g of data?.groups || []) {
+      for (const g of rows) {
         const id = g.group_id || g.id;
         if (!id) continue;
         map[id] = { total: g.slots_offered ?? g.capacity ?? null };
@@ -539,7 +545,9 @@ export default function Dashboard() {
   const availSubs = (dash?.available_subscriptions || [])
     .map(mapAvail)
     .map(withCat);
-  const groups = (dash?.available_groups || []).map((g) =>
+  // Prefer the same public, current group feed used by Browse. Keep the
+  // dashboard payload as a fallback when the public catalogue request fails.
+  const groups = (liveGroups ?? dash?.available_groups ?? []).map((g) =>
     mapGroup(g, slotMeta[g.group_id || g.id]),
   );
   /* Selecting an Available Subscription card filters the Available Group
@@ -727,7 +735,7 @@ export default function Dashboard() {
               {!dash
                 ? [0, 1, 2, 3, 4, 5].map((i) => <GroupCardSk key={i} />)
                 : shownGroups
-                    .slice(0, 6)
+                    .slice(0, showAllGroups ? shownGroups.length : 6)
                     .map((g, i) => (
                       <div key={g.id || i} className="w-[253px]">
                         <GroupOfferCard g={toOffer(g)} />
@@ -748,6 +756,11 @@ export default function Dashboard() {
                 to="/marketplace"
                 cta="View marketplace"
               />
+            )}
+            {dash && shownGroups.length > 6 && (
+              <button type="button" onClick={() => setShowAllGroups((value) => !value)} className="mt-[28px] flex h-[47px] w-full items-center justify-center rounded-[20px] border border-[#001701] bg-[#F1F8F2] text-[17px] font-semibold text-[#001701] transition hover:bg-white">
+                {showAllGroups ? "Show Less" : "View More"}
+              </button>
             )}
           </div>
         </div>
@@ -1000,7 +1013,7 @@ export default function Dashboard() {
             {!dash
               ? [0, 1, 2, 3].map((i) => <MobileGroupCardSk key={i} />)
               : shownGroups
-                  .slice(0, 4)
+                  .slice(0, showAllGroups ? shownGroups.length : 4)
                   .map((g, i) => <GroupOfferCard key={g.id || i} g={toOffer(g)} />)}
           </div>
           {dash && pickedSub && shownGroups.length === 0 && (
@@ -1020,6 +1033,11 @@ export default function Dashboard() {
                 cta="View marketplace"
               />
             </div>
+          )}
+          {dash && shownGroups.length > 4 && (
+            <button type="button" onClick={() => setShowAllGroups((value) => !value)} className="mx-[30px] mt-[18px] flex h-[36px] w-[calc(100%-60px)] items-center justify-center rounded-[10px] border border-[#048B0B] bg-[#DFFFE1]/80 text-[12px] font-semibold text-[#001701]">
+              {showAllGroups ? "Show Less" : "View More"}
+            </button>
           )}
         </div>
 

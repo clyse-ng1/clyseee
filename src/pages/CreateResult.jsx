@@ -3,6 +3,7 @@ import { Link, useLocation } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import { BlurBg } from "../components/Decor";
 import iconCheckBig from "../assets/icon-check-big.svg";
+import { publicInviteUrl } from "../lib/api";
 
 /* Group creation result — Figma GROUP CREATION PAGE 8 (559:20926, success)
    and PAGE 9 (559:20989, failure): white 1240×565 block, 130px status disc,
@@ -50,7 +51,7 @@ export default function CreateResult({
   const text = message || (activated
     ? "Your group is now live and visible to members"
     : s.message || (ok ? "Activation could not be confirmed. Check My Groups before trying again." : "Your group was not activated. Review the details and try again."));
-  const shareLink = activated ? link || s.link || "" : "";
+  const shareLink = activated ? publicInviteUrl(link || s.link) : "";
   const actionLabel = activated ? "View Group" : ok ? "View My Groups" : "Try Again";
 
   return (

@@ -408,16 +408,19 @@ export default function Admin() {
     const pa = live.pending_actions && typeof live.pending_actions === "object" ? live.pending_actions : {};
     const ver = pick(live.groups, ["pending_verification", "pending_review", "awaiting_verification"])
       ?? pick(pa, ["verification", "groups_pending_verification", "pending_verification"]);
-    if (ver) out.push([`${ver} group${ver === 1 ? "" : "s"} pending verification`, "Review & approve group submission"]);
+    if (ver) out.push([`${ver} group${ver === 1 ? "" : "s"} pending verification`, "Review & approve group submission", "/admin/group-verification"]);
     const disputes = pick(pa, ["disputes", "open_disputes"]) ?? pick(live.disputes, ["open", "open_count"]);
-    if (disputes) out.push([`${disputes} open dispute${disputes === 1 ? "" : "s"}`, "Need resolution"]);
+    if (disputes) out.push([`${disputes} open dispute${disputes === 1 ? "" : "s"}`, "Need resolution", "/admin/disputes"]);
     const support = pick(pa, ["support", "support_issues", "tickets"]) ?? pick(live.support, ["open", "open_count", "total"]);
-    if (support) out.push([`${support} open support ticket${support === 1 ? "" : "s"}`, "Requires a reply"]);
+    if (support) out.push([`${support} open support ticket${support === 1 ? "" : "s"}`, "Requires a reply", "/admin/data/support"]);
     for (const [k, v] of Object.entries(pa)) {
       if (out.length >= 4) break;
       if (["verification", "groups_pending_verification", "pending_verification", "disputes", "open_disputes", "support", "support_issues", "tickets", "total", "count"].includes(k)) continue;
       const count = num(v);
-      if (count) out.push([`${count} ${labelOf(k)}`, "Requires your attention"]);
+      if (count) {
+        const route = /verif|review|group/i.test(k) ? "/admin/group-verification" : /dispute/i.test(k) ? "/admin/disputes" : /support|ticket/i.test(k) ? "/admin/data/support" : null;
+        out.push([`${count} ${labelOf(k)}`, "Requires your attention", route]);
+      }
     }
     return out;
   }, [live]);
@@ -523,35 +526,27 @@ export default function Admin() {
                 </p>
                 <div className="mt-[20px] grid gap-[20px] md:grid-cols-2">
                   <div className="flex flex-col gap-[16px]">
-                    {(alerts || []).slice(0, 2).map(([t, s]) => (
+                    {(alerts || []).slice(0, 2).map(([t, s, to]) => (
                       <div key={t} className="flex items-start gap-[12px]">
                         <span className="mt-[2px] flex-none">
                           <ClockGlyph color="#E31B00" />
                         </span>
                         <span>
-                          <span className="block text-[16px] leading-[20px] font-bold text-black">
-                            {t}
-                          </span>
-                          <span className="mt-[4px] block text-[14px] leading-[18px] text-[#6B6B6B]">
-                            {s}
-                          </span>
+                          {to ? <button type="button" onClick={() => nav(to)} className="block text-left text-[16px] leading-[20px] font-bold text-clyse hover:underline">{t}</button> : <span className="block text-[16px] leading-[20px] font-bold text-black">{t}</span>}
+                          <span className="mt-[4px] block text-[14px] leading-[18px] text-[#6B6B6B]">{s}</span>
                         </span>
                       </div>
                     ))}
                   </div>
                   <div className="flex flex-col gap-[16px] md:border-l md:border-[#999999] md:pl-[20px]">
-                    {(alerts || []).slice(2, 4).map(([t, s]) => (
+                    {(alerts || []).slice(2, 4).map(([t, s, to]) => (
                       <div key={t} className="flex items-start gap-[12px]">
                         <span className="mt-[2px] flex-none">
                           <ClockGlyph color="#E31B00" />
                         </span>
                         <span>
-                          <span className="block text-[16px] leading-[20px] font-bold text-black">
-                            {t}
-                          </span>
-                          <span className="mt-[4px] block text-[14px] leading-[18px] text-[#6B6B6B]">
-                            {s}
-                          </span>
+                          {to ? <button type="button" onClick={() => nav(to)} className="block text-left text-[16px] leading-[20px] font-bold text-clyse hover:underline">{t}</button> : <span className="block text-[16px] leading-[20px] font-bold text-black">{t}</span>}
+                          <span className="mt-[4px] block text-[14px] leading-[18px] text-[#6B6B6B]">{s}</span>
                         </span>
                       </div>
                     ))}

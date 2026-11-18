@@ -24,9 +24,10 @@ export default function MobileBrowse() {
   useEffect(() => {
     let on = true;
     (async () => {
-      const { data, error } = await api("/member/dashboard");
-      if (on) {
-        setOffers(error ? [] : (data?.available_groups || []).slice(0, 6).map((g) => {
+      try {
+        const { data, error } = await api("/catalogue/groups?limit=50", { auth: false });
+        if (on) {
+          setOffers(error ? [] : (data?.groups || []).slice(0, 6).map((g) => {
             const left = g.open_slots ?? g.available_slots ?? 0;
             const total = totalPriceKobo(g);
             const first = g.creator?.first_name || "Creator";
@@ -47,6 +48,9 @@ export default function MobileBrowse() {
               linkState: { group_id: g.group_id || g.id, preview: g },
             };
           }));
+        }
+      } catch {
+        if (on) setOffers([]);
       }
     })();
     return () => {

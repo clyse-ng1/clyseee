@@ -20,32 +20,45 @@ const STATS = [
 
 const STATUS_PILL = {
   pending: { tone: "orange", label: "Pending" },
+  pending_review: { tone: "orange", label: "Pending" },
   approved: { tone: "green", label: "Approved" },
+  verified: { tone: "green", label: "Approved" },
+  active: { tone: "green", label: "Approved" },
   rejected: { tone: "red", label: "Rejected" },
   suspended: { tone: "gray", label: "Suspended" },
 };
 
+const daysForRange = (range) => ({ "Last 7 days": 7, "Last 30 days": 30, "Last 90 days": 90 })[range] || null;
+const AUDIT_NOW = Date.now();
+
 export default function AdminGroupVerification() {
   const { rows: live, status: loadStatus } = useAdminRows("verification");
-  const [range, setRange] = useState("Sep. 1 2026 - Sep. 30 2026");
+  const [range, setRange] = useState("All time");
+  const [category, setCategory] = useState("All Categories");
   const nav = useNavigate();
   const [q, setQ] = useState("");
   const [status, setStatus] = useState("All Status");
   const [checked, setChecked] = useState([]);
-  const rows = useMemo(
-    () =>
-      (live || []).filter(
-        (r) =>
-          (r.name.toLowerCase().includes(q.trim().toLowerCase()) || r.sub.toLowerCase().includes(q.trim().toLowerCase())) &&
-          (status === "All Status" || STATUS_PILL[r.status].label === status)
-      ),
-    [q, status]
-  );
+  const categories = useMemo(() => [...new Set((live || []).map((r) => r.sub).filter((value) => value && value !== "—"))], [live]);
+  const rows = useMemo(() => {
+    const query = q.trim().toLowerCase();
+    const days = daysForRange(range);
+    const cutoff = days ? new Date(AUDIT_NOW - days * 86400000) : null;
+    return (live || []).filter((r) => {
+      const rowStatus = String(r.status || "").toLowerCase();
+      const pill = STATUS_PILL[rowStatus];
+      const rowDate = r.date && r.date !== "—" ? new Date(r.date) : null;
+      const dateMatch = !cutoff || (rowDate && !Number.isNaN(rowDate.getTime()) && rowDate >= cutoff);
+      return (!query || `${r.name || ""} ${r.sub || ""}`.toLowerCase().includes(query)) &&
+        (status === "All Status" || pill?.label === status) &&
+        (category === "All Categories" || r.sub === category) && dateMatch;
+    });
+  }, [live, q, status, category, range]);
   const liveish = loadStatus === "live" || loadStatus === "empty";
   const stats = liveish
     ? [
-        { glyph: <GlyphClock />, label: "Pending", value: String((live || []).filter((r) => r.status === "pending").length), color: "text-[#FF6C03]" },
-        { glyph: <GlyphBadge />, label: "Approved", value: String((live || []).filter((r) => r.status === "verified").length), color: "text-[#048B0B]" },
+        { glyph: <GlyphClock />, label: "Pending", value: String((live || []).filter((r) => ["pending", "pending_review"].includes(String(r.status).toLowerCase())).length), color: "text-[#FF6C03]" },
+        { glyph: <GlyphBadge />, label: "Approved", value: String((live || []).filter((r) => ["verified", "approved", "active"].includes(String(r.status).toLowerCase())).length), color: "text-[#048B0B]" },
         { glyph: <GlyphX />, label: "Reject", value: String((live || []).filter((r) => r.status === "rejected").length), color: "text-[#FF0000]" },
         { glyph: <GlyphUsers color="#6B6B6B" />, label: "Suspended", value: String((live || []).filter((r) => r.status === "suspended").length), color: "text-[#6B6B6B]" },
       ]
@@ -82,8 +95,8 @@ export default function AdminGroupVerification() {
           />
         </label>
         <span className="relative flex h-[46px] w-[168px] items-center rounded-[10px] border border-[#999999] bg-[#DFFFE1] px-[15px]">
-          <select className="w-full appearance-none bg-transparent pr-6 text-[16px] font-semibold text-[#001701] focus:outline-none">
-            <option>All Category</option>
+          <select value={category} onChange={(e) => setCategory(e.target.value)} aria-label="Category" className="w-full appearance-none bg-transparent pr-6 text-[16px] font-semibold text-[#001701] focus:outline-none">
+            {["All Categories", ...categories].map((item) => <option key={item}>{item}</option>)}
           </select>
           <span className="pointer-events-none absolute right-[15px]">
             <ChevDown color="#001701" />
@@ -105,12 +118,7 @@ export default function AdminGroupVerification() {
         </span>
         <DropSelect
           value={range}
-          options={[
-            "Sep. 1 2026 - Sep. 30 2026",
-            "Aug. 1 2026 - Aug. 31 2026",
-            "Jul. 1 2026 - Jul. 31 2026",
-            "Last 90 days",
-          ]}
+          options={["All time", "Last 7 days", "Last 30 days", "Last 90 days"]}
           onChange={setRange}
           ariaLabel="Date range"
           lead={<CalendarIcon />}
@@ -179,8 +187,8 @@ export default function AdminGroupVerification() {
                 <span className="w-[98px] shrink-0 text-[16px] font-semibold text-[#001701]">{r.slot}</span>
                 <span className="w-[126px] shrink-0 text-[16px] font-semibold text-[#001701]">{r.date}</span>
                 <span className="flex w-[163px] shrink-0">
-                  <Pill tone={STATUS_PILL[r.status].tone} className="h-[37px] w-[120px]">
-                    {STATUS_PILL[r.status].label}
+                  <Pill tone={(STATUS_PILL[String(r.status || "").toLowerCase()] || { tone: "gray", label: String(r.status || "Unknown").replaceAll("_", " ") }).tone} className="h-[37px] w-[120px]">
+                    {(STATUS_PILL[String(r.status || "").toLowerCase()] || { label: String(r.status || "Unknown").replaceAll("_", " ") }).label}
                   </Pill>
                 </span>
                 <span className="flex w-[80px] shrink-0 items-center gap-[18px]">

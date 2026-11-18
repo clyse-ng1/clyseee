@@ -84,6 +84,7 @@ function mapGroup(g) {
 export default function Browse() {
   const services = useCatalogue();
   const [availGroups, setAvailGroups] = useState(null);
+  const [groupsError, setGroupsError] = useState("");
   const [q, setQ] = useState("");
   const [cat, setCat] = useState("All");
   const [showAllBrands, setShowAllBrands] = useState(false);
@@ -93,13 +94,25 @@ export default function Browse() {
   useEffect(() => {
     let on = true;
     (async () => {
-      const pub = await api("/catalogue/groups?limit=50", { auth: false });
-      if (on && pub.data?.groups?.length) {
-        setAvailGroups(pub.data.groups);
-        return;
+      try {
+        const pub = await api("/catalogue/groups?limit=50", { auth: false });
+        if (!on) return;
+        if (pub.error) {
+          setAvailGroups([]);
+          setGroupsError(pub.error.message || "Live groups could not be loaded. Try again in a moment.");
+        } else if (Array.isArray(pub.data?.groups)) {
+          setAvailGroups(pub.data.groups);
+          setGroupsError("");
+        } else {
+          setAvailGroups([]);
+          setGroupsError("Live groups could not be loaded. Try again in a moment.");
+        }
+      } catch {
+        if (on) {
+          setAvailGroups([]);
+          setGroupsError("Live groups could not be loaded. Try again in a moment.");
+        }
       }
-      const { data } = await api("/member/dashboard");
-      if (on) setAvailGroups(data?.available_groups || []);
     })();
     return () => {
       on = false;
@@ -317,9 +330,9 @@ export default function Browse() {
             </div>
             {!loadingGroups && groups.length === 0 && (
               <p className="mt-[30px] text-center text-[18px] font-semibold text-[#6B6B6B]">
-                {q.trim()
+                {groupsError || (q.trim()
                   ? "No groups match your search."
-                  : "No open groups right now — check back soon."}
+                  : "No open groups right now — check back soon.")}
               </p>
             )}
             {!loadingGroups && groups.length > 6 && (
@@ -460,12 +473,21 @@ export default function Browse() {
           </div>
           {!loadingGroups && groups.length === 0 && (
             <p className="mt-[20px] text-center text-[15px] font-semibold text-[#6B6B6B]">
-              {q.trim() ? "No groups match your search." : "No open groups right now — check back soon."}
+              {groupsError || (q.trim() ? "No groups match your search." : "No open groups right now — check back soon.")}
             </p>
           )}
+          {!loadingGroups && groups.length > 6 && (
+            <button
+              type="button"
+              onClick={() => setShowAllGroups((value) => !value)}
+              className="mt-[19px] flex h-[32px] w-full items-center justify-center rounded-[10px] border-[0.64px] border-[#048B0B] bg-[#DFFFE1]/80 text-[11.6px] leading-[14.15px] font-semibold text-[#001701]"
+            >
+              {showAllGroups ? "Show Less" : "View More"}
+            </button>
+          )}
         </div>
-        {/* Figma 263:4402 ends on the Available Group grid — no View/Create
-            block, no trailing band. */}
+        {/* Figma 263:4402 ends on the Available Group grid — no Create block
+            or trailing band. */}
         <div className="pb-[60px]" />
       </main>
     </div>

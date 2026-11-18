@@ -4,7 +4,7 @@ import Navbar from "../components/Navbar";
 import Sidebar from "../components/Sidebar";
 import ExtraBlock from "../components/ExtraBlock";
 import { BlurBg } from "../components/Decor";
-import { api } from "../lib/api";
+import { api, PUBLIC_SITE_URL } from "../lib/api";
 import { useGroupId } from "../lib/useGroup";
 
 function LinkGlyph({ className = "h-[60px] w-[60px]" }) {
@@ -98,7 +98,7 @@ export default function GroupShare() {
   /* Backend: group invite token = 24 uppercase chars, URL-safe, so no
      encoding. A group with no active invite (still awaiting admin approval)
      gets a message, never a stand-in link. */
-  const link = token ? `${window.location.origin}/join/${token}` : null;
+  const link = token ? `${PUBLIC_SITE_URL}/join/${token}` : null;
   const pendingMsg = "Your group can be shared after admin approval.";
   const wa = link ? `https://wa.me/?text=${encodeURIComponent(`Join my group: ${link}`)}` : null;
   const tg = link ? `https://t.me/share/url?url=${encodeURIComponent(link)}&text=${encodeURIComponent("Join my group")}` : null;

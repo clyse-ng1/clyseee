@@ -104,7 +104,7 @@ function mapOffer(g) {
       if (occupied == null) return null;
       return Math.round((occupied / offered) * 100);
     })(),
-    linkTo: "/join/summary",
+    linkTo: `/join/plan?group_id=${encodeURIComponent(g.group_id || g.id || "")}`,
     linkState: { group_id: g.group_id || g.id, preview: g },
   };
 }
@@ -115,12 +115,17 @@ function MarketplaceDesktop() {
   const [showAll, setShowAll] = useState(false);
   const [offers, setOffers] = useState(null);
 
-  // Latest slots need a signed-in member; visitors keep the static cards.
+  // Use the same public live group feed as Browse so logged-out visitors and
+  // members see the current open slots rather than a member-only snapshot.
   useEffect(() => {
     let on = true;
     (async () => {
-      const { data, error } = await api("/member/dashboard");
-      if (on) setOffers(error ? [] : (data?.available_groups || []).slice(0, 6).map(mapOffer));
+      try {
+        const { data, error } = await api("/catalogue/groups?limit=50", { auth: false });
+        if (on) setOffers(error ? [] : (data?.groups || []).slice(0, 6).map(mapOffer));
+      } catch {
+        if (on) setOffers([]);
+      }
     })();
     return () => {
       on = false;

@@ -18,9 +18,10 @@ const METRICS = [
 
 const FILTERS = {
   status: ["All", "Open", "In Progress", "Awaiting User", "Resolved"],
-  category: ["All", "Billing", "Group Access", "Account"],
+  category: ["All", "Account", "Payments", "Subscription", "Group", "Technical", "Other"],
   date: ["All", "Last 7 days", "Last 30 days", "Last 90 days"],
 };
+const SUPPORT_FILTER_NOW = Date.now();
 
 function MetricIcon({ kind, color }) {
   if (kind === "check") {
@@ -77,10 +78,15 @@ export default function AdminSupport() {
 
   const rows = useMemo(() => (live || []).filter((row) => {
     const queryMatch = !q.trim() || [row.issue, row.name, row.email, row.id].some((value) => String(value || "").toLowerCase().includes(q.trim().toLowerCase()));
-    const statusMatch = statusFilter === "All" || String(row.status || "").replaceAll("_", " ").toLowerCase() === statusFilter.toLowerCase();
+    const normalizedStatus = String(row.status || "").replaceAll("_", " ").toLowerCase();
+    const statusMatch = statusFilter === "All" || (statusFilter === "Awaiting User" ? /waiting|await/.test(normalizedStatus) : normalizedStatus === statusFilter.toLowerCase());
     const categoryMatch = categoryFilter === "All" || String(row.sub || "").toLowerCase() === categoryFilter.toLowerCase();
-    return queryMatch && statusMatch && categoryMatch;
-  }), [live, q, statusFilter, categoryFilter]);
+    const days = ({ "Last 7 days": 7, "Last 30 days": 30, "Last 90 days": 90 })[dateFilter];
+    const cutoff = days ? new Date(SUPPORT_FILTER_NOW - days * 86400000) : null;
+    const submitted = row.date && row.date !== "—" ? new Date(row.date) : null;
+    const dateMatch = !cutoff || (submitted && !Number.isNaN(submitted.getTime()) && submitted >= cutoff);
+    return queryMatch && statusMatch && categoryMatch && dateMatch;
+  }), [live, q, statusFilter, categoryFilter, dateFilter]);
 
   const metricValue = (metric) => {
     if (status === "loading") return "…";
@@ -159,7 +165,7 @@ export default function AdminSupport() {
                   <span className="absolute" style={{ left: 965 }}>
                     <span className={`inline-flex h-[30px] items-center rounded-[8px] px-[12px] text-[13px] font-semibold ${statusStyle(label)}`}>{label}</span>
                   </span>
-                  <button type="button" onClick={() => nav("/admin/data/support")} aria-label={`Open ${row.id || "support"} workspace`} className="absolute text-[14px] font-semibold text-[#048B0B] hover:underline" style={{ left: 1110 }}>Open</button>
+                  <button type="button" onClick={() => nav(`/admin/data/support?id=${encodeURIComponent(row.id)}`)} aria-label={`Open ${row.id || "support"} workspace`} className="absolute text-[14px] font-semibold text-[#048B0B] hover:underline" style={{ left: 1110 }}>Open</button>
                 </div>
               );
             })}

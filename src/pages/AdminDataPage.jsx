@@ -71,6 +71,10 @@ const valueText = (value, key = "") => {
   if (Array.isArray(value)) return `${value.length} item${value.length === 1 ? "" : "s"}`;
   if (typeof value === "object") return value.name || value.full_name || value.title || value.id || "Details";
   if (key.endsWith("_kobo") || key.includes("amount_kobo") || key.includes("price_kobo")) return kobo(value);
+  if (typeof value === "string" && /^\d{4}-\d{2}-\d{2}T/.test(value)) {
+    const date = new Date(value);
+    if (!Number.isNaN(date.getTime())) return date.toLocaleString("en-NG", { dateStyle: "medium", timeStyle: "short" });
+  }
   if (/(^|_)(created_at|updated_at|date|at)$/.test(key) && typeof value === "string") return fmtDate(value);
   return String(value);
 };
@@ -195,6 +199,77 @@ function SupportDetail({ data, reply, setReply, onSend, onClose, sending }) {
   </section>;
 }
 
+function adminForm(page, action, row = {}) {
+  const field = (label, type = "text", value = "", options, required = true) => ({ label, name: label, type, value, options, required });
+  const select = (label, value, options) => field(label, "select", value, options);
+  const confirm = (label) => field(label, "checkbox", false, undefined, true);
+  const key = `${page}:${action}`;
+  const specs = {
+    "services:Change service status": ["Change service status", [confirm("Confirm service status change")]],
+    "services:Edit service": ["Edit service", [field("Service name", "text", row.name || ""), field("Service slug", "text", row.slug || ""), field("Category", "text", row.category || "other")]],
+    "plans:Change plan status": ["Change plan status", [confirm("Confirm plan status change")]],
+    "plans:Edit plan": ["Edit plan", [field("Unit price in kobo", "number", row.unit_price_kobo || ""), field("Platform fee in kobo", "number", row.platform_fee_kobo || ""), field("Member slot capacity", "number", row.member_slot_capacity || "")]],
+    "review:Review": ["Review group submission", [select("Action: approve, reject, suspend, or resume", "approve", ["approve", "reject", "suspend", "resume"]), field("Reason (required)", "textarea", "", undefined, false)]],
+    "users:Change status": ["Change user status", [select("New status: active, suspended, or deactivated", row.status || "suspended", ["active", "suspended", "deactivated"]), field("Reason for this status change", "textarea")]],
+    "groups:Change status": ["Change group status", [select("New status (as permitted by this group)", row.status || "suspended", ["pending_review", "active", "rejected", "suspended", "closed"]), field("Reason", "textarea")]],
+    "disputes:Request information": ["Request information", [select("Who should provide information? member, creator, or both", "creator", ["member", "creator", "both"]), field("Message to send", "textarea")]],
+    "disputes:Resolve": ["Resolve dispute", [select("Outcome: refund_full, refund_partial, release, or rejected", "release", ["refund_full", "refund_partial", "release", "rejected"]), field("Resolution note", "textarea"), field("Partial refund amount in kobo", "number", "", undefined, false)]],
+    "support:Reply": ["Reply to support ticket", [field("Reply message", "textarea")]],
+    "support:Update status": ["Update support status", [select("Status: open, in_progress, waiting_user, resolved, or closed", row.status || "in_progress", ["open", "in_progress", "waiting_user", "resolved", "closed"]), field("Resolution note (required)", "textarea", "", undefined, false)]],
+    "support:Set priority": ["Set support priority", [select("Priority: low, normal, high, or urgent", row.priority || "high", ["low", "normal", "high", "urgent"])]],
+    "support:Assign issue": ["Assign support ticket", [field("Admin user ID to assign this issue to", "text", "")]],
+    "exceptions:Update exception": ["Update reconciliation exception", [select("Status: investigating, resolved, or ignored", row.status || "investigating", ["investigating", "resolved", "ignored"]), field("Note (required)", "textarea", "", undefined, false)]],
+    "templates:Edit template": ["Edit message template", [field("Template subject", "text", row.subject || ""), field("Template body", "textarea", row.body || ""), field("Change note", "text", "Content update")]],
+    "templates:Preview template": ["Preview message template", [confirm("Preview this template")]],
+    "templates:Change template status": ["Change template status", [select("Set status to active or inactive", row.active ? "inactive" : "active", ["active", "inactive"])]],
+    "communications:Edit draft": ["Edit communication draft", [field("Communication title", "text", row.title || ""), field("Message body", "textarea", row.body || "")]],
+    "communications:Preview audience": ["Preview audience", [field("Message title", "text", row.title || ""), field("Message body", "textarea", row.body || ""), field('Audience JSON (example: {"type":"all"})', "textarea", JSON.stringify(row.audience || { type: "all" }, null, 2)), field('Channels JSON (example: ["in_app"])', "textarea", JSON.stringify(row.channels || ["in_app"], null, 2), undefined, false)]],
+    "communications:Send": ["Send communication", [confirm("Confirm sending this communication now? This action cannot be undone.")]],
+    "communications:Cancel": ["Cancel communication", [field("Reason for cancelling this communication", "textarea")]],
+    "admins:Assign role": ["Assign administrator role", [field("Role name", "text", row.role || "support")]],
+    "admins:Change status": ["Change administrator status", [confirm("Confirm deactivation and revoke active sessions")]],
+    "roles:Change permission": ["Change role permission", [field("Role name", "text", row.role || "support"), field("Permission key (e.g. support.manage)", "text", row.key || ""), select("Grant or revoke? enter true / false", "true", ["true", "false"])]],
+    "config:Update setting": ["Update setting", [field("New setting value (JSON or text)", "textarea", typeof row.value === "string" ? row.value : JSON.stringify(row.value ?? "", null, 2))]],
+    "moderation:Moderate target": ["Moderate target", [select("Target type: user or group", row.targetType || row.target_type || "user", ["user", "group"]), select("Action: warning, restriction, suspension, or restoration", String(row.action || row.type || "warning").toLowerCase(), ["warning", "restriction", "suspension", "restoration"]), field("Reason", "textarea"), field("Target ID", "text", row.targetId || row.target_id || "", undefined, !row.targetId && !row.target_id)]],
+    "securityIncidents:Update incident": ["Update security incident", [select("Status: acknowledged, investigating, resolved, or closed", row.status || "investigating", ["acknowledged", "investigating", "resolved", "closed"]), field("Required resolution note", "textarea", "", undefined, false)]],
+    "healthIncidents:Update incident": ["Update health incident", [select("Status: acknowledged, monitoring, resolved, or closed", row.status || "monitoring", ["acknowledged", "monitoring", "resolved", "closed"]), field("Required resolution note", "textarea", "", undefined, false)]],
+    "transactions:Run ledger integrity check": ["Run ledger integrity check", [confirm("Run the ledger integrity check now?")]],
+    "reconciliation:Run reconciliation": ["Run reconciliation", [confirm("Run a reconciliation for the default last 30 days?")]],
+    "health:Run checks": ["Run health checks", [confirm("Run system health checks now?")]],
+    "securitySummary:Scan security events": ["Scan security events", [confirm("Start a security event scan?")]],
+    "securitySummary:Run retention preview": ["Preview security retention", [confirm("Run retention preview (dry run only)?")]],
+  };
+  return specs[key] || [action, [confirm(`Confirm ${action.toLowerCase()}?`)]];
+}
+
+function createForm(kind) {
+  const field = (label, type = "text", value = "", options, required = true) => ({ label, name: label, type, value, options, required });
+  if (kind === "service") return ["Add service", [field("Service name"), field("URL slug"), field("Category", "select", "streaming", ["streaming", "music", "gaming", "software", "education", "productivity", "news", "sports", "other"])]];
+  if (kind === "plan") return ["Add plan", [field("Service ID"), field("Plan name"), field("Member slot capacity", "number", "4"), field("Unit price in kobo", "number", "200000"), field("Platform fee in kobo", "number", "20000"), field("Billing interval in months", "number", "1")]];
+  if (kind === "template") return ["Add message template", [field("Unique template key"), field("Template name"), field("Category", "text", "account"), field("Channel", "select", "in_app", ["in_app", "email", "sms", "push"]), field("Subject", "text", ""), field("Message body", "textarea")]];
+  if (kind === "communication") return ["Create communication", [field("Campaign title"), field("Message body", "textarea"), field('Audience JSON (example: {"type":"all"})', "textarea", '{"type":"all"}'), field('Channels JSON (example: ["in_app"])', "textarea", '["in_app"]'), field("Category", "text", "account")]];
+  return ["Create record", []];
+}
+
+function AdminDataForm({ config, initial = {}, onCancel, onSubmit, busy = false }) {
+  const [values, setValues] = useState(() => Object.fromEntries(config.fields.map((field) => [field.name, initial[field.name] ?? field.value ?? (field.type === "checkbox" ? false : "")])));
+  const [formError, setFormError] = useState("");
+  const update = (name, value) => setValues((old) => ({ ...old, [name]: value }));
+  return <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 p-4" role="presentation">
+    <section role="dialog" aria-modal="true" aria-labelledby="admin-form-title" className="max-h-[90vh] w-full max-w-[600px] overflow-y-auto rounded-2xl bg-white p-6 shadow-2xl">
+      <h2 id="admin-form-title" className="text-xl font-bold text-[#001701]">{config.title}</h2>
+      <form className="mt-5 space-y-4" onSubmit={(event) => { event.preventDefault(); const missing = config.fields.find((field) => field.required && (field.type === "checkbox" ? !values[field.name] : !String(values[field.name] ?? "").trim())); if (missing) { setFormError(`${missing.label} is required.`); return; } setFormError(""); onSubmit(values); }}>
+        {config.fields.map((field) => <label key={field.name} className="block text-sm font-semibold text-[#243724]">
+          <span className="mb-1 block">{field.label}{field.required ? " *" : ""}</span>
+          {field.type === "select" ? <select required={field.required} value={values[field.name] ?? ""} onChange={(event) => update(field.name, event.target.value)} className="w-full rounded-lg border border-[#BFC9BF] bg-white px-3 py-2.5 outline-none focus:border-[#048B0B]">{field.options.map((option) => <option key={option} value={option}>{LABEL(option)}</option>)}</select> : field.type === "checkbox" ? <input type="checkbox" checked={Boolean(values[field.name])} onChange={(event) => update(field.name, event.target.checked)} className="ml-2 h-5 w-5 accent-[#048B0B]" /> : field.type === "textarea" ? <textarea required={field.required} value={values[field.name] ?? ""} onChange={(event) => update(field.name, event.target.value)} rows={4} className="w-full rounded-lg border border-[#BFC9BF] px-3 py-2.5 outline-none focus:border-[#048B0B]" /> : <input required={field.required} type={field.type} value={values[field.name] ?? ""} onChange={(event) => update(field.name, event.target.value)} className="w-full rounded-lg border border-[#BFC9BF] px-3 py-2.5 outline-none focus:border-[#048B0B]" />}
+        </label>)}
+        {formError && <p role="alert" className="text-sm font-semibold text-red-700">{formError}</p>}
+        <div className="flex justify-end gap-3 pt-2"><button type="button" onClick={onCancel} disabled={busy} className="rounded-lg border border-[#BFC9BF] px-4 py-2.5 font-semibold text-[#334433]">Cancel</button><button type="submit" disabled={busy} className="rounded-lg bg-[#001701] px-5 py-2.5 font-semibold text-white disabled:opacity-50">{busy ? "Saving…" : "Submit"}</button></div>
+      </form>
+    </section>
+  </div>;
+}
+
 export default function AdminDataPage({ page = "dashboard" }) {
   const conf = PAGE[page] || PAGE.dashboard;
   useEffect(() => { document.title = `${conf.title} — Clyse CMS`; }, [conf.title]);
@@ -211,6 +286,8 @@ export default function AdminDataPage({ page = "dashboard" }) {
   const [detailId, setDetailId] = useState(null);
   const [reply, setReply] = useState("");
   const [replySending, setReplySending] = useState(false);
+  const [actionDialog, setActionDialog] = useState(null);
+  const [actionBusy, setActionBusy] = useState(false);
   const [loading, setLoading] = useState(true);
   const [moreLoading, setMoreLoading] = useState(false);
   const [error, setError] = useState("");
@@ -278,14 +355,19 @@ export default function AdminDataPage({ page = "dashboard" }) {
     else { setReply(""); setNotice("Reply sent to the user."); setRefresh((n) => n + 1); }
   };
 
-  const runAction = async (action, row = null) => {
+  const runAction = async (action, row = null, values = undefined) => {
+    if (values === undefined) {
+      setError("");
+      setActionDialog({ mode: "action", action, row, config: { title: adminForm(page, action, row)[0], fields: adminForm(page, action, row)[1] } });
+      return;
+    }
     const id = row?.[conf.idKey] ?? row?.id ?? row?.service_id ?? row?.plan_id ?? row?.group_id ?? row?.user_id ?? row?.report_id ?? row?.issue_id ?? row?.transaction_id ?? row?.key;
-    const ask = (label, defaultValue = "") => window.prompt(label, defaultValue)?.trim();
+    const ask = (label, defaultValue = "") => values[label] == null ? defaultValue : String(values[label]).trim();
     let endpoint = ""; let body = {}; let method = "POST";
     switch (`${page}:${action}`) {
-      case "services:Change service status": endpoint = "/admin/catalogue/services/status"; body = { service_id: id, is_active: !row?.is_active }; break;
+      case "services:Change service status": if (ask("Confirm service status change") !== "true") return; endpoint = "/admin/catalogue/services/status"; body = { service_id: id, is_active: !(row?.is_active ?? row?.active ?? true) }; break;
       case "services:Edit service": { const name = ask("Service name", row?.name || ""); const slug = ask("Service slug", row?.slug || ""); const category = ask("Category", row?.category || "other"); if (!name || !slug || !category) return; endpoint = "/admin/catalogue/services"; method = "PATCH"; body = { service_id: id, name, slug, category }; break; }
-      case "plans:Change plan status": endpoint = "/admin/catalogue/plans/status"; body = { plan_id: id, is_active: !row?.is_active }; break;
+      case "plans:Change plan status": if (ask("Confirm plan status change") !== "true") return; endpoint = "/admin/catalogue/plans/status"; body = { plan_id: id, is_active: !(row?.is_active ?? row?.active ?? true) }; break;
       case "plans:Edit plan": { const unit_price_kobo = Number(ask("Unit price in kobo", String(row?.unit_price_kobo || ""))); const platform_fee_kobo = Number(ask("Platform fee in kobo", String(row?.platform_fee_kobo || ""))); const member_slot_capacity = Number(ask("Member slot capacity", String(row?.member_slot_capacity || ""))); if (![unit_price_kobo, platform_fee_kobo, member_slot_capacity].every(Number.isFinite)) return; endpoint = "/admin/catalogue/plans"; method = "PATCH"; body = { plan_id: id, unit_price_kobo, platform_fee_kobo, member_slot_capacity }; break; }
       case "review:Review": { const choice = ask("Action: approve, reject, suspend, or resume", "approve"); if (!choice || !["approve", "reject", "suspend", "resume"].includes(choice)) return; const reason = ["reject", "suspend"].includes(choice) ? ask("Reason (required)") : null; if (["reject", "suspend"].includes(choice) && !reason) return; endpoint = "/admin/groups/review"; body = { group_id: id, action: choice, reason }; break; }
       case "users:Change status": body = { user_id: id, status: ask("New status: active, suspended, or deactivated", row?.status || "suspended"), reason: ask("Reason for this status change") }; endpoint = "/admin/users/status"; break;
@@ -302,27 +384,30 @@ export default function AdminDataPage({ page = "dashboard" }) {
       case "templates:Change template status": { const active = ask("Set status to active or inactive", row?.active ? "inactive" : "active"); endpoint = "/admin/templates/status"; body = { id, active: active === "active" }; break; }
       case "communications:Edit draft": { const title = ask("Communication title", row?.title || ""); const bodyText = ask("Message body", row?.body || ""); if (title == null || bodyText == null) return; endpoint = "/admin/communications"; method = "PATCH"; body = { id, title, body: bodyText }; break; }
       case "communications:Preview audience": { const title = ask("Message title", row?.title || ""); const bodyText = ask("Message body", row?.body || ""); let audience; try { audience = JSON.parse(ask('Audience JSON (example: {"type":"all"})', JSON.stringify(row?.audience || { type: "all" }))); } catch { setError("Audience must be valid JSON."); return; } if (!title || !bodyText) return; endpoint = "/admin/communications/preview"; body = { audience, title, body: bodyText }; break; }
-      case "communications:Send": if (!window.confirm("Send this communication to its resolved audience now? This action cannot be undone.")) return; endpoint = "/admin/communications/send"; body = { id }; break;
+      case "communications:Send": if (ask("Confirm sending this communication now? This action cannot be undone?") !== "true") return; endpoint = "/admin/communications/send"; body = { id }; break;
       case "communications:Cancel": { const reason = ask("Reason for cancelling this communication"); if (!reason) return; endpoint = "/admin/communications/cancel"; body = { id, reason }; break; }
       case "admins:Assign role": endpoint = "/admin/admins/assign"; body = { user_id: id, role: ask("Role name", row?.role || "support") }; break;
-      case "admins:Change status": { const active = !(row?.is_active ?? row?.active ?? true); if (!active && !window.confirm("Deactivate this administrator and revoke their active sessions?")) return; endpoint = "/admin/admins/status"; body = { user_id: id, active }; break; }
+      case "admins:Change status": { const active = !(row?.is_active ?? row?.active ?? true); if (!active && ask("Confirm deactivation and revoke active sessions") !== "true") return; endpoint = "/admin/admins/status"; body = { user_id: id, active }; break; }
       case "roles:Change permission": endpoint = "/admin/roles/permissions"; body = { role: ask("Role name", row?.role || "support"), permission: ask("Permission key (e.g. support.manage)", row?.key || ""), granted: ask("Grant or revoke? enter true / false", "true") === "true" }; break;
       case "config:Update setting": { const value = ask("New setting value (JSON or text)"); if (value == null) return; let parsed = value; try { parsed = JSON.parse(value); } catch {} endpoint = "/admin/config"; body = { updates: [{ key: row?.key, value: parsed }] }; break; }
       case "moderation:Moderate target": { const targetType = ask("Target type: user or group", row?.targetType || row?.target_type || "user")?.toLowerCase(); if (!["user", "group"].includes(targetType)) { setError("Choose a supported moderation target: user or group."); return; } const actionValue = ask("Action: warning, restriction, suspension, or restoration", String(row?.action || row?.type || "warning").toLowerCase()); if (!actionValue || !["warning", "restriction", "suspension", "restoration"].includes(actionValue) || (targetType === "group" && actionValue === "restriction")) { setError("That moderation action is not supported for this target."); return; } const reason = ask("Reason"); if (!reason) return; const targetId = row?.targetId || row?.target_id || ask(`Enter the ${targetType} ID to moderate`); if (!targetId) return; endpoint = targetType === "group" ? "/admin/moderation/groups" : "/admin/moderation/users"; body = targetType === "group" ? { group_id: targetId, action: actionValue, reason } : { user_id: targetId, action: actionValue, reason }; break; }
       case "securityIncidents:Update incident": { const status = ask("Status: acknowledged, investigating, resolved, or closed", ["open", "acknowledged"].includes(row?.status) ? "acknowledged" : row?.status || "investigating"); if (!status || !["acknowledged", "investigating", "resolved", "closed"].includes(status)) return; const note = ["resolved", "closed"].includes(status) ? ask("Required resolution note") : undefined; if (["resolved", "closed"].includes(status) && !note) return; endpoint = "/admin/security/incidents/update"; body = { id, status, ...(note ? { note } : {}) }; break; }
       case "healthIncidents:Update incident": { const status = ask("Status: acknowledged, monitoring, resolved, or closed", ["open", "acknowledged"].includes(row?.status) ? "acknowledged" : row?.status || "monitoring"); if (!status || !["acknowledged", "monitoring", "resolved", "closed"].includes(status)) return; const note = ["resolved", "closed"].includes(status) ? ask("Required resolution note") : undefined; if (["resolved", "closed"].includes(status) && !note) return; endpoint = "/admin/health/incidents/update"; body = { id, status, ...(note ? { note } : {}) }; break; }
-      case "transactions:Run ledger integrity check": if (!window.confirm("Run the ledger integrity check now?")) return; endpoint = "/admin/finance/reconcile"; body = {}; break;
-      case "reconciliation:Run reconciliation": if (!window.confirm("Run a reconciliation for the default last 30 days?")) return; endpoint = "/admin/finance/reconciliations/run"; body = {}; break;
+      case "transactions:Run ledger integrity check": if (ask("Run the ledger integrity check now?") !== "true") return; endpoint = "/admin/finance/reconcile"; body = {}; break;
+      case "reconciliation:Run reconciliation": if (ask("Run a reconciliation for the default last 30 days?") !== "true") return; endpoint = "/admin/finance/reconciliations/run"; body = {}; break;
       case "health:Run checks": endpoint = "/admin/health/run"; body = {}; break;
       case "securitySummary:Scan security events": endpoint = "/admin/security/scan"; body = {}; break;
       case "securitySummary:Run retention preview": endpoint = "/admin/security/retention"; body = { dry_run: true }; break;
       default: return;
     }
     if (!endpoint || Object.values(body).some((v) => v === null || v === "" || (typeof v === "number" && Number.isNaN(v)))) return;
-    setNotice(""); setError("");
-    const res = await api(endpoint, { method, body });
+    setNotice(""); setError(""); setActionBusy(true);
+    let res;
+    try { res = await api(endpoint, { method, body }); }
+    catch { res = { error: { message: "The request could not be completed. Check your connection and retry." } }; }
+    setActionBusy(false);
     if (res.error) setError(res.error.message || "The action could not be completed.");
-    else { setNotice("Action completed successfully."); setDetail(res.data || null); setLoading(true); setRefresh((v) => v + 1); }
+    else { setActionDialog(null); setNotice("Action completed successfully."); setDetail(res.data || null); setLoading(true); setRefresh((v) => v + 1); }
   };
 
   const columns = useMemo(() => {
@@ -331,42 +416,38 @@ export default function AdminDataPage({ page = "dashboard" }) {
     return [...keys].sort((a, b) => { const ai = preferred.indexOf(a); const bi = preferred.indexOf(b); return (ai < 0 ? 999 : ai) - (bi < 0 ? 999 : bi); }).slice(0, 7);
   }, [rows]);
 
-  const performCreate = async () => {
-    let endpoint; let body;
+  const performCreate = () => {
+    const [title, fields] = createForm(conf.create);
+    setError("");
+    setActionDialog({ mode: "create", config: { title, fields } });
+  };
+  const submitCreate = async (values) => {
+    const get = (label) => String(values[label] ?? "").trim();
+    let endpoint = ""; let body = {};
     if (conf.create === "service") {
-      const name = window.prompt("Service name"); if (!name) return;
-      const slug = window.prompt("URL slug"); if (!slug) return;
-      const category = window.prompt("Category: streaming, music, gaming, software, education, productivity, news, sports, other", "streaming"); if (!category) return;
-      endpoint = "/admin/catalogue/services"; body = { name, slug, category, logo_path: null };
+      body = { name: get("Service name"), slug: get("URL slug"), category: get("Category"), logo_path: null };
+      endpoint = "/admin/catalogue/services";
     } else if (conf.create === "plan") {
-      const service_id = window.prompt("Service ID"); if (!service_id) return;
-      const name = window.prompt("Plan name"); if (!name) return;
-      const member_slot_capacity = Number(window.prompt("Member slot capacity", "4"));
-      const unit_price_kobo = Number(window.prompt("Unit price in kobo", "200000"));
-      const platform_fee_kobo = Number(window.prompt("Platform fee in kobo", "20000"));
-      const billing_interval_months = Number(window.prompt("Billing interval in months", "1"));
-      endpoint = "/admin/catalogue/plans"; body = { service_id, name, member_slot_capacity, unit_price_kobo, platform_fee_kobo, billing_interval_months, supported_access_methods: ["credentials"] };
+      body = { service_id: get("Service ID"), name: get("Plan name"), member_slot_capacity: Number(get("Member slot capacity")), unit_price_kobo: Number(get("Unit price in kobo")), platform_fee_kobo: Number(get("Platform fee in kobo")), billing_interval_months: Number(get("Billing interval in months")), supported_access_methods: ["credentials"] };
+      endpoint = "/admin/catalogue/plans";
+      if (![body.member_slot_capacity, body.unit_price_kobo, body.platform_fee_kobo, body.billing_interval_months].every(Number.isFinite)) { setError("Enter valid whole numbers for capacity, prices, fees, and billing interval."); return; }
     } else if (conf.create === "template") {
-      const template_key = window.prompt("Unique template key"); if (!template_key) return;
-      const name = window.prompt("Template name"); if (!name) return;
-      const category = window.prompt("Category", "account"); if (!category) return;
-      const channel = window.prompt("Channel: in_app, email, sms, push", "in_app"); if (!channel) return;
-      const subject = window.prompt("Subject", name) || "";
-      const bodyText = window.prompt("Message body"); if (!bodyText) return;
-      endpoint = "/admin/templates"; body = { template_key, name, category, channel, subject, body: bodyText };
+      body = { template_key: get("Unique template key"), name: get("Template name"), category: get("Category"), channel: get("Channel"), subject: get("Subject"), body: get("Message body") };
+      endpoint = "/admin/templates";
     } else if (conf.create === "communication") {
-      const title = window.prompt("Campaign title"); if (!title) return;
-      const bodyText = window.prompt("Message body"); if (!bodyText) return;
-      let audience; let channels;
-      try { audience = JSON.parse(window.prompt('Audience JSON (example: {"type":"all"})', '{"type":"all"}')); } catch { setError("Audience must be valid JSON."); return; }
-      try { channels = JSON.parse(window.prompt('Channels JSON (example: ["in_app"])', '["in_app"]')); } catch { setError("Channels must be a valid JSON list."); return; }
-      const category = window.prompt("Category", "account"); if (!category) return;
-      endpoint = "/admin/communications"; body = { category, title, body: bodyText, channels, audience };
+      try { body = { category: get("Category"), title: get("Campaign title"), body: get("Message body"), audience: JSON.parse(get('Audience JSON (example: {"type":"all"})')), channels: JSON.parse(get('Channels JSON (example: ["in_app"])')) }; }
+      catch { setError("Audience must be valid JSON and channels must be a valid JSON list."); return; }
+      if (!Array.isArray(body.channels)) { setError("Channels must be a JSON list, for example [\"in_app\"]."); return; }
+      endpoint = "/admin/communications";
     }
-    if (endpoint) {
-      const res = await api(endpoint, { method: "POST", body });
-      if (res.error) setError(res.error.message); else { setNotice("Record created."); setLoading(true); setRefresh((n) => n + 1); }
-    }
+    if (!endpoint) return;
+    setError(""); setActionBusy(true);
+    let res;
+    try { res = await api(endpoint, { method: "POST", body }); }
+    catch { res = { error: { message: "The request could not be completed. Check your connection and retry." } }; }
+    setActionBusy(false);
+    if (res.error) setError(res.error.message || "Record could not be created.");
+    else { setActionDialog(null); setNotice("Record created."); setLoading(true); setRefresh((n) => n + 1); }
   };
 
   const startSearch = (field, value) => { setLoading(true); setFilter(field, value); };
@@ -397,5 +478,6 @@ export default function AdminDataPage({ page = "dashboard" }) {
     {recordId && (detailId === recordId && detail ? page === "support" ? <SupportDetail data={detail} reply={reply} setReply={setReply} onSend={sendSupportReply} onClose={closeDetails} sending={replySending} /> : <DetailView data={detail} onClose={closeDetails} /> : <div className="mt-5 rounded-xl border border-[#D8E2D9] bg-white p-5 text-sm text-[#596659]">Loading record details…</div>)}
     {conf.unsupported ? <div className="mt-6 rounded-[14px] border border-dashed border-[#C8D2C8] bg-white p-12 text-center"><div className="text-lg font-bold text-[#001701]">Not available in the current admin API</div><p className="mx-auto mt-2 max-w-xl text-sm text-[#657165]">{conf.unsupportedMessage}</p></div> : conf.dashboard ? <div className="mt-6">{loading ? <SkeletonTable /> : data ? <OverviewTiles data={data} /> : !error && <div className="mt-6 rounded-xl bg-white p-8 text-center text-sm text-[#657165]">No dashboard data was returned.</div>}</div> : page === "config" && Array.isArray(data?.settings) && !loading ? <ConfigEditor key={refresh} settings={data.settings} onSave={saveConfig} /> : <div className="mt-6">{loading ? <SkeletonTable /> : rows.length ? <><div className="overflow-hidden rounded-[14px] border border-[#D8E2D9] bg-white shadow-sm"><div className="overflow-x-auto"><table className="w-full min-w-[850px] border-collapse text-left"><thead className="bg-[#EAF4EA]"><tr>{columns.map((col) => <th key={col} className="px-4 py-3 text-xs font-bold uppercase tracking-wide text-[#3F5140]">{LABEL(col)}</th>)}<th className="px-4 py-3 text-xs font-bold uppercase tracking-wide text-[#3F5140]">Actions</th></tr></thead><tbody>{rows.map((row, i) => <tr key={String(row?.[conf.idKey] ?? row?.id ?? i)} className="border-t border-[#EEF2EE] hover:bg-[#FAFCFA]">{columns.map((col) => <td key={col} className="max-w-[260px] px-4 py-4 text-sm font-medium text-[#203020]"><span className="block truncate" title={valueText(row[col], col)}>{valueText(row[col], col)}</span></td>)}<td className="px-4 py-3"><div className="flex flex-wrap items-center gap-2">{conf.detail && <button onClick={() => openDetails(row)} className="rounded-lg border border-[#AEBBAF] px-3 py-2 text-xs font-bold text-[#183119]">View</button>}{(conf.actions || []).filter((a) => !["Run reconciliation", "Run ledger integrity check", "Run checks", "Scan security events", "Run retention preview"].includes(a)).map((action) => <button key={action} onClick={() => runAction(action, row)} className="rounded-lg bg-[#001701] px-3 py-2 text-xs font-bold text-white">{action}</button>)}</div></td></tr>)}</tbody></table></div></div>{page === "roles" && Array.isArray(data?.permissions) && <section className="mt-6 rounded-[14px] border border-[#D8E2D9] bg-white p-5"><div className="mb-4 flex items-center justify-between"><h2 className="text-lg font-bold text-[#001701]">Permission catalogue</h2><span className="text-sm text-[#657165]">{data.permissions.length} permissions</span></div><div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">{data.permissions.map((permission) => <div key={permission.key} className="rounded-xl border border-[#E3E9E3] p-4"><div className="font-bold text-[#001701]">{LABEL(permission.label || permission.key)}</div><div className="mt-1 text-xs text-[#657165]">{permission.key} · {LABEL(permission.category || "general")} · {LABEL(permission.risk || "low")} risk</div><button onClick={() => runAction("Change permission", permission)} className="mt-3 rounded-lg bg-[#001701] px-3 py-2 text-xs font-semibold text-white">Grant / revoke</button></div>)}</div></section>}<div className="mt-4 flex items-center justify-between text-sm text-[#596659]"><span>{rows.length} records loaded{pageInfo?.has_more ? " · more available" : ""}</span>{pageInfo?.has_more && <button disabled={moreLoading} onClick={() => load(true)} className="rounded-lg bg-[#001701] px-4 py-2 font-semibold text-white disabled:opacity-50">{moreLoading ? "Loading…" : "Load more"}</button>}</div></> : !error && <div className="rounded-[14px] border border-dashed border-[#C8D2C8] bg-white p-12 text-center"><div className="text-lg font-bold text-[#001701]">No records found</div><div className="mt-2 text-sm text-[#657165]">The API returned an empty result for this view. Try clearing filters or check back later.</div></div>}</div>}
     {data?.page?.has_more && conf.dashboard && <div className="mt-4 text-right text-xs text-[#647164]">More records are available in the API.</div>}
+    {actionDialog && <AdminDataForm key={`${actionDialog.mode}:${actionDialog.action || conf.create}`} config={actionDialog.config} onCancel={() => setActionDialog(null)} onSubmit={(values) => actionDialog.mode === "create" ? submitCreate(values) : runAction(actionDialog.action, actionDialog.row, values)} busy={actionBusy} />}
   </AdminShell>;
 }
