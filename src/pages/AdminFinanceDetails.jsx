@@ -57,10 +57,13 @@ export default function AdminFinanceDetails() {
   const txId = params.get("id") || params.get("transaction_id") || "";
   const [tx, setTx] = useState(null);
   const [loadState, setLoadState] = useState("loading"); // loading | live | error
+  const [loadError, setLoadError] = useState("");
   useEffect(() => {
     let alive = true;
     setTx(null);
+    setLoadError("");
     if (!txId) {
+      setLoadError("No transaction ID was provided in the page URL.");
       setLoadState("error");
       return () => { alive = false; };
     }
@@ -69,14 +72,18 @@ export default function AdminFinanceDetails() {
       if (!alive) return;
       const record = res.data?.transaction || res.data?.data?.transaction || res.data;
       if (res.error || !record || typeof record !== "object") {
+        setLoadError(res.error?.message || `Transaction detail request failed${res.status ? ` (HTTP ${res.status})` : ""}.`);
         setLoadState("error");
         return;
       }
       const entries = record.entries || record.ledger_entries || res.data?.entries || [];
       setTx({ ...record, entries: Array.isArray(entries) ? entries.filter(Boolean) : [] });
       setLoadState("live");
-    }).catch(() => {
-      if (alive) setLoadState("error");
+    }).catch((error) => {
+      if (alive) {
+        setLoadError(error?.message || "Unexpected error while loading transaction details.");
+        setLoadState("error");
+      }
     });
     return () => { alive = false; };
   }, [txId]);
@@ -96,9 +103,9 @@ export default function AdminFinanceDetails() {
       <BackTitle title="Transaction Details" />
       {loadState === "error" && (
         <p role="alert" className="mt-[20px] rounded-[10px] border border-[#FFC48A] bg-[#FFEEE2] px-[20px] py-[16px] text-[16px] font-semibold text-[#8A3B00]">
-          {txId
-            ? "Could not load this transaction — it may have been removed or the detail endpoint returned an unsupported response. Return to Transactions and try again."
-            : "No transaction selected. Open this screen from the Transactions list."}
+          {loadError || (txId
+            ? "Could not load this transaction. Return to Transactions and try again."
+            : "No transaction selected. Open this screen from the Transactions list.")}
         </p>
       )}
       {loadState === "loading" && <p role="status" className="mt-5 rounded-[10px] bg-white p-4 font-semibold text-[#4E4E4E]">Loading transaction details…</p>}

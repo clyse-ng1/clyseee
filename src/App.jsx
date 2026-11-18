@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { Component, useEffect } from "react";
 import { BrowserRouter, Routes, Route, Navigate, useLocation, useParams } from "react-router-dom";
 import { RequireAuth } from "./lib/auth.jsx";
 import RequireAdmin from "./components/RequireAdmin.jsx";
@@ -188,6 +188,39 @@ function AdminDataRoute() {
   return <AdminDataPage key={page} page={page} />;
 }
 
+class AdminTransactionErrorBoundary extends Component {
+  state = { error: null };
+
+  static getDerivedStateFromError(error) {
+    return { error };
+  }
+
+  componentDidCatch(error, info) {
+    console.error("Admin transaction details render failed", error, info);
+  }
+
+  render() {
+    if (this.state.error) {
+      return (
+        <main className="grid min-h-screen place-items-center bg-[#F4F8F4] px-5 py-10 font-sans text-[#001701]">
+          <section className="w-full max-w-[620px] rounded-2xl border border-[#E0E9E0] bg-white p-8 shadow-[0_16px_55px_rgba(0,23,1,0.08)]">
+            <p className="text-sm font-bold uppercase tracking-[0.14em] text-[#B42318]">Transaction details error</p>
+            <h1 className="mt-2 text-2xl font-bold">This transaction page could not be displayed.</h1>
+            <p role="alert" className="mt-3 break-words text-sm leading-6 text-[#657065]">
+              {this.state.error?.message || "An unexpected rendering error occurred."}
+            </p>
+            <div className="mt-6 flex flex-wrap gap-3">
+              <a href="/admin/finance" className="rounded-xl bg-[#048B0B] px-5 py-3 text-sm font-bold text-white">Back to Transactions</a>
+              <button type="button" onClick={() => window.location.reload()} className="rounded-xl border border-[#C8D2C8] px-5 py-3 text-sm font-bold text-[#184D1B]">Reload page</button>
+            </div>
+          </section>
+        </main>
+      );
+    }
+    return this.props.children;
+  }
+}
+
 function ScrollToTop() {
   const { pathname, hash } = useLocation();
   useEffect(() => {
@@ -317,7 +350,7 @@ export default function App() {
           <Route path="/admin/groups" element={<AdminGroups />}></Route>
           <Route path="/admin/groups/details" element={<AdminGroupDetails />}></Route>
           <Route path="/admin/finance" element={<AdminFinance />}></Route>
-          <Route path="/admin/finance/transactions/details" element={<AdminFinanceDetails />}></Route>
+          <Route path="/admin/finance/transactions/details" element={<AdminTransactionErrorBoundary><AdminFinanceDetails /></AdminTransactionErrorBoundary>}></Route>
           <Route path="/admin/finance/reconciliation" element={<AdminRecon />}></Route>
           <Route path="/admin/finance/disputes" element={<AdminDisputes />}></Route>
           <Route path="/admin/finance/reconciliation/history" element={<AdminReconHistory />}></Route>
