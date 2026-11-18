@@ -40,7 +40,7 @@ import chevronRight from "../assets/angle-right.svg";
    the CapCut/Adobe/Amazon row pasted over "View More" and the group title);
    the measured 44/104/22px margins prove the layout ignores it, and mobile
    shows 6 cards with no dupes. (3) Subscription "View More" links to
-   /marketplace; group "View More" expands the same public live feed as Browse.
+   /browse; group "View More" expands the same public live feed as Browse.
    "Join" links to the selected group. (4) The two small mobile header chevrons
    are redrawn (Figma component internals); everything else is measured. */
 
@@ -637,7 +637,7 @@ export default function Dashboard() {
                 {dash && activeRows.length === 0 && (
                   <EmptyRow
                     text="You have no active subscriptions yet."
-                    to="/marketplace"
+                    to="/browse"
                     cta="Browse subscriptions"
                   />
                 )}
@@ -671,7 +671,7 @@ export default function Dashboard() {
                 {dash && waitRows.length === 0 && (
                   <EmptyRow
                     text="You are not on any waitlist."
-                    to="/marketplace"
+                    to="/browse"
                     cta="Browse subscriptions"
                   />
                 )}
@@ -679,7 +679,7 @@ export default function Dashboard() {
             </div>
 
             <Link
-              to="/marketplace"
+              to="/browse"
               className="mt-[50px] flex h-[80px] items-center rounded-[15px] bg-white pl-[30px] shadow-[0_0_20px_rgba(0,23,1,0.10)]"
             >
               <img src={iconSearch} alt="" className="h-[45px] w-[45px]" />
@@ -709,12 +709,12 @@ export default function Dashboard() {
             {dash && availSubs.length === 0 && (
               <EmptyRow
                 text="No subscriptions available right now."
-                to="/marketplace"
-                cta="View marketplace"
+                to="/browse"
+                cta="Browse subscriptions"
               />
             )}
             <Link
-              to="/marketplace"
+              to="/browse"
               className="mt-[44px] block text-center text-[18px] leading-[22px] font-semibold"
             >
               View More
@@ -753,8 +753,8 @@ export default function Dashboard() {
             {dash && groups.length === 0 && (
               <EmptyRow
                 text="No groups available right now."
-                to="/marketplace"
-                cta="View marketplace"
+                to="/browse"
+                cta="Browse subscriptions"
               />
             )}
             {dash && shownGroups.length > 6 && (
@@ -884,7 +884,7 @@ export default function Dashboard() {
               <EmptyRow
                 mobile
                 text="You have no active subscriptions yet."
-                to="/marketplace"
+                to="/browse"
                 cta="Browse subscriptions"
               />
             )}
@@ -949,7 +949,7 @@ export default function Dashboard() {
               <EmptyRow
                 mobile
                 text="You are not on any waitlist."
-                to="/marketplace"
+                to="/browse"
                 cta="Browse subscriptions"
               />
             )}
@@ -957,7 +957,7 @@ export default function Dashboard() {
         </div>
 
         <Link
-          to="/marketplace"
+          to="/browse"
           className="relative mt-[30px] flex h-[55px] items-center bg-white pl-[30px]"
         >
           <img src={iconSearch} alt="" className="h-[31px] w-[31px]" />
@@ -990,8 +990,8 @@ export default function Dashboard() {
               <EmptyRow
                 mobile
                 text="No subscriptions available right now."
-                to="/marketplace"
-                cta="View marketplace"
+                to="/browse"
+                cta="Browse subscriptions"
               />
             </div>
           )}
@@ -1029,8 +1029,8 @@ export default function Dashboard() {
               <EmptyRow
                 mobile
                 text="No groups available right now."
-                to="/marketplace"
-                cta="View marketplace"
+                to="/browse"
+                cta="Browse subscriptions"
               />
             </div>
           )}
