@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import JoinStatus from "../components/JoinStatus";
 import FundWalletModal from "../components/FundWalletModal";
+import { goBackOr } from "../lib/navigation";
 import iconErrorRed from "../assets/error-circle-red.svg";
 
 /* P6 waitlist-failed (reconstructed). When the failure is an insufficient
@@ -35,7 +36,7 @@ export default function JoinFailed() {
           onFunded={() => {
             setFundOpen(false);
             if (returnTo) nav(returnTo);
-            else nav(-1);
+            else goBackOr(nav, "/wallet");
           }}
         />
       )}

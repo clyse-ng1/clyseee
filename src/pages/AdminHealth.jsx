@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { api } from "../lib/api";
+import { goBackOr } from "../lib/navigation";
 import AdminShell from "../components/AdminShell";
 import useAdminRows from "../components/useAdminRows";
 
@@ -111,7 +112,7 @@ export default function AdminHealth() {
   return (
     <AdminShell active="security" sub="health" expand dark>
       <div className="flex items-center gap-[16px]">
-        <button onClick={() => nav(-1)} aria-label="Go back" className="grid h-[35px] w-[35px] place-items-center rounded-full bg-[#F1F8F2] shadow-[0_4px_10px_rgba(0,23,1,0.10)]">
+        <button onClick={() => goBackOr(nav, "/admin")} aria-label="Go back" className="grid h-[35px] w-[35px] place-items-center rounded-full bg-[#F1F8F2] shadow-[0_4px_10px_rgba(0,23,1,0.10)]">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M15 5 8 12l7 7" stroke="#001701" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" /></svg>
         </button>
         {/* POST /admin/health/run — re-runs the six checks now. */}

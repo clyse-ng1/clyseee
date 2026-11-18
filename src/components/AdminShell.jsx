@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../lib/useAuth";
+import { goBackOr } from "../lib/navigation";
 import avatarAccount from "../assets/avatar-account.webp";
 
 /* Shared admin/CMS shell — Figma V3 admin frames (1440, desktop only).
@@ -339,7 +340,7 @@ export function DarkBack() {
   return (
     <button
       type="button"
-      onClick={() => nav(-1)}
+      onClick={() => goBackOr(nav, "/admin")}
       aria-label="Go back"
       className="grid h-[35px] w-[35px] place-items-center rounded-full border border-black bg-white shadow-[0_0_0_2px_#ffffff]"
     >
@@ -413,7 +414,7 @@ export function BackTitle({ title, right = null }) {
     <div className="flex h-[43px] items-center justify-between">
       <div className="flex items-center gap-[15px]">
         <button
-          onClick={() => nav(-1)}
+          onClick={() => goBackOr(nav, "/admin")}
           aria-label="Go back"
           className="flex h-[35px] w-[35px] items-center justify-center rounded-full bg-[#F1F8F2]"
         >

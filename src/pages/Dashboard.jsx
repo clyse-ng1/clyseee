@@ -1013,7 +1013,7 @@ export default function Dashboard() {
             {!dash
               ? [0, 1, 2, 3].map((i) => <MobileGroupCardSk key={i} />)
               : shownGroups
-                  .slice(0, showAllGroups ? shownGroups.length : 4)
+                  .slice(0, showAllGroups ? shownGroups.length : 6)
                   .map((g, i) => <GroupOfferCard key={g.id || i} g={toOffer(g)} />)}
           </div>
           {dash && pickedSub && shownGroups.length === 0 && (

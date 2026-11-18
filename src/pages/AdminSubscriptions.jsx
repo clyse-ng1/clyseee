@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import AdminShell, { DarkButton, ChevDown, SearchIcon, PencilIcon, DotsIcon } from "../components/AdminShell";
 import BrandTile from "../components/BrandTile";
 import { api, kobo } from "../lib/api";
+import { goBackOr } from "../lib/navigation";
 import { useEffect } from "react";
 
 /* Subscription catalogue — Figma 1081:40502 (1440x1411, desktop only).
@@ -194,7 +195,7 @@ export default function AdminSubscriptions() {
       {/* Header */}
       <div className="flex flex-wrap items-center gap-[16px]">
         <button
-          onClick={() => nav(-1)}
+          onClick={() => goBackOr(nav, "/admin")}
           aria-label="Go back"
           className="grid h-[35px] w-[35px] flex-none place-items-center rounded-full bg-[#F1F8F2] shadow-[0_4px_10px_rgba(0,23,1,0.10)]"
         >

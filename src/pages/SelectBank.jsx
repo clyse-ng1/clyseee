@@ -3,6 +3,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import { BlurBg } from "../components/Decor";
 import { api, kobo2 } from "../lib/api";
+import { goBackOr } from "../lib/navigation";
 import iconWallet from "../assets/wallet-box-green.svg";
 
 /* Withdraw step 2/3 — Figma 889:78075 (GC24 select) + 889:80152 (GC26 add
@@ -298,7 +299,7 @@ export default function SelectBank() {
       <main className="relative hidden pb-[100px] xl:block">
         <BlurBg variant="page" />
         <div className="relative mx-[20px] min-[1440px]:mx-[100px] mt-[29px]">
-          <BackButton onClick={() => navigate(-1)} />
+          <BackButton onClick={() => goBackOr(navigate, "/wallet")} />
           {/* Figma 889:78075 / 889:78134: header, rule, progress, form and
               buttons all live inside ONE card, not a header card plus a form. */}
           {view === "select" ? (

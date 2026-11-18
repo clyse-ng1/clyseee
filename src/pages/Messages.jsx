@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { goBackOr } from "../lib/navigation";
 import Navbar from "../components/Navbar";
 import Sidebar from "../components/Sidebar";
 import ExtraBlock from "../components/ExtraBlock";
@@ -151,7 +152,7 @@ export default function Messages() {
       <main className="relative mx-[20px] min-[1440px]:mx-[100px] hidden pb-[100px] xl:block">
         <div className="relative">
           <div className="mt-[29px] mb-[28px]">
-            <BackButton onClick={() => navigate(-1)} />
+            <BackButton onClick={() => goBackOr(navigate, "/dashboard")} />
           </div>
           <div className="flex gap-[38px]">
             <Sidebar active="Message" />
@@ -204,7 +205,7 @@ export default function Messages() {
       <main className="relative xl:hidden">
         <div className="relative px-[30px] pt-[30px] pb-[40px]">
           <div>
-            <BackButton onClick={() => (open != null ? setOpen(null) : navigate(-1))} />
+            <BackButton onClick={() => (open != null ? setOpen(null) : goBackOr(navigate, "/dashboard"))} />
           </div>
           {open == null ? (
             <>

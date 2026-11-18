@@ -2,6 +2,7 @@ import { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import AdminShell, { SearchIcon, ChevDown, PencilIcon, DotsIcon } from "../components/AdminShell";
 import useAdminRows from "../components/useAdminRows";
+import { goBackOr } from "../lib/navigation";
 
 /* Platform Moderation — Figma 1257:54631 (1440, dark content bg).
    White stat cards h135; sage selects #A9C7A9; white card with template
@@ -76,7 +77,7 @@ export default function AdminSecurity() {
   return (
     <AdminShell active="security" sub="moderation" expand dark>
       <div className="flex items-center gap-[16px]">
-        <button onClick={() => nav(-1)} aria-label="Go back" className="grid h-[35px] w-[35px] place-items-center rounded-full bg-[#F1F8F2] shadow-[0_4px_10px_rgba(0,23,1,0.10)]">
+        <button onClick={() => goBackOr(nav, "/admin")} aria-label="Go back" className="grid h-[35px] w-[35px] place-items-center rounded-full bg-[#F1F8F2] shadow-[0_4px_10px_rgba(0,23,1,0.10)]">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M15 5 8 12l7 7" stroke="#001701" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" /></svg>
         </button>
         <span className="ml-auto flex items-center gap-[16px] text-[14px] font-semibold">

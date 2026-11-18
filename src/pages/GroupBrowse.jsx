@@ -7,7 +7,8 @@ import GroupTabs from "../components/GroupTabs";
 import { loadGroups, readGroups, subscribeGroups } from "../lib/groupsCache";
 import ExtraBlock from "../components/ExtraBlock";
 import { BlurBg } from "../components/Decor";
-import { api, brandOf, kobo, totalPriceKobo } from "../lib/api";
+import { brandOf, kobo, totalPriceKobo } from "../lib/api";
+import { goBackOr } from "../lib/navigation";
 import { groupBucket } from "../lib/useGroup";
 import iconSearch from "../assets/icon-search.svg";
 import GroupEmpty from "./GroupEmpty";
@@ -154,7 +155,7 @@ export default function GroupBrowse() {
               narrow phones, overlapped it. */}
           <button
             type="button"
-            onClick={() => navigate(-1)}
+            onClick={() => goBackOr(navigate, "/groups")}
             aria-label="Back"
             className="grid h-[44px] w-[44px] place-items-center rounded-full bg-white shadow-[0_0_13.87px_rgba(0,23,1,0.15)]"
           >

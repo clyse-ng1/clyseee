@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { api } from "../lib/api";
+import { goBackOr } from "../lib/navigation";
 import AdminShell, { DarkButton, ChevDown } from "../components/AdminShell";
 
 /* Add Subscription — Figma 1112:43005 (empty) / 1149:23164 (filled) /
@@ -132,7 +133,7 @@ export default function AdminSubAdd() {
       {/* Header */}
       <div className="flex flex-wrap items-center gap-[16px]">
         <button
-          onClick={() => nav(-1)}
+          onClick={() => goBackOr(nav, "/admin/subscriptions")}
           aria-label="Go back"
           className="grid h-[35px] w-[35px] flex-none place-items-center rounded-full bg-[#F1F8F2] shadow-[0_4px_10px_rgba(0,23,1,0.10)]"
         >
@@ -282,7 +283,7 @@ export default function AdminSubAdd() {
           <div className="mt-[58px] flex flex-wrap justify-end gap-[43px]">
             <button
               type="button"
-              onClick={() => nav(-1)}
+              onClick={() => goBackOr(nav, "/admin/subscriptions")}
               className="h-[56px] w-[198px] rounded-[10px] bg-[#F1F8F2] text-[18px] leading-[22px] font-semibold text-[#001701]"
             >
               Cancel

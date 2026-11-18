@@ -10,12 +10,12 @@ import { api, accessLabel, brandOf, kobo } from "../lib/api";
 import iconCheck from "../assets/check-green-circle.svg";
 import iconBanknote from "../assets/banknote-white.svg";
 
-/* Figma samples, shown on the static waitlist path (no invite context). */
+/* Neutral details while a valid group preview is loading; never substitute mock values. */
 const INFO = [
-  ["Available Slot:", "12 Slot left"],
-  ["Access Method:", "Access Link"],
-  ["Group Visibility:", "Public Group"],
-  ["Group ID:", "AD-234250569575"],
+  ["Available Slot:", "—"],
+  ["Access Method:", "—"],
+  ["Group Visibility:", "—"],
+  ["Group ID:", "—"],
 ];
 
 function MakePayment({ className = "", pay, busy, disabled }) {
@@ -66,7 +66,10 @@ export default function JoinSummary() {
   const [fundOpen, setFundOpen] = useState(false);
 
   useEffect(() => {
-    if (!real) return;
+    if (!real) {
+      navigate("/browse", { replace: true });
+      return;
+    }
     let live = true;
     (async () => {
       if (stateGroupId && statePreview) {
@@ -175,21 +178,20 @@ export default function JoinSummary() {
     (unit != null && fee != null ? unit + fee : null);
   const sufficient = total != null && balance != null && balance >= total;
 
-  const vBrand = group ? brandOf(service) : "netflix";
+  const vBrand = group ? brandOf(service) : "";
   /* Figma 889:52206 prints GROUP DETAILS above the service name on the join
      flow; the waitlist flow keeps its own label. */
   const vEyebrow = location.state?.fromWaitlist ? "WAITLIST DETAILS" : "GROUP DETAILS";
   const vTitle = group
     ? [service.name, plan.name].filter(Boolean).join(" ") || "Group"
-    : "Netflix Premium";
+    : "Loading group details…";
   const vPlanLine = group
-    ? `${plan.name || "Premium"} Plan | ${(group.creator?.first_name || "Creator") + "'s Group"}`
-    : "Premium Plan | Monthly Plan";
-  const vPrice = total != null ? kobo(total) : "N2,000";
-  const vUnit = unit != null ? kobo(unit) : vPrice;
-  const vFee = fee != null ? kobo(fee) : real ? "Included" : "N200";
-  const vTotal = total != null ? kobo(total) : "N2,200";
-  const vBalance = balance != null ? kobo(balance) : "N3,000";
+    ? `${plan.name || "Plan"} Plan | ${(group.creator?.first_name || "Creator") + "'s Group"}`
+    : "Loading group details…";
+  const vUnit = unit != null ? kobo(unit) : "—";
+  const vFee = fee != null ? kobo(fee) : "—";
+  const vTotal = total != null ? kobo(total) : "—";
+  const vBalance = balance != null ? kobo(balance) : "—";
   const vInfo = group
     ? [
         ["Available Slot:", `${group.available_slots ?? 0} Slot left`],

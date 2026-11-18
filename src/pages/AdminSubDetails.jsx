@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { api } from "../lib/api";
+import { goBackOr } from "../lib/navigation";
 import AdminShell, { DarkButton } from "../components/AdminShell";
 import BrandTile from "../components/BrandTile";
 
@@ -86,7 +87,7 @@ export default function AdminSubDetails() {
     <AdminShell active="subscriptions" sub="services" expand>
       <div className="flex flex-wrap items-center gap-[16px]">
         <button
-          onClick={() => nav(-1)}
+          onClick={() => goBackOr(nav, "/admin/subscriptions")}
           aria-label="Go back"
           className="grid h-[35px] w-[35px] flex-none place-items-center rounded-full bg-[#F1F8F2] shadow-[0_4px_10px_rgba(0,23,1,0.10)]"
         >

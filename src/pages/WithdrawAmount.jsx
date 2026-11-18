@@ -3,6 +3,7 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import { BlurBg } from "../components/Decor";
 import { api, nairaNum } from "../lib/api";
+import { goBackOr } from "../lib/navigation";
 import iconWalletGreen from "../assets/wallet-box-green.svg";
 
 /* Withdraw step 1/3 — Figma 889:78043 (GC23). Balance is live from
@@ -64,7 +65,7 @@ export default function WithdrawAmount() {
         <div className="relative mx-[20px] min-[1440px]:mx-[100px] mt-[29px]">
           <button
             type="button"
-            onClick={() => navigate(-1)}
+            onClick={() => goBackOr(navigate, "/earnings")}
             aria-label="Go back"
             className="grid h-[45px] w-[45px] place-items-center rounded-full bg-mint shadow-[0_0_10px_rgba(0,23,1,0.12)] transition hover:bg-white"
           >

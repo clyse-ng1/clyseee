@@ -6,14 +6,14 @@ import Sk from "./Skeleton";
    White 156px cards r10, 42px tinted tile (users/users/naira glyphs),
    label 18 grey + value 25 ink. Widths differ per page (G2: 243/274/274,
    G3 in-card: 236/236/236) and arrive as responsive pairs. Mobile: 117px
-   cards, 25px tile, label 13 + value 18. Pass `values` to override the
-   Figma sample numbers. */
+   cards, 25px tile, label 13 + value 18. Values are supplied by the live
+   groups endpoint; unknown values remain neutral skeletons. */
 /* Every tile is the same mint + green glyph. The trio used to be green /
    peach / lavender, which the PM flagged twice as inconsistent card design. */
 const STATS = [
-  { label: "Total Group", value: "13", chip: "bg-[#DFFFE0]", icon: iconUsers },
-  { label: "Total Member", value: "123", chip: "bg-[#DFFFE0]", icon: iconUsers },
-  { label: "Monthly Earning", value: "N42,000", chip: "bg-[#DFFFE0]", icon: iconNaira },
+  { label: "Total Group", chip: "bg-[#DFFFE0]", icon: iconUsers },
+  { label: "Total Member", chip: "bg-[#DFFFE0]", icon: iconUsers },
+  { label: "Monthly Earning", chip: "bg-[#DFFFE0]", icon: iconNaira },
 ];
 
 export default function GroupStats({
