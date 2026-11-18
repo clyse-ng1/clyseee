@@ -14,15 +14,6 @@ const TABS = [
   { key: "review", label: "Under Review", count: 12, pill: "bg-[#EFEFEF] text-[#5F5F5F]", wide: true },
 ];
 
-const ROWS = [
-  { name: "Maria Philips", brand: "netflix", sub: "Netflix", cat: "Streaming", plan: "Standard N5,500 / Monthly", period: "Monthly", status: "pending" },
-  { name: "Ann Kenter", brand: "spotify", sub: "Spotify", cat: "Music Streaming", plan: "Basic N1,500 / Monthly", period: "Monthly", status: "approved" },
-  { name: "James Lipshutz", brand: "canva", sub: "Canva", cat: "Productivity", plan: "Premium N5,500 / Monthly", period: "Monthly", status: "review" },
-  { name: "Dulce Press", brand: "youtube", sub: "YouTube", cat: "Streaming", plan: "Basic N2,000 / Monthly", period: "Monthly", status: "rejected" },
-  { name: "Jakob Lubin", brand: "capcut", sub: "CapCut", cat: "Productivity", plan: "Basic N3,000 / Monthly", period: "Monthly", status: "pending" },
-  { name: "Kaylynn Dokidis", brand: "adobe", sub: "Adobe Creative Cloud", cat: "Productivity", plan: "Basic N2,000 / Monthly", period: "Monthly", status: "approved" },
-];
-
 const STATUS_PILL = {
   pending: { tone: "orange", label: "Pending" },
   approved: { tone: "green", label: "Approved" },
@@ -34,13 +25,22 @@ export default function AdminCustomRequests() {
   const nav = useNavigate();
   const [tab, setTab] = useState("all");
   const [checked, setChecked] = useState([]);
-  const rows = useMemo(() => (tab === "all" ? ROWS : ROWS.filter((r) => r.status === tab)), [tab]);
+  /* API gap: the published admin API (95 endpoints) has no
+     /admin/catalogue/custom-requests endpoint — custom subscription requests are
+     member-side only (GET/POST /member/subscriptions/custom-requests). Until an
+     admin queue exists, this screen shows no invented requests. */
+  const rows = [];
   const all = rows.length > 0 && rows.every((r) => checked.includes(r.name));
   const toggle = (name) => setChecked((c) => (c.includes(name) ? c.filter((x) => x !== name) : [...c, name]));
 
   return (
     <AdminShell active="subscriptions" sub="requests">
       <PageTitle title="Custom Subscription" />
+      <p className="mt-[20px] rounded-[10px] border border-[#FFC48A] bg-[#FFEEE2] px-[20px] py-[16px] text-[16px] leading-[22px] font-semibold text-[#8A3B00]">
+        Not connected — the admin API has no custom-subscription-request endpoint yet. Requests can
+        only be created and listed by the member who submitted them, so nothing is shown here
+        rather than placeholder data.
+      </p>
 
       {/* Tabs */}
       <div className="mt-[30px] flex gap-[30px]">
@@ -52,7 +52,7 @@ export default function AdminCustomRequests() {
               tab === t.key ? "outline outline-2 outline-offset-[-2px]" : ""
             }`}
           >
-            {t.label} <span>{t.count}</span>
+            {t.label} <span>{rows.filter((r) => t.key === "all" || r.status === t.key).length}</span>
           </button>
         ))}
       </div>
@@ -83,6 +83,11 @@ export default function AdminCustomRequests() {
             <span className="w-[80px] shrink-0">Action</span>
           </div>
           <div className="divide-y divide-[#999999] pb-[20px]">
+            {rows.length === 0 && (
+              <p className="px-[20px] py-[24px] text-[16px] leading-[20px] font-semibold text-[#4E4E4E]">
+                No custom subscription requests to review.
+              </p>
+            )}
             {rows.map((r) => (
               <div key={r.name} className="flex h-[111px] items-center">
                 <span className="flex w-[81px] shrink-0 justify-center">

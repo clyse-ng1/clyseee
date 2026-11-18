@@ -11,21 +11,12 @@ import DropSelect from "../components/DropSelect";
    "Approved", "Sep. 1 206" -> "Sep. 1 2026". */
 
 const STATS = [
-  { glyph: <GlyphClock />, label: "Pending", value: "122", color: "text-[#FF6C03]" },
-  { glyph: <GlyphBadge />, label: "Approved", value: "124,000", color: "text-[#048B0B]" },
-  { glyph: <GlyphX />, label: "Reject", value: "124,000", color: "text-[#FF0000]" },
-  { glyph: <GlyphUsers color="#6B6B6B" />, label: "Suspended", value: "50", color: "text-[#6B6B6B]" },
+  { glyph: <GlyphClock />, label: "Pending", value: "…", color: "text-[#FF6C03]" },
+  { glyph: <GlyphBadge />, label: "Approved", value: "…", color: "text-[#048B0B]" },
+  { glyph: <GlyphX />, label: "Reject", value: "…", color: "text-[#FF0000]" },
+  { glyph: <GlyphUsers color="#6B6B6B" />, label: "Suspended", value: "…", color: "text-[#6B6B6B]" },
 ];
 
-const ROWS = [
-  { name: "Maria Philips", email: "maria@gmail.com", brand: "netflix", sub: "Netflix", plan: "Premium", price: "N3,000", slot: "5/10", date: "Sep. 20, 2026", status: "pending" },
-  { name: "Ann Kenter", email: "ann@gmail.com", brand: "spotify", sub: "Spotify", plan: "Basic", price: "N1,000", slot: "3/6", date: "Sep. 20, 2026", status: "approved" },
-  { name: "James Lipshutz", email: "james@gmail.com", brand: "canva", sub: "Canva", plan: "Premium", price: "N3,000", slot: "5/10", date: "Sep. 20, 2026", status: "pending" },
-  { name: "Dulce Press", email: "dulce@gmail.com", brand: "youtube", sub: "YouTube", plan: "Basic", price: "N1,500", slot: "4/8", date: "Sep. 20, 2026", status: "rejected" },
-  { name: "Jakob Lubin", email: "jakob@gmail.com", brand: "capcut", sub: "CapCut", plan: "Basic", price: "N1,500", slot: "5/10", date: "Sep. 20, 2026", status: "pending" },
-  { name: "Kaylynn Dokidis", email: "kaylynn@gmail.com", brand: "adobe", sub: "Adobe Creative Cloud", plan: "Basic", price: "N1,500", slot: "5/10", date: "Sep. 20, 2026", status: "suspended" },
-  { name: "Emerson Dokidis", email: "emerson@gmail.com", brand: "prime", sub: "Prime Video", plan: "Premium", price: "N3,000", slot: "5/10", date: "Sep. 20, 2026", status: "approved" },
-];
 
 const STATUS_PILL = {
   pending: { tone: "orange", label: "Pending" },
@@ -43,7 +34,7 @@ export default function AdminGroupVerification() {
   const [checked, setChecked] = useState([]);
   const rows = useMemo(
     () =>
-      (live || ROWS).filter(
+      (live || []).filter(
         (r) =>
           (r.name.toLowerCase().includes(q.trim().toLowerCase()) || r.sub.toLowerCase().includes(q.trim().toLowerCase())) &&
           (status === "All Status" || STATUS_PILL[r.status].label === status)
@@ -193,7 +184,7 @@ export default function AdminGroupVerification() {
                   </Pill>
                 </span>
                 <span className="flex w-[80px] shrink-0 items-center gap-[18px]">
-                  <button aria-label={`Review ${r.name}`} onClick={() => nav("/admin/group-verification/review")}>
+                  <button aria-label={`Review ${r.name}`} onClick={() => (r.id ? nav(`/admin/group-verification/review?group_id=${encodeURIComponent(r.id)}`) : null)}>
                     <PencilIcon />
                   </button>
                   <button aria-label="More actions">

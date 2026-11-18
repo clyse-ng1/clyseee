@@ -27,7 +27,7 @@ export default function AdminGroupDetails() {
     api("/admin/groups").then((res) => {
       if (!alive) return;
       const items = Array.isArray(res.data) ? res.data : res.data?.groups || res.data?.items || [];
-      const wanted = params.get("id");
+      const wanted = params.get("id") || params.get("group_id");
       setGroup(items.find((g) => (g.group_id || g.id) === wanted) || items[0] || null);
       setLoaded(true);
     });

@@ -43,7 +43,7 @@ export default function MobileBrowse() {
               ratio: offered ? `${occupied}/${offered}` : `${left} open`,
               pct: offered ? Math.min(100, Math.round((occupied / offered) * 100)) : 0,
               access: (g.access_method || "").replaceAll("_", " ") || undefined,
-              linkTo: "/join/plan",
+              linkTo: `/join/plan?group_id=${encodeURIComponent(g.group_id || g.id || "")}`,
               linkState: { group_id: g.group_id || g.id, preview: g },
             };
           }));
@@ -67,6 +67,7 @@ export default function MobileBrowse() {
           const cat = service.category || "Others";
           return {
             brand: brandOf(service),
+            slug: service.slug || brandOf(service),
             title: service.name || "Subscription",
             category: cat,
             chip: titleCase(cat),
@@ -99,7 +100,7 @@ export default function MobileBrowse() {
         {cards.map((c) => (
           <Link
             key={c.title}
-            to="/subscription-group"
+            to={`/subscription-group?slug=${encodeURIComponent(c.slug || c.brand)}`}
             className="bg-mintfade flex h-[187px] flex-col items-center rounded-[12.89px] border-[0.5px] border-clyse pt-[17px] shadow-[0_0_12.89px_rgba(0,23,1,0.10)] transition hover:opacity-95"
           >
             <BrandTile brand={c.brand} name={c.title} category={c.category} size={50} plain />

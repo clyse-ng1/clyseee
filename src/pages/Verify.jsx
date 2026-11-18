@@ -16,11 +16,8 @@ export function VerifyEmail() {
   const location = useLocation();
   const { verify, resend } = useAuth();
   const EMAIL = location.state?.email || location.state?.destination || FALLBACK_EMAIL;
-  const identifier = location.state?.email
-    ? { email: location.state.email }
-    : location.state?.phone
-      ? { phone: location.state.phone }
-      : { email: EMAIL };
+  const identifier = { email: EMAIL };
+  const DEST = location.state?.destination || EMAIL;
   const [otp, setOtp] = useState(["", "", "", "", "", ""]);
   const [failed, setFailed] = useState(false);
   const [busy, setBusy] = useState(false);
@@ -72,7 +69,7 @@ export function VerifyEmail() {
           <>
             We have sent a verification code to your email
             <br />
-            <span className="text-clyse">{EMAIL}</span>
+            <span className="text-clyse">{DEST}</span>
           </>
         }
         subClass="mt-[5px] text-center text-[12.5px] font-semibold leading-[16px] text-ash lg:mt-[5px] lg:text-[18px] lg:leading-[24px]"

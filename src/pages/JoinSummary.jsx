@@ -56,6 +56,7 @@ export default function JoinSummary() {
   const code = location.state?.code || null;
   const stateGroupId = location.state?.group_id || null;
   const statePreview = location.state?.preview || null;
+  const backToPlan = stateGroupId ? `/join/plan?group_id=${encodeURIComponent(stateGroupId)}` : "/join/plan";
   const real = !!(inviteToken || code || stateGroupId);
 
   const [preview, setPreview] = useState(null);
@@ -369,7 +370,8 @@ export default function JoinSummary() {
       <main className="relative mx-[20px] hidden xl:block min-[1440px]:mx-[100px]">
         {/* Figma 889:53401: back chevron above the two cards, no sidebar. */}
         <Link
-          to="/join/plan"
+          to={backToPlan}
+          state={location.state}
           aria-label="Back"
           className="mt-[27px] grid h-[45px] w-[45px] place-items-center rounded-full border border-[#BABABA] bg-white pb-[3px] text-[20px] leading-none text-ink shadow-[0_4px_10px_rgba(0,23,1,0.10)]"
         >
@@ -522,7 +524,7 @@ export default function JoinSummary() {
             as the desktop one and as MobileBack elsewhere. */}
         <div className="px-[20px] pt-[20px]">
           <Link
-            to="/join/plan"
+            to={backToPlan}
             state={location.state}
             aria-label="Back"
             className="grid h-[40px] w-[40px] place-items-center rounded-full border border-[#BABABA] bg-white pb-[3px] text-[18px] leading-none text-ink shadow-[0_4px_10px_rgba(0,23,1,0.10)]"

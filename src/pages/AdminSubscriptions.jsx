@@ -2,7 +2,7 @@ import { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import AdminShell, { DarkButton, ChevDown, SearchIcon, PencilIcon, DotsIcon } from "../components/AdminShell";
 import BrandTile from "../components/BrandTile";
-import { api } from "../lib/api";
+import { api, kobo } from "../lib/api";
 import { useEffect } from "react";
 
 /* Subscription catalogue — Figma 1081:40502 (1440x1411, desktop only).
@@ -20,20 +20,18 @@ const CAT_STYLE = {
 };
 const catCls = (c) => CAT_STYLE[c] || "bg-[#DDFFDE] text-[#048B0B]";
 
-const ROWS = [
-  { brand: "netflix", name: "Netflix Premium", cat: "Entertainment", plan: "Premium", price: "N3,000", period: "Monthly", cap: "100 Slot", access: "Access Link", status: "Activated" },
-  { brand: "capcut", name: "CapCut", cat: "Productivity", plan: "Standard", price: "N3,000", period: "Monthly", cap: "100 Slot", access: "Access Link", status: "Activated" },
-  { brand: "adobe", name: "Adobe Creative Cloud", cat: "Productivity", plan: "Premium", price: "N4,000", period: "Monthly", cap: "200 Slot", access: "Access Link", status: "Activated" },
-  { brand: "canva", name: "Canva Pro", cat: "Productivity", plan: "Premium", price: "N3,000", period: "Monthly", cap: "100 Slot", access: "Access Link", status: "Activated" },
-  { brand: "youtube", name: "YouTube Premium", cat: "Entertainment", plan: "Standard", price: "N3,000", period: "Monthly", cap: "100 Slot", access: "Access Link", status: "Activated" },
-  { brand: "prime", name: "Prime Video", cat: "Entertainment", plan: "Premium", price: "N3,000", period: "Monthly", cap: "100 Slot", access: "Access Link", status: "Activated" },
-  { brand: "spotify", name: "Spotify", cat: "Streaming", plan: "Standard", price: "N3,000", period: "Monthly", cap: "100 Slot", access: "Access Link", status: "Activated" },
-  { brand: "amazon", name: "Amazon", cat: "Productivity", plan: "Premium", price: "N3,000", period: "Monthly", cap: "100 Slot", access: "Access Link", status: "Activated" },
-];
-
 const CATS = ["All Category", "Entertainment", "Productivity", "Streaming"];
 const STATUS = ["All Status", "Activated", "Deactivated"];
 const PLANS = ["All Plans", "Premium", "Standard", "Basic"];
+
+const titleCase = (v) => String(v || "").replace(/[_-]+/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
+const periodLabel = (months) => {
+  const m = Number(months) || 1;
+  if (m >= 12) return "Yearly";
+  if (m >= 3) return "Quarterly";
+  return "Monthly";
+};
+const ACCESS_LABEL = { invite_link: "Access Link", credentials: "Login Credential", other: "Other" };
 
 function StatCard({ tile, glyph, label, value }) {
   return (
@@ -43,6 +41,22 @@ function StatCard({ tile, glyph, label, value }) {
         <span className="block text-[18px] leading-[22px] font-semibold text-[#4E4E4E]">{label}</span>
         <span className="block text-[32px] leading-[38px] font-bold text-[#001701]">{value}</span>
       </span>
+    </div>
+  );
+}
+
+function SkeletonRow({ index }) {
+  return (
+    <div className="relative mt-[10px] flex h-[91px] items-center border-b border-[#999999]" aria-hidden>
+      <span className="absolute left-[20px] h-[20px] w-[20px] rounded-[5px] border border-[#D5DDD5] bg-white" />
+      <span className="absolute left-[70px] flex items-center gap-[20px]">
+        <span className="h-[50px] w-[50px] animate-pulse rounded-full bg-[#EFF3EF]" />
+        <span className="h-[14px] w-[150px] animate-pulse rounded bg-[#EFF3EF]" />
+      </span>
+      {[400, 600, 720, 895, 1040, 1186, 1342, 1482].map((left, i) => (
+        <span key={left} style={{ left }} className={`absolute h-[13px] animate-pulse rounded bg-[#EFF3EF] ${i === 0 ? "w-[100px]" : "w-[64px]"}`} />
+      ))}
+      <span className="sr-only">Loading catalogue entry {index + 1}</span>
     </div>
   );
 }
@@ -113,40 +127,64 @@ export default function AdminSubscriptions() {
   const [plan, setPlan] = useState(PLANS[0]);
   const [status, setStatus] = useState(STATUS[0]);
   const [checked, setChecked] = useState([]);
+  const [page, setPage] = useState(1);
   const [live, setLive] = useState(null);
+
+  const [catState, setCatState] = useState("loading"); // loading | live | empty | error
 
   useEffect(() => {
     let alive = true;
-    api("/admin/catalogue/services").then((res) => {
-      if (!alive || res.error || !Array.isArray(res.data?.items ?? res.data)) return;
-      const items = res.data?.items ?? res.data;
+    /* GET /admin/catalogue/services — the answer nests under data.services and
+       every service carries its own plans; nothing here is invented. */
+    api("/admin/catalogue/services?limit=100").then((res) => {
+      if (!alive) return;
+      if (res.error) return setCatState("error");
+      const items = res.data?.services ?? res.data?.items ?? (Array.isArray(res.data) ? res.data : []);
+      if (!items.length) { setLive([]); return setCatState("empty"); }
       setLive(
-        items.map((s) => ({
-          brand: s.slug || s.name?.toLowerCase().split(" ")[0] || "generic",
-          name: s.name || "Service",
-          cat: s.category || "Entertainment",
-          plan: s.plans?.[0]?.name || "Premium",
-          price: s.plans?.[0]?.price ? `N${Number(s.plans[0].price / 100).toLocaleString("en-US")}` : "N3,000",
-          period: "Monthly",
-          cap: `${s.capacity ?? 100} Slot`,
-          access: "Access Link",
-          status: s.is_active === false ? "Deactivated" : "Activated",
-        })),
+        items.map((s) => {
+          const plan0 = s.plans?.find((p) => p.is_active) || s.plans?.[0] || {};
+          return {
+            id: s.id || s.service_id,
+            brand: s.slug || s.name?.toLowerCase().split(" ")[0] || "generic",
+            name: s.name || "Service",
+            cat: titleCase(s.category || "other"),
+            plan: plan0.name || "—",
+            price: plan0.unit_price_kobo != null ? kobo(plan0.unit_price_kobo) : "—",
+            period: periodLabel(plan0.billing_interval_months),
+            cap: plan0.member_slot_capacity != null ? `${plan0.member_slot_capacity} Slot` : `${s.group_count ?? 0} Group`,
+            access: ACCESS_LABEL[plan0.supported_access_methods?.[0]] || "Access Link",
+            status: s.is_active === false ? "Deactivated" : "Activated",
+          };
+        }),
       );
+      setCatState("live");
     });
     return () => { alive = false; };
   }, []);
 
   const rows = useMemo(() => {
-    const base = live || ROWS;
+    const base = live || [];
     return base.filter(
       (r) =>
         (!q || r.name.toLowerCase().includes(q.toLowerCase())) &&
-        (cat === CATS[0] || r.cat === cat) &&
+        (cat === CATS[0] || r.cat === cat || r.cat.toLowerCase() === String(cat).toLowerCase()) &&
         (plan === PLANS[0] || r.plan === plan) &&
         (status === STATUS[0] || r.status === status),
     );
   }, [q, cat, plan, status, live]);
+  const pageSize = 8;
+  const pageCount = Math.max(1, Math.ceil(rows.length / pageSize));
+  const pageRows = rows.slice((page - 1) * pageSize, page * pageSize);
+
+  const emptyNote =
+    catState === "loading"
+      ? "Loading the live catalogue…"
+      : catState === "error"
+      ? "Could not load the subscription catalogue. Nothing is shown rather than stale values."
+      : catState === "empty"
+        ? "No services in the catalogue yet."
+        : "";
 
   const toggle = (name) =>
     setChecked((c) => (c.includes(name) ? c.filter((x) => x !== name) : [...c, name]));
@@ -176,9 +214,9 @@ export default function AdminSubscriptions() {
 
       {/* Stats */}
       <div className="mt-[30px] grid grid-cols-1 gap-[20px] md:grid-cols-3">
-        <StatCard tile="bg-[#E5FFE7]" glyph={<UsersGlyph />} label="Total Subscription" value="124,000" />
-        <StatCard tile="bg-[#E5FFE7]" glyph={<CheckBadgeGlyph />} label="Active Subscription" value="124,000" />
-        <StatCard tile="bg-[#FFEEE2]" glyph={<ClipGlyph />} label="Inactive Subscription" value="124,000" />
+        <StatCard tile="bg-[#E5FFE7]" glyph={<UsersGlyph />} label="Total Subscription" value={catState === "loading" ? "…" : String((live || []).length)} />
+        <StatCard tile="bg-[#E5FFE7]" glyph={<CheckBadgeGlyph />} label="Active Subscription" value={catState === "loading" ? "…" : String((live || []).filter((r) => r.status === "Activated").length)} />
+        <StatCard tile="bg-[#FFEEE2]" glyph={<ClipGlyph />} label="Inactive Subscription" value={catState === "loading" ? "…" : String((live || []).filter((r) => r.status === "Deactivated").length)} />
       </div>
 
       {/* Filters */}
@@ -187,14 +225,14 @@ export default function AdminSubscriptions() {
           <SearchIcon />
           <input
             value={q}
-            onChange={(e) => setQ(e.target.value)}
+            onChange={(e) => { setQ(e.target.value); setPage(1); }}
             placeholder="Search....."
             className="w-full bg-transparent text-[16px] font-semibold text-[#001701] placeholder-[#9F9F9F] focus:outline-none"
           />
         </label>
-        <Select value={cat} onChange={setCat} options={CATS} />
-        <Select value={status} onChange={setStatus} options={STATUS} />
-        <Select value={plan} onChange={setPlan} options={PLANS} />
+        <Select value={cat} onChange={(value) => { setCat(value); setPage(1); }} options={[...new Set(["All Category", ...(live || []).map((r) => r.cat)])]} />
+        <Select value={status} onChange={(value) => { setStatus(value); setPage(1); }} options={STATUS} />
+        <Select value={plan} onChange={(value) => { setPlan(value); setPage(1); }} options={[...new Set(["All Plans", ...(live || []).map((r) => r.plan).filter((p) => p && p !== "—")])]} />
       </div>
 
       {/* Table */}
@@ -214,7 +252,13 @@ export default function AdminSubscriptions() {
             ))}
           </div>
           {/* rows */}
-          {rows.map((r) => (
+          {catState === "loading" && Array.from({ length: 8 }, (_, index) => <SkeletonRow key={`skeleton-${index}`} index={index} />)}
+          {(catState === "error" || catState === "empty") && (
+            <div className="flex min-h-[808px] items-center justify-center px-[24px] text-center">
+              <p className="max-w-[520px] text-[16px] leading-[24px] font-semibold text-[#4E4E4E]">{emptyNote}</p>
+            </div>
+          )}
+          {pageRows.map((r) => (
             <div key={r.name} className="mt-[10px] border-b border-[#999999]">
             <div className="relative flex h-[91px] items-center">
               <button
@@ -240,23 +284,34 @@ export default function AdminSubscriptions() {
                 </span>
               </span>
               <span className="absolute flex items-center gap-[12px]" style={{ left: 1472 }}>
-                <button onClick={() => nav("/admin/subscriptions/details")} aria-label="Edit"><PencilIcon /></button>
-                <button aria-label="More"><DotsIcon /></button>
+                <button
+                  onClick={() => r.id && nav(`/admin/subscriptions/details?service_id=${encodeURIComponent(r.id)}`)}
+                  disabled={!r.id}
+                  aria-label={`Edit ${r.name}`}
+                >
+                  <PencilIcon />
+                </button>
+                <button
+                  onClick={() => r.id && nav(`/admin/subscriptions/details?service_id=${encodeURIComponent(r.id)}`)}
+                  disabled={!r.id}
+                  aria-label={`More about ${r.name}`}
+                >
+                  <DotsIcon />
+                </button>
               </span>
             </div>
             </div>
           ))}
-          {/* pagination */}
-          <div className="mt-[10px] flex h-[28px] items-center justify-end gap-[4px] pr-[30px]">
-            {["1", "2", "3", "4", "5"].map((n, i) => (
-              <button
-                key={n}
-                className={`grid h-[28px] w-[28px] place-items-center rounded-[5px] text-[13px] font-bold ${i === 0 ? "bg-[#001701] text-white" : "border border-[#999999] bg-white text-[#001701]"}`}
-              >
-                {n}
-              </button>
-            ))}
-          </div>
+          {rows.length > 0 && (
+            <div className="mt-[10px] flex min-h-[36px] items-center justify-between px-[30px] text-[13px] font-semibold text-[#4E4E4E]">
+              <span>Showing {(page - 1) * pageSize + 1}–{Math.min(page * pageSize, rows.length)} of {rows.length} services</span>
+              {pageCount > 1 && <div className="flex items-center gap-[4px]">
+                <button type="button" aria-label="Previous page" onClick={() => setPage((current) => Math.max(1, current - 1))} disabled={page === 1} className="grid h-[28px] w-[28px] place-items-center rounded-[5px] border border-[#E9E9E9] bg-white text-[16px] disabled:opacity-40">‹</button>
+                {Array.from({ length: pageCount }, (_, i) => i + 1).map((number) => <button key={number} type="button" aria-label={`Page ${number}`} aria-current={page === number ? "page" : undefined} onClick={() => setPage(number)} className={`grid h-[28px] min-w-[28px] place-items-center rounded-[5px] border px-1 text-[14px] font-semibold ${page === number ? "border-[#048B0B] bg-[#048B0B] text-white" : "border-[#E9E9E9] bg-white text-[#4E4E4E]"}`}>{number}</button>)}
+                <button type="button" aria-label="Next page" onClick={() => setPage((current) => Math.min(pageCount, current + 1))} disabled={page === pageCount} className="grid h-[28px] w-[28px] place-items-center rounded-[5px] border border-[#E9E9E9] bg-white text-[16px] disabled:opacity-40">›</button>
+              </div>}
+            </div>
+          )}
         </div>
       </div>
     </AdminShell>

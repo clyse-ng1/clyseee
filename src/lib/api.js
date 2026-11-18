@@ -205,10 +205,9 @@ export function displayName(user) {
   return user.full_name || user.name || user.first_name || (user.email ? user.email.split("@")[0] : "") || "";
 }
 
-/** "Email or Username" field -> { email } or { phone } identifier for the API. */
+/** Authentication identifiers are email-only; phone remains contact/profile data. */
 export function idOf(value) {
-  const v = (value || "").trim();
-  return v.includes("@") ? { email: v } : { phone: v };
+  return { email: (value || "").trim() };
 }
 
 /** "movies & series" -> "Movies & Series" — chip labels come back lowercase

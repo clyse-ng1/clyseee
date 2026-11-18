@@ -40,40 +40,43 @@ function mapPlan(a, service, brand) {
 }
 
 export default function JoinPlan() {
-  const incoming = useLocation().state || null;
-  const incomingService = incoming?.service || null;
-  const incomingBrand = incoming?.brand || null;
-  const incomingPlanId = incoming?.plan_id || null;
-  const incomingPlan = incoming?.plan || "";
-  const incomingPrice = incoming?.price_kobo ?? null;
-  const incomingSlots = incoming?.open_slots ?? 0;
-  const incomingWaiting = incoming?.people_waiting ?? 0;
+  const location = useLocation();
+  const incoming = location.state || null;
+  const queryGroupId = new URLSearchParams(location.search).get("group_id");
+  const [queriedGroup, setQueriedGroup] = useState(null);
+  const incomingGroup = incoming?.preview || incoming?.group || queriedGroup || null;
+  const incomingService = incoming?.service || incomingGroup?.service?.name || null;
+  const incomingBrand = incoming?.brand || (incomingGroup?.service ? incomingGroup.service.slug || incomingGroup.service.name : null);
+  const incomingPlanId = incoming?.plan_id || incomingGroup?.plan_id || incomingGroup?.plan?.id || null;
+  const incomingPlan = incoming?.plan || incomingGroup?.plan?.name || "";
+  const incomingPrice = incoming?.price_kobo ?? incomingGroup?.price?.total_kobo ?? incomingGroup?.price?.total_price_kobo ?? incomingGroup?.plan?.total_price_kobo ?? null;
+  const incomingSlots = incoming?.open_slots ?? incomingGroup?.open_slots ?? incomingGroup?.available_slots ?? 0;
+  const incomingWaiting = incoming?.people_waiting ?? incomingGroup?.people_waiting ?? 0;
   const [sel, setSel] = useState(0);
   const [plans, setPlans] = useState(null);
-  const [openService, setOpenService] = useState(null);
+  const [plansFor, setPlansFor] = useState(null);
+  const selectionKey = `${incomingService || ""}|${incomingPlanId || ""}`;
 
   useEffect(() => {
-    if (incomingService) return;
+    if (!queryGroupId || incoming?.preview || incoming?.group) return;
     let on = true;
     (async () => {
-      const { data } = await api("/member/dashboard");
-      const rows = data?.available_subscriptions || [];
-      const withSlots = rows.filter((a) => (a.open_slots ?? 0) > 0);
-      const pick = (withSlots[0] || rows[0])?.service?.name || null;
-      if (on) setOpenService(pick);
+      const { data } = await api("/catalogue/groups?limit=50", { auth: false });
+      if (!on) return;
+      const rows = data?.groups || [];
+      const found = rows.find((group) => String(group.group_id || group.id) === String(queryGroupId));
+      if (found) setQueriedGroup(found);
     })();
-    return () => {
-      on = false;
-    };
-  }, [incomingService]);
+    return () => { on = false; };
+  }, [queryGroupId, incoming?.preview, incoming?.group]);
 
   /* Arriving from a group card the plan is already known — preselect it so
      Continue does not silently swap the user onto a different plan. */
   useEffect(() => {
-    if (!incomingPlanId || !plans?.length) return;
-    const i = plans.findIndex((p) => p.state?.plan_id === incomingPlanId);
-    if (i > 0) setSel(i);
-  }, [incomingPlanId, plans]);
+    if (!incomingPlanId || plansFor !== selectionKey || !plans?.length) return;
+    const i = plans.findIndex((p) => String(p.state?.plan_id) === String(incomingPlanId));
+    if (i >= 0) setSel(i);
+  }, [incomingPlanId, plans, plansFor, selectionKey]);
 
   useEffect(() => {
     if (!incomingService) return;
@@ -81,9 +84,10 @@ export default function JoinPlan() {
     (async () => {
       const { data } = await api("/member/dashboard");
       if (!on) return;
-      const rows = (data?.available_subscriptions || []).filter(
-        (a) => (a.service?.name || "").toLowerCase() === incomingService.toLowerCase(),
-      );
+      const rows = (data?.available_subscriptions || []).filter((a) => {
+        if (incomingPlanId) return String(a.plan_id || a.plan?.id || "") === String(incomingPlanId);
+        return (a.service?.name || "").toLowerCase() === incomingService.toLowerCase();
+      });
       const list = rows.length
         ? rows
         : incomingPlanId
@@ -100,25 +104,23 @@ export default function JoinPlan() {
           : [];
       if (on && list.length) {
         setPlans(list.map((a) => mapPlan(a, incomingService, incomingBrand)));
+        setPlansFor(selectionKey);
         setSel(0);
       }
     })();
     return () => {
       on = false;
     };
-  }, [incomingService, incomingBrand, incomingPlanId, incomingPlan, incomingPrice, incomingSlots, incomingWaiting]);
+  }, [incomingService, incomingBrand, incomingPlanId, incomingPlan, incomingPrice, incomingSlots, incomingWaiting, selectionKey]);
 
-  /* Catalogue fallback: the incoming service when we have one, otherwise the
-     first service that actually has a priced plan. */
+  /* Catalogue fallback is scoped to the selected group/service. Never silently
+     substitute the first service in the catalogue when route state is missing. */
   const services = useCatalogue();
   const cataloguePlans = (() => {
-    if (plans) return null;
-    if (!services) return null;
-    const target = incomingService || openService;
-    const entry =
-      (target && matchService(services, target)) ||
-      services.find((a) => (a.plans || a.catalogue_plans || []).some((p) => Number.isFinite(planTotal(p))));
-    if (!entry) return null;
+    if (plans && plansFor === selectionKey) return null;
+    if (!services || !incomingService) return null;
+    const entry = matchService(services, incomingService);
+    if (!entry) return [];
     const svc = entry.service || entry;
     return (entry.plans || entry.catalogue_plans || [])
       .filter((p) => Number.isFinite(planTotal(p)))
@@ -142,24 +144,22 @@ export default function JoinPlan() {
       }));
   })();
 
-  const list = plans || cataloguePlans || [];
-  const heading = incoming?.service
-    ? `Choose your ${incoming.service} plan`
-    : openService
-      ? `Choose your ${openService} plan`
-      : cataloguePlans?.[0]?.state?.service
-        ? `Choose your ${cataloguePlans[0].state.service} plan`
-        : "Choose your plan";
+  const list = (plansFor === selectionKey ? plans : null) || cataloguePlans || [];
+  const selectedPlanIndex = plansFor === selectionKey ? sel : 0;
+  const heading = incomingService
+    ? `Choose your ${incomingService} plan`
+    : cataloguePlans?.[0]?.state?.service
+      ? `Choose your ${cataloguePlans[0].state.service} plan`
+      : "Choose your plan";
   /* Step 2 is the group-details card (889:52206), which also carries the
      Payment Summary. When the user came in from a specific group card we keep
      that group in the state so the details page shows the group they tapped,
      not whichever group happens to sort first. */
-  const groupCtx =
-    incoming?.preview || incoming?.group
-      ? { preview: incoming.preview || incoming.group, group_id: incoming.group_id }
-      : {};
+  const groupCtx = incomingGroup
+    ? { preview: incomingGroup, group_id: incoming?.group_id || incomingGroup.group_id || incomingGroup.id || queryGroupId }
+    : queryGroupId ? { group_id: queryGroupId } : {};
   const nextState = {
-    ...(list.length ? list[sel]?.state || list[0].state : incoming || {}),
+    ...(list.length ? list[selectedPlanIndex]?.state || list[0].state : incoming || {}),
     ...groupCtx,
   };
   /* This page serves both flows; Figma labels it "Join Group" for the group
@@ -169,6 +169,13 @@ export default function JoinPlan() {
 
   const navigate = useNavigate();
   const [busy, setBusy] = useState(false);
+  const [joinError, setJoinError] = useState("");
+  const flowState = {
+    ...(incoming || {}),
+    ...nextState,
+    ...(incomingService ? { service: incomingService } : {}),
+    ...(incomingBrand ? { brand: incomingBrand } : {}),
+  };
   const goNext = async () => {
     if (busy) return;
     if (incoming?.fromWaitlist) {
@@ -176,22 +183,25 @@ export default function JoinPlan() {
       return;
     }
     setBusy(true);
-    let group = incoming?.preview || incoming?.group || null;
+    setJoinError("");
+    let group = incomingGroup;
     if (!group) {
-      const { data } = await api("/catalogue/groups?limit=50", { auth: false });
+      const path = nextState?.plan_id
+        ? `/catalogue/groups?plan_id=${encodeURIComponent(nextState.plan_id)}&limit=50`
+        : "/catalogue/groups?limit=50";
+      const { data, error } = await api(path, { auth: false });
       const rows = data?.groups || [];
-      const svc = (nextState?.service || "").toLowerCase();
-      group =
-        rows.find((g) => g.plan_id === nextState?.plan_id || g.plan?.id === nextState?.plan_id) ||
-        (svc ? rows.find((g) => (g.service?.name || "").toLowerCase() === svc) : null) ||
-        rows[0] ||
-        null;
+      group = error ? null : rows.find((g) => String(g.plan_id || g.plan?.id || "") === String(nextState?.plan_id || "")) || null;
     }
     setBusy(false);
+    if (!group) {
+      setJoinError("No open group is available for this selected plan right now. Choose another open group from Browse.");
+      return;
+    }
     navigate("/join/summary", {
       state: {
-        ...nextState,
-        group_id: group?.group_id || group?.id || nextState?.group_id,
+        ...flowState,
+        group_id: group.group_id || group.id || nextState?.group_id,
         preview: group,
       },
     });
@@ -210,7 +220,7 @@ export default function JoinPlan() {
         {/* Figma 889:53386: the back chevron sits above the card, not a sidebar. */}
         <Link
           to={backTo}
-          state={incoming}
+          state={flowState}
           aria-label="Back"
           className="mt-[27px] grid h-[45px] w-[45px] place-items-center rounded-full border border-[#BABABA] bg-white pb-[3px] text-[20px] leading-none text-ink shadow-[0_4px_10px_rgba(0,23,1,0.10)]"
         >
@@ -228,13 +238,15 @@ export default function JoinPlan() {
             <p className="mt-[10px] text-[18px] leading-[22px] font-semibold text-[#6B6B6B]">
               Pick the access level you want to buy. You can change this before joining a group
             </p>
+            {!list.length && <p role="status" className="mt-8 rounded-xl border border-[#D8E2D9] bg-[#F7FAF7] p-6 text-center font-semibold text-[#596659]">{incomingService ? `No active plans were found for ${incomingService}.` : queryGroupId && !incomingGroup ? "Loading the selected group's details…" : "Choose an available group from Browse to see its service and plan."} <Link to="/browse" className="ml-1 text-[#048B0B] underline">Browse groups</Link></p>}
+            {joinError && <p role="alert" className="mt-5 font-semibold text-red-700">{joinError}</p>}
             <div className="mt-[70px] flex gap-[20px]">
               {list.map((p, i) => (
                 <div key={i} className="flex-1">
                   <PlanCard
                     {...p}
-                    status={sel === i ? "Selected" : null}
-                    selected={sel === i}
+                    status={selectedPlanIndex === i ? "Selected" : null}
+                    selected={selectedPlanIndex === i}
                     onSelect={() => setSel(i)}
                   />
                   {incoming?.fromWaitlist && <WaitPosition planId={p.state?.plan_id} />}
@@ -243,9 +255,10 @@ export default function JoinPlan() {
             </div>
             <PairButtons
               backTo={backTo}
-              backState={incoming}
+              backState={flowState}
               onNext={goNext}
               busy={busy}
+              disabled={!list.length && !incomingGroup}
               className="mt-[70px]"
             />
           </div>
@@ -260,7 +273,7 @@ export default function JoinPlan() {
         <div className="px-[30px] pt-[20px]">
           <Link
             to={backTo}
-            state={incoming}
+            state={flowState}
             aria-label="Back"
             className="grid h-[40px] w-[40px] place-items-center rounded-full border border-[#BABABA] bg-white pb-[2px] text-[18px] leading-none text-ink shadow-[0_4px_10px_rgba(0,23,1,0.10)]"
           >
@@ -282,13 +295,15 @@ export default function JoinPlan() {
             <p className="mt-[15px] text-[13px] leading-[20px] font-semibold text-[#6B6B6B]">
               Pick the access level you want to buy. You can change this before joining a group
             </p>
+            {!list.length && <p role="status" className="mt-6 rounded-xl border border-[#D8E2D9] bg-[#F7FAF7] p-4 text-center text-sm font-semibold text-[#596659]">{incomingService ? `No active plans were found for ${incomingService}.` : queryGroupId && !incomingGroup ? "Loading the selected group's details…" : "Choose an available group from Browse to see its service and plan."} <Link to="/browse" className="ml-1 text-[#048B0B] underline">Browse groups</Link></p>}
+            {joinError && <p role="alert" className="mt-4 text-sm font-semibold text-red-700">{joinError}</p>}
             <div className="mt-[34px] flex flex-col gap-[20px]">
               {list.map((p, i) => (
                 <div key={i}>
                   <PlanCard
                     {...p}
-                    status={sel === i ? "Selected" : null}
-                    selected={sel === i}
+                    status={selectedPlanIndex === i ? "Selected" : null}
+                    selected={selectedPlanIndex === i}
                     onSelect={() => setSel(i)}
                   />
                   {incoming?.fromWaitlist && <WaitPosition planId={p.state?.plan_id} />}
@@ -297,9 +312,10 @@ export default function JoinPlan() {
             </div>
             <PairButtons
               backTo={backTo}
-              backState={incoming}
+              backState={flowState}
               onNext={goNext}
               busy={busy}
+              disabled={!list.length && !incomingGroup}
               className="mt-[70px]"
             />
           </div>

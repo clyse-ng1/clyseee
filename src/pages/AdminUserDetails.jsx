@@ -60,7 +60,7 @@ export default function AdminUserDetails() {
     api("/admin/users").then((res) => {
       if (!alive) return;
       const items = Array.isArray(res.data) ? res.data : res.data?.users || res.data?.items || [];
-      const wanted = params.get("id");
+      const wanted = params.get("id") || params.get("user_id");
       setUser(items.find((u) => u.id === wanted || u.user_id === wanted) || items[0] || null);
       setLoaded(true);
     });

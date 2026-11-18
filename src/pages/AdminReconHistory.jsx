@@ -1,4 +1,5 @@
 import { useState } from "react";
+import useAdminRows from "../components/useAdminRows";
 import AdminShell, { BackIcon } from "../components/AdminShell";
 import {
   FilterBar,
@@ -12,15 +13,6 @@ import {
    The design has no page title: back button, then filters, then the
    run-history table titled "Pending Exception". */
 
-const ROWS = [
-  { type: "Full Reconciliation", total: "1,204", matched: "1,160", unmatched: "40", rate: "90.0%" },
-  { type: "Incremental", total: "1,300", matched: "1,200", unmatched: "100", rate: "95.0%" },
-  { type: "Full Reconciliation", total: "1,204", matched: "1,160", unmatched: "40", rate: "90.0%" },
-  { type: "Full Reconciliation", total: "1,204", matched: "1,160", unmatched: "40", rate: "90.0%" },
-  { type: "Incremental", total: "4,500", matched: "4,000", unmatched: "500", rate: "90.0%" },
-  { type: "Full Reconciliation", total: "1,204", matched: "1,160", unmatched: "40", rate: "90.0%" },
-  { type: "Incremental", total: "4,500", matched: "4,000", unmatched: "500", rate: "90.0%" },
-];
 const COLS = [71, 185, 213, 254, 213, 127, 156, 149, 177, 163];
 const HEADERS = [
   "",
@@ -37,8 +29,11 @@ const HEADERS = [
 
 export default function AdminReconHistory() {
   const [fType, setFType] = useState("All");
-  const typeOpts = ["All", ...new Set(ROWS.map((r) => r.type))];
-  const shown = ROWS.filter((r) => fType === "All" || r.type === fType);
+  /* Live history (ADMIN-012 reconciliations). */
+  const { rows: live, status } = useAdminRows("reconciliation");
+  const base = live || [];
+  const typeOpts = ["All", ...new Set(base.map((r) => r.type))];
+  const shown = base.filter((r) => fType === "All" || r.type === fType);
   return (
     <AdminShell active="finance" sub="recon">
       <button

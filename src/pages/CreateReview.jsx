@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link, useLocation, useNavigate } from "react-router-dom";
+import { Link, Navigate, useLocation, useNavigate } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import { BlurBg } from "../components/Decor";
 import StepHeader from "../components/StepHeader";
@@ -9,6 +9,7 @@ import { invalidateGroups } from "../lib/groupsCache";
 import { matchService, pickPlan, useCatalogue } from "../lib/useCatalogue";
 import iconMoviesWhite from "../assets/icon-movies-white.svg";
 import iconProofCheck from "../assets/icon-proof-check.svg";
+import VerificationStatus from "../components/VerificationStatus";
 import iconProofCheckSm from "../assets/icon-proof-check-sm.svg";
 
 /* Step 4 — review group. The logo disc stacks Figma's three fills (linear +
@@ -125,16 +126,29 @@ export default function CreateReview() {
         navigate("/groups");
         return;
       }
-      navigate("/create-group/failed", {
-        state: { message: apiError.message },
-      });
+      setError(apiError.message || "Some fields are invalid. Review the group details and try again.");
       return;
     }
-    // The group is live now. Upload verification evidence (raw file bytes;
-    // never stored client-side) and submit for review — best effort: the
-    // group stays active even if verification needs attention later.
+    // A successful HTTP response without a group identifier is not enough to
+    // claim activation or offer a detail link. Stop here rather than showing a
+    // success screen or risking a duplicate create on blind retry.
+    const groupId = data?.group?.id || data?.group?.group_id || data?.group_id;
+    if (!groupId) {
+      setBusy(false);
+      setError("The server did not confirm a group ID. Check My Groups before trying again.");
+      return;
+    }
+    const apiGroup = data?.group || data;
+    const apiStatus = String(apiGroup?.status || apiGroup?.activation_status || "").toLowerCase();
+    if (apiStatus && !["active", "activated", "live"].includes(apiStatus)) {
+      invalidateGroups();
+      setBusy(false);
+      setError(`The group was created, but activation is not confirmed (status: ${apiStatus.replaceAll("_", " ")}). Check My Groups before retrying.`);
+      return;
+    }
+    // The group record exists. Verification evidence is best-effort and never
+    // changes the activation result.
     invalidateGroups();
-    const groupId = data?.group?.id;
     let verifyNote = "";
     if (groupId) {
       const files = [
@@ -162,7 +176,11 @@ export default function CreateReview() {
     }
     setBusy(false);
     navigate("/create-group/activated", {
-      state: { group_id: groupId, verifyNote },
+      state: {
+        group_id: groupId,
+        link: data?.group?.invite_link || data?.group?.invite_url || "",
+        verifyNote,
+      },
     });
   };
 
@@ -231,6 +249,8 @@ export default function CreateReview() {
       </div>
     </>
   );
+
+  if (!incoming) return <Navigate to="/create-group" replace />;
 
   return (
     <div className="relative min-h-screen bg-white font-sans text-ink">

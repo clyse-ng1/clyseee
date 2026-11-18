@@ -41,7 +41,7 @@ export function ResetEmail() {
         <form onSubmit={handleSubmit} className="mt-[35px] lg:mt-[50px]">
           <div className="text-left">
             <Field
-              label="Email Address"
+              label="Email"
               type="email"
               placeholder="Enter your Email"
               value={email}
@@ -180,7 +180,7 @@ export function ResetNew() {
           {!fixedEmail && (
             <div className="mb-[32px] lg:mb-[46px]">
               <Field
-                label="Email Address"
+                label="Email"
                 type="email"
                 placeholder="Enter your Email"
                 value={email}

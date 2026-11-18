@@ -1,12 +1,18 @@
-import { useEffect, useState } from "react";
-import { api } from "../lib/api";
+import { useEffect, useMemo, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { api, kobo } from "../lib/api";
 import AdminShell from "../components/AdminShell";
 import DropSelect from "../components/DropSelect";
 
 /* Admin / CMS dashboard — Figma 1054:20187 (1440x1548, desktop only).
-   Fully static: no admin endpoints exist. Copy fixes: "Eearning" ->
-   "Earning", "Neflix" -> "Netflix", "attion" -> "attention",
-   "regisrtered" -> "registered", "Sep. 1 206" -> "Sep. 1 2026". */
+   Live data: GET /admin/dashboard?from=&to= drives every card, the alert
+   list and recent activity; the revenue/payout chart is bucketed by month
+   from the real transaction and payout ledgers for the selected range.
+   Nothing is invented: while the API is in flight the cards show "…", and
+   an error or an empty range renders "—"/an honest empty note instead of
+   Figma's dummy numbers. Copy fixes: "Eearning" -> "Earning", "Neflix" ->
+   "Netflix", "attion" -> "attention", "regisrtered" -> "registered",
+   "Sep. 1 206" -> "Sep. 1 2026". */
 
 function G({ children }) {
   return (
@@ -121,32 +127,68 @@ function ClockGlyph({ color }) {
   );
 }
 
-const ROW1 = [
-  { bg: "bg-[#DFFFE0]", glyph: <UsersGlyph color="#048B0B" />, label: "Total User", value: "12,300" },
-  { bg: "bg-[#E9E4FF]", glyph: <UserCheckGlyph color="#6A5ACD" />, label: "Active User", value: "10,000" },
-  { bg: "bg-[#DFFFE0]", glyph: <UsersGlyph color="#048B0B" />, label: "Total subscription Groups", value: "124" },
-  { bg: "bg-[#DFFFE0]", glyph: <CheckCircleGlyph color="#048B0B" />, label: "Active Group", value: "842" },
-];
-const ROW2 = [
-  { bg: "bg-[#FBD9DC]", glyph: <WarnGlyph color="#E31B00" />, label: "Dispute", value: "124,000" },
-  { bg: "bg-[#DFFFE0]", glyph: <BadgeGlyph color="#048B0B" />, label: "Active Subscription / membership", value: "1,000" },
-  { bg: "bg-[#E9E4FF]", glyph: <HourGlyph color="#6A5ACD" />, label: "Waitlist Activity", value: "50,000" },
-  { bg: "bg-[#E0EFFF]", glyph: <ClipGlyph color="#0087FF" />, label: "Pending Admin Actions", value: "124,000" },
-];
-const DARK = [
-  { glyph: <BankGlyph color="#0087FF" />, label: "Creator's Earning", value: "N124,000" },
-  { glyph: <PercentGlyph color="#CB5300" />, label: "Clyse fees", value: "N150,000" },
-  { glyph: <IconWallet />, label: "Wallet Funding Activity", value: "124,000" },
-  { glyph: <IconWallet />, label: "Subscription Payment Activity", value: "124,000" },
-];
-const ACTIVITIES = [
-  { title: "New user registered", sub: "alex.smith@example.com", time: "3m ago" },
-  { title: "Group verified", sub: "Netflix Premium (GRP-104)", time: "4m ago" },
-  { title: "Payment received", sub: "N5,000.00 - Group (GRP-098)", time: "5m ago" },
-  { title: "Dispute created", sub: "Access issue - Spotify (DIS-023)", time: "6m ago" },
-  { title: "Creator earnings updated", sub: "N12,500.00 - Group #GRP-079", time: "7m ago" },
-  { title: "New user registered", sub: "alex.smith@example.com", time: "2m ago" },
-];
+/* ---------- range handling ---------- */
+
+const pad = (v) => String(v).padStart(2, "0");
+const isoDay = (d) => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+/* Date-only filters are picked in the admin's own timezone (Lagos): parse the
+   local wall-clock value and send the real UTC instant, same as the data
+   pages. */
+const toInstant = (day, end = false) => new Date(`${day}T${end ? "23:59:59" : "00:00:00"}`).toISOString();
+
+function rangeOptions() {
+  const now = new Date();
+  const back = new Date(now);
+  back.setDate(back.getDate() - 89);
+  return [
+    { label: "Sep. 1 2026 - Sep. 30 2026", from: "2026-09-01", to: "2026-09-30" },
+    { label: "Aug. 1 2026 - Aug. 31 2026", from: "2026-08-01", to: "2026-08-31" },
+    { label: "Jul. 1 2026 - Jul. 31 2026", from: "2026-07-01", to: "2026-07-31" },
+    { label: "Last 90 days", from: isoDay(back), to: isoDay(now) },
+  ];
+}
+
+/* ---------- defensive readers for the dashboard's nested metrics ---------- */
+
+const num = (v) => {
+  if (v == null || v === "") return null;
+  const n = Number(v);
+  return Number.isFinite(n) ? n : null;
+};
+const pick = (obj, keys) => {
+  if (!obj || typeof obj !== "object") return null;
+  for (const k of keys) {
+    const hit = num(obj[k]);
+    if (hit != null) return hit;
+  }
+  return null;
+};
+const fmtCount = (v) => (v == null ? "—" : v.toLocaleString("en-US"));
+const fmtMoney = (koboValue) => (koboValue == null ? "—" : kobo(koboValue));
+const labelOf = (key) =>
+  String(key).replace(/[_-]+/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
+
+const relTime = (value) => {
+  if (!value) return "—";
+  const then = new Date(value).getTime();
+  if (Number.isNaN(then)) return "—";
+  const diff = Date.now() - then;
+  const m = Math.floor(diff / 60000);
+  if (m < 1) return "just now";
+  if (m < 60) return `${m}m ago`;
+  const h = Math.floor(m / 60);
+  if (h < 24) return `${h}h ago`;
+  const d = Math.floor(h / 24);
+  if (d < 30) return `${d}d ago`;
+  return new Date(then).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" });
+};
+
+/* Use a consistent Jan–Dec axis for the selected calendar year like the
+   Figma dashboard; the plotted values still come only from the selected API range. */
+const rangeMonths = (fromDay) => {
+  const year = new Date(`${fromDay}T00:00:00`).getFullYear();
+  return Array.from({ length: 12 }, (_, m) => ({ y: year, m }));
+};
 
 function LightCard({ c }) {
   return (
@@ -159,7 +201,7 @@ function LightCard({ c }) {
       </p>
       <p className="mt-[4px] text-[32px] leading-[38px] font-bold text-ink">{c.value}</p>
       <p className="mt-[2px] text-[13px] leading-[16px] font-semibold text-[#6B6B6B]">
-        From Last Month
+        For selected range
       </p>
     </div>
   );
@@ -176,15 +218,41 @@ function DarkCard({ c }) {
       </p>
       <p className="mt-[4px] text-[30px] leading-[37px] font-bold text-mint">{c.value}</p>
       <p className="mt-[6px] text-[13px] leading-[16px] font-semibold text-mint">
-        From Last Month
+        For selected range
       </p>
     </div>
   );
 }
 
-function Chart() {
-  const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-  const [month, setMonth] = useState("Month");
+/* Revenue = posted member payments (subscription payments + platform fees);
+   payout = paid creator payouts, bucketed by calendar month of the range. */
+function Chart({ months, revenue, payout, loading }) {
+  const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+  const W = 525;
+  const H = 258;
+  const left = 36;
+  const right = 520;
+  const top = 20;
+  const bottom = 240;
+  const n = months.length;
+  const revVals = months.map((mo) => revenue.get(`${mo.y}-${mo.m}`) || 0);
+  const payVals = months.map((mo) => payout.get(`${mo.y}-${mo.m}`) || 0);
+  const max = Math.max(0, ...revVals, ...payVals);
+  const axisMax = max > 0 ? Math.pow(10, Math.ceil(Math.log10(max))) : 1_000_000_000;
+  const compactMoney = (koboValue) => {
+    const naira = koboValue / 100;
+    if (naira >= 1_000_000) return `${Number((naira / 1_000_000).toFixed(naira >= 10_000_000 ? 0 : 1))}M`;
+    if (naira >= 1_000) return `${Number((naira / 1_000).toFixed(naira >= 10_000 ? 0 : 1))}K`;
+    return naira.toLocaleString("en-NG");
+  };
+  const x = (i) => (n === 1 ? (left + right) / 2 : left + ((right - left) * i) / (n - 1));
+  const y = (v) => bottom - ((bottom - top) * v) / axisMax;
+  const line = (vals) =>
+    vals.map((v, i) => `${i === 0 ? "M" : "L"}${x(i).toFixed(1)} ${y(v).toFixed(1)}`).join(" ");
+  const area = `${line(payVals)} L${x(n - 1).toFixed(1)} ${bottom} L${x(0).toFixed(1)} ${bottom} Z`;
+  const revTotal = revVals.reduce((a, b) => a + b, 0);
+  const payTotal = payVals.reduce((a, b) => a + b, 0);
+  const empty = !loading && revTotal === 0 && payTotal === 0;
   return (
     <div>
       <div className="flex items-center">
@@ -196,105 +264,199 @@ function Chart() {
           <span className="h-[10px] w-[10px] rounded-full bg-clyse" /> Payout
         </p>
         <span className="ml-auto" />
-        <DropSelect
-          value={month}
-          options={["Month", ...months]}
-          onChange={setMonth}
-          ariaLabel="Chart month"
-          buttonClass="ml-auto flex h-[28px] items-center gap-[8px] rounded-[8px] border border-white/40 px-[12px] text-[11px] font-bold text-white"
-          labelClass="text-[11px] font-bold text-white"
-          panelClass="min-w-[110px]"
-          chevron={<ChevDown />}
-        />
+        <div className="flex items-center gap-[10px]">
+          <span className="rounded-[6px] border border-white/60 bg-[#013104] px-[10px] py-[4px] text-[11px] font-bold text-white">
+            Revenue {fmtMoney(revTotal)}
+          </span>
+          <span className="rounded-[6px] border border-[#46C04C] bg-[#013104] px-[10px] py-[4px] text-[11px] font-bold text-[#B1DBB3]">
+            Payout {fmtMoney(payTotal)}
+          </span>
+        </div>
       </div>
-      <svg viewBox="0 0 525 258" className="mt-[16px] w-full" role="img" aria-label="Revenue versus payout chart">
-        {[0, 1, 2, 3, 4, 5].map((i) => (
-          <g key={i}>
-            <line x1="36" y1={20 + i * 40} x2="520" y2={20 + i * 40} stroke="#FFFFFF" strokeOpacity="0.15" />
-            <text x="0" y={24 + i * 40} fill="#FFFFFF" fontSize="11" fontWeight="700">
-              {i === 5 ? "0" : `${(5 - i) * 2}M`}
+      <div className="relative">
+        <svg viewBox={`0 0 ${W} ${H}`} className="mt-[16px] w-full" role="img" aria-label="Revenue versus payout chart">
+          {[0, 1, 2, 3, 4, 5].map((i) => (
+            <g key={i}>
+              <line x1={left} y1={top + i * 40} x2={right} y2={top + i * 40} stroke="#FFFFFF" strokeOpacity="0.15" />
+              <text x="0" y={top + i * 40 + 4} fill="#FFFFFF" fontSize="11" fontWeight="700">
+                {i === 5 ? "0" : compactMoney(axisMax * (5 - i) / 5)}
+              </text>
+            </g>
+          ))}
+          {months.map((mo, i) => (
+            <text key={`${mo.y}-${mo.m}`} x={x(i)} y={bottom + 8} fill={mo.m === 8 ? "#46C04C" : "#FFFFFF"} fontSize="11" fontWeight="700" textAnchor="middle">
+              {MONTHS[mo.m]}
             </text>
-          </g>
-        ))}
-        {months.map((m, i) => (
-          <text
-            key={m}
-            x={52 + i * 39}
-            y={248}
-            fill={m === "Sep" ? "#46C04C" : "#FFFFFF"}
-            fontSize="11"
-            fontWeight="700"
-            textAnchor="middle"
-          >
-            {m}
-          </text>
-        ))}
-        <path
-          d="M52 200 C 90 200, 100 150, 140 150 S 190 170, 230 140 S 300 120, 340 150 S 410 170, 440 130 S 490 150, 515 145"
-          fill="none"
-          stroke="#FFFFFF"
-          strokeWidth="2.5"
-        />
-        <path
-          d="M52 170 C 90 170, 110 120, 150 120 S 210 90, 260 100 S 330 60, 370 90 S 430 60, 470 90 S 500 60, 515 40 L 515 240 L 52 240 Z"
-          fill="#46C04C"
-          fillOpacity="0.18"
-          stroke="none"
-        />
-        <path
-          d="M52 170 C 90 170, 110 120, 150 120 S 210 90, 260 100 S 330 60, 370 90 S 430 60, 470 90 S 500 60, 515 40"
-          fill="none"
-          stroke="#46C04C"
-          strokeWidth="2.5"
-        />
-        <rect x="330" y="10" width="90" height="34" rx="6" fill="#013104" stroke="#46C04C" />
-        <text x="338" y="23" fill="#FFFFFF" fontSize="8" fontWeight="600">Payout</text>
-        <text x="338" y="34" fill="#B1DBB3" fontSize="8" fontWeight="700">Total Amount N8M</text>
-        <circle cx="378" cy="82" r="6" fill="#013104" stroke="#FFFFFF" strokeWidth="2.5" />
-        <rect x="300" y="120" width="90" height="34" rx="6" fill="#013104" stroke="#FFFFFF" />
-        <text x="308" y="133" fill="#FFFFFF" fontSize="8" fontWeight="600">Revenue</text>
-        <text x="308" y="144" fill="#B1DBB3" fontSize="8" fontWeight="700">Total Amount N4M</text>
-        <circle cx="440" cy="132" r="6" fill="#013104" stroke="#FFFFFF" strokeWidth="2.5" />
-      </svg>
+          ))}
+          {!empty && <path d={area} fill="#46C04C" fillOpacity="0.18" stroke="none" />}
+          {!empty && <path d={line(payVals)} fill="none" stroke="#46C04C" strokeWidth="2.5" />}
+          {!empty && <path d={line(revVals)} fill="none" stroke="#FFFFFF" strokeWidth="2.5" />}
+          {!empty && payVals.map((v, i) => v > 0 && <circle key={`p${i}`} cx={x(i)} cy={y(v)} r="4" fill="#013104" stroke="#46C04C" strokeWidth="2.5" />)}
+          {!empty && revVals.map((v, i) => v > 0 && <circle key={`r${i}`} cx={x(i)} cy={y(v)} r="4" fill="#013104" stroke="#FFFFFF" strokeWidth="2.5" />)}
+        </svg>
+        {empty && <p className="absolute inset-0 grid place-items-center pt-[16px] text-[14px] font-semibold text-white/75">{loading ? "Loading revenue and payout activity…" : "No revenue or payout activity was recorded in this range."}</p>}
+      </div>
     </div>
   );
 }
 
-/* Live numbers: GET /admin/dashboard when the backend offers them; the
-   Figma dummy values stay as fallback so the screen never renders empty. */
-const LIVE_KEYS = {
-  "Total User": ["total_users", "users_total", "user_count"],
-  "Active User": ["active_users", "users_active"],
-  "Total subscription Groups": ["total_groups", "groups_total", "group_count"],
-  "Active Group": ["active_groups", "groups_active"],
-  Dispute: ["open_disputes", "disputes_open", "dispute_count"],
-  "Active Subscription / membership": ["active_memberships", "active_subscriptions"],
-  "Waitlist Activity": ["waitlist_entries", "waitlist_count"],
-  "Pending Admin Actions": ["pending_admin_actions", "pending_actions"],
-};
-function fmtNum(v) {
-  const n = Number(v);
-  return Number.isFinite(n) ? n.toLocaleString("en-US") : null;
-}
-
 export default function Admin() {
-  const [range, setRange] = useState("Sep. 1 2026 - Sep. 30 2026");
-  const [live, setLive] = useState(null);
+  const nav = useNavigate();
+  const [options] = useState(rangeOptions);
+  const [range, setRange] = useState(options[0].label);
+  const [dash, setDash] = useState({ status: "loading", data: null, error: "" });
+  const [series, setSeries] = useState({ status: "loading", revenue: new Map(), payout: new Map() });
+
+  const active = options.find((o) => o.label === range) || options[0];
+  const fromQ = toInstant(active.from, false);
+  const toQ = toInstant(active.to, true);
+
   useEffect(() => {
     let alive = true;
-    api("/admin/dashboard").then((res) => {
-      if (alive && !res.error && res.data) setLive(res.data);
+    setDash({ status: "loading", data: null, error: "" });
+    api(`/admin/dashboard?from=${encodeURIComponent(fromQ)}&to=${encodeURIComponent(toQ)}`).then((res) => {
+      if (!alive) return;
+      if (res.error) setDash({ status: "error", data: null, error: res.error.message || "The dashboard could not be loaded." });
+      else setDash({ status: "live", data: res.data || {}, error: "" });
     });
-    return () => { alive = false; };
-  }, []);
-  const liveFor = (label) => {
+    return () => {
+      alive = false;
+    };
+  }, [fromQ, toQ]);
+
+  useEffect(() => {
+    let alive = true;
+    setSeries({ status: "loading", revenue: new Map(), payout: new Map() });
+    const range = `from=${encodeURIComponent(fromQ)}&to=${encodeURIComponent(toQ)}&limit=100`;
+    Promise.all([
+      api(`/admin/finance/transactions?${range}`),
+      api(`/admin/finance/payouts?${range}`),
+    ]).then(([tx, po]) => {
+      if (!alive) return;
+      const revenue = new Map();
+      const payout = new Map();
+      const bump = (map, row) => {
+        const d = new Date(row.created_at || row.createdAt || "");
+        if (Number.isNaN(d.getTime())) return;
+        const key = `${d.getFullYear()}-${d.getMonth()}`;
+        map.set(key, (map.get(key) || 0) + (Number(row.amount_kobo) || 0));
+      };
+      const txRows = tx.error ? [] : tx.data?.transactions || [];
+      for (const t of txRows) {
+        if (!/posted|successful|completed/i.test(String(t.status || ""))) continue;
+        if (/refund|reversal/i.test(String(t.category || t.kind || ""))) continue;
+        bump(revenue, t);
+      }
+      const poRows = po.error ? [] : po.data?.payouts || [];
+      for (const p of poRows) {
+        if (!/paid/i.test(String(p.status || ""))) continue;
+        bump(payout, p);
+      }
+      setSeries({ status: tx.error && po.error ? "error" : "live", revenue, payout });
+    });
+    return () => {
+      alive = false;
+    };
+  }, [fromQ, toQ]);
+
+  const live = dash.status === "live" ? dash.data : null;
+  const loading = dash.status === "loading";
+  const pending = (v) => (loading ? "…" : fmtCount(v));
+  const pendingMoney = (v) => (loading ? "…" : fmtMoney(v));
+
+  /* Creator earnings for the range: released + available + pending (kobo). */
+  const earningsTotal = useMemo(() => {
+    const e = live?.earnings;
+    if (!e || typeof e !== "object") return null;
+    if (e.total_kobo != null) return num(e.total_kobo);
+    const sum = ["released_kobo", "available_kobo", "pending_kobo"].reduce((a, k) => a + (num(e[k]) || 0), 0);
+    return sum > 0 ? sum : null;
+  }, [live]);
+
+  const pendingTotal = useMemo(() => {
+    if (!live?.pending_actions || typeof live.pending_actions !== "object") return pick(live?.pending_actions, ["total", "count"]);
+    const sum = Object.values(live.pending_actions).reduce((a, v) => a + (num(v) || 0), 0);
+    return sum > 0 ? sum : null;
+  }, [live]);
+
+  const ROW1 = [
+    { bg: "bg-[#DFFFE0]", glyph: <UsersGlyph color="#048B0B" />, label: "Total User", value: pending(pick(live?.users, ["total", "count", "all"])) },
+    { bg: "bg-[#E9E4FF]", glyph: <UserCheckGlyph color="#6A5ACD" />, label: "Active User", value: pending(pick(live?.users, ["active", "active_count"])) },
+    { bg: "bg-[#DFFFE0]", glyph: <UsersGlyph color="#048B0B" />, label: "Total subscription Groups", value: pending(pick(live?.groups, ["total", "count"])) },
+    { bg: "bg-[#DFFFE0]", glyph: <CheckCircleGlyph color="#048B0B" />, label: "Active Group", value: pending(pick(live?.groups, ["active", "active_count"])) },
+  ];
+  const ROW2 = [
+    { bg: "bg-[#FBD9DC]", glyph: <WarnGlyph color="#E31B00" />, label: "Dispute", value: pending(pick(live?.disputes, ["open", "open_count", "total", "count"])) },
+    { bg: "bg-[#DFFFE0]", glyph: <BadgeGlyph color="#048B0B" />, label: "Active Subscription / membership", value: pending(pick(live?.memberships, ["active", "active_count", "total", "count"])) },
+    { bg: "bg-[#E9E4FF]", glyph: <HourGlyph color="#6A5ACD" />, label: "Waitlist Activity", value: pending(pick(live?.waitlist, ["new", "waiting", "total", "count"])) },
+    { bg: "bg-[#E0EFFF]", glyph: <ClipGlyph color="#0087FF" />, label: "Pending Admin Actions", value: pending(pendingTotal) },
+  ];
+  const DARK = [
+    { glyph: <BankGlyph color="#0087FF" />, label: "Creator's Earning", value: pendingMoney(earningsTotal) },
+    { glyph: <PercentGlyph color="#CB5300" />, label: "Clyse fees", value: pendingMoney(pick(live?.fees, ["total_kobo", "fees_kobo", "total"])) },
+    { glyph: <IconWallet />, label: "Wallet Funding Activity", value: pending(pick(live?.wallet, ["funded_count", "funding_count", "total_fundings", "count"])) },
+    { glyph: <IconWallet />, label: "Subscription Payment Activity", value: pending(pick(live?.payments, ["count", "payments_count", "total_count"])) },
+  ];
+  const pendingPayout = pendingMoney(pick(live?.payouts, ["pending_kobo", "pending_total_kobo"])) !== "—"
+    ? pendingMoney(pick(live?.payouts, ["pending_kobo", "pending_total_kobo"]))
+    : pending(pick(live?.payouts, ["pending", "pending_count"]));
+
+  /* Alert & action items from pending_actions plus the verification queue. */
+  const alerts = useMemo(() => {
     if (!live) return null;
-    for (const k of LIVE_KEYS[label] || []) {
-      const hit = fmtNum(live[k]);
-      if (hit) return hit;
+    const out = [];
+    const pa = live.pending_actions && typeof live.pending_actions === "object" ? live.pending_actions : {};
+    const ver = pick(live.groups, ["pending_verification", "pending_review", "awaiting_verification"])
+      ?? pick(pa, ["verification", "groups_pending_verification", "pending_verification"]);
+    if (ver) out.push([`${ver} group${ver === 1 ? "" : "s"} pending verification`, "Review & approve group submission"]);
+    const disputes = pick(pa, ["disputes", "open_disputes"]) ?? pick(live.disputes, ["open", "open_count"]);
+    if (disputes) out.push([`${disputes} open dispute${disputes === 1 ? "" : "s"}`, "Need resolution"]);
+    const support = pick(pa, ["support", "support_issues", "tickets"]) ?? pick(live.support, ["open", "open_count", "total"]);
+    if (support) out.push([`${support} open support ticket${support === 1 ? "" : "s"}`, "Requires a reply"]);
+    for (const [k, v] of Object.entries(pa)) {
+      if (out.length >= 4) break;
+      if (["verification", "groups_pending_verification", "pending_verification", "disputes", "open_disputes", "support", "support_issues", "tickets", "total", "count"].includes(k)) continue;
+      const count = num(v);
+      if (count) out.push([`${count} ${labelOf(k)}`, "Requires your attention"]);
     }
-    return null;
-  };
+    return out;
+  }, [live]);
+
+  /* recent_activity is an object of buckets (users, groups, transactions, ...),
+     each a list — flatten the newest few into one feed. */
+  const activities = useMemo(() => {
+    if (!live) return null;
+    const raw = live.recent_activity;
+    const buckets = Array.isArray(raw) ? { activity: raw } : raw && typeof raw === "object" ? raw : {};
+    const items = [];
+    for (const [bucket, rows] of Object.entries(buckets)) {
+      if (!Array.isArray(rows)) continue;
+      for (const r of rows) {
+        if (!r || typeof r !== "object") continue;
+        let title = "Activity";
+        let sub = "—";
+        if (bucket === "users") {
+          title = "New user registered";
+          sub = [r.first_name, r.last_name].filter(Boolean).join(" ") || r.email || r.id || "—";
+        } else if (bucket === "groups") {
+          title = `Group ${String(r.status || "updated")}`;
+          sub = [r.service, r.id].filter(Boolean).join(" · ") || "—";
+        } else if (bucket === "transactions") {
+          title = `${String(r.kind || "transaction").replace(/_/g, " ")} ${String(r.status || "")}`;
+          sub = [r.amount_kobo != null ? kobo(r.amount_kobo) : null, r.reference].filter(Boolean).join(" · ") || r.id || "—";
+        } else {
+          title = r.title || r.action || r.event || labelOf(bucket);
+          sub = r.description || r.detail || r.message || r.subject || [r.entity_type, r.entity_id].filter(Boolean).join(" · ") || "—";
+        }
+        items.push({ key: `${bucket}:${r.id || items.length}`, title, sub, at: r.created_at || r.at || r.timestamp });
+      }
+    }
+    items.sort((a, b) => new Date(b.at || 0) - new Date(a.at || 0));
+    return items.slice(0, 6).map((a) => ({ key: a.key, title: a.title, sub: a.sub, time: relTime(a.at) }));
+  }, [live]);
+
+  const months = useMemo(() => rangeMonths(active.from), [active.from]);
+
   return (
     <AdminShell active="dashboard">
             <div className="flex flex-wrap items-center gap-[16px]">
@@ -308,12 +470,7 @@ export default function Admin() {
               </div>
               <DropSelect
                 value={range}
-                options={[
-                  "Sep. 1 2026 - Sep. 30 2026",
-                  "Aug. 1 2026 - Aug. 31 2026",
-                  "Jul. 1 2026 - Jul. 31 2026",
-                  "Last 90 days",
-                ]}
+                options={options.map((o) => o.label)}
                 onChange={setRange}
                 ariaLabel="Date range"
                 lead={
@@ -329,14 +486,19 @@ export default function Admin() {
                 chevron={<ChevDown color="#001701" />}
               />
             </div>
+            {dash.status === "error" && (
+              <p className="mt-[20px] rounded-[10px] border border-[#FFC48A] bg-[#FFEEE2] px-[20px] py-[14px] text-[15px] font-semibold text-[#8A3B00]">
+                {dash.error} The cards below show placeholders until the dashboard answers.
+              </p>
+            )}
             <div className="mt-[30px] grid grid-cols-1 sm:grid-cols-2 gap-[20px] xl:grid-cols-4">
               {ROW1.map((c) => (
-                <LightCard key={c.label} c={{ ...c, value: liveFor(c.label) || c.value }} />
+                <LightCard key={c.label} c={c} />
               ))}
             </div>
             <div className="mt-[20px] grid grid-cols-1 sm:grid-cols-2 gap-[20px] xl:grid-cols-4">
               {ROW2.map((c) => (
-                <LightCard key={c.label} c={{ ...c, value: liveFor(c.label) || c.value }} />
+                <LightCard key={c.label} c={c} />
               ))}
             </div>
             <div className="mt-[20px] grid grid-cols-1 sm:grid-cols-2 gap-[20px] xl:grid-cols-4">
@@ -347,22 +509,21 @@ export default function Admin() {
             <div className="mt-[20px] flex flex-col gap-[20px] xl:flex-row">
               <div className="w-full xl:w-[266px] xl:flex-none">
                 <DarkCard
-                  c={{ glyph: <ClockGlyph color="#6A5ACD" />, label: "Pending Payout", value: "124,000" }}
+                  c={{ glyph: <ClockGlyph color="#6A5ACD" />, label: "Pending Payout", value: pendingPayout }}
                 />
               </div>
               <div className="relative flex-1 rounded-[10px] bg-[#E5FFE7] px-[21px] py-[28px]">
-                <span className="absolute top-[28px] right-[21px] grid h-[28px] w-[28px] place-items-center rounded-full bg-[#E31B00] text-[14px] font-bold text-white">
-                  4
-                </span>
+                {alerts && alerts.length > 0 && (
+                  <span className="absolute top-[28px] right-[21px] grid h-[28px] w-[28px] place-items-center rounded-full bg-[#E31B00] text-[14px] font-bold text-white">
+                    {alerts.length}
+                  </span>
+                )}
                 <p className="text-[18px] leading-[22px] font-bold text-black">
                   Alert & Action Items
                 </p>
                 <div className="mt-[20px] grid gap-[20px] md:grid-cols-2">
                   <div className="flex flex-col gap-[16px]">
-                    {[
-                      ["3 Group Pending verification", "Review & approve group submission"],
-                      ["7 pending administrative actions", "Requires your attention"],
-                    ].map(([t, s]) => (
+                    {(alerts || []).slice(0, 2).map(([t, s]) => (
                       <div key={t} className="flex items-start gap-[12px]">
                         <span className="mt-[2px] flex-none">
                           <ClockGlyph color="#E31B00" />
@@ -379,10 +540,7 @@ export default function Admin() {
                     ))}
                   </div>
                   <div className="flex flex-col gap-[16px] md:border-l md:border-[#999999] md:pl-[20px]">
-                    {[
-                      ["2 high-priority disputes", "Need resolution"],
-                      ["3 Group Pending verification", "Review & approve group submission"],
-                    ].map(([t, s]) => (
+                    {(alerts || []).slice(2, 4).map(([t, s]) => (
                       <div key={t} className="flex items-start gap-[12px]">
                         <span className="mt-[2px] flex-none">
                           <ClockGlyph color="#E31B00" />
@@ -399,6 +557,14 @@ export default function Admin() {
                     ))}
                   </div>
                 </div>
+                {dash.status === "live" && (!alerts || alerts.length === 0) && (
+                  <p className="mt-[20px] text-[15px] font-semibold text-[#4E6B50]">
+                    No pending actions right now — everything is clear for this range.
+                  </p>
+                )}
+                {dash.status === "loading" && (
+                  <p className="mt-[20px] text-[15px] font-semibold text-[#4E6B50]">Loading action items…</p>
+                )}
               </div>
             </div>
             <div className="mt-[20px] flex flex-col gap-[20px] xl:flex-row">
@@ -407,13 +573,19 @@ export default function Admin() {
                   <p className="text-[18px] leading-[22px] font-bold text-black">
                     Recent Activities
                   </p>
-                  <button type="button" className="ml-auto text-[15px] font-bold text-[#0087FF]">
+                  <button type="button" onClick={() => nav("/admin/data/audit")} className="ml-auto text-[15px] font-bold text-[#0087FF]">
                     View all
                   </button>
                 </div>
                 <div className="mt-[20px] flex flex-col gap-[14px]">
-                  {ACTIVITIES.map((a, i) => (
-                    <div key={`${a.title}-${i}`} className="flex items-center gap-[12px]">
+                  {activities === null && (
+                    <p className="text-[14px] font-semibold text-[#6B6B6B]">Loading activity…</p>
+                  )}
+                  {activities !== null && activities.length === 0 && (
+                    <p className="text-[14px] font-semibold text-[#6B6B6B]">No recent activity was recorded in this range.</p>
+                  )}
+                  {(activities || []).map((a) => (
+                    <div key={a.key} className="flex items-center gap-[12px]">
                       <span className="grid h-[38px] w-[38px] flex-none place-items-center rounded-full bg-[#D6E9FF] text-[15px] font-bold text-[#0087FF]">
                         R
                       </span>
@@ -431,7 +603,7 @@ export default function Admin() {
                 </div>
               </div>
               <div className="bg-btn min-w-0 flex-1 rounded-[10px] px-[24px] py-[24px] xl:px-[40px]">
-                <Chart />
+                <Chart months={months} revenue={series.revenue} payout={series.payout} loading={series.status === "loading"} />
               </div>
             </div>
       </AdminShell>

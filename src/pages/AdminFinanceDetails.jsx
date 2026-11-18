@@ -1,4 +1,6 @@
-import { Link } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { Link, useSearchParams } from "react-router-dom";
+import { api } from "../lib/api";
 import AdminShell, { BackTitle } from "../components/AdminShell";
 import BrandTile from "../components/BrandTile";
 import { GlyphCheck } from "../components/AdminGlyphs";
@@ -21,50 +23,79 @@ function Value({ children }) {
   return <p className="text-[20px] leading-[24px] font-semibold text-[#001701]">{children}</p>;
 }
 
-const TIMELINE = [
-  { title: "Payment Initiated", desc: "User completed payment for Netflix Premium", date: "Sep. 20, 2026 14:24" },
-  { title: "Payment Confirmed", desc: "Transaction verified and confirmed", date: "Sep. 20, 2026 14:24" },
-  { title: "Subscription Activated", desc: "Subscription Granted to user.", date: "Sep. 20, 2026 14:24" },
-];
-
-const PAYOUT_ROWS = [
+/* Field labels keep the Figma grid; values come from the live record or read
+   "—" when the endpoint does not return them. */
+const payoutRows = (tx, naira, when) => [
   [
-    { label: "Payout Status", value: "Paid" },
-    { label: "Payout Amount", value: "N40,000" },
+    { label: "Payout Status", value: tx?.payout_status ? String(tx.payout_status).replace(/_/g, " ") : "—" },
+    { label: "Payout Amount", value: naira(tx?.payout_amount_kobo ?? tx?.net_kobo) },
   ],
   [
-    { label: "Payout Date", value: "Sep. 20, 2026 14:24" },
-    { label: "Payout Reference", value: "N40,000" },
+    { label: "Payout Date", value: tx?.payout_at ? when : "—" },
+    { label: "Payout Reference", value: tx?.payout_reference || "—" },
   ],
   [
-    { label: "Payment Method", value: "Bank Transfer" },
-    { label: "Recipient", value: "Lindsey Lubin", sub: "Creator" },
+    { label: "Payment Method", value: tx?.payment_method || tx?.channel || "—" },
+    { label: "Recipient", value: tx?.creator_name || tx?.owner_name || "—", sub: "Creator" },
   ],
 ];
 
-const REFUND_COLS = [
-  { label: "Refund Status", value: "Not Initiated" },
-  { label: "Refund Amount", value: "N40,000" },
-  { label: "Refund Method", value: "Bank Transfer" },
-  { label: "Refund Reference", value: "TXN-00012345" },
-  { label: "Refund Date", value: "Sep. 20, 2026 14:24" },
+const refundCols = (tx, naira, when) => [
+  { label: "Refund Status", value: tx?.refund_status ? String(tx.refund_status).replace(/_/g, " ") : "Not Initiated" },
+  { label: "Refund Amount", value: naira(tx?.refund_amount_kobo ?? 0) },
+  { label: "Refund Method", value: tx?.refund_method || "—" },
+  { label: "Refund Reference", value: tx?.refund_reference || "—" },
+  { label: "Refund Date", value: tx?.refunded_at ? when : "—" },
 ];
 
 export default function AdminFinanceDetails() {
+  /* Live ledger entry: GET /admin/finance/transactions/detail?transaction_id.
+     The API returns one transaction plus every ledger entry (account type,
+     owner, amount) — there is no payout/refund/timeline block in it, so those
+     static Figma blocks are NOT presented as data. */
+  const [params] = useSearchParams();
+  const txId = params.get("id") || params.get("transaction_id") || "";
+  const [tx, setTx] = useState(null);
+  const [loadState, setLoadState] = useState("loading"); // loading | live | error
+  useEffect(() => {
+    if (!txId) return setLoadState("error");
+    let alive = true;
+    api(`/admin/finance/transactions/detail?transaction_id=${encodeURIComponent(txId)}`).then((res) => {
+      if (!alive) return;
+      if (res.error || !res.data) return setLoadState("error");
+      setTx(res.data);
+      setLoadState("live");
+    });
+    return () => { alive = false; };
+  }, [txId]);
+
+  const naira = (k) => (k == null ? "—" : `N${Number(k / 100).toLocaleString("en-US")}`);
+  const when = tx?.created_at
+    ? new Date(tx.created_at).toLocaleString("en-US", { month: "short", day: "numeric", year: "numeric", hour: "numeric", minute: "2-digit" })
+    : "—";
+  const entries = Array.isArray(tx?.entries) ? tx.entries : [];
+  const feeKobo = entries.filter((e) => /fee/i.test(e.account_type || "")).reduce((a, e) => a + (e.amount_kobo || 0), 0);
   return (
     <AdminShell active="finance" sub="transactions">
       <BackTitle title="Transaction Details" />
+      {loadState === "error" && (
+        <p className="mt-[20px] mt-[20px] rounded-[10px] border border-[#FFC48A] bg-[#FFEEE2] px-[20px] py-[16px] text-[16px] font-semibold text-[#8A3B00]">
+          {txId
+            ? "Could not load this transaction — it may have been removed."
+            : "No transaction selected. Open this screen from the Transactions list."}
+        </p>
+      )}
       <div className="mt-[30px] flex gap-[30px]">
         <div className="w-full lg:w-[458px] flex-none rounded-[20px] border border-[#999999] bg-white px-[31px] pt-[46px] pb-[30px] shadow-[0_0_20px_rgba(0,23,1,0.10)]">
           <div className="space-y-[14px]">
             <Field label="Transaction Reference">
-              <Value>TXN-000056879</Value>
+              <Value>{tx?.reference || tx?.id || "—"}</Value>
             </Field>
             <Field label="Transaction Date & Time">
-              <Value>Sep. 20, 2026 - 10:00AM</Value>
+              <Value>{when}</Value>
             </Field>
             <Field label="Type">
-              <Value>Subscription Payment</Value>
+              <Value>{tx?.kind ? String(tx.kind).replace(/_/g, " ") : "—"}</Value>
             </Field>
             <Field label="Status">
               <FinPill tone="green">Completed</FinPill>
@@ -124,9 +155,9 @@ export default function AdminFinanceDetails() {
             </p>
             <div className="mt-[12px] flex">
               {[
-                { label: "Amount", value: "N3,000", w: "w-[147px] flex-none" },
-                { label: "Clyse Fee", value: "N200", w: "w-full lg:w-[285px] flex-none" },
-                { label: "Total", value: "N3,200", w: "flex-1" },
+                { label: "Amount", value: naira(tx?.amount_kobo), w: "w-[147px] flex-none" },
+                { label: "Clyse Fee", value: naira(feeKobo || tx?.fee_kobo || 0), w: "w-full lg:w-[285px] flex-none" },
+                { label: "Total", value: naira((tx?.amount_kobo || 0) + (feeKobo || tx?.fee_kobo || 0)), w: "flex-1" },
               ].map((c) => (
                 <div key={c.label} className={c.w}>
                   <p className="text-[18px] leading-[22px] font-semibold text-[#6B6B6B]">
@@ -149,10 +180,10 @@ export default function AdminFinanceDetails() {
               </span>
               <span className="ml-[26px]">
                 <span className="block text-[18px] leading-[22px] font-semibold text-[#048B0B]">
-                  Reconciled
+                  {tx?.status ? String(tx.status).replace(/_/g, " ") : "—"}
                 </span>
                 <span className="mt-[8px] block text-[18px] leading-[22px] font-semibold text-[#6B6B6B]">
-                  Transaction reconciled with payment methods
+                  Transaction status as posted to the ledger
                 </span>
               </span>
             </div>
@@ -171,22 +202,27 @@ export default function AdminFinanceDetails() {
             Transaction Timeline
           </p>
           <div className="mt-[31px]">
-            {TIMELINE.map((t, i) => (
-              <div key={t.title} className="relative pb-[40px] last:pb-0">
-                {i < TIMELINE.length - 1 && (
+            {entries.length === 0 && (
+              <p className="text-[16px] leading-[20px] font-semibold text-[#6B6B6B]">
+                No ledger entries recorded for this transaction.
+              </p>
+            )}
+            {entries.map((t, i) => (
+              <div key={t.id || i} className="relative pb-[40px] last:pb-0">
+                {i < entries.length - 1 && (
                   <span className="absolute top-[40px] bottom-[-8px] w-[2px] bg-[#048B0B]" style={{ left: 17 }} />
                 )}
                 <div className="flex">
                   <CheckDisc size={35} />
                   <span className="ml-[18px]">
                     <span className="block text-[20px] leading-[24px] font-bold text-[#001701]">
-                      {t.title}
+                      {String(t.account_type || "entry").replace(/_/g, " ")}
                     </span>
                     <span className="mt-[12px] block text-[18px] leading-[22px] font-semibold text-[#6B6B6B]">
-                      {t.date}
+                      {naira(t.amount_kobo)}
                     </span>
                     <span className="mt-[6px] block text-[18px] leading-[22px] font-semibold text-[#6B6B6B]">
-                      {t.desc}
+                      {t.owner_name || t.owner || t.account_owner || "—"}
                     </span>
                   </span>
                 </div>
@@ -198,8 +234,12 @@ export default function AdminFinanceDetails() {
           <p className="text-[20px] leading-[24px] font-bold text-[#001701]">
             Payout Information
           </p>
+          <p className="mt-[10px] text-[16px] leading-[20px] font-semibold text-[#6B6B6B]">
+            Payout data isn’t part of a transaction record — see the payouts ledger for the
+            creator’s payout on this payment.
+          </p>
           <div className="mt-[40px] space-y-[34px]">
-            {PAYOUT_ROWS.map((row, i) => (
+            {payoutRows(tx, naira, when).map((row, i) => (
               <div key={i} className="flex">
                 {row.map((c, j) => (
                   <div key={c.label} className={j === 0 ? "w-full lg:w-[301px] flex-none" : "flex-1"}>
@@ -226,7 +266,7 @@ export default function AdminFinanceDetails() {
           Refund / Reversal Information
         </p>
         <div className="mt-[24px] flex">
-          {REFUND_COLS.map((c, i) => (
+          {refundCols(tx, naira, when).map((c, i) => (
             <div key={c.label} className={`flex-1 ${i > 0 ? "border-l border-[#E5E5E5] pl-[20px]" : ""}`}>
               <p className="text-[18px] leading-[22px] font-semibold text-[#6B6B6B]">
                 {c.label}

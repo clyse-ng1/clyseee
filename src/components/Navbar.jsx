@@ -70,17 +70,20 @@ function CloseIcon() {
   );
 }
 
-export default function Navbar({ loggedIn = false, landing = false }) {
-  const links = landing ? LANDING_LINKS : loggedIn ? LOGGED_LINKS : LINKS;
-  const routeFor = (l) =>
-    landing
-      ? LANDING_ROUTES[l] || "/"
-      : loggedIn
-        ? LOGGED_ROUTES[l] || "/"
-        : PUBLIC_ROUTES[l] || "/";
+export default function Navbar({ loggedIn, landing = false }) {
   const [open, setOpen] = useState(false);
   const [accountOpen, setAccountOpen] = useState(false);
   const { user, logout } = useAuth();
+  /* Public pages may also be visited from an authenticated flow. Unless a
+     caller explicitly forces the logged-in variant, reflect the real session. */
+  const isLoggedIn = typeof loggedIn === "boolean" ? loggedIn : (!landing && !!user);
+  const links = landing ? LANDING_LINKS : isLoggedIn ? LOGGED_LINKS : LINKS;
+  const routeFor = (l) =>
+    landing
+      ? LANDING_ROUTES[l] || "/"
+      : isLoggedIn
+        ? LOGGED_ROUTES[l] || "/"
+        : PUBLIC_ROUTES[l] || "/";
   const navigate = useNavigate();
   const { pathname } = useLocation();
 
@@ -105,12 +108,12 @@ export default function Navbar({ loggedIn = false, landing = false }) {
       {/* Desktop bar */}
       <div className="hidden border-b border-clyse xl:block">
         <div className="relative mx-auto flex h-[100px] max-w-[1440px] items-center px-[20px] min-[1440px]:px-[100px]">
-          <Link to={loggedIn ? "/browse" : "/"} className="shrink-0">
+          <Link to={isLoggedIn ? "/browse" : "/"} className="shrink-0">
             <img src={logo} alt="Clyse" className="h-[40px] w-auto" />
           </Link>
           <nav
             className={`flex items-center gap-[20px] ${
-              loggedIn
+              isLoggedIn
                 ? "absolute left-1/2 -translate-x-1/2"
                 : landing
                   ? "ml-[167px]"
@@ -127,7 +130,7 @@ export default function Navbar({ loggedIn = false, landing = false }) {
               </Link>
             ))}
           </nav>
-          {loggedIn ? (
+          {isLoggedIn ? (
             <div className="relative ml-auto">
               <button
                 type="button"
@@ -184,7 +187,7 @@ export default function Navbar({ loggedIn = false, landing = false }) {
       {/* Mobile bar */}
       <div className="border-b border-clyse xl:hidden">
         <div className="flex h-[63px] items-center justify-between px-[20px]">
-          <Link to={loggedIn ? "/browse" : "/"} onClick={() => setOpen(false)}>
+          <Link to={isLoggedIn ? "/browse" : "/"} onClick={() => setOpen(false)}>
             <img src={logo} alt="Clyse" className="h-[21px] w-auto" />
           </Link>
           <button
@@ -209,7 +212,7 @@ export default function Navbar({ loggedIn = false, landing = false }) {
             <CloseIcon />
           </button>
           <nav className="mt-[24px] flex flex-col">
-            {loggedIn
+            {isLoggedIn
               ? SECTIONS.map((s) => (
                   <div key={s.title} className="mt-[22px] first:mt-0">
                     <p className="text-[12px] leading-[16px] font-bold tracking-[0.14em] text-[#9DB3A2] uppercase">
@@ -257,7 +260,7 @@ export default function Navbar({ loggedIn = false, landing = false }) {
                 ))}
           </nav>
           <div className="mt-[20px] flex gap-[50px]">
-            {loggedIn ? (
+            {isLoggedIn ? (
               <button
                 type="button"
                 onClick={signOut}

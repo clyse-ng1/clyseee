@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Page, AuthSplit } from "../components/AuthLayout";
-import { Field, CtaButton, SocialButtons, FormFooter } from "../components/Forms";
+import { Field, CtaButton, FormFooter } from "../components/Forms";
 import { useAuth } from "../lib/useAuth";
 import collageSignup from "../assets/collage-signup.webp";
 import collageMobile from "../assets/collage-mobile.webp";
@@ -20,7 +20,8 @@ export default function Signup() {
   const [apiError, setApiError] = useState("");
 
   const emailOk = /.+@.+\..+/.test(email.trim());
-  const filled = name.trim() && email.trim() && password && confirm;
+  const contact = email.trim();
+  const filled = name.trim() && contact && password && confirm;
   const mismatch = submitted && password !== confirm;
   const canSubmit = filled && emailOk && password.length >= 8 && password === confirm;
 
@@ -37,7 +38,7 @@ export default function Signup() {
     setBusy(true);
     const { data, error } = await register({
       fullName: name.trim(),
-      email: email.trim(),
+      email: contact,
       password,
     });
     setBusy(false);
@@ -46,7 +47,7 @@ export default function Signup() {
       return;
     }
     navigate("/verify-email", {
-      state: { email: email.trim(), destination: data?.destination },
+      state: { email: contact, destination: data?.destination, channel: "email" },
     });
   };
 
@@ -70,6 +71,7 @@ export default function Signup() {
             onChange={(e) => setEmail(e.target.value)}
             state={stateOf(email)}
             autoComplete="email"
+            error={submitted && email.trim() && !emailOk ? "Enter a valid email address" : ""}
           />
           <Field
             label="Create Password"
@@ -102,7 +104,6 @@ export default function Signup() {
               {apiError}
             </p>
           )}
-          <SocialButtons />
         </form>
         <FormFooter text="I already have an account" linkText="Sign In" to="/signin" />
       </AuthSplit>

@@ -209,14 +209,6 @@ function TrendGlyph({ up }) {
 }
 
 /* Recent Activities card (Finance + Reconciliation share it). */
-const ACTIVITIES = [
-  { name: "Payout to Allison Press", amount: "-N3,000", up: false },
-  { name: "Refund to Mark Press", amount: "-N4,000", up: false },
-  { name: "Payment from Sarah Press", amount: "N3,000", up: true },
-  { name: "Payout to Allison Press", amount: "-N3,000", up: false },
-  { name: "Payment from Sarah Press", amount: "N3,000", up: true },
-];
-
 export function RecentActivities({ dark = false, className = "", items = null }) {
   return (
     <div className={`w-[473px] flex-none rounded-[20px] border bg-white px-[10px] pt-[30px] pb-[12px] ${dark ? "border-black shadow-[0_0_0_2px_#ffffff]" : "border-[#999999]"} ${className}`}>
@@ -230,33 +222,27 @@ export function RecentActivities({ dark = false, className = "", items = null })
         </Link>
       </div>
       <div className="mt-[22px]">
+        {items === null && Array.from({ length: 5 }, (_, i) => (
+          <div key={`loading-${i}`} className="flex h-[64px] items-center gap-[15px]" aria-hidden>
+            <span className="h-[34px] w-[34px] animate-pulse rounded-[5px] bg-[#E9EEE9]" />
+            <span className="flex-1 space-y-2"><span className="block h-[12px] w-3/4 animate-pulse rounded bg-[#E9EEE9]" /><span className="block h-[10px] w-1/2 animate-pulse rounded bg-[#E9EEE9]" /></span>
+          </div>
+        ))}
         {items && !items.length && (
           <p className="px-[20px] pb-[18px] text-[15px] font-semibold text-[#6B6B6B]">No activity yet — transactions will appear here as they post.</p>
         )}
-        {(items || ACTIVITIES).map((a, i) => (
+        {(items || []).map((a, i) => (
           <div key={`${a.name}-${i}`} className="flex h-[64px] items-center">
-            <span
-              className={`grid h-[34px] w-[34px] flex-none place-items-center rounded-[5px] ${a.up ? "bg-[#DFFFE0]/80" : "bg-[#FFEFDF]/80"}`}
-            >
+            <span className={`grid h-[34px] w-[34px] flex-none place-items-center rounded-[5px] ${a.up ? "bg-[#DFFFE0]/80" : "bg-[#FFEFDF]/80"}`}>
               <TrendGlyph up={a.up} />
             </span>
-            <span className="ml-[15px]">
-              <span className="block text-[16px] leading-[20px] font-semibold whitespace-nowrap text-[#001701]">
-                {a.name}
-              </span>
-              <span className="block text-[16px] leading-[20px] font-semibold text-[#6B6B6B]">
-                {a.date || "Sep. 20, 2026"}
-              </span>
+            <span className="ml-[15px] min-w-0">
+              <span className="block truncate text-[16px] leading-[20px] font-semibold text-[#001701]">{a.name || "—"}</span>
+              <span className="block text-[16px] leading-[20px] font-semibold text-[#6B6B6B]">{a.date || "—"}</span>
             </span>
             <span className="ml-auto text-right">
-              <span
-                className={`block text-[16px] leading-[20px] font-semibold ${a.up ? "text-[#048B0B]" : "text-black"}`}
-              >
-                {a.amount}
-              </span>
-              <span className={`block text-[10px] leading-[20px] font-semibold ${/fail|revers/.test(a.status || "") ? "text-[#E31B00]" : "text-[#048B0B]"}`}>
-                {a.status ? String(a.status).charAt(0).toUpperCase() + String(a.status).slice(1) : "Completed"}
-              </span>
+              <span className={`block text-[16px] leading-[20px] font-semibold ${a.up ? "text-[#048B0B]" : "text-black"}`}>{a.amount || "—"}</span>
+              {a.status && <span className={`block text-[10px] leading-[20px] font-semibold ${/fail|revers/.test(a.status) ? "text-[#E31B00]" : "text-[#048B0B]"}`}>{String(a.status).charAt(0).toUpperCase() + String(a.status).slice(1)}</span>}
             </span>
           </div>
         ))}
@@ -265,13 +251,12 @@ export function RecentActivities({ dark = false, className = "", items = null })
   );
 }
 
-/* Revenue/Payout overview chart (static decorative SVG tracing the design). */
-const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "July", "Aug", "Sep", "Oct", "Nov", "Dec"];
-const PAYOUT = [2.2, 3.4, 4.4, 3.9, 4.6, 6.4, 5.9, 6.8, 9.4, 7.6, 8.4, 10];
-const REVENUE = [0.4, 1.9, 1.7, 2.4, 2.2, 3.0, 3.4, 2.9, 3.4, 2.6, 3.3, 4.0];
+/* Monthly chart values come from the admin transaction and payout ledgers.
+   Values are plotted in millions of naira; missing months remain zero. */
+const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
-function smoothPath(vals, x0, dx, yTop, yBottom) {
-  const pts = vals.map((v, i) => [x0 + i * dx, yBottom - (v / 10) * (yBottom - yTop)]);
+function smoothPath(vals, x0, dx, yTop, yBottom, axisMax) {
+  const pts = vals.map((v, i) => [x0 + i * dx, yBottom - (v / axisMax) * (yBottom - yTop)]);
   let d = `M ${pts[0][0]} ${pts[0][1]}`;
   for (let i = 1; i < pts.length; i++) {
     const [x0p, y0p] = pts[i - 1];
@@ -284,8 +269,12 @@ function smoothPath(vals, x0, dx, yTop, yBottom) {
 
 const CHART_MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
-export function OverviewChart({ dark = false, className = "" }) {
+export function OverviewChart({ dark = false, className = "", revenueValues = [], payoutValues = [] }) {
   const [month, setMonth] = useState("Month");
+  const revenue = MONTHS.map((_, i) => Number(revenueValues[i]) || 0);
+  const payout = MONTHS.map((_, i) => Number(payoutValues[i]) || 0);
+  const peak = Math.max(0, ...revenue, ...payout);
+  const axisMax = peak > 0 ? Math.max(2, Math.ceil(peak / 2) * 2) : 10;
   const W = 527;
   const H = 230;
   const padL = 30;
@@ -294,11 +283,13 @@ export function OverviewChart({ dark = false, className = "" }) {
   const yBottom = H - padB;
   const x0 = padL + 8;
   const dx = (W - x0 - 8) / 11;
-  const green = smoothPath(PAYOUT, x0, dx, yTop, yBottom);
-  const black = smoothPath(REVENUE, x0, dx, yTop, yBottom);
+  const green = smoothPath(payout, x0, dx, yTop, yBottom, axisMax);
+  const black = smoothPath(revenue, x0, dx, yTop, yBottom, axisMax);
   const area = `${green.d} L ${x0 + 11 * dx} ${yBottom} L ${x0} ${yBottom} Z`;
-  const sep = green.pts[8];
-  const ser = black.pts[8];
+  const selectedIndex = month === "Month" ? 8 : Math.max(0, CHART_MONTHS.indexOf(month));
+  const sep = green.pts[selectedIndex];
+  const ser = black.pts[selectedIndex];
+  const hasData = peak > 0;
   return (
     <div className={`w-[607px] flex-none rounded-[10px] border bg-white px-[30px] pt-[35px] pb-[20px] ${dark ? "border-black shadow-[0_0_0_2px_#ffffff]" : "border-[#999999]"} ${className}`}>
       <div className="flex items-center">
@@ -322,20 +313,20 @@ export function OverviewChart({ dark = false, className = "" }) {
         />
       </div>
       <svg viewBox={`0 0 ${W} ${H}`} className="mt-[12px] w-full" role="img" aria-label="Revenue and payout chart">
-        {[0, 2, 4, 6, 8, 10].map((v) => {
-          const y = yBottom - (v / 10) * (yBottom - yTop);
+        {Array.from({ length: 6 }, (_, i) => (axisMax / 5) * (5 - i)).map((v) => {
+          const y = yBottom - (v / axisMax) * (yBottom - yTop);
           return (
             <g key={v}>
               <line x1={x0} x2={W - 4} y1={y} y2={y} stroke="#E5E5E5" strokeWidth="1" />
               <text x={2} y={y + 4} fontSize="12" fontWeight="700" fill="#001701">
-                {v === 0 ? "0" : `${v}M`}
+                {v === 0 ? "0" : `${Number.isInteger(v) ? v : v.toFixed(1)}M`}
               </text>
             </g>
           );
         })}
-        <path d={area} fill="#048B0B" opacity="0.12" />
-        <path d={green.d} fill="none" stroke="#048B0B" strokeWidth="2.5" />
-        <path d={black.d} fill="none" stroke="#001701" strokeWidth="2" />
+        {hasData && <path d={area} fill="#048B0B" opacity="0.12" />}
+        {hasData && <path d={green.d} fill="none" stroke="#048B0B" strokeWidth="2.5" />}
+        {hasData && <path d={black.d} fill="none" stroke="#001701" strokeWidth="2" />}
         {MONTHS.map((m, i) => (
           <text
             key={m}
@@ -344,45 +335,33 @@ export function OverviewChart({ dark = false, className = "" }) {
             fontSize="12"
             fontWeight="700"
             textAnchor="middle"
-            fill={m === "Sep" ? "#048B0B" : "#001701"}
+            fill={CHART_MONTHS[i] === (month === "Month" ? "Sep" : month) ? "#048B0B" : "#001701"}
           >
             {m}
           </text>
         ))}
-        <circle cx={sep[0]} cy={sep[1]} r="5" fill="#048B0B" stroke="#fff" strokeWidth="2" />
-        <circle cx={ser[0]} cy={ser[1]} r="5" fill="#048B0B" stroke="#fff" strokeWidth="2" />
-        <g>
-          <rect x={sep[0] - 44} y={sep[1] - 52} width="88" height="42" rx="6" fill="#EAFBEA" stroke="#B1DBB3" />
-          <text x={sep[0]} y={sep[1] - 36} fontSize="8" textAnchor="middle" fill="#001701">
-            Payout
-          </text>
-          <text x={sep[0]} y={sep[1] - 26} fontSize="8" fontWeight="700" textAnchor="middle" fill="#222222">
-            Total Amount N8M
-          </text>
-        </g>
-        <g>
-          <rect x={ser[0] - 44} y={ser[1] + 10} width="88" height="42" rx="6" fill="#EAFBEA" stroke="#B1DBB3" />
-          <text x={ser[0]} y={ser[1] + 26} fontSize="8" textAnchor="middle" fill="#001701">
-            Revenue
-          </text>
-          <text x={ser[0]} y={ser[1] + 36} fontSize="8" fontWeight="700" textAnchor="middle" fill="#222222">
-            Total Amount N4M
-          </text>
-        </g>
+        {hasData && (payout[selectedIndex] > 0 || revenue[selectedIndex] > 0) && (
+          <>
+            {payout[selectedIndex] > 0 && <circle cx={sep[0]} cy={sep[1]} r="5" fill="#048B0B" stroke="#fff" strokeWidth="2" />}
+            {revenue[selectedIndex] > 0 && <circle cx={ser[0]} cy={ser[1]} r="5" fill="#001701" stroke="#fff" strokeWidth="2" />}
+          </>
+        )}
       </svg>
     </div>
   );
 }
 
-/* Reconciliation-status donut: green ~94%, orange ~5%, dark ~1%. */
-export function Donut() {
+/* Reconciliation-status donut derives its segments from live run counts. */
+export function Donut({ matched = 0, unmatched = 0, inProgress = 0, loading = false }) {
   const R = 72;
   const C = 2 * Math.PI * R;
-  const segs = [
-    { frac: 0.939, color: "#048B0B" },
-    { frac: 0.0475, color: "#FF9100" },
-    { frac: 0.0135, color: "#4E4E4E" },
-  ];
+  const total = matched + unmatched + inProgress;
+  const pct = total > 0 ? (matched / total) * 100 : 0;
+  const segs = total > 0 ? [
+    { frac: matched / total, color: "#048B0B" },
+    { frac: unmatched / total, color: "#FF9100" },
+    { frac: inProgress / total, color: "#4E4E4E" },
+  ].filter((segment) => segment.frac > 0) : [];
   let acc = 0;
   return (
     <svg width="200" height="200" viewBox="0 0 200 200" role="img" aria-label="95.6 percent matched">
@@ -406,7 +385,7 @@ export function Donut() {
         );
       })}
       <text x="100" y="98" fontSize="20" fontWeight="600" textAnchor="middle" fill="#001701">
-        95.6%
+        {loading ? "…" : `${pct.toFixed(1)}%`}
       </text>
       <text x="100" y="118" fontSize="14" fontWeight="600" textAnchor="middle" fill="#4E4E4E">
         Matched

@@ -11,6 +11,7 @@ export default function PairButtons({
   nextLabel = "Continue",
   onNext,
   busy,
+  disabled = false,
   className = "",
 }) {
   const nextCls =
@@ -25,7 +26,7 @@ export default function PairButtons({
         Go Back
       </Link>
       {onNext ? (
-        <button type="button" onClick={onNext} disabled={busy} className={`${nextCls} ${busy ? "opacity-60" : ""}`}>
+        <button type="button" onClick={onNext} disabled={busy || disabled} className={`${nextCls} ${(busy || disabled) ? "opacity-60" : ""}`}>
           {busy ? "Please wait…" : nextLabel}
         </button>
       ) : (

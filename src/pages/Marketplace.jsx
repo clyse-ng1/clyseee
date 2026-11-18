@@ -36,10 +36,10 @@ function catIcon(category) {
   return iconProductivity;
 }
 
-function ServiceCard({ title, brand, category, chip, price }) {
+function ServiceCard({ title, brand, category, chip, price, slug }) {
   return (
     <Link
-      to="/subscription-group"
+      to={`/subscription-group?slug=${encodeURIComponent(slug || brand)}`}
       className="bg-mintfade flex h-[290px] flex-col items-center justify-center rounded-[20px] border border-clyse px-[20px] shadow-[0_0_20px_rgba(0,23,1,0.10)] transition hover:opacity-95"
     >
       <BrandTile brand={brand} name={title} category={category} size={75} plain />
@@ -64,6 +64,7 @@ function mapService(a) {
   return {
     title: service.name || "Subscription",
     brand: brandOf(service),
+    slug: service.slug || brandOf(service),
     category: cat,
     chip: titleCase(cat),
     price: min !== Infinity ? `From ${kobo(min)}/Monthly` : null,

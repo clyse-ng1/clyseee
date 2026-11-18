@@ -88,6 +88,30 @@ export function CtaButton({ state = "disabled", children, className = "", ...pro
 }
 
 /* Google / Apple continue buttons */
+/* Email / Phone segmented toggle — the API supports both identifiers for
+   register, login, verify, otp/resend and password recovery. */
+export function MethodToggle({ method, onChange }) {
+  const opt = (key, label) => (
+    <button
+      type="button"
+      onClick={() => onChange(key)}
+      className={`h-[35px] flex-1 rounded-[3.5px] border text-[12.5px] font-semibold transition lg:h-[46px] lg:rounded-[5px] lg:text-[16px] ${
+        method === key
+          ? "border-clyse bg-clyse text-white"
+          : "border-line bg-white text-ink hover:bg-mint"
+      }`}
+    >
+      {label}
+    </button>
+  );
+  return (
+    <div className="flex gap-[10px]" role="tablist" aria-label="Sign up with">
+      {opt("email", "Email")}
+      {opt("phone", "Phone")}
+    </div>
+  );
+}
+
 export function SocialButtons() {
   const cls =
     "flex h-[35px] w-full items-center justify-center gap-[8px] rounded-[3.5px] border border-clyse bg-white text-[12.5px] font-semibold text-ink transition hover:bg-mint lg:h-[59px] lg:gap-[10px] lg:rounded-[5px] lg:text-[18px]";

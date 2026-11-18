@@ -1,4 +1,5 @@
 import AdminShell, { BackTitle } from "../components/AdminShell";
+import useAdminRows from "../components/useAdminRows";
 import { FinPill, CheckBox, Pagination } from "../components/FinanceShared";
 
 /* Finance > Reconciliation > Exceptions — Figma 1195:27128 (desktop).
@@ -13,17 +14,14 @@ const STEPS = [
   { n: "4", title: "Closure", sub: "Exception closed", active: false },
 ];
 
-const ROWS = [
-  { ref: "TRN-0004455", user: "Maria Philips", type: "Amount Mismatched", typeTone: "orange", issue: "Transaction amount differs from payment record.", amount: "N3,200", date: "Sep. 20, 2026", resolved: true },
-  { ref: "TRN-0004455", user: "Maria Philips", type: "Missing Record", typeTone: "red", issue: "Payment record not found in wallet", amount: "N3,200", date: "Sep. 20, 2026", resolved: true },
-  { ref: "TRN-0004455", user: "Maria Philips", type: "Duplicate", typeTone: "purple", issue: "Duplicate transaction detected", amount: "N3,200", date: "Sep. 20, 2026", resolved: true },
-  { ref: "TRN-0004455", user: "Maria Philips", type: "Refund Requirement", typeTone: "blue", issue: "User requested refund (Verification needed)", amount: "N3,200", date: "Sep. 20, 2026", resolved: true },
-];
-
 const COLS = [71, 186, 212, 254, 276, 159, 185, 186];
 const HEADERS = ["", "Transaction Ref", "User", "Exception Type", "Issue", "Amount", "Date", "Action"];
 
 export default function AdminExceptions() {
+  /* Live reconciliation exceptions (ADMIN-012). Figma rows hold the layout
+     while loading; real exceptions replace them; empty -> the empty state. */
+  const { rows: live, status } = useAdminRows("exceptions");
+  const rows = live || [];
   return (
     <AdminShell active="finance" sub="recon">
       <BackTitle title="Exception Resolution Flow" />
@@ -67,7 +65,12 @@ export default function AdminExceptions() {
             ))}
           </div>
           <div className="divide-y divide-[#999999]">
-            {ROWS.map((r, i) => (
+            {rows.length === 0 && status === "empty" && (
+              <p className="px-[21px] py-[24px] text-[16px] font-semibold text-[#4E4E4E]">
+                No reconciliation exceptions — nothing is out of balance.
+              </p>
+            )}
+            {rows.map((r, i) => (
               <div key={i} className="flex h-[111px] items-center">
                 <div className="flex-none pl-[21px]" style={{ width: COLS[0] }}>
                   <CheckBox label="Select exception" />

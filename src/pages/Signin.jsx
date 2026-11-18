@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Page, AuthSplit } from "../components/AuthLayout";
-import { Field, CtaButton, SocialButtons, FormFooter } from "../components/Forms";
+import { Field, CtaButton, FormFooter } from "../components/Forms";
 import { useAuth } from "../lib/useAuth";
 import { idOf } from "../lib/api";
 import collageSignin from "../assets/collage-signin.webp";
@@ -55,7 +55,8 @@ export default function Signin() {
       <AuthSplit collage={collageSignin} collageMobile={collageMobile} title="Sign In">
         <form onSubmit={handleSubmit} className="flex flex-col gap-[21px] lg:gap-[30px]">
           <Field
-            label="Email or Username"
+            label="Email"
+            type="email"
             placeholder="Enter your Email"
             value={email}
             onChange={(e) => {
@@ -102,7 +103,6 @@ export default function Signin() {
               {apiError}
             </p>
           )}
-          <SocialButtons />
         </form>
         <FormFooter text="I don't have an account" linkText="Sign Up" to="/signup" />
       </AuthSplit>

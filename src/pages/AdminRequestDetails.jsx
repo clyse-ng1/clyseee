@@ -5,9 +5,14 @@ import { SuccessSeal } from "../components/AdminGlyphs";
 import avatarKianna from "../assets/avatar-kianna.webp";
 
 /* Request Details + Approve Request panel — Figma 1156:44392 / 1157:45079
-   (1440, desktop only). Static: Approve swaps to the confirmation panel,
-   Reject opens a confirmation modal (mirrors the group-review reject
-   modal language). Copy fix: "Webite" -> "Website". */
+   (1440, desktop only).
+
+   API GAP: this screen is the admin view of a member's custom subscription
+   request, and the published admin API has no custom-request endpoint (requests
+   exist only on the member side: POST/GET /member/subscriptions/custom-requests,
+   and a member can only resubmit their own rejected one). There is therefore no
+   id this screen could load and no endpoint that approve/reject could call — the
+   fields stay empty and the actions say so instead of pretending to work. */
 
 function SlackTile({ size = 50 }) {
   return (
@@ -37,8 +42,13 @@ function InfoRow({ label, children }) {
 
 export default function AdminRequestDetails() {
   const nav = useNavigate();
-  const [approved, setApproved] = useState(false);
+  const [approved] = useState(false);
   const [rejectOpen, setRejectOpen] = useState(false);
+  const [note, setNote] = useState("");
+  const gapNote = () =>
+    setNote(
+      "No admin endpoint exists for custom subscription requests yet, so this action cannot be recorded. Approval and rejection have to be done once the backend exposes the queue.",
+    );
 
   if (approved) {
     return (
@@ -121,15 +131,20 @@ export default function AdminRequestDetails() {
           />
         </div>
 
+        {note && (
+          <p className="mt-[30px] rounded-[10px] border border-[#FFC48A] bg-[#FFEEE2] px-[20px] py-[16px] text-[16px] font-semibold text-[#8A3B00]">
+            {note}
+          </p>
+        )}
         <div className="mt-[50px] flex justify-end gap-[40px]">
           <button
-            onClick={() => setRejectOpen(true)}
+            onClick={gapNote}
             className="flex h-[60px] w-full lg:w-[230px] items-center justify-center rounded-[10px] border border-[#FF0000] bg-white text-[18px] font-semibold text-[#FF0000]"
           >
             Reject
           </button>
           <button
-            onClick={() => setApproved(true)}
+            onClick={gapNote}
             className="bg-btn flex h-[60px] w-full lg:w-[230px] items-center justify-center rounded-[10px] text-[18px] font-semibold text-[#F1F8F2]"
           >
             Approve
@@ -158,7 +173,7 @@ export default function AdminRequestDetails() {
                 Cancel
               </button>
               <button
-                onClick={() => nav("/admin/subscriptions/requests")}
+                onClick={() => { setRejectOpen(false); gapNote(); }}
                 className="flex h-[60px] flex-1 items-center justify-center rounded-[16px] bg-[#FF0000] text-[18px] font-semibold text-white"
               >
                 Reject

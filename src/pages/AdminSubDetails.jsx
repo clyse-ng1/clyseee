@@ -1,4 +1,6 @@
-import { useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { useNavigate, useSearchParams } from "react-router-dom";
+import { api } from "../lib/api";
 import AdminShell, { DarkButton } from "../components/AdminShell";
 import BrandTile from "../components/BrandTile";
 
@@ -19,6 +21,25 @@ function Cell({ label, children }) {
 
 export default function AdminSubDetails() {
   const nav = useNavigate();
+  const [params] = useSearchParams();
+  const serviceId = params.get("service_id") || params.get("id") || "";
+  /* Live catalogue detail: GET /admin/catalogue/services/detail?service_id.
+     Figma values hold the layout until it answers; nothing is invented when an
+     id is missing — the fields read "—". */
+  const [svc, setSvc] = useState(null);
+  useEffect(() => {
+    if (!serviceId) return;
+    let alive = true;
+    api(`/admin/catalogue/services/detail?service_id=${encodeURIComponent(serviceId)}`).then((res) => {
+      if (alive && !res.error && res.data) setSvc(res.data.service || null);
+    });
+    return () => { alive = false; };
+  }, [serviceId]);
+
+  const plan0 = svc?.plans?.[0] || {};
+  const features = Array.isArray(plan0.features)
+    ? plan0.features.join("  |  ")
+    : plan0.features || "—";
   return (
     <AdminShell active="subscriptions" sub="services" expand>
       <div className="flex flex-wrap items-center gap-[16px]">
@@ -46,36 +67,36 @@ export default function AdminSubDetails() {
         <div className="mt-[58px] grid grid-cols-1 gap-[40px] md:grid-cols-3">
           <Cell label="Subscription Name">
             <span className="mt-[10px] flex items-center gap-[16px]">
-              <BrandTile brand="netflix" size={50} plain />
-              <span className="text-[18px] leading-[22px] font-semibold text-[#001701]">Netflix Premium</span>
+              <BrandTile brand={svc?.slug || "generic"} size={50} plain />
+              <span className="text-[18px] leading-[22px] font-semibold text-[#001701]">{svc?.name || "—"}</span>
             </span>
           </Cell>
-          <Cell label="Subscription Name">
-            <p className={VALUE}>Entertainment</p>
+          <Cell label="Category">
+            <p className={VALUE}>{svc?.category || "—"}</p>
           </Cell>
           <Cell label="Subscription Plan">
-            <p className={VALUE}>Premium</p>
+            <p className={VALUE}>{plan0.name || "—"}</p>
           </Cell>
         </div>
         <div className="mt-[41px] grid grid-cols-1 gap-[40px] md:grid-cols-3">
           <Cell label="Billing Period">
-            <p className={VALUE}>Monthly</p>
+            <p className={VALUE}>{plan0.billing_period || plan0.interval || "—"}</p>
           </Cell>
           <Cell label="Fixed Unit Price">
-            <p className={VALUE}>N3,000</p>
+            <p className={VALUE}>{plan0.price != null ? `N${Number(plan0.price / 100).toLocaleString("en-US")}` : "—"}</p>
           </Cell>
           <Cell label="Subscription Features">
-            <p className={VALUE}>1080p&nbsp; |&nbsp; 2 screens&nbsp; |&nbsp; limited ads</p>
+            <p className={VALUE}>{features}</p>
           </Cell>
         </div>
 
         <p className="mt-[51px] text-[24px] leading-[29px] font-bold text-[#001701]">Capacity and Access</p>
         <div className="mt-[28px] grid grid-cols-1 gap-[40px] md:grid-cols-2">
           <Cell label="Total Subscription Capacity">
-            <p className={VALUE}>100 Slot</p>
+            <p className={VALUE}>{svc?.group_count != null ? `${svc.group_count} Group` : "—"}</p>
           </Cell>
           <Cell label="Supported Access Method">
-            <p className={VALUE}>Access Link</p>
+            <p className={VALUE}>{svc?.access_method || svc?.access_type || "—"}</p>
           </Cell>
         </div>
 

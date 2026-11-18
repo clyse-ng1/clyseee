@@ -4,7 +4,7 @@ import Navbar from "../components/Navbar";
 import { MobileBack } from "../components/MemberMini";
 import { BlurBg } from "../components/Decor";
 import CreateGroupHead from "../components/CreateGroupHead";
-import { api, fmtDate, kobo, brandOf } from "../lib/api";
+import { api, fmtDate, kobo, brandOf, titleCase } from "../lib/api";
 import BrandTile from "../components/BrandTile";
 import { useGroupId } from "../lib/useGroup";
 import iconCopy from "../assets/copy-black.svg";
@@ -16,24 +16,6 @@ import Sidebar from "../components/Sidebar";
    from GET /member/groups/detail. The refresh icon rotates the invite code
    (POST /member/groups/code/regenerate); Manage/Invite survive as small
    links so the creator flow stays reachable. Copy fix: "30, Sep" -> "30 Sep". */
-
-const SLOTS = [
-  { label: "Shared slots", value: "12" },
-  { label: "Occupied slots", value: "0" },
-  { label: "Remaining Slots", value: "12" },
-];
-
-const DATES = [
-  { label: "Created Date", value: "25 Sep 2026" },
-  { label: "Start Date", value: "30 Sep 2026" },
-  { label: "Expired Date", value: "30 Oct 2026" },
-];
-
-const META = [
-  { label: "Group Type", value: "Public Group" },
-  { label: "Group Plan", value: "Premium" },
-  { label: "Billing Cycle", value: "Monthly" },
-];
 
 function GroupGlyph({ size = 19, color = "#048B0B" }) {
   return (
@@ -95,8 +77,11 @@ function RefreshIcon() {
 export default function GroupDetails() {
   const { copied, copy } = useCopy();
   const location = useLocation();
-  const [groupId, resolved] = useGroupId(location.state?.group_id);
+  const queryGroupId = new URLSearchParams(location.search).get("group_id");
+  const [groupId, resolved] = useGroupId(location.state?.group_id || queryGroupId);
   const [detail, setDetail] = useState(null);
+  const [detailState, setDetailState] = useState("loading");
+  const [detailError, setDetailError] = useState("");
   const [code, setCode] = useState(null);
   const [regenBusy, setRegenBusy] = useState(false);
   const [regenMsg, setRegenMsg] = useState("");
@@ -105,13 +90,25 @@ export default function GroupDetails() {
   useEffect(() => {
     if (!groupId) return;
     let live = true;
+    setDetailState("loading");
+    setDetailError("");
     (async () => {
-      const { data, error } = await api(`/member/groups/detail?group_id=${groupId}`);
-      if (!live || error) return;
+      const { data, error } = await api(`/member/groups/detail?group_id=${encodeURIComponent(groupId)}`);
+      if (!live) return;
+      if (error || !data) {
+        setDetailError(error?.message || "Group details were not returned.");
+        setDetailState("error");
+        return;
+      }
       setDetail(data);
       const g = data?.group || data || {};
       if (g.invite_code) setCode(g.invite_code);
-    })();
+      setDetailState("live");
+    })().catch((error) => {
+      if (!live) return;
+      setDetailError(error?.message || "Could not load this group.");
+      setDetailState("error");
+    });
     return () => {
       live = false;
     };
@@ -125,15 +122,13 @@ export default function GroupDetails() {
     (async () => {
       const [g, e] = await Promise.all([api("/member/groups"), api("/member/earnings")]);
       if (!live) return;
+      if (g.error || e.error) return;
       const groups = g.data?.groups || [];
       const earn = e.data?.earnings || e.data || {};
       setTotals({
         groups: groups.length,
-        members: groups.reduce((n, x) => n + (x.occupied_slots || 0), 0),
-        monthly:
-          earn.lifetime_earned_kobo ??
-          earn.available_kobo ??
-          0,
+        members: groups.reduce((n, x) => n + Number(x.occupied_slots || 0), 0),
+        monthly: earn.lifetime_earned_kobo ?? earn.available_kobo ?? null,
       });
     })();
     return () => {
@@ -145,35 +140,23 @@ export default function GroupDetails() {
 
   const g = detail?.group || detail || null;
   const months = g?.plan?.billing_interval_months;
-  const shownCode = code || g?.invite_code || "AD-234250569575";
+  const shownCode = code || g?.invite_code || g?.id || groupId || "—";
 
-  const slots = g
-    ? [
-        { label: "Shared slots", value: String(g.slots_offered ?? 0) },
-        { label: "Occupied slots", value: String(g.occupied_slots ?? 0) },
-        { label: "Remaining Slots", value: String(g.available_slots ?? 0) },
-      ]
-    : SLOTS;
-  const dates = g
-    ? [
-        { label: "Created Date", value: fmtDate(g.created_at) },
-        { label: "Start Date", value: fmtDate(g.start_date) },
-        { label: "Expired Date", value: fmtDate(g.current_period_end) },
-      ]
-    : DATES;
-  const meta = g
-    ? [
-        {
-          label: "Group Type",
-          value: g.visibility === "private" ? "Private Group" : "Public Group",
-        },
-        { label: "Group Plan", value: g.plan?.name || "Premium" },
-        {
-          label: "Billing Cycle",
-          value: !months || months === 1 ? "Monthly" : `Every ${months} Months`,
-        },
-      ]
-    : META;
+  const slots = [
+    { label: "Shared slots", value: g?.slots_offered ?? "—" },
+    { label: "Occupied slots", value: g?.occupied_slots ?? "—" },
+    { label: "Remaining Slots", value: g?.available_slots ?? "—" },
+  ];
+  const dates = [
+    { label: "Created Date", value: fmtDate(g?.created_at) },
+    { label: "Start Date", value: fmtDate(g?.start_date) },
+    { label: "Expired Date", value: fmtDate(g?.current_period_end) },
+  ];
+  const meta = [
+    { label: "Group Type", value: g?.visibility ? `${titleCase(g.visibility)} Group` : "—" },
+    { label: "Group Plan", value: g?.plan?.name || "—" },
+    { label: "Billing Cycle", value: !months ? "—" : months === 1 ? "Monthly" : `Every ${months} Months` },
+  ];
 
   const regenerate = async () => {
     if (regenBusy || !groupId) return;
@@ -240,7 +223,7 @@ export default function GroupDetails() {
   const summaryCard = (small = false) => {
     const svc = g?.service || {};
     const planName = g?.plan?.name ? `${g.plan.name} Plan` : "";
-    const live = totals || { groups: 0, members: 0, monthly: 0 };
+    const live = totals || { groups: "—", members: "—", monthly: null };
     const stats = [
       {
         label: "Total Group",
@@ -301,7 +284,7 @@ export default function GroupDetails() {
                 small ? "text-[12px]" : "text-[16px]"
               }`}
             >
-              Activated
+              {g?.status ? titleCase(g.status) : "Status unavailable"}
             </span>
           </span>
         </div>
@@ -343,6 +326,9 @@ export default function GroupDetails() {
       </div>
     );
   };
+
+  if (detailState === "loading") return <div className="min-h-screen bg-white font-sans text-ink"><Navbar loggedIn /><main role="status" className="mx-auto max-w-3xl px-6 py-24 text-center"><h1 className="text-3xl font-bold">Loading group details…</h1></main></div>;
+  if (detailState === "error" || !g) return <div className="min-h-screen bg-white font-sans text-ink"><Navbar loggedIn /><main role="alert" className="mx-auto max-w-3xl px-6 py-24 text-center"><h1 className="text-3xl font-bold">Group details unavailable</h1><p className="mt-3 text-[#596659]">{detailError || "The group could not be found."}</p><Link to="/groups" className="mt-6 inline-block rounded-lg bg-[#001701] px-5 py-3 font-bold text-white">Back to My Groups</Link></main></div>;
 
   return (
     <div className="relative min-h-screen overflow-hidden bg-white font-sans text-ink">

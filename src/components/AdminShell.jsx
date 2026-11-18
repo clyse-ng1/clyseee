@@ -183,6 +183,8 @@ const MENU = [
     sub: [
       { key: "services", label: "Subscription & Plans", to: "/admin/subscriptions" },
       { key: "requests", label: "Custom Requests", to: "/admin/subscriptions/requests" },
+      { key: "plans-data", label: "Plans data", to: "/admin/data/plans" },
+      { key: "catalogue-activity", label: "Catalogue activity", to: "/admin/data/catalogueEvents" },
     ],
   },
   {
@@ -208,7 +210,7 @@ const MENU = [
       { key: "disputes", label: "Disputes", to: "/admin/finance/disputes" },
     ],
   },
-  { key: "support", label: "Support", icon: <IconHeadset />, to: "/admin/data/support" },
+  { key: "support", label: "Support", icon: <IconHeadset />, to: "/admin/support" },
   {
     key: "notifications", label: "Notifications", icon: <IconBell />, to: "/admin/data/communications", chev: true,
     sub: [
@@ -258,6 +260,8 @@ const MENU2 = [
     sub: [
       { key: "services", label: "Subscription & Plans", to: "/admin/subscriptions" },
       { key: "requests", label: "Custom Requests", to: "/admin/subscriptions/requests" },
+      { key: "plans-data", label: "Plans data", to: "/admin/data/plans" },
+      { key: "catalogue-activity", label: "Catalogue activity", to: "/admin/data/catalogueEvents" },
     ],
   },
   {
@@ -285,7 +289,7 @@ const MENU2 = [
       { key: "dinv", label: "Dispute Investigation", to: "/admin/finance/disputes" },
     ],
   },
-  { key: "support", label: "Support", icon: <IconHeadset />, to: "/admin/data/support" },
+  { key: "support", label: "Support", icon: <IconHeadset />, to: "/admin/support" },
   {
     key: "notifications", label: "Notifications", icon: <IconBell />, to: "/admin/data/communications", chev: true,
     sub: [
@@ -330,15 +334,17 @@ const MENU2 = [
    outer ring, mint controls with the same ring. */
 export const DCARD = "rounded-[12px] border border-black bg-white shadow-[0_0_0_2px_#ffffff]";
 
-export function MoonToggle() {
+export function DarkBack() {
+  const nav = useNavigate();
   return (
     <button
       type="button"
-      aria-label="Toggle theme"
-      className="grid h-[34px] w-[34px] place-items-center rounded-full border border-black bg-white shadow-[0_0_0_2px_#ffffff]"
+      onClick={() => nav(-1)}
+      aria-label="Go back"
+      className="grid h-[35px] w-[35px] place-items-center rounded-full border border-black bg-white shadow-[0_0_0_2px_#ffffff]"
     >
-      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden>
-        <path d="M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5Z" fill="#000" />
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden>
+        <path d="m15 5-7 7 7 7" stroke="#001701" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" />
       </svg>
     </button>
   );
@@ -348,9 +354,9 @@ export function DarkZone({ band = false, width, children }) {
   return (
     <div
       style={band && width ? { width } : undefined}
-      className={`bg-black px-[24px] pb-[30px] pt-[16px] ${band ? "" : "min-h-[calc(100vh-70px)]"}`}
+      className={`bg-black px-[24px] pb-[30px] pt-[30px] ${band ? "" : "min-h-[calc(100vh-70px)]"}`}
     >
-      <MoonToggle />
+      <DarkBack />
       {children}
     </div>
   );
@@ -512,7 +518,7 @@ export default function AdminShell({ active = null, sub = null, expand = false, 
                         >
                           <span
                             className={`h-[15px] w-[15px] shrink-0 rounded-full ${
-                              subActive ? "border-2 border-[#DFFFE1]" : "bg-[#048B0B]"
+                              subActive ? "bg-[#048B0B]" : "border-2 border-[#DFFFE1]"
                             }`}
                           />
                           <span className="ml-[10px] leading-tight">{s.label}</span>

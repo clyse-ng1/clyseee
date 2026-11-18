@@ -88,17 +88,17 @@ export default function AdminLogin({ denied = false, onRetry }) {
             <>
               <p className="mt-9 text-sm font-bold uppercase tracking-[0.14em] text-[#048B0B]">Administrator portal</p>
               <h2 className="mt-2 text-[30px] font-bold leading-9">Sign in to continue</h2>
-              <p className="mt-2 text-[15px] leading-6 text-[#657065]">Use your administrator email or phone and password.</p>
+              <p className="mt-2 text-[15px] leading-6 text-[#657065]">Use your administrator email and password.</p>
               <form onSubmit={submit} className="mt-8 space-y-5">
                 <label className="block">
-                  <span className="mb-2 block text-sm font-bold text-[#203020]">Email or phone</span>
+                  <span className="mb-2 block text-sm font-bold text-[#203020]">Email</span>
                   <input
-                    type="text"
-                    autoComplete="username"
+                    type="email"
+                    autoComplete="email"
                     required
                     value={identifier}
                     onChange={(event) => { setIdentifier(event.target.value); setError(""); }}
-                    placeholder="Enter your admin email or phone"
+                    placeholder="Enter your admin email"
                     className="h-[52px] w-full rounded-xl border border-[#C8D2C8] px-4 text-base text-[#001701] outline-none transition placeholder:text-[#9AA49A] focus:border-[#048B0B] focus:ring-4 focus:ring-[#048B0B]/10"
                   />
                 </label>

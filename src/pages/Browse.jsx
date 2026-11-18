@@ -76,7 +76,7 @@ function mapGroup(g) {
     ratio: total ? `${occupied}/${total}` : `${left} open`,
     pct: total ? Math.min(100, Math.round((occupied / total) * 100)) : 0,
     access: accessLabel(g.access_method),
-    linkTo: "/join/plan",
+    linkTo: `/join/plan?group_id=${encodeURIComponent(g.group_id || g.id || "")}`,
     linkState: { group_id: g.group_id || g.id, preview: g },
   };
 }

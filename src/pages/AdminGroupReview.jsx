@@ -1,4 +1,6 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useSearchParams } from "react-router-dom";
+import { api } from "../lib/api";
 import { useNavigate } from "react-router-dom";
 import AdminShell, { BackTitle } from "../components/AdminShell";
 import BrandTile from "../components/BrandTile";
@@ -14,25 +16,6 @@ function DetailRow({ label, value }) {
     <div className="flex h-[101px] flex-col justify-center gap-[8px] border-b border-[#999999]">
       <span className="text-[18px] font-semibold text-[#6B6B6B]">{label}</span>
       <span className="text-[20px] font-semibold text-[#000000]">{value}</span>
-    </div>
-  );
-}
-
-function InvoiceThumb({ variant }) {
-  return (
-    <div className="flex h-[218px] w-full lg:w-[228px] flex-col rounded-[12px] border border-[#048B0B] bg-white p-[14px]">
-      <span className="text-[11px] font-extrabold tracking-widest text-[#E31B00]">NETFLIX</span>
-      <span className="mt-[6px] h-[8px] w-[70%] rounded-sm bg-[#E31B00]" />
-      <span className="mt-[10px] flex flex-col gap-[6px]">
-        <span className="h-[6px] w-full rounded-sm bg-[#D9D9D9]" />
-        <span className="h-[6px] w-[85%] rounded-sm bg-[#D9D9D9]" />
-        <span className="h-[6px] w-[92%] rounded-sm bg-[#D9D9D9]" />
-        <span className="h-[6px] w-[70%] rounded-sm bg-[#D9D9D9]" />
-      </span>
-      <span className="mt-auto flex items-center justify-between">
-        <span className="text-[12px] font-bold text-[#000000]">{variant === 0 ? "N5,500" : "PAID"}</span>
-        <span className="h-[16px] w-[70px] rounded-[4px] bg-[#E31B00]" />
-      </span>
     </div>
   );
 }
@@ -65,9 +48,52 @@ function ConfirmModal({ icon, title, sub, confirmLabel, onConfirm, onCancel }) {
 
 export default function AdminGroupReview() {
   const nav = useNavigate();
+  const [params] = useSearchParams();
+  const groupId = params.get("group_id") || params.get("id") || "";
   const [approved, setApproved] = useState(false);
   const [modal, setModal] = useState(null); // approve | reject | suspend
-  const [infoSent, setInfoSent] = useState(false);
+  /* Live review data: GET /admin/groups/review/detail?group_id (creator contact,
+     plan/service, verification evidence, history). Mutations go to
+     POST /admin/groups/review with action approve|reject|suspend|resume and a
+     reason where required. Figma values only fill the layout until it answers. */
+  const [group, setGroup] = useState(null);
+  const [reason, setReason] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [note, setNote] = useState("");
+
+  useEffect(() => {
+    if (!groupId) return;
+    let alive = true;
+    api(`/admin/groups/review/detail?group_id=${encodeURIComponent(groupId)}`).then((res) => {
+      if (!alive || res.error || !res.data) return;
+      setGroup(res.data);
+      if (["active", "verified"].includes(String(res.data?.group?.status))) setApproved(true);
+    });
+    return () => { alive = false; };
+  }, [groupId]);
+
+  const g = group?.group || {};
+  const creator = g.creator || group?.creator || {};
+  const evidence = group?.verification?.evidence_url || group?.evidence_url || "";
+  const canAct = Boolean(groupId) && !busy;
+
+  const review = async (action) => {
+    if (!groupId) return setNote("Open this screen from the review queue — no group selected.");
+    if ((action === "reject" || action === "suspend") && !reason.trim())
+      return setNote("A reason is required to reject or suspend.");
+    setBusy(true);
+    setNote("");
+    const res = await api("/admin/groups/review", {
+      method: "POST",
+      body: { group_id: groupId, action, reason: reason.trim() || null },
+    });
+    setBusy(false);
+    if (res.error) return setNote(res.error.message || `Could not ${action} this group.`);
+    setModal(null);
+    if (action === "approve") setApproved(true);
+    if (action === "reject" || action === "suspend") nav("/admin/group-verification");
+    setNote("Group updated.");
+  };
 
   return (
     <AdminShell active="verification" sub="review">
@@ -78,27 +104,36 @@ export default function AdminGroupReview() {
           <div className="w-full lg:w-[420px] shrink-0 rounded-[20px] border border-[#999999] bg-white px-[31px] py-[31px]">
             <h2 className="text-[20px] font-bold text-[#000000]">Creator</h2>
             <div className="mt-[15px] flex items-center gap-[15px] border-b border-[#999999] pb-[20px]">
-              <img src={avatarAshlynn} alt="Lindsey Lubin" className="h-[59px] w-[59px] rounded-full object-cover" />
+              <img src={creator.avatar_url || avatarAshlynn} alt="" className="h-[59px] w-[59px] rounded-full object-cover" />
               <span>
-                <span className="block text-[20px] font-bold text-[#000000]">Lindsey Lubin</span>
-                <span className="block text-[16px] font-semibold text-[#6B6B6B]">lindsey@gmail.com</span>
-                <button className="text-[16px] font-semibold text-[#048B0B]">View Profile</button>
+                <span className="block text-[20px] font-bold text-[#000000]">
+                  {creator.full_name || creator.name || group?.group?.creator_name || "—"}
+                </span>
+                <span className="block text-[16px] font-semibold text-[#6B6B6B]">
+                  {creator.email || group?.group?.creator_email || "—"}
+                </span>
+                <button
+                  onClick={() => creator.id && nav(`/admin/users/details?id=${creator.id}`)}
+                  className="text-[16px] font-semibold text-[#048B0B]"
+                >
+                  View Profile
+                </button>
               </span>
             </div>
             <h2 className="mt-[20px] text-[20px] font-bold text-[#000000]">Subscription & Plan</h2>
             <div className="flex h-[81px] items-center gap-[15px] border-b border-[#6B6B6B]">
               <BrandTile brand="netflix" size={50} />
               <span>
-                <span className="block text-[18px] font-semibold text-[#000000]">Netflix Premium</span>
-                <span className="block text-[18px] font-semibold text-[#6B6B6B]">Premium</span>
+                <span className="block text-[18px] font-semibold text-[#000000]">{g.service_name || g.service?.name || "—"}</span>
+                <span className="block text-[18px] font-semibold text-[#6B6B6B]">{g.plan_name || g.plan?.name || "—"}</span>
               </span>
             </div>
-            <DetailRow label="Capacity" value="10 Slots" />
-            <DetailRow label="Billing Period" value="Monthly" />
-            <DetailRow label="Fixed Unit Price" value="N3,000" />
-            <DetailRow label="Access Type" value="Access Link" />
-            <DetailRow label="Start Date" value="Sep. 20, 2026" />
-            <DetailRow label="Shared Slot" value="5/10" />
+            <DetailRow label="Capacity" value={g.capacity != null ? `${g.capacity} Slots` : "—"} />
+            <DetailRow label="Billing Period" value={g.billing_period || "—"} />
+            <DetailRow label="Fixed Unit Price" value={g.price != null ? `N${Number(g.price / 100).toLocaleString("en-US")}` : "—"} />
+            <DetailRow label="Access Type" value={g.access_type || g.access_method || "—"} />
+            <DetailRow label="Start Date" value={g.start_date ? new Date(g.start_date).toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric" }) : "—"} />
+            <DetailRow label="Shared Slot" value={g.filled_slots != null ? `${g.filled_slots}/${g.capacity ?? "—"}` : "—"} />
           </div>
 
           {/* Right card */}
@@ -107,20 +142,41 @@ export default function AdminGroupReview() {
             <div className="mt-[15px] flex gap-[50px]">
               <div>
                 <p className="mb-[10px] text-[18px] font-bold text-[#000000]">Subscription Invoice</p>
-                <InvoiceThumb variant={0} />
+                {evidence ? (
+                  <a href={evidence} target="_blank" rel="noreferrer" className="block">
+                    <img src={evidence} alt="Subscription invoice" className="h-[140px] w-[180px] rounded-[10px] border border-[#999999] object-cover" />
+                  </a>
+                ) : (
+                  <p className="grid h-[140px] w-[180px] place-items-center rounded-[10px] border border-dashed border-[#999999] text-[14px] font-semibold text-[#6B6B6B]">
+                    No evidence uploaded
+                  </p>
+                )}
               </div>
               <div>
                 <p className="mb-[10px] text-[18px] font-bold text-[#000000]">Payment Receipt</p>
-                <InvoiceThumb variant={1} />
+                {group?.verification?.receipt_url || group?.receipt_url ? (
+                  <a href={group?.verification?.receipt_url || group?.receipt_url} target="_blank" rel="noreferrer" className="block">
+                    <img src={group?.verification?.receipt_url || group?.receipt_url} alt="Payment receipt" className="h-[140px] w-[180px] rounded-[10px] border border-[#999999] object-cover" />
+                  </a>
+                ) : (
+                  <p className="grid h-[140px] w-[180px] place-items-center rounded-[10px] border border-dashed border-[#999999] text-[14px] font-semibold text-[#6B6B6B]">
+                    No receipt uploaded
+                  </p>
+                )}
               </div>
             </div>
             <div className="mt-[30px] rounded-[20px] border border-[#999999] bg-white p-[30px]">
               <h3 className="text-[20px] font-bold text-[#000000]">Rejection reason</h3>
               <textarea
+                value={reason}
+                onChange={(e) => setReason(e.target.value)}
                 placeholder="Give reason for rejection"
                 className="mt-[15px] h-[150px] w-full rounded-[10px] border border-[#999999] bg-white p-[20px] text-[18px] font-semibold text-[#001701] placeholder-[#999999] placeholder:font-bold focus:outline-none resize-none"
               />
             </div>
+            {note && (
+              <p className="mt-[20px] text-[16px] font-semibold text-[#FF0000]">{note}</p>
+            )}
             <div className="mt-[30px] flex flex-col gap-[40px]">
               {approved ? (
                 <>
@@ -128,8 +184,9 @@ export default function AdminGroupReview() {
                     Group Approved
                   </div>
                   <button
-                    onClick={() => setModal("suspend")}
-                    className="flex h-[60px] items-center justify-center rounded-[10px] border border-[#FF0000] bg-white text-[18px] font-semibold text-[#FF0000]"
+                    onClick={() => canAct && setModal("suspend")}
+                    disabled={!canAct}
+                    className="flex h-[60px] items-center justify-center rounded-[10px] border border-[#FF0000] bg-white text-[18px] font-semibold text-[#FF0000] disabled:opacity-60"
                   >
                     Suspend Group
                   </button>
@@ -137,24 +194,26 @@ export default function AdminGroupReview() {
               ) : (
                 <>
                   <button
-                    onClick={() => setModal("approve")}
-                    className="bg-btn flex h-[60px] items-center justify-center rounded-[10px] text-[18px] font-semibold text-[#F1F8F2]"
+                    onClick={() => canAct && setModal("approve")}
+                    disabled={!canAct}
+                    className="bg-btn flex h-[60px] items-center justify-center rounded-[10px] text-[18px] font-semibold text-[#F1F8F2] disabled:opacity-60"
                   >
                     Approve Group
                   </button>
                   <button
-                    onClick={() => setModal("reject")}
-                    className="flex h-[60px] items-center justify-center rounded-[10px] border border-[#FF0000] bg-white text-[18px] font-semibold text-[#FF0000]"
+                    onClick={() => canAct && setModal("reject")}
+                    disabled={!canAct}
+                    className="flex h-[60px] items-center justify-center rounded-[10px] border border-[#FF0000] bg-white text-[18px] font-semibold text-[#FF0000] disabled:opacity-60"
                   >
                     Reject Group
                   </button>
-                  <button
-                    onClick={() => setInfoSent(true)}
-                    disabled={infoSent}
-                    className="flex h-[60px] items-center justify-center rounded-[10px] border border-[#048B0B] bg-[#F1F8F2] text-[18px] font-semibold text-[#001701] disabled:opacity-70"
-                  >
-                    {infoSent ? "Request Sent" : "Request More Information"}
-                  </button>
+                  {/* Group review has no "request information" action on the API;
+                      the nearest documented note channel is the dispute
+                      info-request endpoint, which needs a report. Explained. */}
+                  <span className="text-center text-[14px] font-semibold text-[#6B6B6B]">
+                    Request More Information isn’t available — the review API only supports
+                    approve, reject, suspend and resume.
+                  </span>
                 </>
               )}
             </div>
@@ -175,10 +234,7 @@ export default function AdminGroupReview() {
           sub="The group will be activated and members will be able to join"
           confirmLabel="Approve"
           onCancel={() => setModal(null)}
-          onConfirm={() => {
-            setModal(null);
-            setApproved(true);
-          }}
+          onConfirm={() => review("approve")}
         />
       )}
       {modal === "reject" && (
@@ -194,7 +250,7 @@ export default function AdminGroupReview() {
           sub="The group will be rejected and members will not be able to join"
           confirmLabel="Reject"
           onCancel={() => setModal(null)}
-          onConfirm={() => nav("/admin/group-verification")}
+          onConfirm={() => review("reject")}
         />
       )}
       {modal === "suspend" && (
@@ -210,7 +266,7 @@ export default function AdminGroupReview() {
           sub="Members will not be able to access this group until the suspension is lifted"
           confirmLabel="Suspend"
           onCancel={() => setModal(null)}
-          onConfirm={() => nav("/admin/group-verification")}
+          onConfirm={() => review("suspend")}
         />
       )}
     </AdminShell>

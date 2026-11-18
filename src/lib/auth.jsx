@@ -59,15 +59,11 @@ export function AuthProvider({ children }) {
   );
 
   const register = useCallback(
-    ({ fullName, email, phone, password }) =>
+    ({ fullName, email, password }) =>
       api("/auth/register", {
         method: "POST",
         auth: false,
-        body: {
-          full_name: fullName,
-          ...(email ? { email } : { phone }),
-          password,
-        },
+        body: { full_name: fullName, email, password },
       }),
     [],
   );
@@ -77,7 +73,7 @@ export function AuthProvider({ children }) {
       const res = await api("/auth/verify", {
         method: "POST",
         auth: false,
-        body: { ...identifier, code },
+        body: { email: identifier.email, code },
       });
       if (res.data) applySession(res.data);
       return res;
@@ -87,7 +83,7 @@ export function AuthProvider({ children }) {
 
   const resend = useCallback(
     (identifier) =>
-      api("/auth/otp/resend", { method: "POST", auth: false, body: { ...identifier } }),
+      api("/auth/otp/resend", { method: "POST", auth: false, body: { email: identifier.email } }),
     [],
   );
 
