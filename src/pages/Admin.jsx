@@ -410,7 +410,7 @@ export default function Admin() {
       ?? pick(pa, ["verification", "groups_pending_verification", "pending_verification"]);
     if (ver) out.push([`${ver} group${ver === 1 ? "" : "s"} pending verification`, "Review & approve group submission", "/admin/group-verification"]);
     const disputes = pick(pa, ["disputes", "open_disputes"]) ?? pick(live.disputes, ["open", "open_count"]);
-    if (disputes) out.push([`${disputes} open dispute${disputes === 1 ? "" : "s"}`, "Need resolution", "/admin/disputes"]);
+    if (disputes) out.push([`${disputes} open dispute${disputes === 1 ? "" : "s"}`, "Need resolution", "/admin/finance/disputes"]);
     const support = pick(pa, ["support", "support_issues", "tickets"]) ?? pick(live.support, ["open", "open_count", "total"]);
     if (support) out.push([`${support} open support ticket${support === 1 ? "" : "s"}`, "Requires a reply", "/admin/data/support"]);
     for (const [k, v] of Object.entries(pa)) {
@@ -418,7 +418,7 @@ export default function Admin() {
       if (["verification", "groups_pending_verification", "pending_verification", "disputes", "open_disputes", "support", "support_issues", "tickets", "total", "count"].includes(k)) continue;
       const count = num(v);
       if (count) {
-        const route = /verif|review|group/i.test(k) ? "/admin/group-verification" : /dispute/i.test(k) ? "/admin/disputes" : /support|ticket/i.test(k) ? "/admin/data/support" : null;
+        const route = /verif|review|group/i.test(k) ? "/admin/group-verification" : /dispute/i.test(k) ? "/admin/finance/disputes" : /support|ticket/i.test(k) ? "/admin/data/support" : null;
         out.push([`${count} ${labelOf(k)}`, "Requires your attention", route]);
       }
     }

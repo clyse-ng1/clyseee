@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import AdminShell, { DarkButton, ChevDown, SearchIcon, PencilIcon, DotsIcon } from "../components/AdminShell";
+import AdminShell, { DarkButton, ChevDown, SearchIcon, PencilIcon } from "../components/AdminShell";
 import BrandTile from "../components/BrandTile";
 import { api, kobo } from "../lib/api";
 import { goBackOr } from "../lib/navigation";
@@ -132,6 +132,7 @@ export default function AdminSubscriptions() {
   const [live, setLive] = useState(null);
 
   const [catState, setCatState] = useState("loading"); // loading | live | empty | error
+  const [deleteState, setDeleteState] = useState({ id: null, message: "", error: false });
 
   useEffect(() => {
     let alive = true;
@@ -190,6 +191,18 @@ export default function AdminSubscriptions() {
   const toggle = (name) =>
     setChecked((c) => (c.includes(name) ? c.filter((x) => x !== name) : [...c, name]));
 
+  const removeService = async (row) => {
+    if (!row?.id || !window.confirm(`Delete ${row.name} from the subscription catalogue? This cannot be undone.`)) return;
+    setDeleteState({ id: row.id, message: "Deleting subscription…", error: false });
+    const result = await api("/admin/catalogue/services", { method: "DELETE", body: { service_id: row.id } });
+    if (result.error) {
+      setDeleteState({ id: null, message: result.error.message || "Could not delete this subscription.", error: true });
+      return;
+    }
+    setLive((old) => (old || []).filter((item) => item.id !== row.id));
+    setDeleteState({ id: null, message: `${row.name} was deleted from the catalogue.`, error: false });
+  };
+
   return (
     <AdminShell active="subscriptions" sub="services">
       {/* Header */}
@@ -212,6 +225,8 @@ export default function AdminSubscriptions() {
           Add Subscription
         </DarkButton>
       </div>
+
+      {deleteState.message && <p role={deleteState.error ? "alert" : "status"} className={`mt-4 rounded-lg border px-4 py-3 text-sm font-semibold ${deleteState.error ? "border-red-200 bg-red-50 text-red-800" : "border-green-200 bg-green-50 text-green-800"}`}>{deleteState.message}</p>}
 
       {/* Stats */}
       <div className="mt-[30px] grid grid-cols-1 gap-[20px] md:grid-cols-3">
@@ -293,11 +308,14 @@ export default function AdminSubscriptions() {
                   <PencilIcon />
                 </button>
                 <button
-                  onClick={() => r.id && nav(`/admin/subscriptions/details?service_id=${encodeURIComponent(r.id)}`)}
-                  disabled={!r.id}
-                  aria-label={`More about ${r.name}`}
+                  type="button"
+                  onClick={() => removeService(r)}
+                  disabled={!r.id || deleteState.id === r.id}
+                  aria-label={`Delete ${r.name}`}
+                  title="Delete subscription"
+                  className="disabled:opacity-50"
                 >
-                  <DotsIcon />
+                  {deleteState.id === r.id ? <span className="text-xs">…</span> : <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden><path d="M4 7h16M9 7V4h6v3m-9 0 1 13h10l1-13M10 11v5m4-5v5" stroke="#A12B22" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" /></svg>}
                 </button>
               </span>
             </div>

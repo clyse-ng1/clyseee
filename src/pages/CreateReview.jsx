@@ -120,7 +120,10 @@ export default function CreateReview() {
         navigate("/groups");
         return;
       }
-      setError(apiError.message || "Some fields are invalid. Review the group details and try again.");
+      const details = apiError.details && typeof apiError.details === "object"
+        ? Object.entries(apiError.details).map(([field, issue]) => `${field.replaceAll("_", " ")}: ${typeof issue === "string" ? issue : JSON.stringify(issue)}`).join(" · ")
+        : "";
+      setError(details ? `${apiError.message || "Please correct these fields"} — ${details}` : apiError.message || "Please review the group details and try again. Check that your selected plan is active, your slot count is within its capacity, and required proof files are attached.");
       return;
     }
     // A successful HTTP response without a group identifier is not enough to

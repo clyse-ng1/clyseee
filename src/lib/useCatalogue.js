@@ -5,6 +5,12 @@ import { api } from "./api";
    at the root or nested under `service`, with plans beside them. API plan totals
    are `total_kobo`. Cached module-wide for the session. */
 let cache = null;
+let catCache = null;
+
+export function invalidateCatalogue() {
+  cache = null;
+  catCache = null;
+}
 
 export function useCatalogue() {
   const [services, setServices] = useState(cache);
@@ -68,8 +74,6 @@ export function minPrice(services, brand) {
 /* GET /catalogue/categories (docs addition): the categories that actually have
    services, e.g. [{ category: "movies_series", services: 2 }]. Shared cache so
    every screen that renders the chip row makes one request per session. */
-let catCache = null;
-
 export function useCatalogueCategories() {
   const [cats, setCats] = useState(catCache);
 

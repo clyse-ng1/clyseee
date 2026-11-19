@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { api } from "../lib/api";
+import { invalidateCatalogue } from "../lib/useCatalogue";
 import { goBackOr } from "../lib/navigation";
 import AdminShell, { DarkButton, ChevDown } from "../components/AdminShell";
 
@@ -109,6 +110,7 @@ export default function AdminSubAdd() {
       setBusy(false);
       return setErr(`Plans ${createdPlanIds.join(", ")} were created, but service ${serviceId} could not be activated${svcOn.error.message ? `: ${svcOn.error.message}` : "."}`);
     }
+    invalidateCatalogue();
     setBusy(false);
     setDone(true);
     } catch (error) {

@@ -6,7 +6,6 @@ import { BlurBg } from "../components/Decor";
 import { ConfirmAndGo, SubDetailsDesktop, SubDetailsMobile } from "../components/SubDetailView";
 import { useMembershipId, useSubscription } from "../lib/useSubscription";
 import { api } from "../lib/api";
-import { EvidenceUpload } from "./Support";
 import iconError from "../assets/error-ink.svg";
 
 function ActionButtons({ groupId }) {
@@ -28,34 +27,34 @@ function ReportForm({ membershipId, groupId }) {
   const [text, setText] = useState("");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
-  const [reportId, setReportId] = useState(null);
 
   const send = async () => {
-    if (busy || !text.trim() || !membershipId) return;
-    if (!groupId) {
-      setError("We couldn't identify this group yet. Please go back and try again.");
+    if (busy || !membershipId) return;
+    if (text.trim().length < 10) {
+      setError("Please describe the issue in at least 10 characters.");
       return;
     }
     setBusy(true);
     setError("");
-    const { data, error: apiError } = await api("/member/reports", {
+    const { data, error: apiError } = await api("/member/support/issues", {
       method: "POST",
-      body: { group_id: groupId, reason: "other", details: text.trim() },
+      body: {
+        category: "subscription",
+        subject: `Subscription access issue${groupId ? ` · ${String(groupId).slice(0, 8)}` : ""}`,
+        description: text.trim(),
+      },
     });
     setBusy(false);
     if (apiError) {
       setError(apiError.message || "Could not send your report. Please try again.");
       return;
     }
-    /* Docs addition: POST /member/reports/evidence attaches a JPEG/PNG/PDF to
-       the report we just filed. The report id comes back on the create call,
-       so evidence can be offered immediately instead of being impossible. */
-    const newId = data?.report_id || data?.id;
-    if (newId) {
-      setReportId(newId);
+    const ticketId = data?.issue_id || data?.id;
+    if (ticketId) {
+      navigate(`/support/${encodeURIComponent(ticketId)}`, { replace: true });
       return;
     }
-    navigate("/subscriptions/details", { state: { membership_id: membershipId } });
+    navigate("/support", { replace: true });
   };
 
   return (
@@ -67,7 +66,7 @@ function ReportForm({ membershipId, groupId }) {
         <textarea
           value={text}
           onChange={(e) => setText(e.target.value)}
-          placeholder="Send your report"
+          placeholder="Describe the issue (at least 10 characters)"
           className="absolute top-[51px] right-[26px] left-[26px] h-[110px] resize-none bg-transparent text-[19px] leading-[23px] font-semibold text-ink outline-none placeholder:text-[#999999]"
         />
         {error && (
@@ -75,30 +74,14 @@ function ReportForm({ membershipId, groupId }) {
             {error}
           </p>
         )}
-        {reportId && (
-          <div className="absolute bottom-[18px] left-[26px] right-[26px]">
-            <p className="text-[13px] leading-[18px] font-semibold text-[#04640A]">
-              Report sent. Add proof if you have it, then continue.
-            </p>
-            <EvidenceUpload reportId={reportId} />
-            <button
-              type="button"
-              onClick={() =>
-                navigate("/subscriptions/details", { state: { membership_id: membershipId } })
-              }
-              className="mt-[10px] flex h-[40px] items-center justify-center rounded-[20px] bg-btn px-[20px] text-[14px] font-semibold text-white"
-            >
-              Done
-            </button>
-          </div>
-        )}
         <button
           type="button"
           onClick={send}
-          className="absolute right-[26px] bottom-[21px] flex h-[48px] w-[108px] items-center justify-center rounded-[10px] bg-[#D9D9D9]"
+          disabled={busy || text.trim().length < 10}
+          className="absolute right-[26px] bottom-[21px] flex h-[48px] w-[132px] items-center justify-center rounded-[10px] bg-[#D9D9D9] disabled:opacity-60"
         >
           <span className="text-[18px] leading-[22px] font-semibold text-black">
-            {busy ? "Sending…" : "Send"}
+            {busy ? "Submitting…" : "Submit ticket"}
           </span>
         </button>
       </div>

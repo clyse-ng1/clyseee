@@ -5,23 +5,13 @@ import Navbar from "../components/Navbar";
 import { BlurBg } from "../components/Decor";
 import StepHeader from "../components/StepHeader";
 import BrandTile from "../components/BrandTile";
-import { minPrice, useCatalogue } from "../lib/useCatalogue";
+import { useCatalogue } from "../lib/useCatalogue";
+import { api } from "../lib/api";
 
 /* Step 1 — pick a subscription (desktop grid 4x2, mobile 2x4).
    NOTE: no footer on the creation flow (Component 3 is hidden in Figma);
    the selected-card highlight is a small addition since Figma shows no
    selected state. Prices go live from the catalogue when it loads. */
-const CARDS = [
-  { brand: "netflix", title: "Netflix Premium", chip: "Entertainment" },
-  { brand: "spotify", title: "Spotify Premium", chip: "Music" },
-  { brand: "youtube", title: "YouTube Premium", chip: "Entertainment" },
-  { brand: "prime", title: "Prime Video", chip: "Streaming" },
-  { brand: "canva", title: "Canva Pro", chip: "Design" },
-  { brand: "capcut", title: "CapCut Pro", chip: "Editing" },
-  { brand: "adobe", title: "Adobe Creative Cloud", chip: "Design" },
-  { brand: "amazon", title: "Amazon", chip: "Shopping" },
-];
-
 function DesktopCard({ card, from, selected, onSelect }) {
   return (
     <button
@@ -34,7 +24,7 @@ function DesktopCard({ card, from, selected, onSelect }) {
       }`}
     >
       <span className="flex justify-center">
-        <BrandTile brand={card.brand} plain />
+        <BrandTile brand={card.brand} name={card.title} category={card.category} plain />
       </span>
       <span className="mt-[10px] block text-[18px] leading-[22px] font-bold text-ink">
         {card.title}
@@ -64,7 +54,7 @@ function MobileCard({ card, from, selected, onSelect }) {
       }`}
     >
       <span className="flex justify-center">
-        <BrandTile brand={card.brand} mobile plain />
+        <BrandTile brand={card.brand} name={card.title} category={card.category} mobile plain />
       </span>
       <span className="mt-[7px] block text-[11.66px] leading-[14.19px] font-bold text-ink">
         {card.title}
@@ -87,25 +77,66 @@ function MobileCard({ card, from, selected, onSelect }) {
 export default function CreateGroup() {
   const incoming = useLocation().state || null;
   const navigate = useNavigate();
-  const [selected, setSelected] = useState(0);
+  const [selectedId, setSelectedId] = useState(incoming?.serviceId || null);
   const [custom, setCustom] = useState(false);
   const [customName, setCustomName] = useState("");
   const [customPlan, setCustomPlan] = useState("");
   const [q, setQ] = useState("");
+  const [customSubmission, setCustomSubmission] = useState("idle");
+  const [customError, setCustomError] = useState("");
   const services = useCatalogue();
 
+  /* The chooser uses only the public catalogue, which contains approved,
+     active services and plans. New admin-added services therefore appear as
+     soon as the public catalogue cache is refreshed. */
+  const catalogueCards = (services || []).map((row) => {
+    const service = row?.service || row;
+    const plans = service?.plans || service?.catalogue_plans || [];
+    const prices = plans.map((plan) => {
+      const total = plan.total_kobo ?? plan.total_price_kobo ?? plan.unit_price_kobo;
+      return total != null && total !== "" && Number.isFinite(Number(total)) ? Number(total) : null;
+    }).filter((price) => price != null && price >= 0);
+    const price = prices.length ? Math.min(...prices) : null;
+    const slug = String(service?.slug || service?.name || service?.id || "").toLowerCase();
+    return {
+      id: service?.id || service?.service_id || slug,
+      serviceId: service?.id || service?.service_id || null,
+      brand: slug,
+      title: service?.name || "Subscription",
+      category: String(service?.category || "other").replaceAll("_", " "),
+      chip: String(service?.category || "Other").replaceAll("_", " ").replace(/\b\w/g, (c) => c.toUpperCase()),
+      from: price == null ? "—" : Math.round(price / 100).toLocaleString("en-NG"),
+    };
+  }).filter((card) => card.id);
   /* Figma 887:49199 puts a "Browse Subscription" field between the heading and
-     the card grid. It filters the grid; the catalogue itself is unchanged. */
+     the card grid. The selected plan must remain among the filtered results. */
   const needle = q.trim().toLowerCase();
-  const shownCards = CARDS.filter((c) => !needle || c.title.toLowerCase().includes(needle));
-
-  const fromFor = (brand) => {
-    const min = minPrice(services, brand);
-    return min != null ? Math.round(min / 100).toLocaleString("en-US") : "—";
-  };
+  const shownCards = catalogueCards.filter((card) => !needle || card.title.toLowerCase().includes(needle));
+  const selectedCard = shownCards.find((card) => card.id === selectedId) || shownCards[0] || null;
   const customPriceKobo = customPlan
     ? Number.parseInt(customPlan, 10) * 100
     : null;
+  const submitCustomRequest = async () => {
+    if (!customName.trim() || !customPriceKobo || !Number.isSafeInteger(customPriceKobo)) {
+      setCustomError("Enter a subscription name and a valid monthly price to submit your request.");
+      return;
+    }
+    setCustomSubmission("sending");
+    setCustomError("");
+    const { data, error } = await api("/member/subscriptions/custom-requests", {
+      method: "POST",
+      body: { name: customName.trim(), requested_price_kobo: customPriceKobo, billing_interval_months: 1 },
+    });
+    if (error) {
+      setCustomSubmission("idle");
+      setCustomError(error.message || "Your request could not be submitted. Please try again.");
+      return;
+    }
+    setCustomSubmission("sent");
+    try { sessionStorage.removeItem("clyse-draft"); } catch {}
+    void data;
+  };
+
   const nextState = custom
     ? {
         custom: {
@@ -118,8 +149,10 @@ export default function CreateGroup() {
           : {}),
       }
     : {
-        brand: CARDS[selected].brand,
-        title: CARDS[selected].title,
+        brand: selectedCard?.brand,
+        serviceId: selectedCard?.serviceId,
+        title: selectedCard?.title,
+        category: selectedCard?.category,
         ...(incoming?.fromWaitlist
           ? { fromWaitlist: incoming.fromWaitlist }
           : {}),
@@ -141,14 +174,14 @@ export default function CreateGroup() {
             },
           }),
         );
-      } else {
+      } else if (selectedCard) {
         sessionStorage.setItem(
           "clyse-draft",
-          JSON.stringify({ brand: CARDS[selected].brand, title: CARDS[selected].title }),
+          JSON.stringify({ brand: selectedCard.brand, serviceId: selectedCard.serviceId, title: selectedCard.title, category: selectedCard.category }),
         );
       }
     } catch {}
-  }, [selected, custom, customName, customPlan, customPriceKobo]);
+  }, [selectedCard?.id, selectedCard?.brand, selectedCard?.serviceId, selectedCard?.title, selectedCard?.category, custom, customName, customPlan, customPriceKobo]);
 
   return (
     <div className="relative min-h-screen bg-white font-sans text-ink">
@@ -186,19 +219,13 @@ export default function CreateGroup() {
           />
         </div>
         <div className="mt-[40px] grid grid-cols-4 gap-[38px]">
-          {shownCards.map((c) => (
-            <DesktopCard
-              key={c.brand}
-              card={c}
-              from={fromFor(c.brand)}
-              selected={CARDS[selected].brand === c.brand}
-              onSelect={() => setSelected(CARDS.indexOf(c))}
-            />
+          {services === null ? Array.from({ length: 8 }, (_, i) => <div key={`service-loading-${i}`} className="h-[200px] animate-pulse rounded-[20px] bg-[#EDF3ED]" />) : shownCards.map((card) => (
+            <DesktopCard key={card.id} card={card} from={card.from} selected={selectedCard?.id === card.id} onSelect={() => setSelectedId(card.id)} />
           ))}
         </div>
-        {shownCards.length === 0 && (
-          <p className="mt-[40px] text-center text-[22px] font-semibold text-[#6B6B6B]">
-            No subscription matches “{q.trim()}”.
+        {services !== null && shownCards.length === 0 && (
+          <p className="mt-[40px] text-center text-[18px] font-semibold text-[#6B6B6B]">
+            {catalogueCards.length === 0 ? "No approved subscriptions are available yet. Admin-added services appear here once they are approved and active." : `No approved subscription matches “${q.trim()}”.`}
           </p>
         )}
         <button
@@ -221,7 +248,13 @@ export default function CreateGroup() {
             Other Custom Subscription
           </span>
         </button>
-        {custom && (
+        {customSubmission === "sent" ? (
+          <div role="status" className="mt-8 rounded-2xl border border-[#A5D8A8] bg-[#F1FFF2] p-6 text-center">
+            <h3 className="text-xl font-bold text-[#075A0B]">Request submitted</h3>
+            <p className="mt-2 text-sm font-semibold text-[#365D38]">We’ll review “{customName.trim()}”. Once approved and added to the catalogue, you can choose its plan and create a group.</p>
+            <button type="button" onClick={() => navigate("/dashboard")} className="mt-5 rounded-xl bg-btn px-6 py-3 font-semibold text-white">Back to dashboard</button>
+          </div>
+        ) : custom && (
           <>
             <div className="mt-[30px] flex h-[100px] items-center rounded-2xl border border-clyse bg-white pl-[50px]">
               <input
@@ -245,21 +278,16 @@ export default function CreateGroup() {
             </div>
           </>
         )}
-        <div className="mx-auto mt-[50px] flex w-[990px] items-center gap-[50px]">
+        {customError && <p role="alert" className="mt-4 text-center font-semibold text-red-700">{customError}</p>}
+        {customSubmission !== "sent" && <div className="mx-auto mt-[50px] flex w-[990px] items-center gap-[50px]">
           <Link
             to="/dashboard"
             className="grid h-[60px] w-[470px] place-items-center rounded-2xl border border-clyse text-[18px] font-semibold text-ink"
           >
             Go Back
           </Link>
-          <Link
-            to="/create-group/plan"
-            state={nextState}
-            className="grid h-[60px] w-[470px] place-items-center rounded-2xl bg-btn text-[18px] font-semibold text-mint"
-          >
-            Continue
-          </Link>
-        </div>
+          {custom ? <button type="button" onClick={submitCustomRequest} disabled={customSubmission === "sending" || customSubmission === "sent"} className="grid h-[60px] w-[470px] place-items-center rounded-2xl bg-btn text-[18px] font-semibold text-mint disabled:opacity-60">{customSubmission === "sending" ? "Submitting…" : "Submit request"}</button> : selectedCard ? <Link to="/create-group/plan" state={nextState} className="grid h-[60px] w-[470px] place-items-center rounded-2xl bg-btn text-[18px] font-semibold text-mint">Continue</Link> : <button type="button" disabled className="grid h-[60px] w-[470px] place-items-center rounded-2xl bg-[#EDF3ED] text-[18px] font-semibold text-[#8A9A8D]">Choose a subscription</button>}
+        </div>}
         <div className={custom ? "pb-[195px]" : "pb-[150px]"} />
         </div>
       </main>
@@ -283,15 +311,9 @@ export default function CreateGroup() {
             className="w-full bg-transparent text-[15.5px] font-semibold text-ink outline-none placeholder:text-[#999999]"
           />
         </div>
-        <div className="mt-[26px] grid grid-cols-2 gap-x-[24px] gap-y-[15px] px-[41px]">
-          {shownCards.map((c) => (
-            <MobileCard
-              key={c.brand}
-              card={c}
-              from={fromFor(c.brand)}
-              selected={CARDS[selected].brand === c.brand}
-              onSelect={() => setSelected(CARDS.indexOf(c))}
-            />
+        <div className="mx-[30px] mt-[26px] grid grid-cols-2 gap-x-[16px] gap-y-[15px]">
+          {services === null ? Array.from({ length: 8 }, (_, i) => <div key={`mobile-service-loading-${i}`} className="h-[130px] animate-pulse rounded-[12.95px] bg-[#EDF3ED]" />) : shownCards.map((card) => (
+            <MobileCard key={card.id} card={card} from={card.from} selected={selectedCard?.id === card.id} onSelect={() => setSelectedId(card.id)} />
           ))}
         </div>
         <button
@@ -314,7 +336,13 @@ export default function CreateGroup() {
             Other Custom Subscription
           </span>
         </button>
-        {custom && (
+        {customSubmission === "sent" ? (
+          <div role="status" className="mx-[30px] mt-6 rounded-xl border border-[#A5D8A8] bg-[#F1FFF2] p-5 text-center">
+            <h3 className="font-bold text-[#075A0B]">Request submitted</h3>
+            <p className="mt-2 text-sm font-semibold text-[#365D38]">We’ll review “{customName.trim()}”. After approval, choose its catalogue plan to create a group.</p>
+            <button type="button" onClick={() => navigate("/dashboard")} className="mt-4 rounded-xl bg-btn px-5 py-3 text-sm font-semibold text-white">Back to dashboard</button>
+          </div>
+        ) : custom && (
           <>
             <div className="mx-[30px] mt-[24px] flex h-[69px] w-[calc(100%-60px)] max-w-[370px] items-center rounded-[11.1px] border-[0.69px] border-clyse bg-white pl-[35px]">
               <input
@@ -338,26 +366,16 @@ export default function CreateGroup() {
             </div>
           </>
         )}
-        <div className="mx-[30px] mt-[32px] flex items-center gap-[24px]">
+        {customError && <p role="alert" className="mx-[30px] mt-3 text-sm font-semibold text-red-700">{customError}</p>}
+        {customSubmission !== "sent" && <div className="mx-[30px] mt-[32px] flex items-center gap-[24px]">
           <Link
             to="/dashboard"
             className="grid h-[50px] flex-1 place-items-center rounded-[11.1px] border border-clyse text-[11.66px] font-semibold text-ink flex-1"
           >
             Go Back
           </Link>
-          <Link
-            to={(custom && !customName.trim()) || (custom && !customPriceKobo) ? "/create-group" : "/create-group/plan"}
-            state={nextState}
-            aria-disabled={(custom && (!customName.trim() || !customPriceKobo)) || undefined}
-            className={`grid h-[50px] flex-1 place-items-center rounded-[11.1px] text-[11.66px] font-semibold ${
-              custom && (!customName.trim() || !customPriceKobo)
-                ? "bg-[#EDF3ED] text-[#8A9A8D]"
-                : "bg-btn text-mint"
-            }`}
-          >
-            Continue
-          </Link>
-        </div>
+          {custom ? <button type="button" onClick={submitCustomRequest} disabled={customSubmission === "sending" || customSubmission === "sent"} className="grid h-[50px] flex-1 place-items-center rounded-[11.1px] bg-btn text-[11.66px] font-semibold text-mint disabled:opacity-60">{customSubmission === "sending" ? "Submitting…" : "Submit request"}</button> : selectedCard ? <Link to="/create-group/plan" state={nextState} className="grid h-[50px] flex-1 place-items-center rounded-[11.1px] bg-btn text-[11.66px] font-semibold text-mint">Continue</Link> : <button type="button" disabled className="grid h-[50px] flex-1 place-items-center rounded-[11.1px] bg-[#EDF3ED] text-[11.66px] font-semibold text-[#8A9A8D]">Choose a subscription</button>}
+        </div>}
         <div className="pb-[63px]" />
       </main>
     </div>

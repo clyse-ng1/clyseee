@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Pill } from "./AdminShell";
 import { GlyphPause, GlyphNoUser, GlyphMegaphone, GlyphEdit, GlyphBadge, GlyphClock, GlyphWarn, GlyphCheckCircle } from "./AdminGlyphs";
 import BrandTile from "./BrandTile";
+import { api } from "../lib/api";
 
 /* Shared user/group details bits — Figma 1172:24979 / 1175:26039 /
    1176:26649. Static. Copy fixes: "Deactive" -> "Deactivate",
@@ -71,8 +72,62 @@ const MOD_BUTTONS = [
   { key: "note", label: "Send Note", done: "Note Sent", cls: "border border-[#048B0B] bg-white text-[#048B0B]", glyph: <GlyphEdit /> },
 ];
 
-export function ModerationActions() {
+export function ModerationActions({ targetType, targetId, targetUserId }) {
   const [done, setDone] = useState([]);
+  const [noteOpen, setNoteOpen] = useState(false);
+  const [noteText, setNoteText] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [message, setMessage] = useState("");
+  const [isError, setIsError] = useState(false);
+
+  const sendNote = async (event) => {
+    event.preventDefault();
+    if (!targetId || !noteText.trim() || busy) return;
+    setBusy(true);
+    setMessage("");
+    if (!targetUserId) {
+      setBusy(false);
+      setIsError(true);
+      setMessage("This record has no linked user ID, so a note cannot be delivered.");
+      return;
+    }
+    const created = await api("/admin/communications", {
+      method: "POST",
+      body: {
+        category: "account",
+        title: "A note from Clyse",
+        body: noteText.trim(),
+        channels: ["in_app"],
+        audience: { type: "users", user_ids: [targetUserId] },
+      },
+    });
+    if (created.error) {
+      setBusy(false);
+      setIsError(true);
+      setMessage(created.error.message || "The note could not be sent.");
+      return;
+    }
+    const communicationId = created.data?.communication?.id || created.data?.id;
+    if (!communicationId) {
+      setBusy(false);
+      setIsError(true);
+      setMessage("The message was prepared but no delivery ID was returned. Please check Communications before retrying.");
+      return;
+    }
+    const delivery = await api("/admin/communications/send", { method: "POST", body: { id: communicationId } });
+    setBusy(false);
+    if (delivery.error) {
+      setIsError(true);
+      setMessage(delivery.error.message || "The note was created but could not be delivered.");
+      return;
+    }
+    setDone((items) => [...items, "note"]);
+    setNoteText("");
+    setNoteOpen(false);
+    setIsError(false);
+    setMessage("Note sent to the user’s in-app inbox.");
+  };
+
   return (
     <div className="flex flex-col gap-[12px]">
       {MOD_BUTTONS.map((b) => {
@@ -80,8 +135,9 @@ export function ModerationActions() {
         return (
           <button
             key={b.key}
-            disabled={isDone}
-            onClick={() => setDone((d) => [...d, b.key])}
+            disabled={isDone || (b.key === "note" && !targetUserId)}
+            onClick={() => b.key === "note" ? (setMessage(""), setNoteOpen(true)) : setDone((d) => [...d, b.key])}
+            title={b.key === "note" && !targetUserId ? "A linked user account is required to send a note" : undefined}
             className={`flex h-[67px] items-center gap-[12px] rounded-[10px] px-[20px] text-[18px] font-semibold disabled:opacity-70 ${b.cls}`}
           >
             {b.glyph}
@@ -89,17 +145,19 @@ export function ModerationActions() {
           </button>
         );
       })}
+      {message && <p role={isError ? "alert" : "status"} className={`rounded-lg px-3 py-2 text-sm font-semibold ${isError ? "bg-red-50 text-red-800" : "bg-green-50 text-green-800"}`}>{message}</p>}
+      {noteOpen && <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 p-4"><form onSubmit={sendNote} role="dialog" aria-modal="true" aria-labelledby="moderation-note-title" className="w-full max-w-[520px] rounded-2xl bg-white p-6 shadow-2xl"><h2 id="moderation-note-title" className="text-xl font-bold text-[#001701]">Send Note</h2><p className="mt-2 text-sm text-[#657165]">This sends a private in-app message to the account linked to this {targetType}.</p><textarea autoFocus value={noteText} onChange={(e) => setNoteText(e.target.value)} maxLength={2000} rows={5} placeholder="Write a note…" className="mt-4 w-full rounded-xl border border-[#BFC9BF] p-3 outline-none focus:border-[#048B0B]" />{message && isError && <p role="alert" className="mt-2 text-sm font-semibold text-red-700">{message}</p>}<div className="mt-4 flex justify-end gap-3"><button type="button" disabled={busy} onClick={() => setNoteOpen(false)} className="rounded-lg border border-[#BFC9BF] px-4 py-2 font-semibold">Cancel</button><button type="submit" disabled={busy || !noteText.trim()} className="rounded-lg bg-[#048B0B] px-5 py-2 font-semibold text-white disabled:opacity-50">{busy ? "Sending…" : "Send Note"}</button></div></form></div>}
     </div>
   );
 }
 
-export function ModerationCard() {
+export function ModerationCard({ targetType, targetId, targetUserId }) {
   return (
     <div className="mt-[30px] rounded-[20px] border border-[#999999] bg-white p-[31px]">
       <div className="flex gap-[62px]">
         <div className="w-[509px]">
           <h3 className="mb-[15px] text-[20px] font-bold text-[#000000]">Moderation Actions</h3>
-          <ModerationActions />
+          <ModerationActions targetType={targetType} targetId={targetId} targetUserId={targetUserId} />
         </div>
         <div className="w-[509px]">
           <h3 className="mb-[15px] text-[20px] font-bold text-[#000000]">Recent Activities</h3>

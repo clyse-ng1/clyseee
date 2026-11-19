@@ -190,7 +190,7 @@ export default function AdminGroupDetails() {
         </>
       )}
 
-      <ModerationCard />
+      <ModerationCard targetType="group" targetId={group?.group_id || group?.id} targetUserId={group?.owner_id || group?.creator?.id || group?.creator_id} />
     </AdminShell>
   );
 }

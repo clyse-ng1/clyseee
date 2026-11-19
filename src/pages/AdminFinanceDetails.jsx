@@ -1,307 +1,149 @@
 import { useEffect, useState } from "react";
-import { Link, useSearchParams } from "react-router-dom";
-import { api, brandOf } from "../lib/api";
+import { useSearchParams } from "react-router-dom";
+import { api } from "../lib/api";
 import AdminShell, { BackTitle } from "../components/AdminShell";
-import BrandTile from "../components/BrandTile";
-import { GlyphCheck } from "../components/AdminGlyphs";
-import { FinPill, FinAvatar, CheckDisc } from "../components/FinanceShared";
 
-/* Finance > Transactions > Details — Figma 1195:26648 (desktop). Static.
-   Copy fixes: "Remium" -> "Premium", "methos" -> "methods",
-   "TNX-000056879" -> "TXN-000056879". */
+/* Finance > Transactions > Details.
+   This view deliberately follows the published response for
+   GET /admin/finance/transactions/detail?transaction_id=<uuid>:
+   data = { id, kind, status, amount_kobo, entries[] }.
+   Each documented entry has account_type, owner, and amount_kobo. We do not
+   infer user/service/payout/refund fields from other API responses. */
 
-function Field({ label, children, last = false }) {
+function moneyFromKobo(value) {
+  if (typeof value !== "number" || !Number.isFinite(value)) return "—";
+  return `₦${(value / 100).toLocaleString("en-NG", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+}
+
+function textValue(value, fallback = "—") {
+  if (typeof value === "string" || typeof value === "number") return String(value);
+  if (typeof value === "boolean") return value ? "Yes" : "No";
+  /* The documented owner field is rendered only when scalar. If the server
+     supplies a nested object, keep it from becoming an invalid React child. */
+  return fallback;
+}
+
+function Summary({ label, value }) {
   return (
-    <div className={last ? "" : "border-b border-[#E5E5E5]"}>
-      <p className="text-[18px] leading-[22px] font-semibold text-[#4E4E4E]">{label}</p>
-      <div className="mt-[8px] pb-[14px]">{children}</div>
+    <div className="rounded-xl border border-[#E1E8E1] bg-white p-4">
+      <p className="text-sm font-semibold text-[#657165]">{label}</p>
+      <p className="mt-2 break-words text-lg font-bold capitalize text-[#001701]">{value}</p>
     </div>
   );
 }
 
-function Value({ children }) {
-  return <p className="text-[20px] leading-[24px] font-semibold text-[#001701]">{children}</p>;
-}
-
-/* Field labels keep the Figma grid; values come from the live record or read
-   "—" when the endpoint does not return them. */
-const payoutRows = (tx, naira, when) => [
-  [
-    { label: "Payout Status", value: tx?.payout_status ? String(tx.payout_status).replace(/_/g, " ") : "—" },
-    { label: "Payout Amount", value: naira(tx?.payout_amount_kobo ?? tx?.net_kobo) },
-  ],
-  [
-    { label: "Payout Date", value: tx?.payout_at ? when : "—" },
-    { label: "Payout Reference", value: tx?.payout_reference || "—" },
-  ],
-  [
-    { label: "Payment Method", value: tx?.payment_method || tx?.channel || "—" },
-    { label: "Recipient", value: tx?.creator_name || tx?.owner_name || "—", sub: "Creator" },
-  ],
-];
-
-const refundCols = (tx, naira, when) => [
-  { label: "Refund Status", value: tx?.refund_status ? String(tx.refund_status).replace(/_/g, " ") : "Not Initiated" },
-  { label: "Refund Amount", value: naira(tx?.refund_amount_kobo ?? 0) },
-  { label: "Refund Method", value: tx?.refund_method || "—" },
-  { label: "Refund Reference", value: tx?.refund_reference || "—" },
-  { label: "Refund Date", value: tx?.refunded_at ? when : "—" },
-];
-
 export default function AdminFinanceDetails() {
-  /* Live ledger entry: GET /admin/finance/transactions/detail?transaction_id.
-     The API returns one transaction plus every ledger entry (account type,
-     owner, amount) — there is no payout/refund/timeline block in it, so those
-     static Figma blocks are NOT presented as data. */
   const [params] = useSearchParams();
-  const txId = params.get("id") || params.get("transaction_id") || "";
-  const [tx, setTx] = useState(null);
-  const [loadState, setLoadState] = useState("loading"); // loading | live | error
+  const transactionId = params.get("id") || params.get("transaction_id") || "";
+  const [transaction, setTransaction] = useState(null);
+  const [loadState, setLoadState] = useState("loading");
   const [loadError, setLoadError] = useState("");
+
   useEffect(() => {
     let alive = true;
-    setTx(null);
-    setLoadError("");
-    if (!txId) {
+    if (!transactionId) {
+      setTransaction(null);
       setLoadError("No transaction ID was provided in the page URL.");
       setLoadState("error");
       return () => { alive = false; };
     }
+
     setLoadState("loading");
-    api(`/admin/finance/transactions/detail?transaction_id=${encodeURIComponent(txId)}`).then((res) => {
-      if (!alive) return;
-      const record = res.data?.transaction || res.data?.data?.transaction || res.data;
-      if (res.error || !record || typeof record !== "object") {
-        setLoadError(res.error?.message || `Transaction detail request failed${res.status ? ` (HTTP ${res.status})` : ""}.`);
-        setLoadState("error");
-        return;
-      }
-      const entries = record.entries || record.ledger_entries || res.data?.entries || [];
-      setTx({ ...record, entries: Array.isArray(entries) ? entries.filter(Boolean) : [] });
-      setLoadState("live");
-    }).catch((error) => {
-      if (alive) {
+    setLoadError("");
+    api(`/admin/finance/transactions/detail?transaction_id=${encodeURIComponent(transactionId)}`)
+      .then(({ data, error, status }) => {
+        if (!alive) return;
+        if (error) {
+          setTransaction(null);
+          setLoadError(error.message || `Transaction detail request failed${status ? ` (HTTP ${status})` : ""}.`);
+          setLoadState("error");
+          return;
+        }
+        /* api() unwraps the standard { data: ... } envelope. The documented
+           transaction object is directly inside that `data` value. */
+        if (!data || typeof data !== "object" || Array.isArray(data) || !Array.isArray(data.entries)) {
+          setTransaction(null);
+          setLoadError("The transaction detail response did not match the documented schema.");
+          setLoadState("error");
+          return;
+        }
+        setTransaction({
+          id: data.id,
+          kind: data.kind,
+          status: data.status,
+          amount_kobo: data.amount_kobo,
+          entries: data.entries.filter((entry) => entry && typeof entry === "object" && !Array.isArray(entry)),
+        });
+        setLoadState("live");
+      })
+      .catch((error) => {
+        if (!alive) return;
+        setTransaction(null);
         setLoadError(error?.message || "Unexpected error while loading transaction details.");
         setLoadState("error");
-      }
-    });
+      });
     return () => { alive = false; };
-  }, [txId]);
+  }, [transactionId]);
 
-  const naira = (k) => (k == null ? "—" : `N${Number(k / 100).toLocaleString("en-US")}`);
-  const when = tx?.created_at
-    ? new Date(tx.created_at).toLocaleString("en-US", { month: "short", day: "numeric", year: "numeric", hour: "numeric", minute: "2-digit" })
-    : "—";
-  const entries = Array.isArray(tx?.entries) ? tx.entries.filter(Boolean) : [];
-  const feeKobo = entries.filter((e) => /fee/i.test(e.account_type || "")).reduce((a, e) => a + (Number(e.amount_kobo) || 0), 0);
-  const accountUser = tx?.user || tx?.account_user || {};
-  const service = tx?.service || tx?.group?.service || tx?.plan?.service || {};
-  const serviceTitle = service.name || tx?.service_name || tx?.description || "—";
-  const txStatus = String(tx?.status || "—").replaceAll("_", " ");
+  const statusLabel = textValue(transaction?.status).replaceAll("_", " ");
+  const entries = transaction?.entries || [];
+
   return (
     <AdminShell active="finance" sub="transactions">
       <BackTitle title="Transaction Details" />
+
       {loadState === "error" && (
-        <p role="alert" className="mt-[20px] rounded-[10px] border border-[#FFC48A] bg-[#FFEEE2] px-[20px] py-[16px] text-[16px] font-semibold text-[#8A3B00]">
-          {loadError || (txId
-            ? "Could not load this transaction. Return to Transactions and try again."
-            : "No transaction selected. Open this screen from the Transactions list.")}
+        <p role="alert" className="mt-5 rounded-xl border border-red-200 bg-red-50 p-4 font-semibold text-red-800">
+          {loadError}
         </p>
       )}
-      {loadState === "loading" && <p role="status" className="mt-5 rounded-[10px] bg-white p-4 font-semibold text-[#4E4E4E]">Loading transaction details…</p>}
-      <div className="mt-[30px] flex flex-col gap-[30px] lg:flex-row">
-        <div className="w-full lg:w-[458px] flex-none rounded-[20px] border border-[#999999] bg-white px-[31px] pt-[46px] pb-[30px] shadow-[0_0_20px_rgba(0,23,1,0.10)]">
-          <div className="space-y-[14px]">
-            <Field label="Transaction Reference">
-              <Value>{tx?.reference || tx?.id || "—"}</Value>
-            </Field>
-            <Field label="Transaction Date & Time">
-              <Value>{when}</Value>
-            </Field>
-            <Field label="Type">
-              <Value>{tx?.kind ? String(tx.kind).replace(/_/g, " ") : "—"}</Value>
-            </Field>
-            <Field label="Status">
-              <FinPill tone={/fail|revers|refund/.test(txStatus.toLowerCase()) ? "red" : /pend|process|review/.test(txStatus.toLowerCase()) ? "orange" : "green"}>{txStatus}</FinPill>
-            </Field>
-          </div>
-          <p className="mt-[18px] text-[20px] leading-[24px] font-bold text-[#001701]">
-            Related History
-          </p>
-          <div className="mt-[14px] space-y-[14px]">
-            <Field label="Payment Method">
-              <Value>{tx?.payment_method || tx?.channel || tx?.payment?.method || "—"}</Value>
-            </Field>
-            <Field label="Wallet Reference">
-              <Value>{tx?.wallet_reference || tx?.reference || "—"}</Value>
-            </Field>
-            <Field label="Billing Cycle">
-              <Value>{tx?.billing_interval_months ? `${tx.billing_interval_months} month${tx.billing_interval_months === 1 ? "" : "s"}` : tx?.billing_cycle || "—"}</Value>
-            </Field>
-            <Field label="Next Renewal" last>
-              <Value>{tx?.next_renewal_at ? new Date(tx.next_renewal_at).toLocaleDateString("en-NG", { dateStyle: "medium" }) : "—"}</Value>
-            </Field>
-          </div>
-        </div>
-        <div className="w-full lg:w-[622px] flex-none rounded-[20px] border border-[#999999] bg-white px-[31px] pt-[31px] pb-[30px] shadow-[0_0_20px_rgba(0,23,1,0.10)]">
-          <p className="text-[20px] leading-[24px] font-bold text-[#001701]">
-            User / Amount Breakdown
-          </p>
-          <div className="mt-[41px] rounded-[15px] border border-[#999999] bg-white px-[31px] pt-[26px] pb-[30px]">
-            <p className="text-[20px] leading-[24px] font-semibold text-[#001701]">User</p>
-            <div className="mt-[14px] flex items-center border-b border-[#E5E5E5] pb-[12px]">
-              <FinAvatar i={3} />
-              <span className="ml-[15px]">
-                <span className="block text-[25px] leading-[30px] font-semibold text-[#001701]">
-                  {accountUser.full_name || tx?.user_name || tx?.creator_name || "—"}
-                </span>
-                <span className="block text-[16px] leading-[20px] font-semibold text-[#4E4E4E]">
-                  {accountUser.email || tx?.user_email || "—"}
-                </span>
-              </span>
+      {loadState === "loading" && (
+        <p role="status" className="mt-5 rounded-xl border border-[#E1E8E1] bg-white p-4 font-semibold text-[#4E4E4E]">
+          Loading transaction details…
+        </p>
+      )}
+
+      {transaction && (
+        <div className="mt-6 max-w-[1000px] space-y-6">
+          <section className="rounded-2xl border border-[#D8E2D9] bg-white p-5 shadow-sm sm:p-7">
+            <h2 className="text-xl font-bold text-[#001701]">Transaction</h2>
+            <div className="mt-5 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
+              <Summary label="Transaction ID" value={textValue(transaction.id)} />
+              <Summary label="Type" value={textValue(transaction.kind).replaceAll("_", " ")} />
+              <Summary label="Status" value={statusLabel} />
+              <Summary label="Amount" value={moneyFromKobo(transaction.amount_kobo)} />
             </div>
-            <p className="mt-[14px] text-[20px] leading-[24px] font-semibold text-[#001701]">
-              Subscription / Group
-            </p>
-            <div className="mt-[14px] flex items-center border-b border-[#E5E5E5] pb-[12px]">
-              <BrandTile brand={brandOf(service)} name={serviceTitle} size={50} />
-              <span className="ml-[15px]">
-                <span className="block text-[18px] leading-[22px] font-semibold text-[#001701]">
-                  {serviceTitle}
-                </span>
-                <span className="block text-[18px] leading-[22px] font-semibold text-[#4E4E4E]">
-                  ({tx?.group_id ? "Group" : tx?.membership_id ? "Subscription" : "Transaction"})
-                </span>
-              </span>
-            </div>
-            <p className="mt-[14px] text-[20px] leading-[24px] font-semibold text-[#001701]">
-              Amount Paid/Fee
-            </p>
-            <div className="mt-[12px] flex">
-              {[
-                { label: "Amount", value: naira(tx?.amount_kobo), w: "w-[147px] flex-none" },
-                { label: "Clyse Fee", value: naira(feeKobo || tx?.fee_kobo || 0), w: "w-full lg:w-[285px] flex-none" },
-                { label: "Total", value: naira((tx?.amount_kobo || 0) + (feeKobo || tx?.fee_kobo || 0)), w: "flex-1" },
-              ].map((c) => (
-                <div key={c.label} className={c.w}>
-                  <p className="text-[18px] leading-[22px] font-semibold text-[#6B6B6B]">
-                    {c.label}
-                  </p>
-                  <p className="mt-[8px] text-[18px] leading-[22px] font-semibold text-black">
-                    {c.value}
-                  </p>
-                </div>
-              ))}
-            </div>
-          </div>
-          <p className="mt-[30px] text-[20px] leading-[24px] font-bold text-[#001701]">
-            Reconciliation Status
-          </p>
-          <div className="mt-[15px] rounded-[20px] border border-[#999999] bg-white px-[31px] pt-[21px] pb-[21px]">
-            <div className="flex items-center">
-              <span className="grid h-[50px] w-[50px] flex-none place-items-center rounded-full bg-[#048B0B]">
-                <GlyphCheck color="#FFFFFF" />
-              </span>
-              <span className="ml-[26px]">
-                <span className="block text-[18px] leading-[22px] font-semibold text-[#048B0B]">
-                  {tx?.status ? String(tx.status).replace(/_/g, " ") : "—"}
-                </span>
-                <span className="mt-[8px] block text-[18px] leading-[22px] font-semibold text-[#6B6B6B]">
-                  Transaction status as posted to the ledger
-                </span>
-              </span>
-            </div>
-            <Link
-              to="/admin/finance/reconciliation"
-              className="mt-[19px] flex h-[50px] items-center justify-center rounded-[10px] border border-[#048B0B] text-[18px] leading-[22px] font-semibold text-[#048B0B]"
-            >
-              View Reconciliation Details
-            </Link>
-          </div>
-        </div>
-      </div>
-      <div className="mt-[30px] flex rounded-[20px] border border-[#999999] bg-white px-[31px] pt-[31px] pb-[30px] shadow-[0_0_20px_rgba(0,23,1,0.10)]">
-        <div className="w-full lg:w-[420px] flex-none">
-          <p className="text-[20px] leading-[24px] font-bold text-[#001701]">
-            Transaction Timeline
-          </p>
-          <div className="mt-[31px]">
-            {entries.length === 0 && (
-              <p className="text-[16px] leading-[20px] font-semibold text-[#6B6B6B]">
-                No ledger entries recorded for this transaction.
+          </section>
+
+          <section className="rounded-2xl border border-[#D8E2D9] bg-white p-5 shadow-sm sm:p-7">
+            <h2 className="text-xl font-bold text-[#001701]">Ledger entries</h2>
+            {entries.length === 0 ? (
+              <p className="mt-4 rounded-xl bg-[#F6F9F6] p-4 font-semibold text-[#657165]">
+                No ledger entries were returned for this transaction.
               </p>
-            )}
-            {entries.map((t, i) => (
-              <div key={t.id || i} className="relative pb-[40px] last:pb-0">
-                {i < entries.length - 1 && (
-                  <span className="absolute top-[40px] bottom-[-8px] w-[2px] bg-[#048B0B]" style={{ left: 17 }} />
-                )}
-                <div className="flex">
-                  <CheckDisc size={35} />
-                  <span className="ml-[18px]">
-                    <span className="block text-[20px] leading-[24px] font-bold text-[#001701]">
-                      {String(t.account_type || "entry").replace(/_/g, " ")}
-                    </span>
-                    <span className="mt-[12px] block text-[18px] leading-[22px] font-semibold text-[#6B6B6B]">
-                      {naira(t.amount_kobo)}
-                    </span>
-                    <span className="mt-[6px] block text-[18px] leading-[22px] font-semibold text-[#6B6B6B]">
-                      {t.owner_name || t.owner || t.account_owner || "—"}
-                    </span>
-                  </span>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-        <div className="ml-[60px] flex-1 border-l border-[#E5E5E5] pl-[30px]">
-          <p className="text-[20px] leading-[24px] font-bold text-[#001701]">
-            Payout Information
-          </p>
-          <p className="mt-[10px] text-[16px] leading-[20px] font-semibold text-[#6B6B6B]">
-            Payout data isn’t part of a transaction record — see the payouts ledger for the
-            creator’s payout on this payment.
-          </p>
-          <div className="mt-[40px] space-y-[34px]">
-            {payoutRows(tx, naira, when).map((row, i) => (
-              <div key={i} className="flex">
-                {row.map((c, j) => (
-                  <div key={c.label} className={j === 0 ? "w-full lg:w-[301px] flex-none" : "flex-1"}>
-                    <p className="text-[18px] leading-[22px] font-semibold text-[#6B6B6B]">
-                      {c.label}
-                    </p>
-                    <p className="mt-[13px] text-[20px] leading-[24px] font-semibold text-[#001701]">
-                      {c.value}
-                    </p>
-                    {c.sub && (
-                      <p className="text-[16px] leading-[20px] font-semibold text-[#6B6B6B]">
-                        {c.sub}
-                      </p>
-                    )}
+            ) : (
+              <div className="mt-4 divide-y divide-[#E8EEE8] overflow-hidden rounded-xl border border-[#E1E8E1]">
+                {entries.map((entry, index) => (
+                  <div key={`${textValue(entry.account_type, "entry")}-${index}`} className="grid grid-cols-1 gap-2 bg-white p-4 sm:grid-cols-3 sm:items-center">
+                    <div>
+                      <p className="text-xs font-semibold uppercase tracking-wide text-[#657165]">Account type</p>
+                      <p className="mt-1 font-bold capitalize text-[#001701]">{textValue(entry.account_type)}</p>
+                    </div>
+                    <div>
+                      <p className="text-xs font-semibold uppercase tracking-wide text-[#657165]">Owner</p>
+                      <p className="mt-1 font-semibold text-[#253725]">{textValue(entry.owner, typeof entry.owner === "object" && entry.owner ? "Owner details" : "—")}</p>
+                    </div>
+                    <div className="sm:text-right">
+                      <p className="text-xs font-semibold uppercase tracking-wide text-[#657165]">Amount</p>
+                      <p className="mt-1 font-bold text-[#001701]">{moneyFromKobo(entry.amount_kobo)}</p>
+                    </div>
                   </div>
                 ))}
               </div>
-            ))}
-          </div>
+            )}
+          </section>
         </div>
-      </div>
-      <div className="mt-[30px] rounded-[20px] border border-[#999999] bg-white px-[31px] pt-[31px] pb-[30px] shadow-[0_0_20px_rgba(0,23,1,0.10)]">
-        <p className="text-[20px] leading-[24px] font-bold text-[#001701]">
-          Refund / Reversal Information
-        </p>
-        <div className="mt-[24px] flex">
-          {refundCols(tx, naira, when).map((c, i) => (
-            <div key={c.label} className={`flex-1 ${i > 0 ? "border-l border-[#E5E5E5] pl-[20px]" : ""}`}>
-              <p className="text-[18px] leading-[22px] font-semibold text-[#6B6B6B]">
-                {c.label}
-              </p>
-              <p className="mt-[13px] text-[20px] leading-[24px] font-semibold text-[#001701]">
-                {c.value}
-              </p>
-            </div>
-          ))}
-        </div>
-      </div>
+      )}
     </AdminShell>
   );
 }

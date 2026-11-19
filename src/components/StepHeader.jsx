@@ -2,12 +2,11 @@ import { useNavigate } from "react-router-dom";
 import iconUserHead from "../assets/icon-user-head.svg";
 
 /* Group-creation step header — desktop: 50px #B1DBB3 icon + 35/700 title +
-   25/600 step + 1114x15 progress (fill = step/5). Mobile step 1 uses the
-   0.6476 scale family (32px icon, 22.67/16.19), steps 2-4 use 0.6935
-   (35px icon, 24.27/17.34); progress 370x10. */
+   25/600 step + 1114x15 progress (fill = step/5). Mobile step 2 follows the
+   supplied phone reference (32px icon, 22.67/16.19 type); progress 370x10. */
 const MOBILE = {
   1: { icon: 32, iconX: 30, textX: 75, title: 22.67, titleLh: 27.63, step: 16.19, stepLh: 22.67, glyph: 17, mt: 80, pmt: 51 },
-  2: { icon: 35, iconX: 44, textX: 92, title: 24.27, titleLh: 29.59, step: 17.34, stepLh: 24.27, glyph: 18, mt: 71, pmt: 57 },
+  2: { icon: 32, iconX: 25, textX: 63, title: 22.67, titleLh: 27.63, step: 16.19, stepLh: 22.67, glyph: 17, mt: 71, pmt: 57 },
   3: { icon: 35, iconX: 30, textX: 79, title: 24.27, titleLh: 29.59, step: 17.34, stepLh: 24.27, glyph: 18, mt: 100, pmt: 52 },
   4: { icon: 35, iconX: 30, textX: 79, title: 24.27, titleLh: 29.59, step: 17.34, stepLh: 24.27, glyph: 18, mt: 100, pmt: 57 },
   5: { icon: 35, iconX: 30, textX: 79, title: 24.27, titleLh: 29.59, step: 17.34, stepLh: 24.27, glyph: 18, mt: 100, pmt: 57 },
@@ -67,7 +66,7 @@ export default function StepHeader({ step }) {
 
   const backM =
     step >= 2 ? (
-      <div className="-mt-[52px] mb-[22px] ml-[30px] xl:hidden">
+      <div className="-mt-[52px] mb-[22px] ml-[25px] xl:hidden">
         <button
           type="button"
           onClick={goBack}
@@ -138,7 +137,7 @@ export default function StepHeader({ step }) {
           </span>
         </div>
         <div
-          className="mx-[30px] h-[10px] rounded-full bg-[#B1DBB3]"
+          className="mx-[25px] h-[10px] rounded-full bg-[#B1DBB3]"
           style={{ marginTop: m.pmt }}
         >
           <div

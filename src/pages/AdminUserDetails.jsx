@@ -179,7 +179,7 @@ export default function AdminUserDetails() {
         </div>
       )}
 
-      <ModerationCard />
+      <ModerationCard targetType="user" targetId={user?.user_id || user?.id} targetUserId={user?.user_id || user?.id} />
     </AdminShell>
   );
 }

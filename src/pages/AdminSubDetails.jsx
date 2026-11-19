@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { api } from "../lib/api";
+import { invalidateCatalogue } from "../lib/useCatalogue";
 import { goBackOr } from "../lib/navigation";
 import AdminShell, { DarkButton } from "../components/AdminShell";
 import BrandTile from "../components/BrandTile";
@@ -78,6 +79,7 @@ export default function AdminSubDetails() {
       }
       const refreshed = await api(`/admin/catalogue/services/detail?service_id=${encodeURIComponent(serviceId)}`);
       if (!refreshed.error && refreshed.data) setSvc(refreshed.data.service || refreshed.data);
+      invalidateCatalogue();
       setEditing(false); setEditNotice("Subscription updated.");
     } catch {
       setEditError("Could not reach the server. Check the catalogue before retrying.");

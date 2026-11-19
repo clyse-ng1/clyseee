@@ -452,6 +452,9 @@ export default function AdminShell({ active = null, sub = null, expand = false, 
   const menu = (nav2 ? MENU2 : MENU).filter((m) => m.key !== "disputes" || active === "disputes");
   const [open, setOpen] = useState(expand ? active : null);
   const [drawer, setDrawer] = useState(false);
+  const [collapsed, setCollapsed] = useState(() => {
+    try { return localStorage.getItem("clyse-admin-nav-collapsed") === "true"; } catch { return false; }
+  });
   const { user } = useAuth();
   const adminName = user?.full_name || user?.name || (user?.email ? String(user.email).split("@")[0] : "Carter George");
   const go = (to) => {
@@ -470,12 +473,15 @@ export default function AdminShell({ active = null, sub = null, expand = false, 
         />
       )}
       <aside
-        className={`bg-deep fixed inset-y-0 left-0 z-50 flex w-[270px] shrink-0 flex-col overflow-y-auto transition-transform duration-300 lg:static lg:inset-auto lg:z-30 lg:translate-x-0 lg:overflow-visible ${
+        className={`bg-deep fixed inset-y-0 left-0 z-50 flex shrink-0 flex-col overflow-y-auto transition-all duration-300 lg:static lg:inset-auto lg:z-30 lg:translate-x-0 lg:overflow-visible ${collapsed ? "lg:w-[76px]" : "w-[270px]"} ${
           drawer ? "translate-x-0" : "-translate-x-full"
         }`}
       >
-        <div className="relative flex h-[70px] shrink-0 items-center justify-center border-b border-[#77BAE7]">
+        <div className={`relative flex h-[70px] shrink-0 items-center border-b border-[#77BAE7] ${collapsed ? "justify-center" : "justify-center"}`}>
           <span className="text-[28px] font-extrabold tracking-wide text-white">CL<span className="text-[#46C04C]">X</span>SE</span>
+          <button type="button" onClick={() => setCollapsed((value) => { const next = !value; try { localStorage.setItem("clyse-admin-nav-collapsed", String(next)); } catch {} return next; })} aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"} title={collapsed ? "Expand sidebar" : "Collapse sidebar"} className="absolute right-2 top-[18px] hidden h-[34px] w-[34px] place-items-center rounded-md bg-white/15 text-white lg:grid">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden><path d={collapsed ? "m9 5 7 7-7 7" : "m15 5-7 7 7 7"} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" /></svg>
+          </button>
           <button
             onClick={() => setDrawer(false)}
             aria-label="Close menu"
@@ -492,15 +498,17 @@ export default function AdminShell({ active = null, sub = null, expand = false, 
               <div key={m.key}>
                 <button
                   onClick={() => {
-                    if (m.sub) setOpen(expanded ? null : m.key);
+                    if (collapsed && m.sub) { setCollapsed(false); try { localStorage.setItem("clyse-admin-nav-collapsed", "false"); } catch {} setOpen(m.key); }
+                    else if (m.sub) setOpen(expanded ? null : m.key);
                     if (m.to) go(m.to);
                   }}
-                  className={`flex h-[60px] w-full items-center gap-[12px] px-[20px] text-left text-[16px] font-semibold ${
+                  title={collapsed ? m.label : undefined}
+                  className={`flex h-[60px] w-full items-center gap-[12px] px-[20px] text-left text-[16px] font-semibold ${collapsed ? "lg:justify-center lg:px-0" : ""} ${
                     isActive ? "bg-[#F1F8F2] text-[#001701]" : "text-white"
                   }`}
                 >
                   <span className="flex h-[24px] w-[24px] shrink-0 items-center justify-center">{m.icon}</span>
-                  <span className="flex-1 whitespace-nowrap leading-tight">{m.label}</span>
+                  <span className={`flex-1 whitespace-nowrap leading-tight ${collapsed ? "lg:hidden" : ""}`}>{m.label}</span>
                   {m.chev && (
                     <span className="shrink-0">
                       <ChevDown color={isActive ? "#001701" : "#FFFFFF"} up={expanded && !!m.sub} />
@@ -528,12 +536,12 @@ export default function AdminShell({ active = null, sub = null, expand = false, 
                     })}
                   </div>
                 )}
-                <div className="h-[20px]" />
+                <div className={collapsed ? "h-[10px]" : "h-[20px]"} />
               </div>
             );
           })}
           {/* CMS card */}
-          <div className="mx-[40px] mb-[40px] mt-auto flex h-[249px] w-[190px] shrink-0 flex-col items-center rounded-[10px] bg-[#073019] px-[20px] pb-[20px] pt-[25px]">
+          {!collapsed && <div className="mx-[40px] mb-[40px] mt-auto flex h-[249px] w-[190px] shrink-0 flex-col items-center rounded-[10px] bg-[#073019] px-[20px] pb-[20px] pt-[25px]">
             <span className="text-[16px] font-extrabold tracking-wide text-white">CLYSE</span>
             <p className="mt-[25px] text-center text-[18px] font-semibold leading-snug text-white">CLYSE CMS v1.0</p>
             <p className="mt-[5px] text-center text-[14px] font-normal leading-snug text-white/85">
@@ -545,7 +553,7 @@ export default function AdminShell({ active = null, sub = null, expand = false, 
             >
               View Website
             </button>
-          </div>
+          </div>}
         </nav>
       </aside>
       </>
@@ -553,6 +561,9 @@ export default function AdminShell({ active = null, sub = null, expand = false, 
       {/* Right column */}
       <div className="flex min-h-screen min-w-0 flex-1 flex-col">
         <header className="sticky top-0 z-20 flex h-[70px] shrink-0 items-center justify-between gap-[12px] border-b border-[#77BAE7] bg-[#E5FFE7] px-[16px] lg:px-[30px]">
+          <button type="button" onClick={() => setCollapsed((value) => { const next = !value; try { localStorage.setItem("clyse-admin-nav-collapsed", String(next)); } catch {} return next; })} aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"} className="hidden h-[38px] w-[38px] shrink-0 place-items-center rounded-[8px] bg-white lg:grid">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden><path d={collapsed ? "m9 5 7 7-7 7" : "m15 5-7 7 7 7"} stroke="#001701" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" /></svg>
+          </button>
           <button
             onClick={() => setDrawer(true)}
             aria-label="Open menu"

@@ -22,7 +22,7 @@ function PlanCard({ plan, active, onPick, mobile = false }) {
       onClick={onPick}
       className={`relative text-left transition ${
         mobile
-          ? "flex w-full flex-col rounded-[16px] border bg-white px-[20px] py-[18px]"
+          ? "flex min-h-[260px] w-full flex-col justify-between rounded-[16px] border bg-white px-[25px] pt-[30px] pb-[30px]"
           : "flex h-[190px] flex-col justify-center rounded-[16px] border bg-white px-[30px]"
       } ${
         active
@@ -33,7 +33,7 @@ function PlanCard({ plan, active, onPick, mobile = false }) {
       {active && (
         <span
           className={`absolute top-[14px] right-[14px] rounded-full bg-[#DFFFE1] font-semibold text-clyse ${
-            mobile ? "px-[10px] text-[10px]" : "px-[14px] text-[12px]"
+            mobile ? "px-[12px] py-[3px] text-[11px]" : "px-[14px] text-[12px]"
           }`}
         >
           Selected
@@ -41,34 +41,34 @@ function PlanCard({ plan, active, onPick, mobile = false }) {
       )}
       <span
         className={`font-semibold text-ink ${
-          mobile ? "text-[16px] leading-[22px]" : "text-[22px] leading-[28px]"
+          mobile ? "text-[17px] leading-[24px]" : "text-[22px] leading-[28px]"
         }`}
       >
         {plan.name}
       </span>
-      {plan.desc && (
-        <span
-          className={`mt-[6px] font-semibold text-ash ${mobile ? "text-[11px] leading-[16px]" : "text-[13px] leading-[18px]"}`}
-        >
-          {plan.desc}
-        </span>
-      )}
       <span
-        className={`mt-[10px] flex items-baseline gap-[2px] ${mobile ? "" : "mt-[18px]"}`}
+        className={`mt-[18px] flex items-baseline gap-[3px] ${mobile ? "" : "mt-[18px]"}`}
       >
         <span
           className={`font-bold text-ink ${
-            mobile ? "text-[18px] leading-[24px]" : "text-[25px] leading-[32px]"
+            mobile ? "text-[22px] leading-[28px]" : "text-[25px] leading-[32px]"
           }`}
         >
           {money(plan.kobo)}
         </span>
         <span className="text-[11px] font-semibold text-ash">/Monthly</span>
       </span>
+      {plan.desc && (
+        <span
+          className={`mt-[14px] font-semibold text-ash ${mobile ? "text-[14px] leading-[20px]" : "text-[13px] leading-[18px]"}`}
+        >
+          {plan.desc}
+        </span>
+      )}
       <span
         className={`grid place-items-center rounded-[10px] font-semibold ${
           mobile
-            ? `mt-[14px] h-[44px] w-full text-[14px] ${active ? "bg-btn text-mint" : "border border-clyse text-ink"}`
+            ? `mt-[28px] h-[50px] w-full text-[15px] ${active ? "bg-btn text-mint" : "border border-[#D0D0D0] text-ink"}`
             : `mt-[20px] h-[46px] w-full text-[16px] ${active ? "bg-btn text-mint" : "border border-clyse text-ink"}`
         }`}
       >
@@ -99,7 +99,8 @@ export default function CreatePlan() {
      to render "No plans available". Fall back to the first service that
      actually has a priced plan so the step is never empty. */
   const entry = !custom
-    ? matchService(services, incoming?.brand) ||
+    ? (services || []).find((row) => (row.service || row).id === incoming?.serviceId || (row.service || row).service_id === incoming?.serviceId) ||
+      matchService(services, incoming?.brand) ||
       (services || []).find((a) => (a.plans || a.catalogue_plans || []).some((p) => Number.isFinite(planTotal(p)))) ||
       null
     : null;
@@ -158,7 +159,7 @@ export default function CreatePlan() {
     <div
       className={
         mobile
-          ? "mt-[26px] flex flex-col gap-[14px]"
+          ? "mt-[26px] flex flex-col gap-[16px]"
           : "mt-[60px] grid grid-cols-3 gap-[30px]"
       }
     >
@@ -214,6 +215,7 @@ export default function CreatePlan() {
         <div className="mx-auto mt-[50px] flex w-[990px] items-center justify-center gap-[50px]">
           <Link
             to="/create-group"
+            state={incoming}
             className="grid h-[60px] w-[470px] place-items-center rounded-2xl border border-clyse text-[18px] font-semibold text-ink"
           >
             Go Back
@@ -243,35 +245,30 @@ export default function CreatePlan() {
       <main className="relative z-10 xl:hidden">
         <div className="relative">
           <StepHeader step={2} />
-          <h2 className="mt-[34px] text-[22px] leading-[27px] font-semibold">
+          <h2 className="mx-[25px] mt-[34px] text-[22px] leading-[27px] font-semibold">
             Choose your {title} plan
           </h2>
-          <p className="mt-[8px] text-[13px] leading-[19px] text-ash">
+          <p className="mx-[25px] mt-[8px] text-[13px] leading-[19px] text-ash">
             Pick the access level you want to buy. You can change this before
             joining a group
           </p>
-          {cards(true)}
+          <div className="mx-[25px]">{cards(true)}</div>
           {!plans.length && (
-            <p className="mt-[24px] text-[13px] font-semibold text-ash">
+            <p className="mx-[25px] mt-[24px] text-[13px] font-semibold text-ash">
               {services === null
                 ? "Loading plans…"
                 : "No plans available for this subscription yet."}
             </p>
           )}
-          <div className="mt-[30px] mb-[40px] flex items-center gap-[14px]">
+          <div className="mx-[25px] mt-[30px] mb-[40px] flex items-center gap-[14px]">
             <Link
               to="/create-group"
+              state={incoming}
               className="grid h-[50px] flex-1 place-items-center rounded-xl border border-clyse text-[15px] font-semibold text-ink"
             >
               Go Back
             </Link>
-            <Link
-              to="/create-group/details"
-              state={nextState}
-              className="grid h-[50px] flex-1 place-items-center rounded-xl bg-btn text-[15px] font-semibold text-mint"
-            >
-              Continue
-            </Link>
+            {chosen?.id ? <Link to="/create-group/details" state={nextState} className="grid h-[50px] flex-1 place-items-center rounded-xl bg-btn text-[15px] font-semibold text-mint">Continue</Link> : <button type="button" disabled className="grid h-[50px] flex-1 place-items-center rounded-xl bg-[#EDF3ED] text-[15px] font-semibold text-[#8A9A8D]">Choose a plan</button>}
           </div>
         </div>
       </main>
