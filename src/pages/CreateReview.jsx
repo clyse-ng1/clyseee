@@ -7,19 +7,12 @@ import { api, brandOf } from "../lib/api";
 import BrandTile from "../components/BrandTile";
 import { invalidateGroups } from "../lib/groupsCache";
 import { matchService, pickPlan, useCatalogue } from "../lib/useCatalogue";
-import iconMoviesWhite from "../assets/icon-movies-white.svg";
 import iconProofCheck from "../assets/icon-proof-check.svg";
 import VerificationStatus from "../components/VerificationStatus";
 import iconProofCheckSm from "../assets/icon-proof-check-sm.svg";
 
-/* Step 4 — review group. The logo disc stacks Figma's three fills (linear +
-   radial green gradients over near-black). With flow state, rows go live and
-   Create Group posts to the API; direct visits keep the Figma demo. */
-const LOGO_BG = [
-  "radial-gradient(circle at 50% 50%, #00FF0F 16%, #001601 97%)",
-  "linear-gradient(180deg, #001701 8%, #007D07 100%)",
-  "#000F00",
-].join(", ");
+/* Step 5/5 review group. With flow state, rows go live and Create Group posts
+   to the API; direct visits keep the Figma demo. */
 
 const ROWS = [
   "Available Subscription Shared: 3 Slots",
@@ -67,6 +60,7 @@ export default function CreateReview() {
   const vis = incoming?.visibility || "public";
   const title =
     incoming?.custom?.name || incoming?.title || draft?.title || "Netflix Premium";
+  const serviceBrand = incoming?.brand || brandOf({ name: title });
   const unitLabel =
     unit == null ? "—" : Math.round(unit / 100).toLocaleString("en-US");
 
@@ -268,7 +262,7 @@ export default function CreateReview() {
 
         <div className="mt-[40px] rounded-[15px] border border-clyse bg-white px-[30px] py-[24px] shadow-[0_0_12px_rgba(0,23,1,0.06)]">
           <div className="flex items-center gap-[22px]">
-            <BrandTile brand={brandOf({ name: title })} name={title} size={60} plain />
+            <BrandTile brand={serviceBrand} name={title} category={incoming?.category} size={60} plain />
             <span>
               <span className="block text-[25px] leading-[32px] font-semibold">
                 {title}
@@ -348,12 +342,7 @@ export default function CreateReview() {
             floating on the tinted background (PM: "containers missing"). */}
         <div className="mx-[30px] mt-[30px] rounded-[16px] border border-clyse bg-white px-[20px] py-[18px] shadow-[0_0_13.87px_rgba(0,23,1,0.06)]">
           <div className="flex items-center gap-[14px]">
-            <span
-              className="grid h-[42px] w-[42px] flex-none place-items-center rounded-full"
-              style={{ background: LOGO_BG }}
-            >
-              <img src={iconMoviesWhite} alt="" className="w-[23px]" />
-            </span>
+            <BrandTile brand={serviceBrand} name={title} category={incoming?.category} size={42} plain />
             <span className="min-w-0">
               <span className="block truncate text-[20px] leading-[26px] font-semibold">
                 {title}

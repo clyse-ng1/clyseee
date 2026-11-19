@@ -99,7 +99,7 @@ export default function AdminRequestDetails() {
               <SlackTile />
               <span>
                 <span className="block text-[18px] font-bold text-[#000000]">Slack</span>
-                <span className="block text-[16px] font-semibold text-[#6B6B6B]">N5,500 / Monthly</span>
+                <span className="block text-[16px] font-semibold text-[#6B6B6B]">₦5,500 / Monthly</span>
               </span>
             </div>
             <div className="mt-[10px] flex flex-col gap-[12px]">

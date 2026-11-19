@@ -232,10 +232,10 @@ export default function AdminSubAdd() {
                     </Field>
                   </div>
                   <div className="mt-[24px] flex gap-[21px]">
-                    <Field label="Fixed Unit Price (N)" className="flex-1">
+                    <Field label="Fixed Unit Price (₦)" className="flex-1">
                       <input className={INPUT} inputMode="decimal" placeholder="Enter Price" value={plan.price} onChange={setPlan(index, "price")} />
                     </Field>
-                    <Field label="Clyse Fee (N)" className="flex-1">
+                    <Field label="Clyse Fee (₦)" className="flex-1">
                       <input className={INPUT} inputMode="decimal" placeholder="Enter Fee" value={plan.fee} onChange={setPlan(index, "fee")} />
                     </Field>
                   </div>

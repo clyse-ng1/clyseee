@@ -133,7 +133,7 @@ export default function AdminExceptions() {
               Expected Amount
             </p>
             <p className="mt-[8px] text-[20px] leading-[24px] font-semibold text-[#001701]">
-              N3,000
+              ₦3,000
             </p>
           </div>
         </div>
@@ -143,7 +143,7 @@ export default function AdminExceptions() {
               Recorded Amount
             </p>
             <p className="mt-[8px] text-[20px] leading-[24px] font-semibold text-[#001701]">
-              N2,500
+              ₦2,500
             </p>
           </div>
           <div className="flex-1">
@@ -151,7 +151,7 @@ export default function AdminExceptions() {
               Difference
             </p>
             <p className="mt-[8px] text-[20px] leading-[24px] font-semibold text-[#FF0000]">
-              N500
+              ₦500
             </p>
           </div>
         </div>

@@ -65,7 +65,7 @@ export default function JoinSummaryError() {
                 </div>
                 <p className="mr-[-83px] ml-auto flex items-start">
                   <span className="text-[35px] leading-[43px] font-bold text-ink">
-                    N 2,000
+                    ₦2,000
                   </span>
                   <span className="mt-[11px] ml-[2px] text-[18px] leading-[22px] font-semibold text-[#6B6B6B]">
                     /Monthly
@@ -78,7 +78,7 @@ export default function JoinSummaryError() {
                     Fixed Unit Price
                   </p>
                   <p className="mt-[8px] text-[35px] leading-[43px] font-bold text-ink">
-                    N 2,000
+                    ₦2,000
                   </p>
                 </div>
                 <div className="h-[151px] w-[268px] rounded-[7px] bg-[#F1F8F1] px-[31px] pt-[41px]">
@@ -86,7 +86,7 @@ export default function JoinSummaryError() {
                     Clyse Fee
                   </p>
                   <p className="mt-[17px] text-[35px] leading-[43px] font-bold text-clyse">
-                    N200
+                    ₦200
                   </p>
                 </div>
               </div>
@@ -119,7 +119,7 @@ export default function JoinSummaryError() {
                   Fixed Unit Price
                 </span>
                 <span className="text-[25px] leading-[35px] font-semibold text-[#013104]">
-                  N2,000
+                  ₦2,000
                 </span>
               </div>
               <div className="mt-[41px] mx-[20px] flex items-center justify-between">
@@ -127,7 +127,7 @@ export default function JoinSummaryError() {
                   Clyse Fee
                 </span>
                 <span className="text-[25px] leading-[35px] font-semibold text-[#013104]">
-                  N200
+                  ₦200
                 </span>
               </div>
               <div className="mt-[61px] flex h-[85px] items-center rounded-[15px] bg-[#DFFFE0] px-[21px]">
@@ -135,7 +135,7 @@ export default function JoinSummaryError() {
                   Total Amount
                 </span>
                 <span className="ml-auto text-[35px] leading-[43px] font-bold text-[#036F09]">
-                  N2,500
+                  ₦2,500
                 </span>
               </div>
               <p className="mt-[40px] text-[18px] leading-[22px] font-semibold text-black">
@@ -150,7 +150,7 @@ export default function JoinSummaryError() {
                   Current Wallet Balance
                 </p>
                 <p className="mt-[10px] ml-[42px] text-[35px] leading-[43px] font-bold text-[#E31B00]">
-                  N 2,000
+                  ₦2,000
                 </p>
               </div>
               <p className="mt-[40px] ml-[60px] text-[25px] leading-[35px] font-semibold text-[#E31B00]">
@@ -197,7 +197,7 @@ export default function JoinSummaryError() {
                   Fixed Unit Price
                 </p>
                 <p className="text-[25px] leading-[30px] font-bold text-ink">
-                  N 2,000
+                  ₦2,000
                 </p>
               </div>
               <div className="h-[97px] w-[171px] rounded-[7px] bg-[#F1F8F1] px-[53px] pt-[21px]">
@@ -205,7 +205,7 @@ export default function JoinSummaryError() {
                   Clyse Fee
                 </p>
                 <p className="text-[25px] leading-[30px] font-bold text-clyse">
-                  N200
+                  ₦200
                 </p>
               </div>
             </div>
@@ -236,7 +236,7 @@ export default function JoinSummaryError() {
                 Fixed Unit Price
               </span>
               <span className="mr-[20px] text-[25px] leading-[35px] font-semibold text-[#013104]">
-                N2,000
+                ₦2,000
               </span>
             </div>
             <div className="mt-[41px] flex items-center justify-between">
@@ -244,7 +244,7 @@ export default function JoinSummaryError() {
                 Clyse Fee
               </span>
               <span className="mr-[20px] text-[25px] leading-[35px] font-semibold text-[#013104]">
-                N200
+                ₦200
               </span>
             </div>
             <div className="mt-[61px] flex h-[79px] items-center rounded-[15px] bg-[#DFFFE0] px-[21px]">
@@ -252,7 +252,7 @@ export default function JoinSummaryError() {
                 Total Amount
               </span>
               <span className="ml-auto text-[30px] leading-[37px] font-bold text-[#036F09]">
-                N2,500
+                ₦2,500
               </span>
             </div>
             <p className="mt-[40px] text-[18px] leading-[22px] font-semibold text-black">
@@ -271,7 +271,7 @@ export default function JoinSummaryError() {
                   <img src={iconBanknote} alt="" className="h-[18px] w-[18px]" />
                 </span>
                 <span className="text-[35px] leading-[43px] font-bold text-[#E31B00]">
-                  N 2,000
+                  ₦2,000
                 </span>
               </div>
             </div>
