@@ -31,16 +31,16 @@ export function AuthPanel({ collage, collageMobile, compact = false }) {
         Join trusted subscription groups, share available slots, and enjoy the services you love at
         a lower cost.
       </p>
-      <img
-        src={collageMobile || collage}
-        alt=""
-        className="-mb-[26px] -ml-[30px] mt-[15px] block w-[calc(100%+60px)] max-w-none lg:hidden"
-      />
-      <img
-        src={collage}
-        alt=""
-        className="absolute bottom-0 left-0 hidden w-[620px] max-w-none lg:block"
-      />
+      <picture>
+        <source media="(min-width: 1024px)" srcSet={collage} />
+        <img
+          src={collageMobile || collage}
+          alt=""
+          decoding="async"
+          fetchPriority="high"
+          className="-mb-[26px] -ml-[30px] mt-[15px] block w-[calc(100%+60px)] max-w-none lg:absolute lg:bottom-0 lg:left-0 lg:mb-0 lg:ml-0 lg:mt-0 lg:w-[620px]"
+        />
+      </picture>
     </div>
   );
 }

@@ -21,12 +21,24 @@ const COLS = [
 ];
 
 const COL_WIDTHS = ["w-[186px]", "w-[190px]", "w-[186px]", "w-auto"];
+const SOCIAL_URLS = {
+  Instagram: "https://www.instagram.com/clyseitnow?lqvp=YTliaWtqaXpramJx",
+  LinkedIn: "https://www.linkedin.com/company/clyse-it/",
+};
+
+function FooterLink({ label, className = "" }) {
+  const url = SOCIAL_URLS[label];
+  if (url) return <a href={url} target="_blank" rel="noopener noreferrer" className={className}>{label}</a>;
+  return <Link to={label === "Contact Page" ? "/contact" : "/"} className={className}>{label}</Link>;
+}
 
 export function Footer({ mt = "mt-[100px]" }) {
   return (
     <footer className={`${mt} hidden xl:block`}>
       <div className="bg-mint px-[20px] min-[1440px]:px-[100px] pt-[50px] pb-[50px]">
         <img
+          loading="lazy"
+          decoding="async"
           src={footerLogo}
           alt="Clyse"
           className="mx-auto h-[83px] w-[369px]"
@@ -40,12 +52,7 @@ export function Footer({ mt = "mt-[100px]" }) {
               <ul className="mt-[10px] space-y-[5px]">
                 {c.links.map((l) => (
                   <li key={l}>
-                    <Link
-                      to={l === "Contact Page" ? "/contact" : "/"}
-                      className="text-[18px] font-semibold leading-[22px] text-smoke transition hover:text-clyse"
-                    >
-                      {l}
-                    </Link>
+                    <FooterLink label={l} className="text-[18px] font-semibold leading-[22px] text-smoke transition hover:text-clyse" />
                   </li>
                 ))}
               </ul>
@@ -68,6 +75,8 @@ export function MobileFooter({ mt = "mt-[50px]" }) {
       <div className="bg-mint px-[35px] pt-[35px] pb-[35px]">
         
         <img
+          loading="lazy"
+          decoding="async"
           src={footerLogo}
           alt="Clyse"
           className="mx-auto h-[58px] w-[256px] object-cover"
@@ -81,12 +90,7 @@ export function MobileFooter({ mt = "mt-[50px]" }) {
               <ul className="mt-[7px] space-y-[3px]">
                 {c.links.map((l) => (
                   <li key={l}>
-                    <Link
-                      to={l === "Contact Page" ? "/contact" : "/"}
-                      className="text-[12.48px] font-semibold leading-[15.22px] text-smoke"
-                    >
-                      {l}
-                    </Link>
+                    <FooterLink label={l} className="text-[12.48px] font-semibold leading-[15.22px] text-smoke" />
                   </li>
                 ))}
               </ul>

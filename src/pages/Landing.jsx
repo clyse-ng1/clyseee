@@ -387,7 +387,7 @@ const SAVINGS_SERVICES = [
 
 function SavingsCalculator() {
   const catalogue = useCatalogue();
-  const [selected, setSelected] = useState(SAVINGS_SERVICES.map((service) => service.label));
+  const [selected, setSelected] = useState([]);
   const availablePrices = SAVINGS_SERVICES.map((service) => {
     const entry = matchService(catalogue || [], service.key);
     const plan = pickPlan(entry);
@@ -415,7 +415,7 @@ function SavingsCalculator() {
             <p className="text-[13px] leading-[18px] xl:text-[16px]">Interactive Calculator</p>
             <h2 className="text-[20px] leading-[26px] font-semibold xl:text-[25px] xl:leading-[32px]">Calculate your savings</h2>
           </div>
-          <Link to="/marketplace" className="flex h-[46px] items-center justify-center rounded-[12px] bg-white px-[22px] text-[15px] font-semibold text-ink hover:bg-[#F1F8F1] xl:h-[55px] xl:px-[28px] xl:text-[18px]">
+          <Link to="/signup" className="flex h-[46px] items-center justify-center rounded-[12px] bg-white px-[22px] text-[15px] font-semibold text-ink hover:bg-[#F1F8F1] xl:h-[55px] xl:px-[28px] xl:text-[18px]">
             Start Savings
           </Link>
         </div>
@@ -434,16 +434,15 @@ function SavingsCalculator() {
           </div>
           <div className="rounded-[18px] border border-[#D0D0D0] p-[18px] xl:p-[20px]">
             <h3 className="mb-[14px] text-[14px] font-bold tracking-[0.14em] text-ink xl:text-[16px]">SUMMARY</h3>
-            <div className="flex justify-between gap-3 text-[13px] xl:text-[15px]"><span>Normal Price <small className="text-[#777]">(est.)</small></span><strong>{catalogue === null ? "Loading…" : pricedSelected.length ? kobo(normalKobo) : "—"}</strong></div>
-            <div className="mt-[8px] flex justify-between gap-3 text-[13px] xl:text-[15px]"><span>With Clyse</span><strong className="text-[#048B0B]">{catalogue === null ? "Loading…" : pricedSelected.length ? kobo(withClyseKobo) : "—"}</strong></div>
+            <div className="flex justify-between gap-3 text-[13px] xl:text-[15px]"><span>Normal Price <small className="text-[#777]">(est.)</small></span><strong className="text-right">{catalogue === null ? "Loading…" : selected.length === 0 ? "Select subscriptions" : pricedSelected.length ? kobo(normalKobo) : "—"}</strong></div>
+            <div className="mt-[8px] flex justify-between gap-3 text-[13px] xl:text-[15px]"><span>With Clyse</span><strong className="text-right text-[#048B0B]">{catalogue === null ? "Loading…" : selected.length === 0 ? "Select subscriptions" : pricedSelected.length ? kobo(withClyseKobo) : "—"}</strong></div>
             <div className="my-[14px] border-t border-[#BDBDBD]" />
             <p className="text-[12px] text-[#555]">You save</p>
             <div className="mt-[3px] flex flex-wrap items-baseline justify-between gap-2 text-[14px] font-bold text-[#048B0B]">
-              <span>{catalogue === null || !pricedSelected.length ? "—" : kobo(savedKobo)} <small className="font-normal text-ink">/mth</small></span>
-              <span>{catalogue === null || !pricedSelected.length ? "—" : kobo(savedKobo * 12)} <small className="font-normal text-ink">/yr</small></span>
+              {selected.length === 0 ? <span className="w-full text-center text-[12px] font-semibold text-[#777]">Select subscriptions to see savings</span> : <><span>{catalogue === null || !pricedSelected.length ? "—" : kobo(savedKobo)} <small className="font-normal text-ink">/mth</small></span><span>{catalogue === null || !pricedSelected.length ? "—" : kobo(savedKobo * 12)} <small className="font-normal text-ink">/yr</small></span></>}
             </div>
-            <p className="mt-[7px] text-[12px] font-semibold text-[#048B0B]">Illustrative savings at 75% off</p>
-            <p className="mt-[10px] text-[10px] leading-[14px] text-[#777]">CLYSE prices load from the live catalogue. The catalogue does not include retail prices, so the normal price and savings are an estimate using the design’s 75% example. {catalogue !== null && `${pricedSelected.length} of ${selected.length} selected services have current prices.`}</p>
+            {selected.length > 0 && <p className="mt-[7px] text-[12px] font-semibold text-[#048B0B]">Illustrative savings at 75% off</p>}
+            <p className="mt-[10px] text-[10px] leading-[14px] text-[#777]">{selected.length === 0 ? "Select one or more subscriptions to see an estimate." : `CLYSE prices load from the live catalogue. The catalogue does not include retail prices, so the normal price and savings are an estimate using the design’s 75% example. ${catalogue !== null ? `${pricedSelected.length} of ${selected.length} selected services have current prices.` : ""}`}</p>
           </div>
         </div>
       </div>
@@ -485,7 +484,7 @@ function OwnerCallout() {
         <p className="mt-[10px] text-[14px] leading-[20px] font-semibold text-ink xl:text-[20px] xl:leading-[26px]">Save money by offering your subscription</p>
         <Link to="/create-group" className="mx-auto mt-[18px] flex h-[44px] w-[155px] items-center justify-center rounded-[9px] bg-[#001701] text-[14px] font-semibold text-white hover:opacity-90 xl:mx-0 xl:mt-[24px]">Create</Link>
       </div>
-      <img src={ctaOwner} alt="Creator wearing a VR headset surrounded by subscription service icons" className="pointer-events-none absolute right-0 bottom-[-14px] w-[270px] xl:right-[8px] xl:bottom-[-8px] xl:w-[480px]" />
+      <img loading="lazy" decoding="async" src={ctaOwner} alt="Creator wearing a VR headset surrounded by subscription service icons" className="pointer-events-none absolute right-0 bottom-[-14px] w-[270px] xl:right-[8px] xl:bottom-[-8px] xl:w-[480px]" />
     </div>
   </section>;
 }
