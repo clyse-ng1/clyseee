@@ -5,7 +5,7 @@ import Navbar from "../components/Navbar";
 import { BlurBg } from "../components/Decor";
 import StepHeader from "../components/StepHeader";
 import BrandTile from "../components/BrandTile";
-import { useCatalogue } from "../lib/useCatalogue";
+import { refreshCatalogue, useCatalogue } from "../lib/useCatalogue";
 import { api } from "../lib/api";
 
 /* Step 1 — pick a subscription (desktop grid 4x2, mobile 2x4).
@@ -224,9 +224,16 @@ export default function CreateGroup() {
           ))}
         </div>
         {services !== null && shownCards.length === 0 && (
-          <p className="mt-[40px] text-center text-[18px] font-semibold text-[#6B6B6B]">
-            {catalogueCards.length === 0 ? "No approved subscriptions are available yet. Admin-added services appear here once they are approved and active." : `No approved subscription matches “${q.trim()}”.`}
-          </p>
+          <div className="mt-[40px] text-center">
+            <p className="text-[18px] font-semibold text-[#6B6B6B]">
+              {catalogueCards.length === 0 ? "No approved subscriptions are available yet. Services must be approved and active, with an active plan, to appear here." : `No approved subscription matches “${q.trim()}”.`}
+            </p>
+            {catalogueCards.length === 0 && (
+              <button type="button" onClick={refreshCatalogue} className="mt-3 text-[15px] font-semibold text-clyse underline underline-offset-4">
+                Refresh subscriptions
+              </button>
+            )}
+          </div>
         )}
         <button
           type="button"
@@ -316,6 +323,18 @@ export default function CreateGroup() {
             <MobileCard key={card.id} card={card} from={card.from} selected={selectedCard?.id === card.id} onSelect={() => setSelectedId(card.id)} />
           ))}
         </div>
+        {services !== null && shownCards.length === 0 && (
+          <div className="mx-[30px] mt-[22px] text-center">
+            <p className="text-[13px] font-semibold text-[#6B6B6B]">
+              {catalogueCards.length === 0 ? "No approved subscriptions are available yet. Services must be approved and active, with an active plan, to appear here." : `No approved subscription matches “${q.trim()}”.`}
+            </p>
+            {catalogueCards.length === 0 && (
+              <button type="button" onClick={refreshCatalogue} className="mt-3 text-[13px] font-semibold text-clyse underline underline-offset-4">
+                Refresh subscriptions
+              </button>
+            )}
+          </div>
+        )}
         <button
           type="button"
           onClick={() => setCustom((v) => !v)}

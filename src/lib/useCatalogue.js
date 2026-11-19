@@ -1,33 +1,117 @@
 import { useEffect, useState } from "react";
 import { api } from "./api";
 
-/* Public catalogue (GET /catalogue, no auth): rows may be the service fields
-   at the root or nested under `service`, with plans beside them. API plan totals
-   are `total_kobo`. Cached module-wide for the session. */
+/* Public GET /catalogue returns only approved, active services with active plans.
+   Cache briefly to avoid repeated requests, but wake mounted consumers whenever
+   an admin catalogue mutation invalidates it. */
 let cache = null;
+let cacheAt = 0;
 let catCache = null;
+let catCacheAt = 0;
+let catalogueRevision = 0;
+let catalogueRequest = null;
+let categoriesRequest = null;
+const subscribers = new Set();
+const CACHE_TTL = 30_000;
+let focusRefreshBound = false;
+
+function bindFocusRefresh() {
+  if (focusRefreshBound || typeof window === "undefined") return;
+  focusRefreshBound = true;
+  window.addEventListener("focus", () => {
+    const staleServices = cache === null || Date.now() - cacheAt >= CACHE_TTL;
+    const staleCategories = catCache === null || Date.now() - catCacheAt >= CACHE_TTL;
+    if (staleServices || staleCategories) invalidateCatalogue();
+  });
+}
 
 export function invalidateCatalogue() {
   cache = null;
+  cacheAt = 0;
   catCache = null;
+  catCacheAt = 0;
+  catalogueRequest = null;
+  categoriesRequest = null;
+  catalogueRevision += 1;
+  subscribers.forEach((notify) => notify(catalogueRevision));
+}
+
+export const refreshCatalogue = invalidateCatalogue;
+
+function requestServices(revision) {
+  if (cache !== null && Date.now() - cacheAt < CACHE_TTL) return Promise.resolve(cache);
+  if (catalogueRequest?.revision === revision) return catalogueRequest.promise;
+
+  const promise = (async () => {
+    try {
+      const { data, error } = await api("/catalogue", { auth: false });
+      if (revision !== catalogueRevision) return null;
+      if (error) return [];
+      const rows = Array.isArray(data?.services)
+        ? data.services
+        : Array.isArray(data?.catalogue)
+          ? data.catalogue
+          : [];
+      cache = rows;
+      cacheAt = Date.now();
+      return rows;
+    } catch {
+      return [];
+    }
+  })().finally(() => {
+    if (catalogueRequest?.promise === promise) catalogueRequest = null;
+  });
+  catalogueRequest = { revision, promise };
+  return promise;
+}
+
+function requestCategories(revision) {
+  if (catCache !== null && Date.now() - catCacheAt < CACHE_TTL) return Promise.resolve(catCache);
+  if (categoriesRequest?.revision === revision) return categoriesRequest.promise;
+
+  const promise = (async () => {
+    try {
+      const { data, error } = await api("/catalogue/categories", { auth: false });
+      if (revision !== catalogueRevision) return null;
+      if (error) return [];
+      const rows = Array.isArray(data?.categories) ? data.categories : [];
+      catCache = rows;
+      catCacheAt = Date.now();
+      return rows;
+    } catch {
+      return [];
+    }
+  })().finally(() => {
+    if (categoriesRequest?.promise === promise) categoriesRequest = null;
+  });
+  categoriesRequest = { revision, promise };
+  return promise;
+}
+
+function subscribe(setRevision, reset) {
+  const notify = (revision) => {
+    reset();
+    setRevision(revision);
+  };
+  subscribers.add(notify);
+  bindFocusRefresh();
+  return () => subscribers.delete(notify);
 }
 
 export function useCatalogue() {
+  const [revision, setRevision] = useState(catalogueRevision);
   const [services, setServices] = useState(cache);
 
+  useEffect(() => subscribe(setRevision, () => setServices(null)), []);
+
   useEffect(() => {
-    if (cache) return;
     let live = true;
-    (async () => {
-      const { data, error } = await api("/catalogue", { auth: false });
-      if (!live) return;
-      cache = error ? [] : data?.services || data?.catalogue || [];
-      setServices(cache);
-    })();
-    return () => {
-      live = false;
-    };
-  }, []);
+    const requestRevision = revision;
+    requestServices(requestRevision).then((rows) => {
+      if (live && requestRevision === catalogueRevision) setServices(rows || []);
+    });
+    return () => { live = false; };
+  }, [revision]);
 
   return services;
 }
@@ -48,10 +132,7 @@ export function planTotal(p) {
   return p.total_kobo ?? p.total_price_kobo ?? p.unit_price_kobo ?? Infinity;
 }
 
-/** Pick the cheapest priced plan (matches the cards' "From ₦…" price).
-    Rows with no total (e.g. youtube-premium has none today) are skipped: they
-    used to win the reduce with Infinity and then print "N—" all the way
-    through the create-group flow. */
+/** Pick the cheapest priced plan (matches the cards' "From ₦…" price). */
 export function pickPlan(entry) {
   const plans = (entry?.plans || entry?.catalogue_plans || []).filter((p) =>
     Number.isFinite(planTotal(p)),
@@ -71,25 +152,20 @@ export function minPrice(services, brand) {
   return min === Infinity ? null : min;
 }
 
-/* GET /catalogue/categories (docs addition): the categories that actually have
-   services, e.g. [{ category: "movies_series", services: 2 }]. Shared cache so
-   every screen that renders the chip row makes one request per session. */
 export function useCatalogueCategories() {
+  const [revision, setRevision] = useState(catalogueRevision);
   const [cats, setCats] = useState(catCache);
 
+  useEffect(() => subscribe(setRevision, () => setCats(null)), []);
+
   useEffect(() => {
-    if (catCache) return;
     let live = true;
-    (async () => {
-      const { data, error } = await api("/catalogue/categories", { auth: false });
-      if (!live) return;
-      catCache = error ? [] : data?.categories || [];
-      setCats(catCache);
-    })();
-    return () => {
-      live = false;
-    };
-  }, []);
+    const requestRevision = revision;
+    requestCategories(requestRevision).then((rows) => {
+      if (live && requestRevision === catalogueRevision) setCats(rows || []);
+    });
+    return () => { live = false; };
+  }, [revision]);
 
   return cats;
 }
