@@ -21,7 +21,8 @@ export default function AdminLogin({ denied = false, onRetry }) {
     const result = await login(idOf(identifier.trim()), password);
     setBusy(false);
     if (result.error) {
-      setError(result.error.message || "We could not sign you in. Check your credentials and try again.");
+      const message = result.error.message || "We could not sign you in. Check your credentials and try again.";
+      setError(message.replace(/\s*\/\s*phone\b/gi, ""));
     }
     // A successful sign-in updates AuthProvider; RequireAdmin then checks the
     // same server permission used to protect every admin endpoint.

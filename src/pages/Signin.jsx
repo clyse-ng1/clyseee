@@ -4,6 +4,7 @@ import { Page, AuthSplit } from "../components/AuthLayout";
 import { Field, CtaButton, FormFooter } from "../components/Forms";
 import { useAuth } from "../lib/useAuth";
 import { idOf } from "../lib/api";
+import { startResendCooldown } from "../lib/resendCooldown";
 import collageSignin from "../assets/collage-signin.webp";
 import collageMobile from "../assets/collage-mobile.webp";
 
@@ -38,11 +39,13 @@ export default function Signin() {
     if (error) {
       // Correct password but unverified contact -> finish verification first.
       if (error.code === "verification_required") {
+        startResendCooldown("verification");
         navigate("/verify-email", { state: { ...identifier } });
         return;
       }
       setFailed(true);
-      setApiError(error.message || "Sign in failed. Please try again.");
+      const message = error.message || "Sign in failed. Please try again.";
+      setApiError(message.replace(/\s*\/\s*phone\b/gi, "").replace(/\s+/g, " ").trim());
       return;
     }
     const postAuth = sessionStorage.getItem("clyse.post_auth");

@@ -6,7 +6,7 @@ import WaitPosition from "../components/WaitPosition";
 import PairButtons from "../components/PairButtons";
 import LogoMarquee from "../components/LogoMarquee";
 import SectionHead from "../components/SectionHead";
-import { BlurBg, MobileTopWash } from "../components/Decor";
+import { BlurBg } from "../components/Decor";
 import { api, kobo } from "../lib/api";
 import { matchService, planTotal, useCatalogue } from "../lib/useCatalogue";
 
@@ -212,8 +212,7 @@ export default function JoinPlan() {
        gradient's depth, which is why the top read as one flat green. */
     <div className="relative min-h-screen overflow-hidden bg-white font-sans text-ink">
       {/* Figma 889:52181 — the join-flow BLUR BG, not the landing hero blobs. */}
-      <BlurBg variant="join" />
-      <MobileTopWash />
+      <div className="hidden xl:block"><BlurBg variant="join" /></div>
       <Navbar loggedIn />
       {/* Desktop */}
       <main className="relative mx-[20px] hidden xl:block min-[1440px]:mx-[100px]">
@@ -270,17 +269,17 @@ export default function JoinPlan() {
       </div>
       {/* Mobile */}
       <main className="relative xl:hidden">
-        <div className="px-[30px] pt-[20px]">
+        <div className="relative h-[75px] bg-[linear-gradient(180deg,#FFFFFF_0%,#EDF5ED_100%)]">
           <Link
             to={backTo}
             state={flowState}
             aria-label="Back"
-            className="grid h-[40px] w-[40px] place-items-center rounded-full border border-[#BABABA] bg-white pb-[2px] text-[18px] leading-none text-ink shadow-[0_4px_10px_rgba(0,23,1,0.10)]"
+            className="absolute top-[17px] left-[30px] grid h-[40px] w-[40px] place-items-center rounded-full bg-[#F1F8F1] pb-[2px] text-[18px] leading-none text-ink shadow-[0_3px_9px_rgba(0,23,1,0.16)]"
           >
             ‹
           </Link>
         </div>
-        <div className="mt-[16px] relative border-y border-[#BABABA] bg-white">
+        <div className="relative border-y border-[#BABABA] bg-white">
           <div className="px-[30px] py-[30px]">
             {/* Was <SectionHead mobile /> with no title, so the waitlist flow
                 fell back to SectionHead's "Join Group" default. */}

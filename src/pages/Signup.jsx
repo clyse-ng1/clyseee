@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { Page, AuthSplit } from "../components/AuthLayout";
 import { Field, CtaButton, FormFooter } from "../components/Forms";
 import { useAuth } from "../lib/useAuth";
+import { startResendCooldown } from "../lib/resendCooldown";
 import collageSignup from "../assets/collage-signup.webp";
 import collageMobile from "../assets/collage-mobile.webp";
 
@@ -46,6 +47,7 @@ export default function Signup() {
       setApiError(error.message || "Could not create your account. Please try again.");
       return;
     }
+    startResendCooldown("verification");
     navigate("/verify-email", {
       state: { email: contact, destination: data?.destination, channel: "email" },
     });

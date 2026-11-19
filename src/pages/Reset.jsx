@@ -5,6 +5,7 @@ import { Field, CtaButton } from "../components/Forms";
 import { StatusCircle } from "../components/Decor";
 import { useAuth } from "../lib/useAuth";
 import { idOf } from "../lib/api";
+import { formatCooldown, startResendCooldown, useResendCooldown } from "../lib/resendCooldown";
 
 /* Step 1 — enter email */
 export function ResetEmail() {
@@ -25,6 +26,7 @@ export function ResetEmail() {
       setApiError(error.message || "Could not send the reset code. Please try again.");
       return;
     }
+    startResendCooldown("password-reset");
     navigate("/reset-password/check-mail", { state: { email: email.trim() } });
   };
 
@@ -72,14 +74,21 @@ export function ResetCheckMail() {
   const { forgot } = useAuth();
   const [resending, setResending] = useState(false);
   const [resent, setResent] = useState(false);
+  const [resendError, setResendError] = useState("");
+  const { remaining: resendRemaining, start: startResendCooldown } = useResendCooldown("password-reset");
   const email = location.state?.email || "";
 
   const handleResend = async () => {
-    if (!email || resending) return;
+    if (!email || resending || resendRemaining > 0) return;
     setResending(true);
+    setResendError("");
     const { error } = await forgot(idOf(email));
     setResending(false);
-    if (!error) setResent(true);
+    if (error) setResendError(error.message || "Could not resend the reset code. Please try again.");
+    else {
+      startResendCooldown();
+      setResent(true);
+    }
   };
 
   return (
@@ -120,10 +129,19 @@ export function ResetCheckMail() {
               <button
                 type="button"
                 onClick={handleResend}
-                className="mt-[10px] inline-block text-[12.5px] font-semibold text-clyse lg:mt-[12px] lg:text-[16px]"
+                disabled={resending || resendRemaining > 0}
+                className="mt-[10px] inline-block text-[12.5px] font-semibold text-clyse disabled:cursor-not-allowed disabled:opacity-60 lg:mt-[12px] lg:text-[16px]"
               >
-                {resending ? "Resending…" : resent ? "Code resent" : "Resend code"}
+                {resending
+                  ? "Resending…"
+                  : resendRemaining > 0
+                    ? `Resend code in ${formatCooldown(resendRemaining)}`
+                    : resent
+                      ? "Code resent — resend again"
+                      : "Resend code"}
               </button>
+              {resendError && <p role="alert" className="mt-2 text-[12px] font-semibold text-clyse-red">{resendError}</p>}
+              {resent && !resendError && <p role="status" className="mt-2 text-[12px] font-semibold text-clyse">A new reset code was sent.</p>}
             </div>
           )}
         </div>

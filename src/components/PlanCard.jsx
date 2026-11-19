@@ -7,7 +7,7 @@ import DarkButton from "./DarkButton";
 export default function PlanCard({ name, price, features, status, selected, onSelect }) {
   return (
     <article
-      className={`w-[370px] rounded-[20px] border bg-white px-[31px] pt-[41px] pb-[41px] shadow-[0_0_20px_rgba(0,23,1,0.10)] xl:w-[358px] ${
+      className={`mx-auto w-full max-w-[370px] rounded-[20px] border bg-white px-[31px] pt-[41px] pb-[41px] shadow-[0_0_20px_rgba(0,23,1,0.10)] xl:w-[358px] ${
         selected ? "h-[319px] border-clyse" : "h-[313px] border-[#BABABA]"
       }`}
     >

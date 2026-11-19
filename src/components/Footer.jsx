@@ -7,7 +7,7 @@ import footerLogo from "../assets/footer-logo.webp";
 const COLS = [
   {
     title: "Contact",
-    links: ["Who we are", "contact@clyseit.com", "Ibadan, Nigeria", "+234 706 569 1676"],
+    links: ["Who we are", "contact@clyseit.com", "Ibadan, Nigeria", "+234 706 569 1676", "Contact Page"],
   },
   { title: "Social Media", links: ["Tiktok", "Instagram", "LinkedIn", "Facebook"] },
   {
@@ -41,7 +41,7 @@ export function Footer({ mt = "mt-[100px]" }) {
                 {c.links.map((l) => (
                   <li key={l}>
                     <Link
-                      to="/"
+                      to={l === "Contact Page" ? "/contact" : "/"}
                       className="text-[18px] font-semibold leading-[22px] text-smoke transition hover:text-clyse"
                     >
                       {l}
@@ -82,7 +82,7 @@ export function MobileFooter({ mt = "mt-[50px]" }) {
                 {c.links.map((l) => (
                   <li key={l}>
                     <Link
-                      to="/"
+                      to={l === "Contact Page" ? "/contact" : "/"}
                       className="text-[12.48px] font-semibold leading-[15.22px] text-smoke"
                     >
                       {l}

@@ -4,6 +4,9 @@ import Navbar from "../components/Navbar";
 import LogoMarquee from "../components/LogoMarquee";
 import { Footer, MobileFooter } from "../components/Footer";
 import { useAuth } from "../lib/useAuth";
+import { useCatalogue, matchService, pickPlan } from "../lib/useCatalogue";
+import { kobo } from "../lib/api";
+import ctaOwner from "../assets/cta-owner.webp";
 
 /* Landing page REDESIGN — desktop Figma 875:34275 (1440x5435), mobile
    Figma 93:274 (430x7352). Sections: hero, brand marquee, How It Works
@@ -370,6 +373,123 @@ function Faq({ items, mobile = false }) {
   );
 }
 
+const SAVINGS_SERVICES = [
+  { label: "Netflix", key: "netflix" },
+  { label: "Spotify", key: "spotify" },
+  { label: "Youtube", key: "youtube-premium" },
+  { label: "Canva Pro", key: "canva-pro" },
+  { label: "Nord VPN", key: "nordvpn" },
+  { label: "Prime Video", key: "prime-video" },
+  { label: "CapCut", key: "capcut-pro" },
+  { label: "Adobe", key: "adobe-creative-cloud" },
+  { label: "Cloud", key: "cloud" },
+];
+
+function SavingsCalculator() {
+  const catalogue = useCatalogue();
+  const [selected, setSelected] = useState(SAVINGS_SERVICES.map((service) => service.label));
+  const availablePrices = SAVINGS_SERVICES.map((service) => {
+    const entry = matchService(catalogue || [], service.key);
+    const plan = pickPlan(entry);
+    if (!plan) return { ...service, monthlyKobo: null };
+    const totalKobo = Number(plan.total_kobo ?? plan.total_price_kobo ?? plan.unit_price_kobo);
+    const months = Math.max(1, Number(plan.billing_interval_months) || 1);
+    return { ...service, monthlyKobo: Number.isFinite(totalKobo) ? totalKobo / months : null };
+  });
+  const pricedSelected = availablePrices.filter((service) => selected.includes(service.label) && service.monthlyKobo != null);
+  const withClyseKobo = pricedSelected.reduce((sum, service) => sum + service.monthlyKobo, 0);
+  // The public catalogue provides CLYSE group prices, but not retail subscription
+  // prices. Show the Figma's 75%-saving scenario as an estimate, not an asserted
+  // retail comparison, until original retail prices are available from the API.
+  const normalKobo = withClyseKobo * 4;
+  const savedKobo = normalKobo - withClyseKobo;
+  const toggle = (service) => setSelected((current) =>
+    current.includes(service) ? current.filter((item) => item !== service) : [...current, service]
+  );
+
+  return (
+    <section className="mx-auto mt-[60px] w-full max-w-[1240px] px-[20px] xl:mt-[100px] min-[1440px]:px-0">
+      <div className="overflow-hidden rounded-[24px] border border-[#D3D3D3] xl:rounded-[30px]">
+        <div className="flex flex-wrap items-center justify-between gap-[18px] bg-[#048B0B] px-[22px] py-[20px] text-white xl:px-[36px] xl:py-[24px]">
+          <div>
+            <p className="text-[13px] leading-[18px] xl:text-[16px]">Interactive Calculator</p>
+            <h2 className="text-[20px] leading-[26px] font-semibold xl:text-[25px] xl:leading-[32px]">Calculate your savings</h2>
+          </div>
+          <Link to="/marketplace" className="flex h-[46px] items-center justify-center rounded-[12px] bg-white px-[22px] text-[15px] font-semibold text-ink hover:bg-[#F1F8F1] xl:h-[55px] xl:px-[28px] xl:text-[18px]">
+            Start Savings
+          </Link>
+        </div>
+        <div className="grid gap-[24px] bg-white p-[20px] xl:grid-cols-[1fr_360px] xl:gap-[30px] xl:p-[36px]">
+          <div>
+            <h3 className="mb-[15px] text-[14px] font-semibold text-ink xl:text-[17px]">Select your subscriptions</h3>
+            <div className="grid grid-cols-2 gap-[10px] sm:grid-cols-3 xl:max-w-[600px]">
+              {SAVINGS_SERVICES.map((service) => {
+                const active = selected.includes(service.label);
+                const hasPrice = availablePrices.find((item) => item.label === service.label)?.monthlyKobo != null;
+                return <button key={service.label} type="button" aria-pressed={active} onClick={() => toggle(service.label)} className={`min-h-[38px] rounded-full px-[12px] text-[13px] font-semibold transition xl:text-[15px] ${active ? "bg-[#E8E8E8] text-ink" : "border border-[#D0D0D0] bg-white text-[#666]"}`}>
+                  {service.label}{catalogue !== null && !hasPrice ? " · unavailable" : ""}
+                </button>;
+              })}
+            </div>
+          </div>
+          <div className="rounded-[18px] border border-[#D0D0D0] p-[18px] xl:p-[20px]">
+            <h3 className="mb-[14px] text-[14px] font-bold tracking-[0.14em] text-ink xl:text-[16px]">SUMMARY</h3>
+            <div className="flex justify-between gap-3 text-[13px] xl:text-[15px]"><span>Normal Price <small className="text-[#777]">(est.)</small></span><strong>{catalogue === null ? "Loading…" : pricedSelected.length ? kobo(normalKobo) : "—"}</strong></div>
+            <div className="mt-[8px] flex justify-between gap-3 text-[13px] xl:text-[15px]"><span>With Clyse</span><strong className="text-[#048B0B]">{catalogue === null ? "Loading…" : pricedSelected.length ? kobo(withClyseKobo) : "—"}</strong></div>
+            <div className="my-[14px] border-t border-[#BDBDBD]" />
+            <p className="text-[12px] text-[#555]">You save</p>
+            <div className="mt-[3px] flex flex-wrap items-baseline justify-between gap-2 text-[14px] font-bold text-[#048B0B]">
+              <span>{catalogue === null || !pricedSelected.length ? "—" : kobo(savedKobo)} <small className="font-normal text-ink">/mth</small></span>
+              <span>{catalogue === null || !pricedSelected.length ? "—" : kobo(savedKobo * 12)} <small className="font-normal text-ink">/yr</small></span>
+            </div>
+            <p className="mt-[7px] text-[12px] font-semibold text-[#048B0B]">Illustrative savings at 75% off</p>
+            <p className="mt-[10px] text-[10px] leading-[14px] text-[#777]">CLYSE prices load from the live catalogue. The catalogue does not include retail prices, so the normal price and savings are an estimate using the design’s 75% example. {catalogue !== null && `${pricedSelected.length} of ${selected.length} selected services have current prices.`}</p>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+const COMMUNITY_STATS = [
+  { value: "2,400+", label: "Member", icon: "people" },
+  { value: "180+", label: "Verified Creators", icon: "shield" },
+  { value: "500+", label: "Active Groups", icon: "grid" },
+  { value: "95%", mobileValue: "180+", label: "Successful Access", icon: "bolt" },
+];
+
+function CommunityIcon({ type }) {
+  if (type === "people") return <svg viewBox="0 0 24 24" className="h-[24px] w-[24px] fill-[#048B0B]" aria-hidden="true"><circle cx="8" cy="8" r="4"/><circle cx="17" cy="9" r="3"/><path d="M1 20c0-4 3-7 7-7s7 3 7 7v1H1zm14-6c4-.8 8 2 8 6v1h-6v-1c0-2.4-.7-4.5-2-6z"/></svg>;
+  if (type === "shield") return <svg viewBox="0 0 24 24" className="h-[24px] w-[24px] fill-[#048B0B]" aria-hidden="true"><path d="M12 1 22 5v6c0 6-4 10-10 12C6 21 2 17 2 11V5zm-1 14 7-7-1.5-1.5L11 12l-2.5-2.5L7 11z"/></svg>;
+  if (type === "grid") return <svg viewBox="0 0 24 24" className="h-[24px] w-[24px] fill-[#048B0B]" aria-hidden="true"><rect x="2" y="2" width="8" height="8" rx="2"/><rect x="14" y="2" width="8" height="8" rx="2"/><rect x="2" y="14" width="8" height="8" rx="2"/><rect x="14" y="14" width="8" height="8" rx="2"/></svg>;
+  return <svg viewBox="0 0 24 24" className="h-[26px] w-[26px] fill-[#048B0B]" aria-hidden="true"><path d="M13 1 3 14h7l-1 9 12-15h-8z"/></svg>;
+}
+
+function GrowingTogether() {
+  return <section className="mx-auto mt-[50px] w-full max-w-[1240px] bg-[#E5FFE6] px-[20px] py-[28px] xl:mt-[80px] xl:px-[36px] xl:py-[40px] min-[1440px]:rounded-[0px]">
+    <h2 className="text-center text-[19px] leading-[25px] font-bold text-ink xl:text-[25px] xl:leading-[32px]">Growing Together with <span className="text-[#048B0B]">CLYSE</span></h2>
+    <p className="mt-[5px] text-center text-[13px] leading-[19px] text-ink xl:text-[17px] xl:leading-[24px]">A thriving community of users, creators and subscription lovers.</p>
+    <div className="mt-[24px] grid grid-cols-2 xl:mt-[38px] xl:grid-cols-4">
+      {COMMUNITY_STATS.map((item, index) => <div key={item.label} className={`flex min-h-[50px] items-center justify-center gap-[8px] px-[7px] xl:gap-[12px] ${index % 2 === 0 ? "border-r border-[#9AB19E]" : ""} ${index < 2 ? "pb-[8px]" : "pt-[8px]"} xl:border-r xl:border-[#9AB19E] xl:py-0 xl:last:border-r-0`}>
+        <CommunityIcon type={item.icon}/><div className="min-w-0"><strong className="block whitespace-nowrap text-[14px] leading-[17px] font-bold text-ink xl:text-[21px] xl:leading-[25px]"><span className="xl:hidden">{item.mobileValue || item.value}</span><span className="hidden xl:inline">{item.value}</span></strong><span className="block text-[10px] leading-[13px] text-ink xl:text-[14px] xl:leading-[18px]">{item.label}</span></div>
+      </div>)}
+    </div>
+  </section>;
+}
+
+function OwnerCallout() {
+  return <section className="mx-[20px] mt-[40px] xl:mx-auto xl:mt-[45px] xl:max-w-[1240px]">
+    <div className="relative h-[320px] overflow-hidden rounded-[20px] bg-[linear-gradient(110deg,#F5FFF5_0%,#E5FFE8_100%)] px-[20px] pt-[20px] text-center xl:flex xl:h-[250px] xl:items-center xl:rounded-[28px] xl:px-[42px] xl:pt-0 xl:text-left">
+      <div className="relative z-10 xl:w-[52%]">
+        <h2 className="text-[20px] leading-[25px] font-bold text-ink xl:text-[35px] xl:leading-[43px]">Become an Owner</h2>
+        <p className="mt-[10px] text-[14px] leading-[20px] font-semibold text-ink xl:text-[20px] xl:leading-[26px]">Save money by offering your subscription</p>
+        <Link to="/create-group" className="mx-auto mt-[18px] flex h-[44px] w-[155px] items-center justify-center rounded-[9px] bg-[#001701] text-[14px] font-semibold text-white hover:opacity-90 xl:mx-0 xl:mt-[24px]">Create</Link>
+      </div>
+      <img src={ctaOwner} alt="Creator wearing a VR headset surrounded by subscription service icons" className="pointer-events-none absolute right-0 bottom-[-14px] w-[270px] xl:right-[8px] xl:bottom-[-8px] xl:w-[480px]" />
+    </div>
+  </section>;
+}
+
 export default function Landing() {
   const { user } = useAuth();
   // Signed-in members never see the marketing page (and its footer).
@@ -397,18 +517,12 @@ export default function Landing() {
             Clyse helps you share premium subscriptions with friends and family.
             Create groups, split costs, and get access instantly.
           </p>
-          <div className="mt-[70px] flex justify-center gap-[50px]">
+          <div className="mt-[70px] flex justify-center">
             <Link
-              to="/create-group"
+              to="/signup"
               className="bg-btn flex h-[60px] w-[200px] items-center justify-center rounded-[10px] text-[18px] font-semibold text-mint transition hover:opacity-90"
             >
-              Create Group
-            </Link>
-            <Link
-              to="/marketplace"
-              className="flex h-[60px] w-[200px] items-center justify-center rounded-[10px] border border-clyse bg-mint text-[18px] font-semibold text-ink transition hover:bg-white"
-            >
-              Browse Group
+              Get Started
             </Link>
           </div>
         </div>
@@ -496,6 +610,8 @@ export default function Landing() {
           <FlowBlock label="Creator Flow" cards={CREATOR_FLOW} mobile />
         </div>
       </section>
+
+      <SavingsCalculator />
 
       {/* Desktop Why */}
       <section
@@ -605,6 +721,9 @@ export default function Landing() {
         </div>
       </section>
 
+      <GrowingTogether />
+      <div className="xl:hidden"><OwnerCallout /></div>
+
       {/* Desktop FAQ */}
       <section className="mx-auto hidden max-w-[1440px] px-[20px] min-[1440px]:px-[100px] xl:block">
         <h2 className="mt-[155px] text-[35px] leading-[43px] font-bold text-ink">
@@ -614,6 +733,8 @@ export default function Landing() {
           <Faq items={FAQ_DESKTOP} />
         </div>
       </section>
+
+      <div className="hidden xl:block"><OwnerCallout /></div>
 
       {/* Mobile FAQ */}
       <section className="mt-[60px] xl:hidden">

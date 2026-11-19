@@ -4,6 +4,7 @@ import { Page, AuthSplit, CenterCard } from "../components/AuthLayout";
 import { OtpInput, CtaButton } from "../components/Forms";
 import { StatusCircle } from "../components/Decor";
 import { useAuth } from "../lib/useAuth";
+import { formatCooldown, useResendCooldown } from "../lib/resendCooldown";
 import collageE1 from "../assets/collage-email-1.webp";
 import collageE2 from "../assets/collage-email-2.webp";
 import collageE3 from "../assets/collage-email-3.webp";
@@ -15,12 +16,14 @@ export function VerifyEmail() {
   const navigate = useNavigate();
   const location = useLocation();
   const { verify, resend } = useAuth();
+  const { remaining: resendRemaining, start: startResendCooldown } = useResendCooldown("verification");
   const EMAIL = location.state?.email || location.state?.destination || FALLBACK_EMAIL;
   const identifier = { email: EMAIL };
   const DEST = location.state?.destination || EMAIL;
   const [otp, setOtp] = useState(["", "", "", "", "", ""]);
   const [failed, setFailed] = useState(false);
   const [busy, setBusy] = useState(false);
+  const [resending, setResending] = useState(false);
   const [apiError, setApiError] = useState("");
   const [resent, setResent] = useState(false);
 
@@ -47,15 +50,23 @@ export function VerifyEmail() {
     setOtp(next);
     setFailed(false);
     setApiError("");
+    setResent(false);
   };
 
   const handleResend = async () => {
+    if (busy || resending || resendRemaining > 0) return;
+    setResending(true);
     setOtp(["", "", "", "", "", ""]);
     setFailed(false);
     setApiError("");
+    setResent(false);
     const { error } = await resend(identifier);
+    setResending(false);
     if (error) setApiError(error.message || "Could not resend the code. Please try again.");
-    else setResent(true);
+    else {
+      startResendCooldown();
+      setResent(true);
+    }
   };
 
   return (
@@ -79,16 +90,19 @@ export function VerifyEmail() {
         <form onSubmit={handleSubmit} className="flex flex-col">
           <OtpInput value={otp} onChange={handleOtp} state={failed ? "error" : "default"} />
           {(failed || apiError) && (
-            <p className="mt-[35px] text-[12.5px] font-semibold leading-[15px] text-clyse-red lg:mt-[50px] lg:text-[18px] lg:leading-[22px]">
-              {apiError || "The OTP is not correct."}{" "}
-              <button type="button" onClick={handleResend} className="font-semibold text-clyse">
-                Resend
-              </button>
+            <p role="alert" className="mt-[20px] text-center text-[12.5px] font-semibold leading-[16px] text-clyse-red lg:mt-[24px] lg:text-[16px] lg:leading-[22px]">
+              {apiError || "The OTP is not correct."}
             </p>
           )}
+          <p className="mt-[20px] text-center text-[12.5px] font-semibold leading-[16px] text-ash lg:mt-[24px] lg:text-[16px] lg:leading-[22px]">
+            Didn’t receive the code?{" "}
+            <button type="button" onClick={handleResend} disabled={busy || resending || resendRemaining > 0} className="font-bold text-clyse underline underline-offset-2 disabled:opacity-60">
+              {resending ? "Sending…" : resendRemaining > 0 ? `Resend in ${formatCooldown(resendRemaining)}` : "Resend verification code to email"}
+            </button>
+          </p>
           {resent && !apiError && (
-            <p className="mt-[35px] text-[12.5px] font-semibold leading-[15px] text-clyse lg:mt-[50px] lg:text-[18px] lg:leading-[22px]">
-              A new code was sent.
+            <p role="status" className="mt-[10px] text-center text-[12.5px] font-semibold leading-[16px] text-clyse lg:text-[16px] lg:leading-[22px]">
+              A new verification code was sent to your email.
             </p>
           )}
           <div className="mt-[35px] lg:mt-[50px]">
