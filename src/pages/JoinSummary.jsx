@@ -49,13 +49,23 @@ export default function JoinSummary() {
   const location = useLocation();
   const navigate = useNavigate();
   const params = useParams();
+  const query = new URLSearchParams(location.search);
+  const fundingRef = query.get("reference") || query.get("trxref") || null;
+  let savedJoin = null;
+  if (fundingRef) {
+    try { savedJoin = JSON.parse(sessionStorage.getItem("joinSummaryFundingReturn") || "null"); }
+    catch { savedJoin = null; }
+  }
   /* Backend: a group invite token is exactly 24 uppercase chars from
      [A-Z2-9] minus I/O — URL safe, one field, no secret half, no rotation
      unless revoked. So the route param is used verbatim. */
-  const inviteToken = params.token || location.state?.invite_token || null;
-  const code = location.state?.code || null;
-  const stateGroupId = location.state?.group_id || null;
-  const statePreview = location.state?.preview || null;
+  const inviteToken = params.token || location.state?.invite_token || savedJoin?.invite_token || null;
+  const stateGroupId = location.state?.group_id || query.get("group_id") || savedJoin?.group_id || null;
+  const statePreview = location.state?.preview || savedJoin?.preview || null;
+  const code = location.state?.code || query.get("code") || statePreview?.invite_code || statePreview?.group?.invite_code || savedJoin?.code || null;
+  // Keep the Paystack callback URL query-free: the gateway appends its own
+  // reference parameter. Join context is preserved in sessionStorage instead.
+  const callbackPath = location.pathname;
   const backToPlan = stateGroupId ? `/join/plan?group_id=${encodeURIComponent(stateGroupId)}` : "/join/plan";
   const real = !!(inviteToken || code || stateGroupId);
 
@@ -64,6 +74,33 @@ export default function JoinSummary() {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   const [fundOpen, setFundOpen] = useState(false);
+  const [fundingNotice, setFundingNotice] = useState("");
+  const [balanceRefreshing, setBalanceRefreshing] = useState(false);
+
+  const openFunding = () => {
+    try {
+      sessionStorage.setItem("joinSummaryFundingReturn", JSON.stringify({
+        group_id: stateGroupId,
+        invite_token: inviteToken,
+        code,
+        preview: statePreview || preview?.group || null,
+      }));
+    } catch { /* payment still works if browser storage is unavailable */ }
+    setFundOpen(true);
+  };
+
+  const refreshWalletBalance = async () => {
+    if (balanceRefreshing) return;
+    setBalanceRefreshing(true);
+    const w = await api("/member/wallet");
+    setBalanceRefreshing(false);
+    if (w.error || !w.data) {
+      setFundingNotice(w.error?.message || "Could not refresh your wallet balance.");
+      return;
+    }
+    setBalance(w.data.wallet?.balance_kobo ?? w.data.balance_kobo ?? 0);
+    setFundingNotice("Wallet balance refreshed.");
+  };
 
   useEffect(() => {
     if (!real) {
@@ -74,11 +111,13 @@ export default function JoinSummary() {
     (async () => {
       if (stateGroupId && statePreview) {
         setPreview({ group: statePreview });
-        const w = await api("/member/wallet");
-        if (live && w.data) setBalance(w.data.wallet?.balance_kobo ?? w.data.balance_kobo ?? 0);
+        if (!fundingRef) {
+          const w = await api("/member/wallet");
+          if (live && w.data) setBalance(w.data.wallet?.balance_kobo ?? w.data.balance_kobo ?? 0);
+        }
         return;
       }
-      if (stateGroupId && !statePreview) {
+      if (stateGroupId && !statePreview && !code && !inviteToken) {
         navigate("/join/failed", {
           replace: true,
           state: {
@@ -145,13 +184,49 @@ export default function JoinSummary() {
         return;
       }
       setPreview(pv.data);
-      const w = await api("/member/wallet");
-      if (live && w.data) setBalance(w.data.wallet?.balance_kobo ?? w.data.balance_kobo ?? 0);
+      if (!fundingRef) {
+        const w = await api("/member/wallet");
+        if (live && w.data) setBalance(w.data.wallet?.balance_kobo ?? w.data.balance_kobo ?? 0);
+      }
     })();
     return () => {
       live = false;
     };
-  }, [real, inviteToken, code, stateGroupId, statePreview, navigate]);
+  }, [real, inviteToken, code, stateGroupId, statePreview, fundingRef, navigate]);
+
+  /* Paystack returns reference or trxref after checkout. Confirm the funding
+     against the backend before reloading the wallet; a plain GET /wallet does
+     not itself reconcile a delayed provider webhook. */
+  useEffect(() => {
+    if (!fundingRef) return undefined;
+    let live = true;
+    setFundingNotice("Confirming your wallet top-up…");
+    (async () => {
+      const { data, error: fundingError } = await api(
+        `/member/wallet/fundings?reference=${encodeURIComponent(fundingRef)}`,
+      );
+      if (!live) return;
+      const funding = data?.funding;
+      if (fundingError || !funding) {
+        setFundingNotice(fundingError?.message || "Could not confirm this top-up yet. Check Wallet transactions before paying again.");
+        return;
+      }
+      if (funding.status !== "successful") {
+        setFundingNotice(`Top-up status: ${funding.status}. Your wallet updates after payment is confirmed.`);
+        const w = await api("/member/wallet");
+        if (live && w.data) setBalance(w.data.wallet?.balance_kobo ?? w.data.balance_kobo ?? 0);
+        return;
+      }
+      const w = await api("/member/wallet");
+      if (!live) return;
+      if (w.data) setBalance(w.data.wallet?.balance_kobo ?? w.data.balance_kobo ?? 0);
+      try { sessionStorage.removeItem("joinSummaryFundingReturn"); } catch { /* ignore */ }
+      setFundingNotice(`Top-up confirmed: ${kobo(funding.amount_kobo)}.`);
+    })().catch((err) => {
+      if (live) setFundingNotice(err?.message || "Could not confirm this top-up yet. Check Wallet transactions before paying again.");
+    });
+    return () => { live = false; };
+  }, [fundingRef]);
 
   const group = preview?.group || null;
   const plan = group?.plan || {};
@@ -350,7 +425,7 @@ export default function JoinSummary() {
       {real && !sufficient && (
         <button
           type="button"
-          onClick={() => setFundOpen(true)}
+          onClick={openFunding}
           className="mt-[12px] flex h-[44px] w-full items-center justify-center rounded-[10px] bg-btn text-[15px] font-semibold text-mint"
         >
           Fund Wallet
@@ -486,9 +561,10 @@ export default function JoinSummary() {
                 </button>
               </div>
               <div className="mt-[40px] rounded-[20px] border border-clyse bg-[#F1F8F1] px-[21px] pt-[24px] pb-[24px]">
-                <p className="text-[18px] leading-[22px] font-semibold text-[#6B6B6B]">
-                  Current Wallet Balance
-                </p>
+                <div className="flex items-center justify-between gap-3">
+                  <p className="text-[18px] leading-[22px] font-semibold text-[#6B6B6B]">Current Wallet Balance</p>
+                  <button type="button" onClick={refreshWalletBalance} disabled={balanceRefreshing} className="text-[14px] font-semibold text-clyse underline underline-offset-2 disabled:opacity-50">{balanceRefreshing ? "Refreshing…" : "Refresh"}</button>
+                </div>
                 <div className="mt-[10px] flex items-center gap-[10px]">
                   <span className="grid h-[32px] w-[32px] flex-none place-items-center rounded-[14px] bg-[#048B0B]">
                     <img src={iconBanknote} alt="" className="h-[18px] w-[18px]" />
@@ -498,6 +574,7 @@ export default function JoinSummary() {
                   </span>
                 </div>
               </div>
+              {fundingNotice && <p role="status" className="mt-[8px] text-[13px] font-semibold text-[#4E6B4E]">{fundingNotice}</p>}
               {balanceBlock}
               {error && (
                 <p className="mt-[10px] ml-[20px] text-[16px] font-semibold text-[#FF0000]">
@@ -637,9 +714,10 @@ export default function JoinSummary() {
               </button>
             </div>
             <div className="mt-[32px] rounded-[16px] border border-clyse bg-[#F1F8F1] px-[16px] pt-[18px] pb-[18px]">
-              <p className="text-[13px] leading-[18px] font-semibold text-[#4E4E4E]">
-                Current Wallet Balance
-              </p>
+              <div className="flex items-center justify-between gap-2">
+                <p className="text-[13px] leading-[18px] font-semibold text-[#4E4E4E]">Current Wallet Balance</p>
+                <button type="button" onClick={refreshWalletBalance} disabled={balanceRefreshing} className="text-[12px] font-semibold text-clyse underline underline-offset-2 disabled:opacity-50">{balanceRefreshing ? "Refreshing…" : "Refresh"}</button>
+              </div>
               <div className="mt-[10px] flex items-center gap-[10px]">
                 <span className="grid h-[32px] w-[32px] flex-none place-items-center rounded-[14px] bg-[#048B0B]">
                   <img src={iconBanknote} alt="" className="h-[18px] w-[18px]" />
@@ -649,6 +727,7 @@ export default function JoinSummary() {
                 </span>
               </div>
             </div>
+            {fundingNotice && <p role="status" className="mt-[8px] text-[12px] font-semibold text-[#4E6B4E]">{fundingNotice}</p>}
             {balanceBlock}
             {error && (
               <p className="mt-[10px] ml-[20px] text-[16px] font-semibold text-[#FF0000]">
@@ -668,11 +747,10 @@ export default function JoinSummary() {
         open={fundOpen}
         onClose={() => setFundOpen(false)}
         initialAmount={shortfall ? Math.ceil(shortfall / 100) : ""}
-        callbackPath={location.pathname}
+        callbackPath={callbackPath}
         onFunded={async () => {
           setFundOpen(false);
-          const w = await api("/member/wallet");
-          if (w.data) setBalance(w.data.wallet?.balance_kobo ?? w.data.balance_kobo ?? 0);
+          await refreshWalletBalance();
         }}
       />
     </div>
