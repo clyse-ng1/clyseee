@@ -13,8 +13,10 @@ import iconMessage from "../assets/side-message.svg";
 import iconUser from "../assets/side-user.svg";
 import iconGroup from "../assets/side-group.svg";
 import iconGroupWhite from "../assets/side-group-white.svg";
+import iconCreateGroup from "../assets/plus-circle-ink.svg";
+import iconCreateGroupWhite from "../assets/plus-circle-white.svg";
 
-/* Unified logged-in sidebar (desktop only). 11 links grouped into 4
+/* Unified logged-in sidebar (desktop only). 13 links grouped into 4
    labelled sections so the nav scans cleanly. Inactive rows: white +
    1px green border, ink icon/label, trailing arrow docked at the right
    edge (never overlapping the label). Active row: dark gradient, mint
@@ -25,6 +27,7 @@ export const SECTIONS = [
     rows: [
       { label: "Dashboard", icon: iconDashboard, activeIcon: iconDashboardWhite, to: "/dashboard" },
       { label: "Browse Group", icon: iconSearch, to: "/browse" },
+      { label: "Create Group", icon: iconCreateGroup, activeIcon: iconCreateGroupWhite, to: "/create-group" },
       { label: "My Subscription", icon: iconPayment, activeIcon: iconPaymentWhite, to: "/subscriptions" },
       { label: "My Group", icon: iconGroup, activeIcon: iconGroupWhite, to: "/groups" },
     ],

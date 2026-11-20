@@ -203,13 +203,13 @@ export default function GroupDetails() {
       {items.map((r) => (
         <div
           key={r.label}
-          className={`${small ? "px-[20px] py-[16px]" : "h-[101px] px-[26px] pt-[21px]"} ${TILE}`}
+          className={`${small ? "min-w-0 px-[16px] py-[16px]" : "min-h-[101px] px-[26px] py-[18px]"} ${TILE}`}
         >
           <p className="text-[18px] leading-[22px] font-semibold text-[#6B6B6B]">
             {r.label}
           </p>
           <p
-            className={`font-bold whitespace-nowrap text-ink ${small ? "mt-[4px] text-[20px] leading-[24px]" : "mt-[2px] text-[20px] leading-[35px]"}`}
+            className={`font-bold whitespace-normal break-words text-ink ${small ? "mt-[4px] text-[18px] leading-[22px]" : "mt-[2px] text-[20px] leading-[28px]"}`}
           >
             {r.value}
           </p>
