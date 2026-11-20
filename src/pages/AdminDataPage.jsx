@@ -448,7 +448,16 @@ export default function AdminDataPage({ page = "dashboard" }) {
     catch { res = { error: { message: "The request could not be completed. Check your connection and retry." } }; }
     setActionBusy(false);
     if (res.error) setError(res.error.message || "Record could not be created.");
-    else { setActionDialog(null); setNotice("Record created."); setLoading(true); setRefresh((n) => n + 1); }
+    else {
+      if (page === "services" || page === "plans") invalidateCatalogue();
+      setActionDialog(null);
+      setNotice(conf.create === "service"
+        ? "Service created inactive. Add an active plan and activate the approved service before it can appear in Create Group."
+        : conf.create === "plan"
+          ? "Plan created inactive. Activate it, and make sure its service is approved and active before group creation."
+          : "Record created.");
+      setLoading(true); setRefresh((n) => n + 1);
+    }
   };
 
   const startSearch = (field, value) => { setLoading(true); setFilter(field, value); };

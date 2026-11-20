@@ -41,6 +41,7 @@ export default function CreateReview() {
   const [error, setError] = useState("");
 
   const fromWaitlist = incoming?.fromWaitlist?.plan_id || null;
+  const accessMethod = incoming?.accessMethod || "invite_link";
   const plan = !incoming?.custom
     ? pickPlan(matchService(services, incoming?.brand))
     : null;
@@ -67,7 +68,7 @@ export default function CreateReview() {
   const rows = incoming
     ? [
         `Available Subscription Shared: ${slots} Slots`,
-        "Access Method: Login credentials",
+        `Access Method: ${accessMethod === "invite_link" ? "Access link" : accessMethod === "credentials" ? "Login credentials" : "Other instructions"}`,
         `Group Visibility: ${vis === "private" ? "Private" : "Public"} Group`,
       ]
     : ROWS;
@@ -110,7 +111,7 @@ export default function CreateReview() {
           slots_offered: slots,
           visibility: vis,
           start_date: startDate,
-          access_method: "credentials",
+          access_method: accessMethod,
         },
       },
     );
@@ -123,7 +124,9 @@ export default function CreateReview() {
       const details = apiError.details && typeof apiError.details === "object"
         ? Object.entries(apiError.details).map(([field, issue]) => `${field.replaceAll("_", " ")}: ${typeof issue === "string" ? issue : JSON.stringify(issue)}`).join(" · ")
         : "";
-      setError(details ? `${apiError.message || "Please correct these fields"} — ${details}` : apiError.message || "Please review the group details and try again. Check that your selected plan is active, your slot count is within its capacity, and required proof files are attached.");
+      const diagnostics = [apiError.code ? `Code: ${apiError.code}` : "", apiError.request_id ? `Request ID: ${apiError.request_id}` : ""].filter(Boolean).join(" · ");
+      const reason = details ? `${apiError.message || "Please correct these fields"} — ${details}` : apiError.message || "Please review the group details and try again. Check that your selected plan is active and your slot count is within its capacity.";
+      setError([reason, diagnostics].filter(Boolean).join(" · "));
       return;
     }
     // A successful HTTP response without a group identifier is not enough to
@@ -147,6 +150,19 @@ export default function CreateReview() {
     // changes the activation result.
     invalidateGroups();
     let verifyNote = "";
+    const accessValue = String(incoming?.accessValue || incoming?.accessLink || "").trim();
+    if (groupId && accessValue) {
+      const accessPayload = accessMethod === "invite_link"
+        ? { invite_link: accessValue }
+        : accessMethod === "credentials"
+          ? { credentials: { login: accessValue } }
+          : { instructions: accessValue };
+      const accessRes = await api("/member/access", {
+        method: "PUT",
+        body: { group_id: groupId, access_method: accessMethod, ...accessPayload },
+      });
+      if (accessRes.error) verifyNote = accessRes.error.message || "Access details could not be saved.";
+    }
     if (groupId) {
       const files = [
         incoming?.proofs?.invoice,
@@ -162,7 +178,7 @@ export default function CreateReview() {
             body: f,
           },
         );
-        if (up.error)
+        if (up.error && !verifyNote)
           verifyNote = up.error.message || "Evidence upload failed.";
       }
       const sub = await api("/member/verification", {

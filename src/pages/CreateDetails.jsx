@@ -88,8 +88,10 @@ export default function CreateDetails() {
   const max = capacity ? Math.min(5, capacity) : 5;
 
   const [slots, setSlots] = useState(3);
-  const access = 0; // access method is fixed: Clyse secure payment
-  const [accessLink, setAccessLink] = useState(incoming?.accessLink || "");
+  /* The Admin Add Subscription form defaults plans to invite_link. Keep that
+     default, but let the creator choose the method configured for this plan. */
+  const [accessMethod, setAccessMethod] = useState(incoming?.accessMethod || "invite_link");
+  const [accessValue, setAccessValue] = useState(incoming?.accessValue || incoming?.accessLink || "");
   const [vis, setVis] = useState("public");
   const shown = Math.min(slots, max);
   const amount =
@@ -108,8 +110,9 @@ export default function CreateDetails() {
         ...incoming,
         slots: shown,
         visibility: vis,
-        access,
-        accessLink: accessLink.trim() || null,
+        accessMethod,
+        accessValue: accessValue.trim() || null,
+        accessLink: accessMethod === "invite_link" ? accessValue.trim() || null : null,
         planId: incoming.planId ?? plan?.id ?? null,
         unit,
       }
@@ -167,15 +170,19 @@ export default function CreateDetails() {
         </div>
 
 
-        <p className="mt-[45px] text-[25px] leading-[35px] font-bold">
-          Provide Subscription Access Link
-        </p>
+        <p className="mt-[45px] text-[25px] leading-[35px] font-bold">How will you share subscription access?</p>
+        <select value={accessMethod} onChange={(e) => setAccessMethod(e.target.value)} aria-label="Access method" className="mt-[18px] h-[60px] w-full rounded-[10px] border border-clyse bg-white px-[20px] text-[18px] font-semibold text-ink">
+          <option value="invite_link">Access link</option>
+          <option value="credentials">Login credentials</option>
+          <option value="other">Other instructions</option>
+        </select>
+        <p className="mt-[18px] text-[18px] font-semibold">{accessMethod === "invite_link" ? "Subscription access link" : accessMethod === "credentials" ? "Login details" : "Access instructions"}</p>
         <input
-          value={accessLink}
-          onChange={(e) => setAccessLink(e.target.value)}
-          placeholder="Paste your subscription access link here"
-          aria-label="Subscription access link"
-          className="mt-[18px] h-[80px] w-full rounded-[10px] border border-clyse bg-white px-[20px] text-[18px] font-semibold text-ink outline-none placeholder:text-[#999999]"
+          value={accessValue}
+          onChange={(e) => setAccessValue(e.target.value)}
+          placeholder={accessMethod === "invite_link" ? "Paste your subscription access link here" : accessMethod === "credentials" ? "Enter login details" : "Enter access instructions"}
+          aria-label={accessMethod === "invite_link" ? "Subscription access link" : accessMethod === "credentials" ? "Login details" : "Access instructions"}
+          className="mt-[10px] h-[80px] w-full rounded-[10px] border border-clyse bg-white px-[20px] text-[18px] font-semibold text-ink outline-none placeholder:text-[#999999]"
         />
 
         <p className="mt-[60px] text-[35px] leading-[43px] font-bold">
@@ -273,15 +280,19 @@ export default function CreateDetails() {
         </div>
 
 
-        <p className="ml-[30px] mt-[32px] text-[17.34px] leading-[24px] font-semibold">
-          Paste Subscription Access Link
-        </p>
+        <p className="ml-[30px] mt-[32px] text-[17.34px] leading-[24px] font-semibold">Access method</p>
+        <select value={accessMethod} onChange={(e) => setAccessMethod(e.target.value)} aria-label="Access method" className="mx-[30px] mt-[10px] h-[52px] w-[calc(100%-60px)] rounded-[12px] border border-clyse bg-white px-[16px] text-[15px] font-semibold text-ink">
+          <option value="invite_link">Access link</option>
+          <option value="credentials">Login credentials</option>
+          <option value="other">Other instructions</option>
+        </select>
+        <p className="ml-[30px] mt-[18px] text-[17.34px] leading-[24px] font-semibold">{accessMethod === "invite_link" ? "Paste Subscription Access Link" : accessMethod === "credentials" ? "Enter Login Details" : "Enter Access Instructions"}</p>
         <input
-          value={accessLink}
-          onChange={(e) => setAccessLink(e.target.value)}
-          placeholder="Paste your subscription access link here"
-          aria-label="Subscription access link"
-          className="mx-[30px] mt-[10px] h-[102px] w-[calc(100%-60px)] rounded-[16px] border border-clyse bg-white px-[24px] text-[15px] leading-[22px] font-semibold text-ink underline decoration-[#001701] underline-offset-[3px] outline-none placeholder:text-[#999999] placeholder:no-underline"
+          value={accessValue}
+          onChange={(e) => setAccessValue(e.target.value)}
+          placeholder={accessMethod === "invite_link" ? "Paste your subscription access link here" : accessMethod === "credentials" ? "Enter login details" : "Enter access instructions"}
+          aria-label={accessMethod === "invite_link" ? "Subscription access link" : accessMethod === "credentials" ? "Login details" : "Access instructions"}
+          className="mx-[30px] mt-[10px] h-[102px] w-[calc(100%-60px)] rounded-[16px] border border-clyse bg-white px-[24px] text-[15px] leading-[22px] font-semibold text-ink outline-none placeholder:text-[#999999]"
         />
 
         <p className="ml-[30px] mt-[43px] text-[22px] leading-[27px] font-bold">
